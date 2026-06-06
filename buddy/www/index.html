@@ -1950,8 +1950,8 @@
       <button id="homeBtn" class="main-top-btn" style="display:none">&#8962;</button>
 
       <div id="emptyState">
-          <div class="welcome-title">Bienvenido a Buddy</div>
-          <div class="welcome-subtitle">Elige un persona o crea uno nuevo</div>
+          <div class="welcome-title" data-i18n="welcome_title">Bienvenido a Buddy</div>
+          <div class="welcome-subtitle" data-i18n="welcome_subtitle">Elige un persona o crea uno nuevo</div>
           <div class="welcome-grid" id="welcomeGrid"></div>
       </div>
 
@@ -1991,11 +1991,11 @@
               <div class="transcript-header">
                   <button class="transcript-toggle" id="transcriptToggle"><span class="icon">&#9660;</span> Transcripción</button>
                   <div style="flex:1"></div>
-                  <button class="transcript-export-btn" id="copyTranscriptBtn"><span class="icon">&#128203;</span> Copiar</button>
-                  <button class="transcript-export-btn" id="exportTranscriptBtnConv"><span class="icon">&#128196;</span> Exportar</button>
+                  <button class="transcript-export-btn" id="copyTranscriptBtn"><span class="icon">&#128203;</span> <span data-i18n="btn_copy">Copiar</span></button>
+                  <button class="transcript-export-btn" id="exportTranscriptBtnConv"><span class="icon">&#128196;</span> <span data-i18n="btn_export">Exportar</span></button>
               </div>
               <div id="transcript">
-                  <div class="transcript-empty">La transcripción aparecerá aquí...</div>
+                  <div class="transcript-empty" data-i18n="transcript_placeholder">La transcripción aparecerá aquí...</div>
               </div>
           </div>
       </div>
@@ -2005,7 +2005,7 @@
     <!-- SCREEN: Personas -->
     <div id="screenPersonas">
       <div class="personas-screen-header">
-          <div class="personas-screen-title">Mis personas</div>
+          <div class="personas-screen-title" data-i18n="personas_screen_title">Mis personas</div>
           <button class="btn-new-persona" id="newPersonaBtn" style="width:auto;padding:8px 14px;font-size:0.82rem">+ Nuevo</button>
       </div>
       <label id="importPersonaLabel" style="display:none"><input type="file" id="importPersonaInput" accept=".json" style="display:none"></label>
@@ -2014,21 +2014,29 @@
 
     <!-- SCREEN: Stats -->
     <div id="screenStats">
-      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--text-primary)">Estadísticas</h2>
+      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--text-primary)" data-i18n="stats_screen_title">Estadísticas</h2>
       <div class="stats-tabs" id="screenStatsTabBtns">
-          <button data-stats-tab="periods" class="active">Períodos</button>
-          <button data-stats-tab="personas">Personas</button>
-          <button data-stats-tab="models">Modelos</button>
+          <button data-stats-tab="periods" data-i18n="stats_periods" class="active">Períodos</button>
+          <button data-stats-tab="personas" data-i18n="stats_personas">Personas</button>
+          <button data-stats-tab="models" data-i18n="stats_models">Modelos</button>
       </div>
       <div id="screenStatsContent"></div>
     </div>
 
     <!-- SCREEN: Config -->
     <div id="screenConfig">
-      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--text-primary)">Configuración</h2>
-      <button class="config-screen-btn" id="apiConfigBtn">&#9881; API Keys y Modelo</button>
-      <button class="config-screen-btn" id="myInfoBtn">&#128100; Mis informaciones</button>
-      <button class="config-screen-btn" id="backupBtn">&#128190; Copia de seguridad</button>
+      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--text-primary)" data-i18n="config_title">Configuración</h2>
+      <div style="margin-bottom:12px">
+          <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Idioma / Language / Langue</div>
+          <div style="display:flex;gap:6px">
+              <button onclick="setLang('es')" style="flex:1;padding:8px;background:var(--bg-hover);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);cursor:pointer;font-family:inherit;font-size:0.85rem">🇪🇸 ES</button>
+              <button onclick="setLang('en')" style="flex:1;padding:8px;background:var(--bg-hover);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);cursor:pointer;font-family:inherit;font-size:0.85rem">🇬🇧 EN</button>
+              <button onclick="setLang('fr')" style="flex:1;padding:8px;background:var(--bg-hover);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);cursor:pointer;font-family:inherit;font-size:0.85rem">🇫🇷 FR</button>
+          </div>
+      </div>
+      <button class="config-screen-btn" id="apiConfigBtn">&#9881; <span data-i18n="config_api_keys">API Keys y Modelo</span></button>
+      <button class="config-screen-btn" id="myInfoBtn">&#128100; <span data-i18n="config_my_info">Mis informaciones</span></button>
+      <button class="config-screen-btn" id="backupBtn">&#128190; <span data-i18n="config_backup">Copia de seguridad</span></button>
     </div>
 
   </div><!-- /appContent -->
@@ -2037,19 +2045,19 @@
   <nav id="bottomNav">
       <button class="nav-tab active" data-tab="home">
           <span class="nav-icon">&#127968;</span>
-          <span>Inicio</span>
+          <span data-i18n="nav_home">Inicio</span>
       </button>
       <button class="nav-tab" data-tab="personas">
           <span class="nav-icon">&#128100;</span>
-          <span>Personas</span>
+          <span data-i18n="nav_personas">Personas</span>
       </button>
       <button class="nav-tab" data-tab="stats">
           <span class="nav-icon">&#128202;</span>
-          <span>Stats</span>
+          <span data-i18n="nav_stats">Stats</span>
       </button>
       <button class="nav-tab" data-tab="config">
           <span class="nav-icon">&#9881;&#65039;</span>
-          <span>Config</span>
+          <span data-i18n="nav_config">Config</span>
       </button>
   </nav>
 
@@ -2371,6 +2379,149 @@
     </div>
 
     <script>
+    // ════════════════════════════════════════════════
+    //  I18N — TRANSLATIONS ES / EN / FR
+    // ════════════════════════════════════════════════
+
+    const TRANSLATIONS = {
+        es: {
+            nav_home: 'Inicio', nav_personas: 'Personas', nav_stats: 'Stats', nav_config: 'Config',
+            welcome_title: 'Bienvenido a Buddy',
+            welcome_subtitle: 'Elige un persona o crea uno nuevo',
+            btn_new_persona: '+ Nuevo persona',
+            btn_start: 'Iniciar conversación',
+            btn_start_transcribe: 'Iniciar transcripción',
+            btn_stop: 'Terminar',
+            status_ready: 'Listo',
+            status_connecting: 'Conectando...',
+            status_connected: '¡Conectado — habla!',
+            status_speaking: 'Hablando...',
+            status_listening: 'Escuchando...',
+            status_thinking: 'Pensando...',
+            status_paused: 'Pausa',
+            status_muted: 'Micrófono silenciado',
+            transcript_placeholder: 'La transcripción aparecerá aquí...',
+            btn_copy: 'Copiar',
+            btn_export: 'Exportar',
+            persona_new_title: 'Nuevo persona',
+            persona_edit_title: 'Editar persona',
+            model_using_default: 'Usar modelo por defecto',
+            stats_periods: 'Períodos', stats_personas: 'Personas', stats_models: 'Modelos',
+            config_title: 'Configuración',
+            config_api_keys: 'API Keys y Modelo',
+            config_my_info: 'Mis informaciones',
+            config_backup: 'Copia de seguridad',
+            personas_screen_title: 'Mis personas',
+            stats_screen_title: 'Estadísticas',
+            transcriptor_name: 'Transcriptor',
+            transcriptor_desc: 'Transcripción de voz',
+            new_persona_card: 'Nuevo persona',
+            import_persona_card: 'Importar',
+        },
+        en: {
+            nav_home: 'Home', nav_personas: 'Personas', nav_stats: 'Stats', nav_config: 'Config',
+            welcome_title: 'Welcome to Buddy',
+            welcome_subtitle: 'Choose a persona or create a new one',
+            btn_new_persona: '+ New persona',
+            btn_start: 'Start conversation',
+            btn_start_transcribe: 'Start transcription',
+            btn_stop: 'End',
+            status_ready: 'Ready',
+            status_connecting: 'Connecting...',
+            status_connected: 'Connected — speak!',
+            status_speaking: 'Speaking...',
+            status_listening: 'Listening...',
+            status_thinking: 'Thinking...',
+            status_paused: 'Paused',
+            status_muted: 'Microphone muted',
+            transcript_placeholder: 'Transcript will appear here...',
+            btn_copy: 'Copy',
+            btn_export: 'Export',
+            persona_new_title: 'New persona',
+            persona_edit_title: 'Edit persona',
+            model_using_default: 'Use default model',
+            stats_periods: 'Periods', stats_personas: 'Personas', stats_models: 'Models',
+            config_title: 'Settings',
+            config_api_keys: 'API Keys & Model',
+            config_my_info: 'My information',
+            config_backup: 'Backup',
+            personas_screen_title: 'My personas',
+            stats_screen_title: 'Statistics',
+            transcriptor_name: 'Transcriptor',
+            transcriptor_desc: 'Voice transcription',
+            new_persona_card: 'New persona',
+            import_persona_card: 'Import',
+        },
+        fr: {
+            nav_home: 'Accueil', nav_personas: 'Personas', nav_stats: 'Stats', nav_config: 'Config',
+            welcome_title: 'Bienvenue sur Buddy',
+            welcome_subtitle: 'Choisissez un persona ou créez-en un nouveau',
+            btn_new_persona: '+ Nouveau persona',
+            btn_start: 'Démarrer la conversation',
+            btn_start_transcribe: 'Démarrer la transcription',
+            btn_stop: 'Terminer',
+            status_ready: 'Prêt',
+            status_connecting: 'Connexion...',
+            status_connected: 'Connecté — parlez !',
+            status_speaking: 'Parle...',
+            status_listening: 'Écoute...',
+            status_thinking: 'Réfléchit...',
+            status_paused: 'Pause',
+            status_muted: 'Micro coupé',
+            transcript_placeholder: 'La transcription apparaîtra ici...',
+            btn_copy: 'Copier',
+            btn_export: 'Exporter',
+            persona_new_title: 'Nouveau persona',
+            persona_edit_title: 'Modifier le persona',
+            model_using_default: 'Utiliser le modèle par défaut',
+            stats_periods: 'Périodes', stats_personas: 'Personas', stats_models: 'Modèles',
+            config_title: 'Configuration',
+            config_api_keys: 'Clés API & Modèle',
+            config_my_info: 'Mes informations',
+            config_backup: 'Sauvegarde',
+            personas_screen_title: 'Mes personas',
+            stats_screen_title: 'Statistiques',
+            transcriptor_name: 'Transcripteur',
+            transcriptor_desc: 'Transcription vocale',
+            new_persona_card: 'Nouveau persona',
+            import_persona_card: 'Importer',
+        }
+    };
+
+    function detectLang() {
+        const saved = localStorage.getItem('buddy_lang');
+        if (saved && TRANSLATIONS[saved]) return saved;
+        const nav = (navigator.language || 'en').slice(0, 2).toLowerCase();
+        return TRANSLATIONS[nav] ? nav : 'en';
+    }
+
+    let LANG = detectLang();
+
+    function t(key) {
+        return (TRANSLATIONS[LANG] && TRANSLATIONS[LANG][key]) ||
+               (TRANSLATIONS['en'] && TRANSLATIONS['en'][key]) || key;
+    }
+
+    function applyI18n() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            el.textContent = t(el.dataset.i18n);
+        });
+    }
+
+    function setLang(lang) {
+        if (!TRANSLATIONS[lang]) return;
+        LANG = lang;
+        localStorage.setItem('buddy_lang', lang);
+        applyI18n();
+        // Update start button text
+        const startBtn = document.getElementById('startBtn');
+        if (startBtn) {
+            // isTranscripteurMode will be defined later in the script
+            startBtn.textContent = (typeof isTranscripteurMode !== 'undefined' && isTranscripteurMode)
+                ? t('btn_start_transcribe') : t('btn_start');
+        }
+    }
+
     // ════════════════════════════════════════════════
     //  BOTTOM NAVIGATION
     // ════════════════════════════════════════════════
@@ -3640,7 +3791,7 @@ Règles IMPÉRATIVES :
         document.getElementById('conversationArea').classList.remove('transcripteur-mode');
         const trTop = document.getElementById('transcripteurTop');
         if (trTop) trTop.remove();
-        document.getElementById('startBtn').textContent = 'Démarrer la conversation';
+        document.getElementById('startBtn').textContent = t('btn_start');
 
         setActiveId(id);
         renderPersonaList();
@@ -3719,7 +3870,7 @@ Règles IMPÉRATIVES :
         trTop.appendChild(vizContainer);
 
         // Texte du bouton
-        document.getElementById('startBtn').textContent = 'Démarrer la transcription';
+        document.getElementById('startBtn').textContent = t('btn_start_transcribe');
 
         // Reset transcript
         resetTranscript();
@@ -3735,7 +3886,7 @@ Règles IMPÉRATIVES :
         document.getElementById('conversationArea').classList.remove('transcripteur-mode');
         const trTop = document.getElementById('transcripteurTop');
         if (trTop) trTop.remove();
-        document.getElementById('startBtn').textContent = 'Démarrer la conversation';
+        document.getElementById('startBtn').textContent = t('btn_start');
 
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('conversationArea').style.display = 'none';
@@ -4128,7 +4279,7 @@ Règles IMPÉRATIVES :
     }
 
     function connectWebSocket() {
-        setStatus('Connexion...');
+        setStatus(t('status_connecting'));
 
         if (isTranscripteurMode) {
             connectWhisper();
@@ -4159,7 +4310,7 @@ Règles IMPÉRATIVES :
 
         ws.onopen = () => {
             isConnected = true;
-            setStatus('Connecté — parlez !', 'connected');
+            setStatus(t('status_connected'), 'connected');
 
             const tools = [];
 
@@ -4404,7 +4555,7 @@ Règles IMPÉRATIVES :
 
     async function connectWhisper() {
         if (!getApiKey()) return;
-        setStatus('Connexion...', 'connected');
+        setStatus(t('status_connecting'), 'connected');
 
         // 1. Créer une session de transcription et obtenir un token
         let clientSecret;
@@ -4451,7 +4602,7 @@ Règles IMPÉRATIVES :
             console.log('[Whisper] WebSocket connecté');
             isConnected = true;
             micReady = true;
-            setStatus('Transcription en cours — parlez !', 'connected');
+            setStatus(t('status_connected'), 'connected');
         };
 
         ws.onmessage = (e) => {
@@ -4474,7 +4625,7 @@ Règles IMPÉRATIVES :
             case 'session.created':
             case 'session.updated':
                 micReady = true;
-                setStatus('Transcription en cours — parlez !', 'connected');
+                setStatus(t('status_connected'), 'connected');
                 break;
 
             // Transcription streaming temps réel (delta)
@@ -4490,7 +4641,7 @@ Règles IMPÉRATIVES :
                 break;
 
             case 'input_audio_buffer.speech_started':
-                setStatus('Écoute...', 'connected');
+                setStatus(t('status_listening'), 'connected');
                 break;
 
             case 'input_audio_buffer.speech_stopped':
@@ -4625,7 +4776,7 @@ Règles IMPÉRATIVES :
 
             case 'input_audio_buffer.speech_started':
                 stopPlayback();
-                setStatus('Vous parlez...', 'connected');
+                setStatus(t('status_listening'), 'connected');
                 break;
 
             case 'input_audio_buffer.speech_stopped':
@@ -4637,7 +4788,7 @@ Règles IMPÉRATIVES :
                 break;
 
             case 'response.done':
-                setStatus('Connecté — parlez !', 'connected');
+                setStatus(t('status_connected'), 'connected');
                 // Tokens
                 if (data.response?.usage) {
                     totalInputTokens += data.response.usage.input_tokens || 0;
@@ -4713,7 +4864,7 @@ Règles IMPÉRATIVES :
         // setupComplete — session prête
         if (data.setupComplete !== undefined) {
             isConnected = true;
-            setStatus('Connecté — parlez !', 'connected');
+            setStatus(t('status_connected'), 'connected');
 
             // Timer limite 15 min
             geminiSessionTimer = setTimeout(() => {
@@ -4789,7 +4940,7 @@ Règles IMPÉRATIVES :
 
             // Fin de tour
             if (sc.turnComplete) {
-                setStatus('Connecté — parlez !', 'connected');
+                setStatus(t('status_connected'), 'connected');
                 currentTranscriptAi = null;
                 if (waitingGreeting) {
                     waitingGreeting = false;
@@ -4861,7 +5012,7 @@ Règles IMPÉRATIVES :
 
     function resetTranscript() {
         const el = document.getElementById('transcript');
-        el.innerHTML = '<div class="transcript-empty">La transcription apparaîtra ici...</div>';
+        el.innerHTML = `<div class="transcript-empty" data-i18n="transcript_placeholder">${t('transcript_placeholder')}</div>`;
         currentTranscriptAi = null;
     }
 
@@ -5232,11 +5383,11 @@ Règles IMPÉRATIVES :
             const hr = document.createElement('hr');
             hr.className = 'transcript-pause-separator';
             el.appendChild(hr);
-            setStatus('Pause', '');
+            setStatus(t('status_paused'), '');
         } else {
             if (pauseStartedAt) pausedTime += Date.now() - pauseStartedAt;
             pauseStartedAt = null;
-            setStatus('Transcription en cours — parlez !', 'connected');
+            setStatus(t('status_connected'), 'connected');
         }
     });
 
@@ -5245,7 +5396,7 @@ Règles IMPÉRATIVES :
         muteBtn.classList.toggle('muted', isMuted);
         muteBtn.innerHTML = isMuted ? '<span class="icon">&#128263;</span>' : '<span class="icon">&#127908;</span>';
         muteBtn.title = isMuted ? 'Réactiver le micro (M)' : 'Couper le micro (M)';
-        setStatus(isMuted ? 'Micro coupé' : 'Connecté — parlez !', isMuted ? '' : 'connected');
+        setStatus(isMuted ? t('status_muted') : t('status_connected'), isMuted ? '' : 'connected');
     });
 
     document.getElementById('transcriptToggle').addEventListener('click', () => {
@@ -5398,7 +5549,7 @@ Règles IMPÉRATIVES :
         isMuted = false;
         document.getElementById('sessionBar').style.display = 'none';
         vizLinkConnected = false;
-        setStatus('Prêt');
+        setStatus(t('status_ready'));
 
         // Extraire les insights si conversation significative (pas pour transcripteur ni traduction)
         if (analyzeInsights && hadConversation && !isTranscripteurMode && activeModelId !== 'gpt-realtime-translate') {
@@ -5864,6 +6015,9 @@ Règles de format :
                 break;
         }
     });
+
+    // Apply i18n on load
+    applyI18n();
 
     </script>
 </body>
