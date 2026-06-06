@@ -2408,6 +2408,72 @@
 
     <script>
     // ════════════════════════════════════════════════
+    //  SECURE STORAGE WRAPPER
+    //  Android: Android Keystore via capacitor-secure-storage-plugin
+    //  Browser: localStorage fallback
+    // ════════════════════════════════════════════════
+
+    const IS_CAPACITOR = !!(typeof window !== 'undefined' &&
+        window.Capacitor &&
+        typeof window.Capacitor.isNativePlatform === 'function' &&
+        window.Capacitor.isNativePlatform());
+
+    const SecureStore = {
+        async get(key) {
+            if (IS_CAPACITOR && window.Capacitor.Plugins.SecureStoragePlugin) {
+                try {
+                    const result = await window.Capacitor.Plugins.SecureStoragePlugin.get({ key });
+                    return result.value || '';
+                } catch {
+                    return '';
+                }
+            }
+            return localStorage.getItem(key) || '';
+        },
+        async set(key, value) {
+            if (IS_CAPACITOR && window.Capacitor.Plugins.SecureStoragePlugin) {
+                try {
+                    await window.Capacitor.Plugins.SecureStoragePlugin.set({ key, value });
+                    return;
+                } catch(e) {
+                    console.error('[SecureStorage] set failed, falling back:', e);
+                }
+            }
+            localStorage.setItem(key, value);
+        },
+        async remove(key) {
+            if (IS_CAPACITOR && window.Capacitor.Plugins.SecureStoragePlugin) {
+                try {
+                    await window.Capacitor.Plugins.SecureStoragePlugin.remove({ key });
+                    return;
+                } catch {}
+            }
+            localStorage.removeItem(key);
+        }
+    };
+
+    // First-run migration: move API keys from localStorage → Android Keystore
+    async function migrateApiKeysToSecureStorage() {
+        if (!IS_CAPACITOR) return;
+        if (localStorage.getItem('buddy_secure_migrated')) return;
+
+        const keysToMigrate = [
+            'buddy_apiKey', 'buddy_geminiApiKey',
+            'buddy_ultravoxApiKey', 'buddy_groqApiKey'
+        ];
+
+        for (const key of keysToMigrate) {
+            const value = localStorage.getItem(key);
+            if (value) {
+                await SecureStore.set(key, value);
+                localStorage.removeItem(key);
+            }
+        }
+        localStorage.setItem('buddy_secure_migrated', '1');
+        console.log('[Buddy] API keys migrated to Android Keystore');
+    }
+
+    // ════════════════════════════════════════════════
     //  I18N — TRANSLATIONS ES / EN / FR
     // ════════════════════════════════════════════════
 
@@ -2843,17 +2909,17 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     //  STORAGE HELPERS
     // ════════════════════════════════════════════════
 
-    function getApiKey() { return localStorage.getItem('buddy_apiKey') || ''; }
-    function setApiKey(k) { localStorage.setItem('buddy_apiKey', k); }
+    async function getApiKey() { return await SecureStore.get('buddy_apiKey'); }
+    async function setApiKey(k) { await SecureStore.set('buddy_apiKey', k); }
 
-    function getGeminiApiKey() { return localStorage.getItem('buddy_geminiApiKey') || ''; }
-    function setGeminiApiKey(k) { localStorage.setItem('buddy_geminiApiKey', k); }
+    async function getGeminiApiKey() { return await SecureStore.get('buddy_geminiApiKey'); }
+    async function setGeminiApiKey(k) { await SecureStore.set('buddy_geminiApiKey', k); }
 
-    function getUltravoxApiKey() { return localStorage.getItem('buddy_ultravoxApiKey') || ''; }
-    function setUltravoxApiKey(k) { localStorage.setItem('buddy_ultravoxApiKey', k); }
+    async function getUltravoxApiKey() { return await SecureStore.get('buddy_ultravoxApiKey'); }
+    async function setUltravoxApiKey(k) { await SecureStore.set('buddy_ultravoxApiKey', k); }
 
-    function getGroqApiKey() { return localStorage.getItem('buddy_groqApiKey') || ''; }
-    function setGroqApiKey(k) { localStorage.setItem('buddy_groqApiKey', k); }
+    async function getGroqApiKey() { return await SecureStore.get('buddy_groqApiKey'); }
+    async function setGroqApiKey(k) { await SecureStore.set('buddy_groqApiKey', k); }
 
     function getTheme() { return localStorage.getItem('buddy_theme') || 'dark'; }
     function setThemeStorage(t) { localStorage.setItem('buddy_theme', t); }
@@ -2904,10 +2970,11 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     // Appelle un LLM texte (OpenAI gpt-4o-mini ou Gemini Flash) selon les clés dispo
     async function chatCompletion({ systemPrompt, userPrompt, temperature = 0.7, maxTokens = 2000 }) {
         // Privilégier OpenAI si la clé existe, sinon Gemini
-        if (getApiKey()) {
+        const openaiKey = await getApiKey();
+        if (openaiKey) {
             const resp = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${getApiKey()}`, 'Content-Type': 'application/json' },
+                headers: { 'Authorization': `Bearer ${openaiKey}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     model: 'gpt-4o-mini',
                     messages: [
@@ -2926,8 +2993,9 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             return data.choices?.[0]?.message?.content?.trim() || '';
         }
 
-        if (getGeminiApiKey()) {
-            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(getGeminiApiKey())}`, {
+        const geminiKey = await getGeminiApiKey();
+        if (geminiKey) {
+            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(geminiKey)}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -3094,15 +3162,15 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     const apiKeyInput = document.getElementById('apiKeyInput');
     const geminiApiKeyInput = document.getElementById('geminiApiKeyInput');
 
-    function updateModelSelectDisabled(selectEl) {
+    async function updateModelSelectDisabled(selectEl) {
         const isConfigSelect = !selectEl;
         if (!selectEl) selectEl = document.getElementById('realtimeModelSelect');
         const hasOpenAI = isConfigSelect
-            ? !!(apiKeyInput ? apiKeyInput.value.trim() : getApiKey())
-            : !!getApiKey();
+            ? !!(apiKeyInput ? apiKeyInput.value.trim() : await getApiKey())
+            : !!await getApiKey();
         const hasGemini = isConfigSelect
-            ? !!(geminiApiKeyInput ? geminiApiKeyInput.value.trim() : getGeminiApiKey())
-            : !!getGeminiApiKey();
+            ? !!(geminiApiKeyInput ? geminiApiKeyInput.value.trim() : await getGeminiApiKey())
+            : !!await getGeminiApiKey();
         selectEl.querySelectorAll('option').forEach(opt => {
             const provider = getProviderForModel(opt.value);
             opt.disabled = (provider === 'openai' && !hasOpenAI) || (provider === 'gemini' && !hasGemini);
@@ -3168,13 +3236,16 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         }
     }
 
-    function hasAnyApiKey() { return !!(getApiKey() || getGeminiApiKey() || getUltravoxApiKey() || getGroqApiKey()); }
+    async function hasAnyApiKey() {
+        return !!(await getApiKey() || await getGeminiApiKey() ||
+                  await getUltravoxApiKey() || await getGroqApiKey());
+    }
 
-    function openApiKeyModal() {
-        apiKeyInput.value = getApiKey();
-        geminiApiKeyInput.value = getGeminiApiKey();
-        document.getElementById('ultravoxApiKeyInput').value = getUltravoxApiKey();
-        document.getElementById('groqApiKeyInput').value = getGroqApiKey();
+    async function openApiKeyModal() {
+        apiKeyInput.value = await getApiKey();
+        geminiApiKeyInput.value = await getGeminiApiKey();
+        document.getElementById('ultravoxApiKeyInput').value = await getUltravoxApiKey();
+        document.getElementById('groqApiKeyInput').value = await getGroqApiKey();
         document.getElementById('realtimeModelSelect').value = getRealtimeModel();
         updateModelSelectDisabled();
         const limit = getBudgetLimit();
@@ -3188,14 +3259,14 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         document.querySelectorAll('.config-panel').forEach(p => p.classList.remove('active'));
         document.querySelector('[data-config-tab="api"]').classList.add('active');
         document.getElementById('configPanelApi').classList.add('active');
-        const isRequired = !hasAnyApiKey();
+        const isRequired = !await hasAnyApiKey();
         document.getElementById('apiKeyRequired').style.display = isRequired ? 'block' : 'none';
         document.getElementById('closeApiKeyBtn').style.display = isRequired ? 'none' : 'block';
         apiKeyModal.classList.add('active');
     }
 
-    function closeApiKeyModal() {
-        if (!hasAnyApiKey()) return;
+    async function closeApiKeyModal() {
+        if (!await hasAnyApiKey()) return;
         apiKeyModal.classList.remove('active');
     }
 
@@ -3237,21 +3308,21 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         }
 
         // Vérifier la clé OpenAI si elle a changé
-        if (openaiKey && openaiKey !== getApiKey()) {
+        if (openaiKey && openaiKey !== await getApiKey()) {
             const valid = await checkApiKey(openaiKey);
             if (!valid) return;
         }
 
         // Vérifier la clé Gemini si elle a changé
-        if (geminiKey && geminiKey !== getGeminiApiKey()) {
+        if (geminiKey && geminiKey !== await getGeminiApiKey()) {
             const valid = await checkGeminiApiKey(geminiKey);
             if (!valid) return;
         }
 
-        setApiKey(openaiKey);
-        setGeminiApiKey(geminiKey);
-        if (ultravoxKeyVal !== undefined) setUltravoxApiKey(ultravoxKeyVal);
-        if (groqKey !== undefined) setGroqApiKey(groqKey);
+        await setApiKey(openaiKey);
+        await setGeminiApiKey(geminiKey);
+        if (ultravoxKeyVal !== undefined) await setUltravoxApiKey(ultravoxKeyVal);
+        if (groqKey !== undefined) await setGroqApiKey(groqKey);
         setRealtimeModel(document.getElementById('realtimeModelSelect').value);
         const budgetNum = parseInt(document.getElementById('budgetLimitInput').value, 10);
         setBudgetLimit(!isNaN(budgetNum) && budgetNum > 0 ? budgetNum : null);
@@ -3260,7 +3331,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         closeApiKeyModal();
     });
 
-    if (!hasAnyApiKey()) openApiKeyModal();
+    // Note: initial API key check is handled in the async IIFE at end of script
 
     // ════════════════════════════════════════════════
     //  MODAL MES INFOS
@@ -3436,7 +3507,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         const name = document.getElementById('pName').value.trim();
         const desc = document.getElementById('pDescription').value.trim();
         if (!desc && !name) { customAlert('Renseignez au moins un nom ou une description.', { icon: '&#9998;' }); return; }
-        if (!hasAnyApiKey()) { customAlert('Configurez d\'abord une clé API.', { title: 'Clé API requise', icon: '&#128273;' }); return; }
+        if (!await hasAnyApiKey()) { customAlert('Configurez d\'abord une clé API.', { title: 'Clé API requise', icon: '&#128273;' }); return; }
 
         const btn = document.getElementById('generateImageBtn');
         const hint = document.getElementById('imageHint');
@@ -3448,13 +3519,15 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             const prompt = `Portrait carré (avatar) d'un persona nommé "${name || 'Assistant'}". ${desc || ''}. Style visuel : ${style}. Fond simple, visage expressif et sympathique.`;
 
             let imgSrc = null;
+            const openaiKey = await getApiKey();
+            const geminiKey = await getGeminiApiKey();
 
-            if (getApiKey()) {
+            if (openaiKey) {
                 // OpenAI Images API
                 const resp = await fetch('https://api.openai.com/v1/images/generations', {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${getApiKey()}`,
+                        'Authorization': `Bearer ${openaiKey}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
@@ -3477,9 +3550,9 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
                 } else if (data.data?.[0]?.url) {
                     imgSrc = data.data[0].url;
                 }
-            } else if (getGeminiApiKey()) {
+            } else if (geminiKey) {
                 // Gemini 3 Pro Image
-                const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${encodeURIComponent(getGeminiApiKey())}`, {
+                const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${encodeURIComponent(geminiKey)}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -3526,7 +3599,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         const desc = document.getElementById('pDescription').value.trim();
 
         if (!name) { customAlert('Renseignez au moins le nom du persona.', { icon: '&#9998;' }); return; }
-        if (!hasAnyApiKey()) { customAlert('Configurez d\'abord une clé API.', { title: 'Clé API requise', icon: '&#128273;' }); return; }
+        if (!await hasAnyApiKey()) { customAlert('Configurez d\'abord une clé API.', { title: 'Clé API requise', icon: '&#128273;' }); return; }
 
         const btn = document.getElementById('createPromptBtn');
         const hint = document.getElementById('promptHint');
@@ -3576,7 +3649,7 @@ Règles IMPÉRATIVES :
             customAlert('Renseignez au moins un nom, une description ou un début de prompt.', { icon: '&#9998;' });
             return;
         }
-        if (!hasAnyApiKey()) { customAlert('Configurez d\'abord une clé API.', { title: 'Clé API requise', icon: '&#128273;' }); return; }
+        if (!await hasAnyApiKey()) { customAlert('Configurez d\'abord une clé API.', { title: 'Clé API requise', icon: '&#128273;' }); return; }
 
         const btn = document.getElementById('optimizePromptBtn');
         const hint = document.getElementById('promptHint');
@@ -4212,7 +4285,7 @@ Règles IMPÉRATIVES :
             const resp = await fetch('https://api.openai.com/v1/responses', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${getApiKey()}`,
+                    'Authorization': `Bearer ${await getApiKey()}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
@@ -4355,13 +4428,14 @@ Règles IMPÉRATIVES :
         }
     }
 
-    function connectOpenAI(persona) {
-        if (!getApiKey()) return;
+    async function connectOpenAI(persona) {
+        const apiKey = await getApiKey();
+        if (!apiKey) return;
         const url = `wss://api.openai.com/v1/realtime?model=${activeModelId}`;
 
         const protocols = [
             'realtime',
-            `openai-insecure-api-key.${getApiKey()}`
+            `openai-insecure-api-key.${apiKey}`
         ];
         ws = new WebSocket(url, protocols);
 
@@ -4438,13 +4512,14 @@ Règles IMPÉRATIVES :
         };
     }
 
-    function connectTranslate(persona) {
-        if (!getApiKey()) return;
+    async function connectTranslate(persona) {
+        const apiKey = await getApiKey();
+        if (!apiKey) return;
         const url = `wss://api.openai.com/v1/realtime/translations?model=gpt-realtime-translate`;
 
         ws = new WebSocket(url, [
             'realtime',
-            `openai-insecure-api-key.${getApiKey()}`
+            `openai-insecure-api-key.${apiKey}`
         ]);
 
         ws.onopen = () => {
@@ -4506,9 +4581,10 @@ Règles IMPÉRATIVES :
         }
     }
 
-    function connectGemini(persona) {
-        if (!getGeminiApiKey()) return;
-        const url = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${getGeminiApiKey()}`;
+    async function connectGemini(persona) {
+        const geminiKey = await getGeminiApiKey();
+        if (!geminiKey) return;
+        const url = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${geminiKey}`;
 
         ws = new WebSocket(url);
 
@@ -4605,7 +4681,7 @@ Règles IMPÉRATIVES :
     }
 
     async function connectUltravox(persona) {
-        const apiKey = getUltravoxApiKey();
+        const apiKey = await getUltravoxApiKey();
         if (!apiKey) { openApiKeyModal(); return; }
 
         setStatus(t('status_connecting'));
@@ -4733,7 +4809,7 @@ Règles IMPÉRATIVES :
     let groqRecordingActive = false;
 
     async function connectGroq(persona) {
-        const apiKey = getGroqApiKey();
+        const apiKey = await getGroqApiKey();
         if (!apiKey) { openApiKeyModal(); return; }
 
         isConnected = true;
@@ -4794,6 +4870,7 @@ Règles IMPÉRATIVES :
 
         try {
             // 1. STT: Groq Whisper
+            const groqKey = await getGroqApiKey();
             const formData = new FormData();
             formData.append('file', blob, 'audio.webm');
             formData.append('model', 'whisper-large-v3-turbo');
@@ -4801,7 +4878,7 @@ Règles IMPÉRATIVES :
 
             const sttResp = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${getGroqApiKey()}` },
+                headers: { 'Authorization': `Bearer ${groqKey}` },
                 body: formData
             });
             if (!sttResp.ok) throw new Error(`STT ${sttResp.status}`);
@@ -4823,7 +4900,7 @@ Règles IMPÉRATIVES :
 
             const llmResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${getGroqApiKey()}`, 'Content-Type': 'application/json' },
+                headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     model: llmModel,
                     messages: groqConversationHistory,
@@ -4879,7 +4956,8 @@ Règles IMPÉRATIVES :
     let currentWhisperParagraph = null; // paragraphe en cours de streaming
 
     async function connectWhisper() {
-        if (!getApiKey()) return;
+        const apiKey = await getApiKey();
+        if (!apiKey) return;
         setStatus(t('status_connecting'), 'connected');
 
         // 1. Créer une session de transcription et obtenir un token
@@ -4888,7 +4966,7 @@ Règles IMPÉRATIVES :
             const resp = await fetch('https://api.openai.com/v1/realtime/client_secrets', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${getApiKey()}`,
+                    'Authorization': `Bearer ${apiKey}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
@@ -5620,7 +5698,7 @@ Règles IMPÉRATIVES :
             activeModelId = 'gpt-realtime-whisper';
             activeProvider = 'openai';
 
-            if (!getApiKey()) {
+            if (!await getApiKey()) {
                 await customAlert('Le transcripteur nécessite une clé API OpenAI. Veuillez en configurer une dans les paramètres.', { title: 'Clé API requise', icon: '&#128273;' });
                 openApiKeyModal();
                 return;
@@ -5632,10 +5710,10 @@ Règles IMPÉRATIVES :
             activeProvider = getProviderForModel(activeModelId);
 
             // Vérifier qu'on a la bonne clé API
-            if (activeProvider === 'openai' && !getApiKey()) { openApiKeyModal(); return; }
-            if (activeProvider === 'gemini' && !getGeminiApiKey()) { openApiKeyModal(); return; }
-            if (activeProvider === 'ultravox' && !getUltravoxApiKey()) { openApiKeyModal(); return; }
-            if (activeProvider === 'groq' && !getGroqApiKey()) { openApiKeyModal(); return; }
+            if (activeProvider === 'openai' && !await getApiKey()) { openApiKeyModal(); return; }
+            if (activeProvider === 'gemini' && !await getGeminiApiKey()) { openApiKeyModal(); return; }
+            if (activeProvider === 'ultravox' && !await getUltravoxApiKey()) { openApiKeyModal(); return; }
+            if (activeProvider === 'groq' && !await getGroqApiKey()) { openApiKeyModal(); return; }
         }
 
         // Vérification budget
@@ -6303,16 +6381,21 @@ Règles de format :
 
     // Clic en dehors d'une modale → la fermer
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
-        overlay.addEventListener('click', (e) => {
+        overlay.addEventListener('click', async (e) => {
             if (e.target !== overlay) return;
             // Ne pas fermer apiKeyModal si aucune clé API configurée
-            if (overlay.id === 'apiKeyModal' && !hasAnyApiKey()) return;
+            if (overlay.id === 'apiKeyModal' && !await hasAnyApiKey()) return;
             overlay.classList.remove('active');
         });
     });
 
-    renderPersonaList();
-    showEmptyState();
+    (async () => {
+        await migrateApiKeysToSecureStorage();
+        renderPersonaList();
+        showEmptyState();
+        if (!await hasAnyApiKey()) openApiKeyModal();
+        applyI18n();
+    })();
 
     // ════════════════════════════════════════════════
     //  RACCOURCIS CLAVIER
@@ -6357,8 +6440,6 @@ Règles de format :
         }
     });
 
-    // Apply i18n on load
-    applyI18n();
 
     </script>
 </body>
