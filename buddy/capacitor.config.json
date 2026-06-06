@@ -1,0 +1,15 @@
+{
+  "appId": "com.buddy.voiceapp",
+  "appName": "Buddy",
+  "webDir": "www",
+  "android": {
+    "buildOptions": {
+      "releaseType": "APK"
+    }
+  },
+  "plugins": {
+    "CapacitorSecureStoragePlugin": {
+      "keychainService": "buddy_secure_storage"
+    }
+  }
+}
