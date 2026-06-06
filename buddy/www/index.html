@@ -3098,13 +3098,9 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             userInfo: getUserInfo(),
             stats: getStats()
         };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `buddy-backup-${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
+        const content = JSON.stringify(data, null, 2);
+        const filename = `buddy-backup-${new Date().toISOString().slice(0,10)}.json`;
+        downloadFile(content, filename, 'application/json');
     });
 
     document.getElementById('backupImportInput').addEventListener('change', (e) => {
@@ -5845,6 +5841,13 @@ Règles IMPÉRATIVES :
     }
 
     function downloadFile(content, filename, mimeType) {
+        // Android/Capacitor: anchor download doesn't work — show copy modal directly
+        if (IS_CAPACITOR) {
+            showExportModal(content, filename);
+            return;
+        }
+
+        // Browser: standard anchor download
         const blob = new Blob([content], { type: mimeType });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -5852,6 +5855,35 @@ Règles IMPÉRATIVES :
         a.download = filename;
         a.click();
         URL.revokeObjectURL(url);
+    }
+
+    function showExportModal(content, filename) {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;
+            display:flex;align-items:center;justify-content:center;padding:16px;
+        `;
+        overlay.innerHTML = `
+            <div style="background:var(--modal-bg);border-radius:16px;padding:20px;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;gap:12px;">
+                <div style="font-weight:700;font-size:1rem;color:var(--text-primary)">📋 ${filename}</div>
+                <div style="font-size:0.82rem;color:var(--text-secondary)">Copia este texto y guárdalo en un archivo .json</div>
+                <textarea readonly style="flex:1;min-height:200px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text-primary);font-size:0.75rem;font-family:monospace;resize:none;">${content}</textarea>
+                <div style="display:flex;gap:8px;">
+                    <button id="_exportCopyBtn" style="flex:1;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;">📋 Copiar</button>
+                    <button id="_exportCloseBtn" style="flex:1;padding:10px;background:var(--bg-hover);color:var(--text-primary);border:1px solid var(--border);border-radius:8px;cursor:pointer;">Cerrar</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        overlay.querySelector('#_exportCopyBtn').addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(content);
+                overlay.querySelector('#_exportCopyBtn').textContent = '✅ Copiado!';
+            } catch {
+                overlay.querySelector('textarea').select();
+            }
+        });
+        overlay.querySelector('#_exportCloseBtn').addEventListener('click', () => overlay.remove());
     }
 
     document.getElementById('copyTranscriptBtn').addEventListener('click', async () => {
