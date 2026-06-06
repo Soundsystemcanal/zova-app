@@ -232,7 +232,6 @@
         }
 
         #homeBtn { left: 14px; }
-        #themeToggleBtn { right: 14px; }
 
         .app-footer {
             padding: 12px 20px;
@@ -2005,7 +2004,6 @@
 
     <!-- SCREEN: Home (conversation) -->
     <div id="screenHome" class="active">
-      <button id="themeToggleBtn" class="main-top-btn" title="Tema" style="position:absolute;top:12px;right:14px;z-index:10">&#9789;</button>
       <button id="homeBtn" class="main-top-btn" style="display:none">&#8962;</button>
 
       <div id="emptyState">
@@ -2098,6 +2096,7 @@
       <button class="config-screen-btn" id="apiConfigBtn">&#9881; <span data-i18n="config_api_keys">API Keys y Modelo</span></button>
       <button class="config-screen-btn" id="myInfoBtn">&#128100; <span data-i18n="config_my_info">Mis informaciones</span></button>
       <button class="config-screen-btn" id="backupBtn">&#128190; <span data-i18n="config_backup">Copia de seguridad</span></button>
+      <button class="config-screen-btn" id="themeToggleBtn">&#9789; <span id="themeToggleLabel">Mode sombre</span></button>
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
         <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🔒 Sécurité</div>
         <button class="config-screen-btn" id="setPinBtn">🔢 Activer le code PIN</button>
@@ -3311,10 +3310,13 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     function applyTheme(t) {
         document.documentElement.setAttribute('data-theme', t);
         setThemeStorage(t);
-        document.getElementById('themeToggleBtn').innerHTML =
-            t === 'dark' ? '&#9788;' : '&#9789;';
-        document.getElementById('themeToggleBtn').title =
-            t === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre';
+        const btn = document.getElementById('themeToggleBtn');
+        const label = document.getElementById('themeToggleLabel');
+        if (t === 'dark') {
+            btn.innerHTML = '&#9788; <span id="themeToggleLabel">Mode clair</span>';
+        } else {
+            btn.innerHTML = '&#9789; <span id="themeToggleLabel">Mode sombre</span>';
+        }
     }
 
     applyTheme(getTheme());
