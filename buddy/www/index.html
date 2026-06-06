@@ -2120,6 +2120,12 @@
                         <input type="password" id="ultravoxApiKeyInput" placeholder="utv-...">
                         <div class="hint">Para modelos Ultravox. <a href="https://app.ultravox.ai/settings/api-keys" target="_blank" rel="noopener">Obtener clave gratuita</a></div>
                         <div id="ultravoxApiKeyStatus"></div>
+
+                        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+                        <label for="groqApiKeyInput">Clave API Groq</label>
+                        <input type="password" id="groqApiKeyInput" placeholder="gsk_...">
+                        <div class="hint">Para modelos Groq. <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Obtener clave gratuita</a></div>
+                        <div id="groqApiKeyStatus"></div>
                     </div>
 
                     <!-- Panel Modèle -->
@@ -2139,6 +2145,10 @@
                             <optgroup label="Ultravox">
                                 <option value="ultravox-70b">Ultravox Llama 3.3 70B — económico (~$0.005/min)</option>
                                 <option value="ultravox-8b">Ultravox Llama 3.1 8B — muy económico (~$0.002/min)</option>
+                            </optgroup>
+                            <optgroup label="Groq (Pipeline STT→LLM→TTS)">
+                                <option value="groq-70b">Groq Llama 3.3 70B — ultra económico (~$0.001/min)</option>
+                                <option value="groq-8b">Groq Llama 3.1 8B — más económico (~$0.0005/min)</option>
                             </optgroup>
                         </select>
                         <div id="modelPricingInfo" style="font-size:0.8rem;color:var(--text-secondary);padding:8px 12px;background:var(--bg-hover);border-radius:8px;margin-top:8px"></div>
@@ -2231,6 +2241,10 @@
                 <optgroup label="Ultravox">
                     <option value="ultravox-70b">Ultravox Llama 3.3 70B — económico (~$0.005/min)</option>
                     <option value="ultravox-8b">Ultravox Llama 3.1 8B — muy económico (~$0.002/min)</option>
+                </optgroup>
+                <optgroup label="Groq (Pipeline STT→LLM→TTS)">
+                    <option value="groq-70b">Groq Llama 3.3 70B — ultra económico (~$0.001/min)</option>
+                    <option value="groq-8b">Groq Llama 3.1 8B — más económico (~$0.0005/min)</option>
                 </optgroup>
             </select>
             <div class="hint">Laissez sur "par défaut" pour utiliser le modèle choisi dans la configuration globale.</div>
@@ -2779,7 +2793,9 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         'gemini-3.1-flash-live-preview': { input: 0.003, output: 0.012 },
         'gpt-realtime-whisper': { perMinute: 0.017 },
         'ultravox-70b': { perMinute: 0.005 },
-        'ultravox-8b':  { perMinute: 0.002 }
+        'ultravox-8b':  { perMinute: 0.002 },
+        'groq-70b': { perMinute: 0.001 },
+        'groq-8b':  { perMinute: 0.0005 }
     };
 
     const TRANSCRIPTEUR_ID = '__transcripteur__';
@@ -2787,6 +2803,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     function getProviderForModel(model) {
         if (model && model.startsWith('gemini')) return 'gemini';
         if (model && model.startsWith('ultravox')) return 'ultravox';
+        if (model && model.startsWith('groq')) return 'groq';
         return 'openai';
     }
 
@@ -2834,6 +2851,9 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
 
     function getUltravoxApiKey() { return localStorage.getItem('buddy_ultravoxApiKey') || ''; }
     function setUltravoxApiKey(k) { localStorage.setItem('buddy_ultravoxApiKey', k); }
+
+    function getGroqApiKey() { return localStorage.getItem('buddy_groqApiKey') || ''; }
+    function setGroqApiKey(k) { localStorage.setItem('buddy_groqApiKey', k); }
 
     function getTheme() { return localStorage.getItem('buddy_theme') || 'dark'; }
     function setThemeStorage(t) { localStorage.setItem('buddy_theme', t); }
@@ -3148,12 +3168,13 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         }
     }
 
-    function hasAnyApiKey() { return !!(getApiKey() || getGeminiApiKey() || getUltravoxApiKey()); }
+    function hasAnyApiKey() { return !!(getApiKey() || getGeminiApiKey() || getUltravoxApiKey() || getGroqApiKey()); }
 
     function openApiKeyModal() {
         apiKeyInput.value = getApiKey();
         geminiApiKeyInput.value = getGeminiApiKey();
         document.getElementById('ultravoxApiKeyInput').value = getUltravoxApiKey();
+        document.getElementById('groqApiKeyInput').value = getGroqApiKey();
         document.getElementById('realtimeModelSelect').value = getRealtimeModel();
         updateModelSelectDisabled();
         const limit = getBudgetLimit();
@@ -3208,9 +3229,10 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         const openaiKey = apiKeyInput.value.trim();
         const geminiKey = geminiApiKeyInput.value.trim();
         const ultravoxKeyVal = document.getElementById('ultravoxApiKeyInput').value.trim();
+        const groqKey = document.getElementById('groqApiKeyInput').value.trim();
 
-        if (!openaiKey && !geminiKey && !ultravoxKeyVal) {
-            customAlert('Au moins une clé API (OpenAI, Gemini ou Ultravox) est requise pour utiliser Buddy.', { title: 'Clé API requise', icon: '&#128273;' });
+        if (!openaiKey && !geminiKey && !ultravoxKeyVal && !groqKey) {
+            customAlert('Au moins une clé API (OpenAI, Gemini, Ultravox ou Groq) est requise pour utiliser Buddy.', { title: 'Clé API requise', icon: '&#128273;' });
             return;
         }
 
@@ -3229,6 +3251,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         setApiKey(openaiKey);
         setGeminiApiKey(geminiKey);
         if (ultravoxKeyVal !== undefined) setUltravoxApiKey(ultravoxKeyVal);
+        if (groqKey !== undefined) setGroqApiKey(groqKey);
         setRealtimeModel(document.getElementById('realtimeModelSelect').value);
         const budgetNum = parseInt(document.getElementById('budgetLimitInput').value, 10);
         setBudgetLimit(!isNaN(budgetNum) && budgetNum > 0 ? budgetNum : null);
@@ -4323,6 +4346,8 @@ Règles IMPÉRATIVES :
             connectGemini(persona);
         } else if (activeProvider === 'ultravox') {
             connectUltravox(persona);
+        } else if (activeProvider === 'groq') {
+            connectGroq(persona);
         } else if (activeModelId === 'gpt-realtime-translate') {
             connectTranslate(persona);
         } else {
@@ -4694,6 +4719,157 @@ Règles IMPÉRATIVES :
             if (data.state === 'thinking') setStatus(t('status_thinking'), 'connected');
             if (data.state === 'speaking') setStatus(t('status_speaking'), 'connected');
         }
+    }
+
+    // ════════════════════════════════════════════════
+    //  GROQ PIPELINE (STT → LLM → browser TTS)
+    // ════════════════════════════════════════════════
+
+    let groqMediaRecorder = null;
+    let groqChunks = [];
+    let groqSpeaking = false;
+    let groqConversationHistory = [];
+    let groqVADSilenceTimer = null;
+    let groqRecordingActive = false;
+
+    async function connectGroq(persona) {
+        const apiKey = getGroqApiKey();
+        if (!apiKey) { openApiKeyModal(); return; }
+
+        isConnected = true;
+        micReady = true;
+        groqConversationHistory = [{ role: 'system', content: buildFullInstructions(persona) }];
+        setStatus(t('status_connected'), 'connected');
+
+        if (persona.greeting !== 'user') {
+            const greeting = LANG === 'es' ? '¡Hola! ¿En qué te puedo ayudar?' :
+                             LANG === 'fr' ? 'Bonjour ! Comment puis-je vous aider ?' :
+                             'Hello! How can I help you?';
+            await groqSpeak(greeting, persona);
+        }
+        groqStartListening(persona);
+    }
+
+    function groqStartListening(persona) {
+        if (groqSpeaking || groqRecordingActive || !isConnected) return;
+        groqChunks = [];
+        groqRecordingActive = true;
+
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+            ? 'audio/webm;codecs=opus' : 'audio/webm';
+        groqMediaRecorder = new MediaRecorder(mediaStream, { mimeType });
+        groqMediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) groqChunks.push(e.data); };
+        groqMediaRecorder.onstop = () => groqProcessAudio(persona);
+        groqMediaRecorder.start(100);
+
+        const checkSilence = () => {
+            if (!groqRecordingActive) return;
+            if (userAudioLevel < 0.02) {
+                if (!groqVADSilenceTimer) {
+                    groqVADSilenceTimer = setTimeout(() => {
+                        if (groqRecordingActive && groqMediaRecorder && groqMediaRecorder.state !== 'inactive') {
+                            groqRecordingActive = false;
+                            groqMediaRecorder.stop();
+                        }
+                    }, 1500);
+                }
+            } else {
+                clearTimeout(groqVADSilenceTimer);
+                groqVADSilenceTimer = null;
+            }
+            if (groqRecordingActive) requestAnimationFrame(checkSilence);
+        };
+        requestAnimationFrame(checkSilence);
+    }
+
+    async function groqProcessAudio(persona) {
+        if (!groqChunks.length) {
+            if (isConnected && !groqSpeaking) setTimeout(() => groqStartListening(persona), 200);
+            return;
+        }
+
+        setStatus(t('status_thinking'), 'connected');
+        const blob = new Blob(groqChunks, { type: 'audio/webm' });
+        groqChunks = [];
+
+        try {
+            // 1. STT: Groq Whisper
+            const formData = new FormData();
+            formData.append('file', blob, 'audio.webm');
+            formData.append('model', 'whisper-large-v3-turbo');
+            formData.append('language', LANG);
+
+            const sttResp = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${getGroqApiKey()}` },
+                body: formData
+            });
+            if (!sttResp.ok) throw new Error(`STT ${sttResp.status}`);
+            const sttData = await sttResp.json();
+            const userText = (sttData.text || '').trim();
+
+            if (!userText) {
+                if (isConnected && !groqSpeaking) groqStartListening(persona);
+                return;
+            }
+
+            addTranscriptMessage('Yo', userText, 'user');
+            scrollTranscript();
+
+            // 2. LLM: Groq Chat
+            groqConversationHistory.push({ role: 'user', content: userText });
+            const llmModel = activeModelId === 'groq-70b' ? 'llama-3.3-70b-versatile' : 'llama-3.1-8b-instant';
+            const temps = { precise: 0.5, balanced: 0.7, creative: 0.9, wild: 1.1 };
+
+            const llmResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${getGroqApiKey()}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: llmModel,
+                    messages: groqConversationHistory,
+                    temperature: temps[persona.creativity] || 0.7,
+                    max_tokens: 300
+                })
+            });
+            if (!llmResp.ok) throw new Error(`LLM ${llmResp.status}`);
+            const llmData = await llmResp.json();
+            const aiText = (llmData.choices?.[0]?.message?.content || '').trim();
+
+            groqConversationHistory.push({ role: 'assistant', content: aiText });
+            totalInputTokens += llmData.usage?.prompt_tokens || 0;
+            totalOutputTokens += llmData.usage?.completion_tokens || 0;
+            updateTokenCounter();
+
+            // 3. TTS: Web Speech Synthesis (free, native)
+            await groqSpeak(aiText, persona);
+
+        } catch (err) {
+            setStatus(`Error: ${err.message}`, 'error');
+            console.error('[Groq]', err);
+            if (isConnected) groqStartListening(persona);
+        }
+    }
+
+    async function groqSpeak(text, persona) {
+        return new Promise(resolve => {
+            groqSpeaking = true;
+            setStatus(t('status_speaking'), 'connected');
+            addTranscriptMessage(persona ? persona.name : 'Buddy', text, 'ai');
+            scrollTranscript();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = LANG === 'es' ? 'es-ES' : LANG === 'fr' ? 'fr-FR' : 'en-US';
+            utterance.rate = 1.0;
+
+            utterance.onend = () => {
+                groqSpeaking = false;
+                setStatus(t('status_connected'), 'connected');
+                if (isConnected) groqStartListening(persona);
+                resolve();
+            };
+            utterance.onerror = () => { groqSpeaking = false; resolve(); };
+            window.speechSynthesis.speak(utterance);
+        });
     }
 
     // ════════════════════════════════════════════════
@@ -5459,6 +5635,7 @@ Règles IMPÉRATIVES :
             if (activeProvider === 'openai' && !getApiKey()) { openApiKeyModal(); return; }
             if (activeProvider === 'gemini' && !getGeminiApiKey()) { openApiKeyModal(); return; }
             if (activeProvider === 'ultravox' && !getUltravoxApiKey()) { openApiKeyModal(); return; }
+            if (activeProvider === 'groq' && !getGroqApiKey()) { openApiKeyModal(); return; }
         }
 
         // Vérification budget
@@ -5639,6 +5816,20 @@ Règles IMPÉRATIVES :
     });
 
     function stopConversation(analyzeInsights = false) {
+        // Clean up Groq pipeline
+        if (groqMediaRecorder && groqMediaRecorder.state !== 'inactive') {
+            groqRecordingActive = false;
+            try { groqMediaRecorder.stop(); } catch(e) {}
+        }
+        groqMediaRecorder = null;
+        groqChunks = [];
+        groqSpeaking = false;
+        groqConversationHistory = [];
+        clearTimeout(groqVADSilenceTimer);
+        groqVADSilenceTimer = null;
+        groqRecordingActive = false;
+        window.speechSynthesis.cancel();
+
         // Détecter si une conversation a eu lieu
         const hasTranscriptMessages = document.querySelectorAll('#transcript .transcript-msg').length > 0;
         const hasTranscripteurText = document.querySelectorAll('#transcript .transcript-flowing-text').length > 0;
