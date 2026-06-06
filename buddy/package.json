@@ -2,7 +2,6 @@
   "name": "buddy-voice-app",
   "version": "1.0.0",
   "description": "Buddy — AI Voice Assistant",
-  "main": "index.js",
   "scripts": {
     "build": "echo 'No build step — single file HTML'",
     "sync": "npx cap sync android",
