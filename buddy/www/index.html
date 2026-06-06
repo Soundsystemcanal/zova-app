@@ -1833,6 +1833,29 @@
             .welcome-card-menu-btn { opacity: 1; }
         }
 
+        /* PIN Screen */
+        #pinScreen { display: none; }
+        #pinScreen.active { display: flex !important; }
+        .pin-dot {
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            transition: background 0.15s;
+        }
+        .pin-dot.filled { background: var(--accent); }
+        .pin-key {
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1.4rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .pin-key:active { background: var(--bg-active); transform: scale(0.93); }
+
         /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -1942,6 +1965,24 @@
   <!-- Hidden persona list for legacy JS compatibility -->
   <div id="personaList" style="display:none"></div>
 
+  <!-- ════════ PIN LOCK SCREEN ════════ -->
+  <div id="pinScreen" style="display:none;position:fixed;inset:0;background:var(--bg-primary);z-index:99999;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+    <div style="font-size:2.5rem">🔒</div>
+    <div id="pinTitle" style="font-size:1.1rem;font-weight:700;color:var(--text-primary)">Buddy</div>
+    <div id="pinDots" style="display:flex;gap:14px;margin:8px 0;">
+      <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+    </div>
+    <div id="pinError" style="font-size:0.85rem;color:var(--danger);min-height:20px;"></div>
+    <div style="display:grid;grid-template-columns:repeat(3,72px);gap:12px;">
+      <button class="pin-key" data-val="1">1</button><button class="pin-key" data-val="2">2</button><button class="pin-key" data-val="3">3</button>
+      <button class="pin-key" data-val="4">4</button><button class="pin-key" data-val="5">5</button><button class="pin-key" data-val="6">6</button>
+      <button class="pin-key" data-val="7">7</button><button class="pin-key" data-val="8">8</button><button class="pin-key" data-val="9">9</button>
+      <button class="pin-key" data-val="bio" id="pinBioBtn" style="font-size:1.4rem">🤙</button>
+      <button class="pin-key" data-val="0">0</button>
+      <button class="pin-key" data-val="del" style="font-size:1.2rem">⌫</button>
+    </div>
+  </div>
+
   <div id="appContent">
 
     <!-- SCREEN: Home (conversation) -->
@@ -2037,6 +2078,11 @@
       <button class="config-screen-btn" id="apiConfigBtn">&#9881; <span data-i18n="config_api_keys">API Keys y Modelo</span></button>
       <button class="config-screen-btn" id="myInfoBtn">&#128100; <span data-i18n="config_my_info">Mis informaciones</span></button>
       <button class="config-screen-btn" id="backupBtn">&#128190; <span data-i18n="config_backup">Copia de seguridad</span></button>
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🔒 Sécurité</div>
+        <button class="config-screen-btn" id="setPinBtn">🔢 Activer le code PIN</button>
+        <button class="config-screen-btn" id="removePinBtn" style="display:none">🔓 Supprimer le code PIN</button>
+      </div>
     </div>
 
   </div><!-- /appContent -->
@@ -3038,6 +3084,42 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     let micReady = false;
     let waitingGreeting = false;
 
+    // ── WakeLock ──────────────────────────────────────
+    let wakeLock = null;
+    async function requestWakeLock() {
+        if ('wakeLock' in navigator) {
+            try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
+        }
+    }
+    function releaseWakeLock() {
+        if (wakeLock) { wakeLock.release().catch(()=>{}); wakeLock = null; }
+    }
+    // Re-acquire WakeLock if page becomes visible again
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && isConnected) requestWakeLock();
+    });
+
+    // ── Reconnexion auto ──────────────────────────────
+    let shouldReconnect = false;
+    let reconnectTimer = null;
+    let reconnectAttempts = 0;
+    const MAX_RECONNECT = 3;
+
+    function scheduleReconnect(startFn) {
+        if (!shouldReconnect || reconnectAttempts >= MAX_RECONNECT) return;
+        reconnectAttempts++;
+        const delay = reconnectAttempts * 2000;
+        setStatus(`Reconnexion dans ${delay/1000}s... (${reconnectAttempts}/${MAX_RECONNECT})`, 'error');
+        reconnectTimer = setTimeout(() => {
+            if (shouldReconnect) { setStatus('Reconnexion...', ''); startFn(); }
+        }, delay);
+    }
+    function cancelReconnect() {
+        shouldReconnect = false;
+        reconnectAttempts = 0;
+        if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+    }
+
     let totalInputTokens = 0;
     let totalOutputTokens = 0;
 
@@ -3056,6 +3138,118 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
 
     // ════════════════════════════════════════════════
     //  THÈME
+    // ════════════════════════════════════════════════
+
+    // ════════════════════════════════════════════════
+    //  PIN LOCK
+    // ════════════════════════════════════════════════
+    const PIN_KEY = 'buddy_pin';
+    let pinBuffer = '';
+    let pinMode = 'unlock'; // 'unlock' | 'set' | 'confirm'
+    let pinTemp = '';
+
+    async function initPinScreen() {
+        const savedPin = await SecureStore.get(PIN_KEY);
+        if (!savedPin) return; // no PIN set, open normally
+        showPinScreen('unlock');
+    }
+
+    function showPinScreen(mode) {
+        pinMode = mode;
+        pinBuffer = '';
+        pinTemp = '';
+        const screen = document.getElementById('pinScreen');
+        const title = document.getElementById('pinTitle');
+        screen.classList.add('active');
+        if (mode === 'unlock') title.textContent = 'Entrez votre code';
+        else if (mode === 'set') title.textContent = 'Choisissez un code PIN';
+        else if (mode === 'confirm') title.textContent = 'Confirmez le code PIN';
+        updatePinDots();
+        document.getElementById('pinError').textContent = '';
+    }
+
+    function hidePinScreen() {
+        document.getElementById('pinScreen').classList.remove('active');
+    }
+
+    function updatePinDots() {
+        document.querySelectorAll('.pin-dot').forEach((d, i) => {
+            d.classList.toggle('filled', i < pinBuffer.length);
+        });
+    }
+
+    async function handlePinInput(val) {
+        if (val === 'del') {
+            pinBuffer = pinBuffer.slice(0, -1);
+            updatePinDots();
+            return;
+        }
+        if (val === 'bio') { tryBiometric(); return; }
+        if (pinBuffer.length >= 4) return;
+        pinBuffer += val;
+        updatePinDots();
+
+        if (pinBuffer.length === 4) {
+            await processPinComplete();
+        }
+    }
+
+    async function processPinComplete() {
+        const savedPin = await SecureStore.get(PIN_KEY);
+        if (pinMode === 'unlock') {
+            if (pinBuffer === savedPin) {
+                hidePinScreen();
+            } else {
+                document.getElementById('pinError').textContent = 'Code incorrect';
+                pinBuffer = '';
+                updatePinDots();
+            }
+        } else if (pinMode === 'set') {
+            pinTemp = pinBuffer;
+            pinBuffer = '';
+            pinMode = 'confirm';
+            document.getElementById('pinTitle').textContent = 'Confirmez le code PIN';
+            document.getElementById('pinError').textContent = '';
+            updatePinDots();
+        } else if (pinMode === 'confirm') {
+            if (pinBuffer === pinTemp) {
+                await SecureStore.set(PIN_KEY, pinBuffer);
+                hidePinScreen();
+                customAlert('Code PIN activé ✅', { title: 'Sécurité', icon: '🔒' });
+            } else {
+                document.getElementById('pinError').textContent = 'Les codes ne correspondent pas';
+                pinBuffer = '';
+                pinTemp = '';
+                pinMode = 'set';
+                document.getElementById('pinTitle').textContent = 'Choisissez un code PIN';
+                updatePinDots();
+            }
+        }
+    }
+
+    async function tryBiometric() {
+        // Web Authentication API (platform authenticator = fingerprint on Android)
+        try {
+            const savedPin = await SecureStore.get(PIN_KEY);
+            if (!savedPin) return;
+            await navigator.credentials.get({ publicKey: undefined, mediation: 'optional' });
+            hidePinScreen();
+        } catch(e) {
+            document.getElementById('pinError').textContent = 'Biométrie non disponible';
+        }
+    }
+
+    async function removePin() {
+        await SecureStore.remove(PIN_KEY);
+        customAlert('Code PIN supprimé', { title: 'Sécurité', icon: '🔓' });
+    }
+
+    // PIN keyboard events
+    document.getElementById('pinScreen').addEventListener('click', (e) => {
+        const key = e.target.closest('.pin-key');
+        if (key) handlePinInput(key.dataset.val);
+    });
+
     // ════════════════════════════════════════════════
 
     function applyTheme(t) {
@@ -4427,6 +4621,8 @@ Règles IMPÉRATIVES :
     async function connectOpenAI(persona) {
         const apiKey = await getApiKey();
         if (!apiKey) return;
+        shouldReconnect = true;
+        requestWakeLock();
         const url = `wss://api.openai.com/v1/realtime?model=${activeModelId}`;
 
         const protocols = [
@@ -4504,7 +4700,10 @@ Règles IMPÉRATIVES :
         ws.onerror = () => setStatus('Erreur de connexion', 'error');
         ws.onclose = (e) => {
             isConnected = false;
-            if (e.code !== 1000) setStatus(`Déconnecté (code ${e.code})`, 'error');
+            if (e.code !== 1000) {
+                setStatus(`Déconnecté (code ${e.code})`, 'error');
+                scheduleReconnect(() => connectOpenAI(getPersonas().find(p => p.id === getActiveId())));
+            }
         };
     }
 
@@ -4679,6 +4878,8 @@ Règles IMPÉRATIVES :
     async function connectUltravox(persona) {
         const apiKey = await getUltravoxApiKey();
         if (!apiKey) { openApiKeyModal(); return; }
+        shouldReconnect = true;
+        requestWakeLock();
 
         setStatus(t('status_connecting'));
 
@@ -4807,6 +5008,7 @@ Règles IMPÉRATIVES :
     async function connectGroq(persona) {
         const apiKey = await getGroqApiKey();
         if (!apiKey) { openApiKeyModal(); return; }
+        requestWakeLock();
 
         isConnected = true;
         micReady = true;
@@ -5948,6 +6150,8 @@ Règles IMPÉRATIVES :
         groqVADSilenceTimer = null;
         groqRecordingActive = false;
         if (window.speechSynthesis) window.speechSynthesis.cancel();
+        releaseWakeLock();
+        cancelReconnect();
 
         // Détecter si une conversation a eu lieu
         const hasTranscriptMessages = document.querySelectorAll('#transcript .transcript-msg').length > 0;
@@ -6430,12 +6634,29 @@ Règles de format :
         });
     });
 
+    // PIN buttons in Config
+    document.getElementById('setPinBtn').addEventListener('click', () => showPinScreen('set'));
+    document.getElementById('removePinBtn').addEventListener('click', async () => {
+        if (await customConfirm('Supprimer le code PIN ?', { title: 'Sécurité', confirmLabel: 'Supprimer', danger: true })) {
+            await removePin();
+            document.getElementById('setPinBtn').style.display = '';
+            document.getElementById('removePinBtn').style.display = 'none';
+        }
+    });
+
     (async () => {
         await migrateApiKeysToSecureStorage();
         renderPersonaList();
         showEmptyState();
-        if (!await hasAnyApiKey()) openApiKeyModal();
         applyI18n();
+        // Update PIN buttons state
+        const savedPin = await SecureStore.get(PIN_KEY);
+        if (savedPin) {
+            document.getElementById('setPinBtn').style.display = 'none';
+            document.getElementById('removePinBtn').style.display = '';
+        }
+        await initPinScreen();
+        if (!await hasAnyApiKey()) openApiKeyModal();
     })();
 
     // ════════════════════════════════════════════════
