@@ -1,0 +1,152 @@
+<h2>Buddy — Layout móvil Android</h2>
+<p class="subtitle">¿Cómo quieres navegar entre los personas en el móvil?</p>
+
+<div class="cards">
+
+  <!-- OPCIÓN A: Bottom nav -->
+  <div class="card" data-choice="bottom-nav" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:linear-gradient(160deg,#0a0a1f,#0d0d2b);border-radius:16px;padding:0;font-family:'Segoe UI',sans-serif;min-height:240px;max-width:160px;margin:0 auto;overflow:hidden;display:flex;flex-direction:column;border:1px solid #6d28d930">
+        <!-- Status bar -->
+        <div style="background:#6d28d918;padding:4px 10px;display:flex;justify-content:space-between;font-size:7px;color:#9a8cb0">
+          <span>9:41</span><span>●●●</span>
+        </div>
+        <!-- Header -->
+        <div style="display:flex;align-items:center;padding:8px 10px;gap:6px;border-bottom:1px solid #6d28d920">
+          <div style="width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#6d28d9,#ec4899);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:10px;color:#fff">B</div>
+          <span style="color:#c4b5fd;font-weight:800;font-size:11px">BUDDY</span>
+          <div style="margin-left:auto;width:20px;height:20px;border-radius:50%;background:#6d28d920;display:flex;align-items:center;justify-content:center;color:#8b5cf6;font-size:9px">☀</div>
+        </div>
+        <!-- Main content -->
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;gap:8px">
+          <!-- Persona avatar -->
+          <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#6d28d9,#ec4899);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;color:#fff;box-shadow:0 0 20px #6d28d966">A</div>
+          <div style="color:#c4b5fd;font-size:10px;font-weight:700">Atlas</div>
+          <!-- Visualizer bars -->
+          <div style="display:flex;gap:2px;align-items:flex-end;height:28px">
+            <div style="width:2px;height:10px;background:#ec4899;border-radius:1px;opacity:0.5"></div>
+            <div style="width:2px;height:20px;background:#ec4899;border-radius:1px;opacity:0.8"></div>
+            <div style="width:2px;height:14px;background:#ec4899;border-radius:1px;opacity:0.6"></div>
+            <div style="width:2px;height:26px;background:#ec4899;border-radius:1px;opacity:1"></div>
+            <div style="width:2px;height:8px;background:#ec4899;border-radius:1px;opacity:0.4"></div>
+            <div style="width:2px;height:18px;background:#8b5cf6;border-radius:1px;opacity:0.7"></div>
+            <div style="width:2px;height:24px;background:#8b5cf6;border-radius:1px;opacity:0.9"></div>
+            <div style="width:2px;height:12px;background:#8b5cf6;border-radius:1px;opacity:0.5"></div>
+          </div>
+          <!-- Start button -->
+          <div style="background:linear-gradient(135deg,#6d28d9,#ec4899);border-radius:20px;padding:6px 16px;color:#fff;font-size:9px;font-weight:700">▶ INICIAR</div>
+        </div>
+        <!-- Bottom navigation -->
+        <div style="display:flex;background:#06061a;border-top:1px solid #6d28d930;padding:6px 0">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px">
+            <span style="font-size:12px">🏠</span>
+            <span style="font-size:6px;color:#8b5cf6;font-weight:700">Inicio</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px">
+            <span style="font-size:12px">👤</span>
+            <span style="font-size:6px;color:#4a4060">Personas</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px">
+            <span style="font-size:12px">📊</span>
+            <span style="font-size:6px;color:#4a4060">Stats</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px">
+            <span style="font-size:12px">⚙️</span>
+            <span style="font-size:6px;color:#4a4060">Config</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Navegación inferior</h3>
+      <p>Barra de navegación abajo (patrón estándar de apps Android). Acceso rápido con el pulgar. Pantalla completa para la conversación.</p>
+    </div>
+  </div>
+
+  <!-- OPCIÓN B: Pantalla de inicio con grid de personas -->
+  <div class="card" data-choice="home-grid" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:linear-gradient(160deg,#0a0a1f,#0d0d2b);border-radius:16px;padding:0;font-family:'Segoe UI',sans-serif;min-height:240px;max-width:160px;margin:0 auto;overflow:hidden;display:flex;flex-direction:column;border:1px solid #6d28d930">
+        <!-- Status bar -->
+        <div style="background:#6d28d918;padding:4px 10px;display:flex;justify-content:space-between;font-size:7px;color:#9a8cb0">
+          <span>9:41</span><span>●●●</span>
+        </div>
+        <!-- Header -->
+        <div style="display:flex;align-items:center;padding:8px 10px;gap:6px;border-bottom:1px solid #6d28d920">
+          <div style="width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#6d28d9,#ec4899);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:10px;color:#fff">B</div>
+          <span style="color:#c4b5fd;font-weight:800;font-size:11px">BUDDY</span>
+          <div style="margin-left:auto;background:linear-gradient(135deg,#6d28d9,#ec4899);border-radius:12px;padding:2px 7px;color:#fff;font-size:7px;font-weight:700">+ Nuevo</div>
+        </div>
+        <!-- Grid de personas -->
+        <div style="flex:1;padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px;overflow:hidden">
+          <div style="background:rgba(109,40,217,0.15);border:1px solid #6d28d940;border-radius:10px;padding:8px;display:flex;flex-direction:column;align-items:center;gap:3px">
+            <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#6d28d9,#ec4899);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:#fff">A</div>
+            <div style="color:#c4b5fd;font-size:8px;font-weight:600">Atlas</div>
+            <div style="color:#7c6aa0;font-size:6px">Asistente</div>
+          </div>
+          <div style="background:rgba(109,40,217,0.08);border:1px solid #6d28d922;border-radius:10px;padding:8px;display:flex;flex-direction:column;align-items:center;gap:3px">
+            <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:#fff">N</div>
+            <div style="color:#a3a3c2;font-size:8px;font-weight:600">Nova</div>
+            <div style="color:#4a4460;font-size:6px">Científica</div>
+          </div>
+          <div style="background:rgba(109,40,217,0.08);border:1px solid #6d28d922;border-radius:10px;padding:8px;display:flex;flex-direction:column;align-items:center;gap:3px">
+            <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#0f766e,#0891b2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:#fff">Z</div>
+            <div style="color:#a3a3c2;font-size:8px;font-weight:600">Zara</div>
+            <div style="color:#4a4460;font-size:6px">Coach</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02);border:1px dashed #6d28d930;border-radius:10px;padding:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px">
+            <div style="color:#6d28d9;font-size:16px">+</div>
+            <div style="color:#4a4060;font-size:7px">Nuevo</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Grid de inicio</h3>
+      <p>Pantalla principal con grid de personas (igual que el emptyState de Kast pero adaptado a móvil). Toca un persona para ir directo a la conversación.</p>
+    </div>
+  </div>
+
+  <!-- OPCIÓN C: Híbrido — grid + drawer lateral -->
+  <div class="card" data-choice="hybrid-drawer" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:linear-gradient(160deg,#0a0a1f,#0d0d2b);border-radius:16px;padding:0;font-family:'Segoe UI',sans-serif;min-height:240px;max-width:160px;margin:0 auto;overflow:hidden;display:flex;flex-direction:column;border:1px solid #6d28d930">
+        <div style="background:#6d28d918;padding:4px 10px;display:flex;justify-content:space-between;font-size:7px;color:#9a8cb0">
+          <span>9:41</span><span>●●●</span>
+        </div>
+        <!-- Header con hamburger -->
+        <div style="display:flex;align-items:center;padding:8px 10px;gap:6px;border-bottom:1px solid #6d28d920">
+          <div style="color:#8b5cf6;font-size:13px">☰</div>
+          <div style="width:20px;height:20px;border-radius:5px;background:linear-gradient(135deg,#6d28d9,#ec4899);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:9px;color:#fff">B</div>
+          <span style="color:#c4b5fd;font-weight:800;font-size:11px">BUDDY</span>
+          <div style="margin-left:auto;color:#6d28d9;font-size:11px">☀</div>
+        </div>
+        <!-- Conversation area -->
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;gap:6px">
+          <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#6d28d9,#ec4899);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;color:#fff;box-shadow:0 0 15px #6d28d966">A</div>
+          <div style="color:#c4b5fd;font-size:9px;font-weight:700">Atlas</div>
+          <div style="color:#7c6aa0;font-size:7px;text-align:center">Asistente personal</div>
+          <div style="display:flex;gap:2px;align-items:flex-end;height:22px;margin-top:4px">
+            <div style="width:2px;height:10px;background:#ec4899;border-radius:1px;opacity:0.6"></div>
+            <div style="width:2px;height:18px;background:#ec4899;border-radius:1px;opacity:0.9"></div>
+            <div style="width:2px;height:12px;background:#8b5cf6;border-radius:1px;opacity:0.7"></div>
+            <div style="width:2px;height:20px;background:#8b5cf6;border-radius:1px;opacity:1"></div>
+            <div style="width:2px;height:8px;background:#ec4899;border-radius:1px;opacity:0.5"></div>
+          </div>
+          <div style="background:linear-gradient(135deg,#6d28d9,#ec4899);border-radius:16px;padding:5px 14px;color:#fff;font-size:8px;font-weight:700;margin-top:4px">▶ INICIAR</div>
+        </div>
+        <!-- Bottom hint -->
+        <div style="padding:5px;text-align:center;font-size:6px;color:#4a4060;border-top:1px solid #6d28d915">
+          ← desliza para cambiar de persona
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Híbrido con drawer</h3>
+      <p>Una sola pantalla de conversación, menú lateral que se abre con el ícono ☰ o deslizando. Similar a Kast pero adaptado a móvil.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px">¿Cuál layout prefieres para el móvil?</p>

@@ -1,0 +1,340 @@
+{
+  "name": "El Cerrador · Bot Telegram",
+  "nodes": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300],
+      "webhookId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "parameters": {
+        "updates": ["message"],
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_WITH_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
+      "name": "Cargar Perfil Autónomo",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [420, 300],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, nombre, alerta_destino FROM autonomos WHERE activo = true LIMIT 1",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440003",
+      "name": "Crear Conversación",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [640, 300],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO conversaciones (autonomo_id, canal, cliente_tel) VALUES ('{{ $node[\"Cargar Perfil Autónomo\"].json.id }}', 'telegram', '{{ $node[\"Telegram Trigger\"].json.message.chat.id }}') ON CONFLICT DO NOTHING RETURNING id",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440004",
+      "name": "Guardar Mensaje Usuario",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [860, 300],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO mensajes (conversacion_id, rol, contenido, tipo) VALUES ('{{ $node[\"Crear Conversación\"].json.id }}', 'user', '{{ $node[\"Telegram Trigger\"].json.message.text }}', 'texto')",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440005",
+      "name": "Leer Mensaje Usuario",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1080, 300],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT contenido FROM mensajes WHERE conversacion_id = '{{ $node[\"Crear Conversación\"].json.id }}' AND rol = 'user' ORDER BY creado_en DESC LIMIT 1",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440006",
+      "name": "Construir Messages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, 300],
+      "parameters": {
+        "jsCode": "const mensaje = $input.first().json.contenido;\n\nconst messages = [\n  {\n    role: \"system\",\n    content: \"Eres el asistente de atención de un fontanero en Tenerife.\\n\\nAnaliza el mensaje del usuario. Si contiene los 3 datos siguientes, genera la alerta:\\n- Tipo de avería (cualquier problema de fontanería)\\n- Zona o localización en Tenerife\\n- Nivel de urgencia\\n\\nSi el mensaje contiene los 3 datos, responde ÚNICAMENTE con:\\n🔧 ALERTA | tipo_avería | zona | urgencia\\nPerfecto, el fontanero te contactará en breve.\\n\\nSi faltan datos, pregunta por los que faltan en un solo mensaje.\"\n  },\n  {\n    role: \"user\",\n    content: mensaje\n  }\n];\n\nreturn [{\n  json: {\n    messages: messages,\n    messagesJson: JSON.stringify(messages)\n  }\n}];"
+      }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440007",
+      "name": "OpenAI API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1520, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer REPLACE_WITH_OPENAI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'gpt-4o-mini', messages: $json.messages }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440008",
+      "name": "¿Hay Alerta?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1740, 300],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1a2b3c4-d5e6-f7a8-b9c0-d1e2f3a4b5c6",
+              "leftValue": "={{ $node['OpenAI API'].json.choices[0].message.content }}",
+              "rightValue": "🔧 ALERTA",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440009",
+      "name": "Alerta al Autónomo",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1960, 160],
+      "parameters": {
+        "chatId": "={{ $node['Cargar Perfil Autónomo'].json.alerta_destino }}",
+        "text": "={{ $node['OpenAI API'].json.choices[0].message.content }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_WITH_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440010",
+      "name": "Parsear Alerta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2180, 160],
+      "parameters": {
+        "jsCode": "const alertText = $('OpenAI API').first().json.choices[0].message.content;\nconst conversacionId = $('Crear Conversación').first().json.id;\n\nconst parts = alertText.split('|');\nconst tipoAveria = (parts[1] || '').trim();\nconst zona = (parts[2] || '').trim();\nconst urgencia = ((parts[3] || '').split('\\n')[0] || '').trim();\n\nreturn [{\n  json: {\n    conversacion_id: conversacionId,\n    tipo_averia: tipoAveria || 'No especificado',\n    zona: zona || 'No especificada',\n    urgencia: urgencia || 'Normal'\n  }\n}];"
+      }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440011",
+      "name": "Guardar Urgencia",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [2400, 160],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO urgencias (conversacion_id, tipo_averia, zona, urgencia) VALUES ('{{ $json.conversacion_id }}', '{{ $json.tipo_averia }}', '{{ $json.zona }}', '{{ $json.urgencia }}')",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440012",
+      "name": "Respuesta al Cliente",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1960, 440],
+      "parameters": {
+        "chatId": "={{ $node['Telegram Trigger'].json.message.chat.id }}",
+        "text": "={{ $node['OpenAI API'].json.choices[0].message.content }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_WITH_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440013",
+      "name": "Guardar Respuesta Bot",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [2180, 440],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO mensajes (conversacion_id, rol, contenido, tipo) VALUES ('{{ $node[\"Crear Conversación\"].json.id }}', 'assistant', '{{ $node[\"OpenAI API\"].json.choices[0].message.content }}', 'texto')",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_POSTGRES_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          { "node": "Cargar Perfil Autónomo", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Cargar Perfil Autónomo": {
+      "main": [
+        [
+          { "node": "Crear Conversación", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Crear Conversación": {
+      "main": [
+        [
+          { "node": "Guardar Mensaje Usuario", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Guardar Mensaje Usuario": {
+      "main": [
+        [
+          { "node": "Leer Mensaje Usuario", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Leer Mensaje Usuario": {
+      "main": [
+        [
+          { "node": "Construir Messages", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Construir Messages": {
+      "main": [
+        [
+          { "node": "OpenAI API", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "OpenAI API": {
+      "main": [
+        [
+          { "node": "¿Hay Alerta?", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "¿Hay Alerta?": {
+      "main": [
+        [
+          { "node": "Alerta al Autónomo", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Respuesta al Cliente", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Alerta al Autónomo": {
+      "main": [
+        [
+          { "node": "Parsear Alerta", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Parsear Alerta": {
+      "main": [
+        [
+          { "node": "Guardar Urgencia", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Respuesta al Cliente": {
+      "main": [
+        [
+          { "node": "Guardar Respuesta Bot", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "550e8400-e29b-41d4-a716-000000000000",
+  "tags": [],
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

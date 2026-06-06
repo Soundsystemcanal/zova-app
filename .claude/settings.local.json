@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"C:\\\\Users\\\\xavie\\\\.claude\\\\memory\")",
+      "Bash(dir \"C:\\\\Users\\\\xavie\\\\Downloads\\\\Xavier_SEO_AEO_Analyser.html\")",
+      "Read(//mnt/c/Users/xavie/**)",
+      "Read(//mnt/c/Users/**)"
+    ]
+  }
+}

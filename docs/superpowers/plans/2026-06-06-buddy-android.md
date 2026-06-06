@@ -4,9 +4,11 @@
 
 **Goal:** Convertir la web app de voz Kast en una app Android llamada Buddy con tema Dark Cosmos, bottom navigation, almacenamiento seguro de API keys, soporte de Ultravox y Groq pipeline, e i18n ES/EN/FR.
 
-**Architecture:** El HTML de Kast (single-file, ~4000 líneas) se transforma y se coloca en `buddy/www/index.html`. Capacitor genera el proyecto Android y sirve ese HTML en un WebView nativo. Los plugins de Capacitor (especialmente `@capacitor-community/secure-storage`) se exponen como `window.Capacitor.Plugins.*` al JS del WebView. Las API keys se guardan en Android Keystore. Todo lo demás (personas, stats) queda en localStorage.
+**Architecture:** El HTML de Kast (single-file, ~4000 líneas) se transforma y se coloca en `buddy/www/index.html`. Capacitor genera el proyecto Android y sirve ese HTML en un WebView nativo. El plugin `capacitor-secure-storage-plugin` se expone como `window.Capacitor.Plugins.SecureStoragePlugin` al JS del WebView. Las API keys se guardan en Android Keystore. Todo lo demás (personas, stats) queda en localStorage.
 
-**Tech Stack:** HTML/CSS/JS vanilla · Capacitor 6 · @capacitor-community/secure-storage · Android SDK 34 · Node.js 20+ · Java 17
+**Tech Stack:** HTML/CSS/JS vanilla · Capacitor 8 (instalado: 8.4.0) · capacitor-secure-storage-plugin@0.13.0 · Android SDK 34 · Node.js 20+ · Java 17
+
+**Nota:** En Task 8, usar `window.Capacitor.Plugins.SecureStoragePlugin` (no `SecureStorage`) para el plugin instalado.
 
 ---
 
