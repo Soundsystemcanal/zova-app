@@ -1712,6 +1712,14 @@
         /* ═══════════════════════════════════════
            STATS MODAL
            ═══════════════════════════════════════ */
+        /* Stats screen inner wrapper */
+        .stats-screen-inner {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 4px;
+        }
+
         .stats-table {
             width: 100%;
             border-collapse: collapse;
@@ -1725,6 +1733,10 @@
         }
         .stats-table th:first-child, .stats-table td:first-child {
             text-align: left;
+        }
+        /* Extra padding on last column */
+        .stats-table th:last-child, .stats-table td:last-child {
+            padding-right: 20px;
         }
         .stats-table th {
             font-size: 0.7rem;
@@ -1831,6 +1843,12 @@
             .welcome-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
             .welcome-card { padding: 18px 12px; }
             .welcome-card-menu-btn { opacity: 1; }
+        }
+
+        /* Live conversation indicator */
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
         }
 
         /* PIN Screen */
@@ -2055,13 +2073,15 @@
 
     <!-- SCREEN: Stats -->
     <div id="screenStats">
-      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--text-primary)" data-i18n="stats_screen_title">Estadísticas</h2>
-      <div class="stats-tabs" id="screenStatsTabBtns">
-          <button data-stats-tab="periods" data-i18n="stats_periods" class="active">Períodos</button>
-          <button data-stats-tab="personas" data-i18n="stats_personas">Personas</button>
-          <button data-stats-tab="models" data-i18n="stats_models">Modelos</button>
+      <div class="stats-screen-inner">
+        <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--text-primary)" data-i18n="stats_screen_title">Estadísticas</h2>
+        <div class="stats-tabs" id="screenStatsTabBtns">
+            <button data-stats-tab="periods" data-i18n="stats_periods" class="active">Períodos</button>
+            <button data-stats-tab="personas" data-i18n="stats_personas">Personas</button>
+            <button data-stats-tab="models" data-i18n="stats_models">Modelos</button>
+        </div>
+        <div id="screenStatsContent"></div>
       </div>
-      <div id="screenStatsContent"></div>
     </div>
 
     <!-- SCREEN: Config -->
@@ -2086,6 +2106,15 @@
     </div>
 
   </div><!-- /appContent -->
+
+  <!-- LIVE CONVERSATION INDICATOR (visible when conversation active on other tabs) -->
+  <div id="liveTabIndicator" style="display:none;position:fixed;top:0;left:0;right:0;z-index:999;background:linear-gradient(90deg,#8b5cf6,#ec4899);padding:8px 16px;align-items:center;justify-content:space-between;gap:10px;">
+    <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:#fff;font-weight:600;">
+      <span style="width:8px;height:8px;background:#fff;border-radius:50%;animation:livePulse 1s infinite;flex-shrink:0;"></span>
+      Conversación activa
+    </div>
+    <button onclick="switchTab('home')" style="background:rgba(255,255,255,0.2);border:none;border-radius:6px;color:#fff;font-size:0.78rem;padding:4px 10px;cursor:pointer;font-weight:600;">Volver ›</button>
+  </div>
 
   <!-- BOTTOM NAVIGATION -->
   <nav id="bottomNav">
@@ -2676,10 +2705,28 @@
             btn.classList.toggle('active', btn.dataset.tab === tab);
         });
         if (tab === 'personas') renderPersonasGrid();
-        if (tab === 'stats') {
-            renderScreenStats('periods');
+        if (tab === 'stats') renderScreenStats('periods');
+
+        // Resume AudioContext when returning to Home (Android suspends it)
+        if (tab === 'home' && isConnected) {
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume().catch(() => {});
+            }
         }
+
+        // Update live indicator on all tabs
+        updateLiveIndicator();
         currentTab = tab;
+    }
+
+    function updateLiveIndicator() {
+        const indicator = document.getElementById('liveTabIndicator');
+        if (!indicator) return;
+        if (isConnected && currentTab !== 'home') {
+            indicator.style.display = 'flex';
+        } else {
+            indicator.style.display = 'none';
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -5893,6 +5940,8 @@ Règles IMPÉRATIVES :
     function setStatus(text, type = '') {
         statusEl.textContent = text;
         statusEl.className = type;
+        // Update live indicator whenever status changes
+        if (typeof updateLiveIndicator === 'function') updateLiveIndicator();
     }
 
     const pauseBtn = document.getElementById('pauseBtn');
