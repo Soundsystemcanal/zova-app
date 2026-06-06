@@ -1,6 +1,6 @@
 {
-  "appId": "com.buddy.voiceapp",
-  "appName": "Buddy",
+  "appId": "com.zova.voiceapp",
+  "appName": "Zova",
   "webDir": "www",
   "android": {
     "buildOptions": {

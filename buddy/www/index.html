@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buddy — Voice Assistant</title>
+    <title>Zova — Voice Assistant</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='15' y='25' width='70' height='55' rx='14' fill='%238b5cf6'/%3E%3Ccircle cx='37' cy='48' r='8' fill='%230a0a1f'/%3E%3Ccircle cx='63' cy='48' r='8' fill='%230a0a1f'/%3E%3Ccircle cx='37' cy='48' r='4' fill='%23fff'/%3E%3Ccircle cx='63' cy='48' r='4' fill='%23fff'/%3E%3Crect x='35' y='62' width='30' height='6' rx='3' fill='%230a0a1f'/%3E%3C/svg%3E">
     <style>
         /* ═══════════════════════════════════════
@@ -1991,7 +1991,7 @@
       <button id="homeBtn" class="main-top-btn" style="display:none">&#8962;</button>
 
       <div id="emptyState">
-          <div class="welcome-title" data-i18n="welcome_title">Bienvenido a Buddy</div>
+          <div class="welcome-title" data-i18n="welcome_title">Bienvenido a Zova</div>
           <div class="welcome-subtitle" data-i18n="welcome_subtitle">Elige un persona o crea uno nuevo</div>
           <div class="welcome-grid" id="welcomeGrid"></div>
       </div>
@@ -2040,7 +2040,7 @@
               </div>
           </div>
       </div>
-      <div class="app-footer">Buddy — AI Voice Assistant &nbsp;·&nbsp; v1.0</div>
+      <div class="app-footer">Zova — AI Voice Assistant &nbsp;·&nbsp; v1.0</div>
     </div>
 
     <!-- SCREEN: Personas -->
@@ -2216,9 +2216,9 @@
                     <div class="config-panel" id="configPanelShare">
                         <div style="text-align:center;padding:20px 0">
                             <div style="font-size:2.5rem;margin-bottom:12px;filter:grayscale(1);opacity:0.4">&#128279;</div>
-                            <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px">Buddy</div>
+                            <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px">Zova</div>
                             <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:18px">Assistant vocal IA — par Renaud Dékode</div>
-                            <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;margin:0 0 18px">Vous aimez Buddy ? Partagez-le avec vos amis et collègues !</p>
+                            <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;margin:0 0 18px">Vous aimez Zova ? Partagez-le avec vos amis et collègues !</p>
                             <div style="display:flex;flex-direction:column;gap:8px;max-width:300px;margin:0 auto">
                                 <button class="btn-small" id="copyShareLinkBtn" style="padding:10px 16px;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px"><span class="icon">&#128203;</span> Copier le lien</button>
                                 <a href="https://www.renaud-dekode.fr/c/kast-personnages/" target="_blank" rel="noopener" class="btn-small" style="padding:10px 16px;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px"><span class="icon">&#127760;</span> Bibliothèque de personas</a>
@@ -2516,7 +2516,7 @@
             }
         }
         localStorage.setItem('buddy_secure_migrated', '1');
-        console.log('[Buddy] API keys migrated to Android Keystore');
+        console.log('[Zova] API keys migrated to Android Keystore');
     }
 
     // ════════════════════════════════════════════════
@@ -2526,7 +2526,7 @@
     const TRANSLATIONS = {
         es: {
             nav_home: 'Inicio', nav_personas: 'Personas', nav_stats: 'Stats', nav_config: 'Config',
-            welcome_title: 'Bienvenido a Buddy',
+            welcome_title: 'Bienvenido a Zova',
             welcome_subtitle: 'Elige un persona o crea uno nuevo',
             btn_new_persona: '+ Nuevo persona',
             btn_start: 'Iniciar conversación',
@@ -2560,7 +2560,7 @@
         },
         en: {
             nav_home: 'Home', nav_personas: 'Personas', nav_stats: 'Stats', nav_config: 'Config',
-            welcome_title: 'Welcome to Buddy',
+            welcome_title: 'Welcome to Zova',
             welcome_subtitle: 'Choose a persona or create a new one',
             btn_new_persona: '+ New persona',
             btn_start: 'Start conversation',
@@ -2594,7 +2594,7 @@
         },
         fr: {
             nav_home: 'Accueil', nav_personas: 'Personas', nav_stats: 'Stats', nav_config: 'Config',
-            welcome_title: 'Bienvenue sur Buddy',
+            welcome_title: 'Bienvenue sur Zova',
             welcome_subtitle: 'Choisissez un persona ou créez-en un nouveau',
             btn_new_persona: '+ Nouveau persona',
             btn_start: 'Démarrer la conversation',
@@ -2747,11 +2747,11 @@
             });
             menu.querySelector('[data-action="export"]').addEventListener('click', (e) => {
                 e.stopPropagation(); menu.classList.remove('open');
-                const exp = { type:'buddy-persona', version:1, exportDate: new Date().toISOString(),
+                const exp = { type:'zova-persona', version:1, exportDate: new Date().toISOString(),
                     persona: {name:p.name,description:p.description,image:p.image,model:p.model,
                     voice:p.voice,reactivity:p.reactivity,creativity:p.creativity,greeting:p.greeting,
                     translateLang:p.translateLang,prompt:p.prompt}};
-                downloadFile(JSON.stringify(exp,null,2), `buddy-persona-${p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}.json`, 'application/json');
+                downloadFile(JSON.stringify(exp,null,2), `zova-persona-${p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}.json`, 'application/json');
             });
             menu.querySelector('[data-action="delete"]').addEventListener('click', async (e) => {
                 e.stopPropagation(); menu.classList.remove('open');
@@ -3293,7 +3293,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             stats: getStats()
         };
         const content = JSON.stringify(data, null, 2);
-        const filename = `buddy-backup-${new Date().toISOString().slice(0,10)}.json`;
+        const filename = `zova-backup-${new Date().toISOString().slice(0,10)}.json`;
         downloadFile(content, filename, 'application/json');
     });
 
@@ -3493,7 +3493,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         const groqKey = document.getElementById('groqApiKeyInput').value.trim();
 
         if (!openaiKey && !geminiKey && !ultravoxKeyVal && !groqKey) {
-            customAlert('Au moins une clé API (OpenAI, Gemini, Ultravox ou Groq) est requise pour utiliser Buddy.', { title: 'Clé API requise', icon: '&#128273;' });
+            customAlert('Au moins une clé API (OpenAI, Gemini, Ultravox ou Groq) est requise pour utiliser Zova.', { title: 'Clé API requise', icon: '&#128273;' });
             return;
         }
 
@@ -3928,7 +3928,7 @@ Règles IMPÉRATIVES :
         if (!name) { customAlert('Renseignez au moins le nom avant d\'exporter.', { icon: '&#9998;' }); return; }
 
         const personaExport = {
-            type: 'buddy-persona',
+            type: 'zova-persona',
             version: 1,
             exportDate: new Date().toISOString(),
             persona: {
@@ -3949,7 +3949,7 @@ Règles IMPÉRATIVES :
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `buddy-persona-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`;
+        a.download = `zova-persona-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`;
         a.click();
         URL.revokeObjectURL(url);
     });
@@ -3962,7 +3962,7 @@ Règles IMPÉRATIVES :
         reader.onload = (ev) => {
             try {
                 const data = JSON.parse(ev.target.result);
-                if (!data.type || data.type !== 'buddy-persona' || !data.persona) {
+                if (!data.type || data.type !== 'zova-persona' || !data.persona) {
                     customAlert('Ce fichier n\'est pas un persona Buddy valide.', { title: 'Erreur', icon: '&#10060;' });
                     return;
                 }
@@ -4284,12 +4284,12 @@ Règles IMPÉRATIVES :
                 e.stopPropagation();
                 menu.classList.remove('open');
                 const personaExport = {
-                    type: 'buddy-persona',
+                    type: 'zova-persona',
                     version: 1,
                     exportDate: new Date().toISOString(),
                     persona: { name: p.name, description: p.description, image: p.image, model: p.model, voice: p.voice, reactivity: p.reactivity, creativity: p.creativity, greeting: p.greeting, translateLang: p.translateLang, prompt: p.prompt }
                 };
-                downloadFile(JSON.stringify(personaExport, null, 2), `buddy-persona-${p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`, 'application/json');
+                downloadFile(JSON.stringify(personaExport, null, 2), `zova-persona-${p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`, 'application/json');
             });
 
             menu.querySelector('[data-action="delete"]').addEventListener('click', async (e) => {
@@ -4962,7 +4962,7 @@ Règles IMPÉRATIVES :
     }
 
     function handleUltravoxServerEvent(data, persona) {
-        const personaName = persona ? persona.name : 'Buddy';
+        const personaName = persona ? persona.name : 'Zova';
 
         if (data.type === 'transcript' && data.role === 'agent') {
             if (!currentTranscriptAi) {
@@ -5129,7 +5129,7 @@ Règles IMPÉRATIVES :
         return new Promise(resolve => {
             groqSpeaking = true;
             setStatus(t('status_speaking'), 'connected');
-            addTranscriptMessage(persona ? persona.name : 'Buddy', text, 'ai');
+            addTranscriptMessage(persona ? persona.name : 'Zova', text, 'ai');
             scrollTranscript();
 
             // Web Speech API not available on Android WebView — skip TTS, show text only
@@ -6112,11 +6112,11 @@ Règles IMPÉRATIVES :
             if (!text.trim()) { customAlert('Aucune transcription à exporter.', { icon: '&#128196;' }); return; }
             const format = await askExportFormat();
             if (format === 'cancel') return;
-            const filename = `buddy-transcription-${new Date().toISOString().slice(0,10)}`;
+            const filename = `zova-transcription-${new Date().toISOString().slice(0,10)}`;
             if (format === 'md') {
-                downloadFile(`# Transcription Buddy\n\n**Date :** ${date}\n**Durée :** ${timerText}\n**Coût estimé :** ${costText}\n\n---\n\n${text}`, filename + '.md', 'text/markdown;charset=utf-8');
+                downloadFile(`# Transcription Zova\n\n**Date :** ${date}\n**Durée :** ${timerText}\n**Coût estimé :** ${costText}\n\n---\n\n${text}`, filename + '.md', 'text/markdown;charset=utf-8');
             } else {
-                downloadFile(`Transcription Buddy\n${date}\nDurée : ${timerText}\nCoût estimé : ${costText}\n${'─'.repeat(40)}\n\n${text}`, filename + '.txt', 'text/plain;charset=utf-8');
+                downloadFile(`Transcription Zova\n${date}\nDurée : ${timerText}\nCoût estimé : ${costText}\n${'─'.repeat(40)}\n\n${text}`, filename + '.txt', 'text/plain;charset=utf-8');
             }
         } else {
             const transcriptTxt = getTranscriptText(false);
