@@ -161,23 +161,6 @@
             vertical-align: super;
         }
 
-        .logo-credit {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-        }
-
-        .logo-credit a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.15s;
-        }
-
-        .logo-credit a:hover {
-            color: var(--accent);
-            text-decoration: underline;
-        }
-
         .btn-new-persona {
             width: 100%;
             padding: 10px;
@@ -5241,7 +5224,7 @@ Règles IMPÉRATIVES :
             if (!text.trim()) { customAlert('Aucune transcription à exporter.', { icon: '&#128196;' }); return; }
             const format = await askExportFormat();
             if (format === 'cancel') return;
-            const filename = `kast-transcription-${new Date().toISOString().slice(0,10)}`;
+            const filename = `buddy-transcription-${new Date().toISOString().slice(0,10)}`;
             if (format === 'md') {
                 downloadFile(`# Transcription Buddy\n\n**Date :** ${date}\n**Durée :** ${timerText}\n**Coût estimé :** ${costText}\n\n---\n\n${text}`, filename + '.md', 'text/markdown;charset=utf-8');
             } else {
@@ -5255,7 +5238,7 @@ Règles IMPÉRATIVES :
             const persona = getPersonas().find(p => p.id === getActiveId());
             const personaName = persona ? persona.name : 'conversation';
             const model = activeModelId || getRealtimeModel();
-            const filename = `kast-${personaName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${new Date().toISOString().slice(0,10)}`;
+            const filename = `buddy-${personaName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${new Date().toISOString().slice(0,10)}`;
             if (format === 'md') {
                 const transcriptMd = getTranscriptText(true);
                 downloadFile(`# Conversation avec ${personaName}\n\n**Date :** ${date}\n**Modèle :** ${model}\n**Durée :** ${timerText}\n**Coût estimé :** ${costText}\n\n---\n\n${transcriptMd}`, filename + '.md', 'text/markdown;charset=utf-8');
