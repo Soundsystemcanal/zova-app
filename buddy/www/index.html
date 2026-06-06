@@ -4934,6 +4934,15 @@ Règles IMPÉRATIVES :
             addTranscriptMessage(persona ? persona.name : 'Buddy', text, 'ai');
             scrollTranscript();
 
+            // Web Speech API not available on Android WebView — skip TTS, show text only
+            if (!window.speechSynthesis) {
+                groqSpeaking = false;
+                setStatus(t('status_connected'), 'connected');
+                if (isConnected) groqStartListening(persona);
+                resolve();
+                return;
+            }
+
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = LANG === 'es' ? 'es-ES' : LANG === 'fr' ? 'fr-FR' : 'en-US';
             utterance.rate = 1.0;
@@ -5906,7 +5915,7 @@ Règles IMPÉRATIVES :
         clearTimeout(groqVADSilenceTimer);
         groqVADSilenceTimer = null;
         groqRecordingActive = false;
-        window.speechSynthesis.cancel();
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
 
         // Détecter si une conversation a eu lieu
         const hasTranscriptMessages = document.querySelectorAll('#transcript .transcript-msg').length > 0;
