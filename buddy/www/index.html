@@ -5184,34 +5184,45 @@ Règles IMPÉRATIVES :
     }
 
     async function groqSpeak(text, persona) {
-        return new Promise(resolve => {
-            groqSpeaking = true;
-            setStatus(t('status_speaking'), 'connected');
-            addTranscriptMessage(persona ? persona.name : 'Zova', text, 'ai');
-            scrollTranscript();
+        groqSpeaking = true;
+        setStatus(t('status_speaking'), 'connected');
+        addTranscriptMessage(persona ? persona.name : 'Zova', text, 'ai');
+        scrollTranscript();
 
-            // Web Speech API not available on Android WebView — skip TTS, show text only
-            if (!window.speechSynthesis) {
-                groqSpeaking = false;
-                setStatus(t('status_connected'), 'connected');
-                if (isConnected) groqStartListening(persona);
-                resolve();
+        const lang = LANG === 'es' ? 'es-ES' : LANG === 'fr' ? 'fr-FR' : 'en-US';
+
+        const done = () => {
+            groqSpeaking = false;
+            setStatus(t('status_connected'), 'connected');
+            if (isConnected) groqStartListening(persona);
+        };
+
+        // 1. Capacitor native TTS (Android) — uses device TTS engine
+        const CapTTS = window.Capacitor?.Plugins?.TextToSpeech;
+        if (IS_CAPACITOR && CapTTS) {
+            try {
+                await CapTTS.speak({ text, lang, rate: 1.0, pitch: 1.0, volume: 1.0, category: 'ambient' });
+                done();
                 return;
+            } catch(e) {
+                console.warn('[Zova] Capacitor TTS failed:', e);
             }
+        }
 
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = LANG === 'es' ? 'es-ES' : LANG === 'fr' ? 'fr-FR' : 'en-US';
-            utterance.rate = 1.0;
+        // 2. Web Speech API (browser / desktop)
+        if (window.speechSynthesis) {
+            return new Promise(resolve => {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = lang;
+                utterance.rate = 1.0;
+                utterance.onend = () => { done(); resolve(); };
+                utterance.onerror = () => { groqSpeaking = false; resolve(); };
+                window.speechSynthesis.speak(utterance);
+            });
+        }
 
-            utterance.onend = () => {
-                groqSpeaking = false;
-                setStatus(t('status_connected'), 'connected');
-                if (isConnected) groqStartListening(persona);
-                resolve();
-            };
-            utterance.onerror = () => { groqSpeaking = false; resolve(); };
-            window.speechSynthesis.speak(utterance);
-        });
+        // 3. Fallback — text only (no audio)
+        done();
     }
 
     // ════════════════════════════════════════════════
