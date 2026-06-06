@@ -2114,6 +2114,12 @@
                                 <li>Copiez la clé générée et collez-la ci-dessus</li>
                             </ol>
                         </div>
+
+                        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+                        <label for="ultravoxApiKeyInput">Clave API Ultravox</label>
+                        <input type="password" id="ultravoxApiKeyInput" placeholder="utv-...">
+                        <div class="hint">Para modelos Ultravox. <a href="https://app.ultravox.ai/settings/api-keys" target="_blank" rel="noopener">Obtener clave gratuita</a></div>
+                        <div id="ultravoxApiKeyStatus"></div>
                     </div>
 
                     <!-- Panel Modèle -->
@@ -2129,6 +2135,10 @@
                             </optgroup>
                             <optgroup label="Google Gemini">
                                 <option value="gemini-3.1-flash-live-preview">Gemini 3.1 Flash Live — performant &amp; économique</option>
+                            </optgroup>
+                            <optgroup label="Ultravox">
+                                <option value="ultravox-70b">Ultravox Llama 3.3 70B — económico (~$0.005/min)</option>
+                                <option value="ultravox-8b">Ultravox Llama 3.1 8B — muy económico (~$0.002/min)</option>
                             </optgroup>
                         </select>
                         <div id="modelPricingInfo" style="font-size:0.8rem;color:var(--text-secondary);padding:8px 12px;background:var(--bg-hover);border-radius:8px;margin-top:8px"></div>
@@ -2217,6 +2227,10 @@
                 </optgroup>
                 <optgroup label="Google Gemini">
                     <option value="gemini-3.1-flash-live-preview">Gemini 3.1 Flash Live — performant &amp; économique</option>
+                </optgroup>
+                <optgroup label="Ultravox">
+                    <option value="ultravox-70b">Ultravox Llama 3.3 70B — económico (~$0.005/min)</option>
+                    <option value="ultravox-8b">Ultravox Llama 3.1 8B — muy económico (~$0.002/min)</option>
                 </optgroup>
             </select>
             <div class="hint">Laissez sur "par défaut" pour utiliser le modèle choisi dans la configuration globale.</div>
@@ -2763,13 +2777,17 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         'gpt-realtime-mini': { input: 0.010, output: 0.020 },
         'gpt-realtime-translate': { input: 0.032, output: 0.064 },
         'gemini-3.1-flash-live-preview': { input: 0.003, output: 0.012 },
-        'gpt-realtime-whisper': { perMinute: 0.017 }
+        'gpt-realtime-whisper': { perMinute: 0.017 },
+        'ultravox-70b': { perMinute: 0.005 },
+        'ultravox-8b':  { perMinute: 0.002 }
     };
 
     const TRANSCRIPTEUR_ID = '__transcripteur__';
 
     function getProviderForModel(model) {
-        return model && model.startsWith('gemini') ? 'gemini' : 'openai';
+        if (model && model.startsWith('gemini')) return 'gemini';
+        if (model && model.startsWith('ultravox')) return 'ultravox';
+        return 'openai';
     }
 
     // Voix disponibles par fournisseur
@@ -2795,6 +2813,12 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             { value: 'Leda',    label: 'Leda — féminin, posée' },
             { value: 'Orus',    label: 'Orus — masculin, dynamique' },
             { value: 'Zephyr',  label: 'Zephyr — léger, expressif' }
+        ],
+        ultravox: [
+            { value: 'Mark',    label: 'Mark — masculine, clear' },
+            { value: 'Jessica', label: 'Jessica — feminine, warm' },
+            { value: 'Tanya',   label: 'Tanya — feminine, professional' },
+            { value: 'David',   label: 'David — masculine, deep' },
         ]
     };
 
@@ -2807,6 +2831,9 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
 
     function getGeminiApiKey() { return localStorage.getItem('buddy_geminiApiKey') || ''; }
     function setGeminiApiKey(k) { localStorage.setItem('buddy_geminiApiKey', k); }
+
+    function getUltravoxApiKey() { return localStorage.getItem('buddy_ultravoxApiKey') || ''; }
+    function setUltravoxApiKey(k) { localStorage.setItem('buddy_ultravoxApiKey', k); }
 
     function getTheme() { return localStorage.getItem('buddy_theme') || 'dark'; }
     function setThemeStorage(t) { localStorage.setItem('buddy_theme', t); }
@@ -3121,11 +3148,12 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         }
     }
 
-    function hasAnyApiKey() { return !!(getApiKey() || getGeminiApiKey()); }
+    function hasAnyApiKey() { return !!(getApiKey() || getGeminiApiKey() || getUltravoxApiKey()); }
 
     function openApiKeyModal() {
         apiKeyInput.value = getApiKey();
         geminiApiKeyInput.value = getGeminiApiKey();
+        document.getElementById('ultravoxApiKeyInput').value = getUltravoxApiKey();
         document.getElementById('realtimeModelSelect').value = getRealtimeModel();
         updateModelSelectDisabled();
         const limit = getBudgetLimit();
@@ -3179,9 +3207,10 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     document.getElementById('saveApiKeyBtn').addEventListener('click', async () => {
         const openaiKey = apiKeyInput.value.trim();
         const geminiKey = geminiApiKeyInput.value.trim();
+        const ultravoxKeyVal = document.getElementById('ultravoxApiKeyInput').value.trim();
 
-        if (!openaiKey && !geminiKey) {
-            customAlert('Au moins une clé API (OpenAI ou Gemini) est requise pour utiliser Buddy.', { title: 'Clé API requise', icon: '&#128273;' });
+        if (!openaiKey && !geminiKey && !ultravoxKeyVal) {
+            customAlert('Au moins une clé API (OpenAI, Gemini ou Ultravox) est requise pour utiliser Buddy.', { title: 'Clé API requise', icon: '&#128273;' });
             return;
         }
 
@@ -3199,6 +3228,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
 
         setApiKey(openaiKey);
         setGeminiApiKey(geminiKey);
+        if (ultravoxKeyVal !== undefined) setUltravoxApiKey(ultravoxKeyVal);
         setRealtimeModel(document.getElementById('realtimeModelSelect').value);
         const budgetNum = parseInt(document.getElementById('budgetLimitInput').value, 10);
         setBudgetLimit(!isNaN(budgetNum) && budgetNum > 0 ? budgetNum : null);
@@ -4291,6 +4321,8 @@ Règles IMPÉRATIVES :
 
         if (activeProvider === 'gemini') {
             connectGemini(persona);
+        } else if (activeProvider === 'ultravox') {
+            connectUltravox(persona);
         } else if (activeModelId === 'gpt-realtime-translate') {
             connectTranslate(persona);
         } else {
@@ -4545,6 +4577,123 @@ Règles IMPÉRATIVES :
             console.error('[Gemini] WebSocket closed:', e.code, e.reason);
             if (e.code !== 1000) setStatus(`Gemini déconnecté (code ${e.code}${e.reason ? ' — ' + e.reason : ''})`, 'error');
         };
+    }
+
+    async function connectUltravox(persona) {
+        const apiKey = getUltravoxApiKey();
+        if (!apiKey) { openApiKeyModal(); return; }
+
+        setStatus(t('status_connecting'));
+
+        let joinUrl;
+        try {
+            const fullInstructions = buildFullInstructions(persona);
+            const resp = await fetch('https://api.ultravox.ai/api/calls', {
+                method: 'POST',
+                headers: { 'X-API-Key': apiKey, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    systemPrompt: fullInstructions,
+                    model: activeModelId,
+                    voice: persona.voice || 'Mark',
+                    firstSpeaker: (persona.greeting === 'user') ? 'FIRST_SPEAKER_USER' : 'FIRST_SPEAKER_AGENT',
+                    temperature: (() => {
+                        const temps = { 'precise': 0.5, 'balanced': 0.7, 'creative': 0.9, 'wild': 1.1 };
+                        return temps[persona.creativity] || 0.7;
+                    })(),
+                    initialOutputMedium: 'MESSAGE_MEDIUM_VOICE',
+                    medium: { serverWebSocket: { inputSampleRate: 48000, outputSampleRate: 48000 } },
+                    transcriptOptional: false,
+                })
+            });
+            if (!resp.ok) {
+                const err = await resp.json().catch(() => ({}));
+                throw new Error(err.detail || `HTTP ${resp.status}`);
+            }
+            const data = await resp.json();
+            joinUrl = data.joinUrl;
+            if (!joinUrl) throw new Error('No joinUrl in Ultravox response');
+        } catch (err) {
+            setStatus(`Error: ${err.message}`, 'error');
+            return;
+        }
+
+        ws = new WebSocket(joinUrl);
+        ws.onopen = () => {
+            isConnected = true;
+            micReady = true;
+            setStatus(t('status_connected'), 'connected');
+        };
+
+        ws.onmessage = (e) => {
+            try {
+                const data = JSON.parse(e.data);
+                handleUltravoxServerEvent(data, persona);
+            } catch {
+                if (e.data instanceof Blob) {
+                    e.data.arrayBuffer().then(buf => {
+                        const float32 = new Float32Array(buf.byteLength / 2);
+                        const view = new DataView(buf);
+                        for (let i = 0; i < float32.length; i++) {
+                            float32[i] = view.getInt16(i * 2, true) / 32768;
+                        }
+                        if (!playbackContext) return;
+                        const audioBuf = playbackContext.createBuffer(1, float32.length, 48000);
+                        audioBuf.getChannelData(0).set(float32);
+                        const src = playbackContext.createBufferSource();
+                        src.buffer = audioBuf;
+                        src.connect(playbackAnalyser);
+                        const now = playbackContext.currentTime;
+                        const start = Math.max(now + 0.05, nextPlayTime);
+                        src.start(start);
+                        nextPlayTime = start + audioBuf.duration;
+                        playbackSources.push(src);
+                        src.onended = () => {
+                            const idx = playbackSources.indexOf(src);
+                            if (idx > -1) playbackSources.splice(idx, 1);
+                        };
+                    });
+                }
+            }
+        };
+
+        ws.onerror = () => setStatus('Error de conexión Ultravox', 'error');
+        ws.onclose = (e) => {
+            isConnected = false;
+            if (e.code !== 1000) setStatus(`Ultravox desconectado (${e.code})`, 'error');
+        };
+    }
+
+    function handleUltravoxServerEvent(data, persona) {
+        const personaName = persona ? persona.name : 'Buddy';
+
+        if (data.type === 'transcript' && data.role === 'agent') {
+            if (!currentTranscriptAi) {
+                currentTranscriptAi = addTranscriptMessage(personaName, '', 'ai');
+            }
+            currentTranscriptAi.querySelector('.text').textContent = data.text || '';
+            if (data.final) currentTranscriptAi = null;
+            scrollTranscript();
+        }
+
+        if (data.type === 'transcript' && data.role === 'user' && data.final) {
+            const txt = (data.text || '').trim();
+            if (txt) {
+                const el = document.getElementById('transcript');
+                const placeholder = el.querySelector('.transcript-empty');
+                if (placeholder) placeholder.remove();
+                const msg = document.createElement('div');
+                msg.className = 'transcript-msg user';
+                msg.innerHTML = `<div class="sender">${esc('Yo')}</div><div class="text">${esc(txt)}</div>`;
+                el.appendChild(msg);
+                scrollTranscript();
+            }
+        }
+
+        if (data.type === 'state') {
+            if (data.state === 'listening') setStatus(t('status_listening'), 'connected');
+            if (data.state === 'thinking') setStatus(t('status_thinking'), 'connected');
+            if (data.state === 'speaking') setStatus(t('status_speaking'), 'connected');
+        }
     }
 
     // ════════════════════════════════════════════════
@@ -5309,6 +5458,7 @@ Règles IMPÉRATIVES :
             // Vérifier qu'on a la bonne clé API
             if (activeProvider === 'openai' && !getApiKey()) { openApiKeyModal(); return; }
             if (activeProvider === 'gemini' && !getGeminiApiKey()) { openApiKeyModal(); return; }
+            if (activeProvider === 'ultravox' && !getUltravoxApiKey()) { openApiKeyModal(); return; }
         }
 
         // Vérification budget
