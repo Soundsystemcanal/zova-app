@@ -5,7 +5,8 @@
   "scripts": {
     "build": "echo 'No build step — single file HTML'",
     "sync": "npx cap sync android",
-    "open": "npx cap open android"
+    "open": "npx cap open android",
+    "postinstall": "patch-package && node scripts/fix-proguard.js"
   },
   "dependencies": {
     "@capacitor-community/text-to-speech": "^8.0.0",
@@ -16,6 +17,7 @@
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^8.0.0",
+    "patch-package": "^8.0.1",
     "sharp": "^0.34.5"
   }
 }
