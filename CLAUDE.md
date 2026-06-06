@@ -8,13 +8,17 @@
 
 - **App:** `buddy/www/index.html` (~6700 líneas)  
 - **Android:** `buddy/android/`  
-- **Icono fuente:** `buddy/assets/icon.png`  
+- **Icono fuente:** `buddy/assets/icon.svg` (micrófono Dark Cosmos) → compilado a `icon.png`
 - **ID:** `com.zova.voiceapp`
 
 ## Estado (2026-06-06)
 
 ✅ App funcional en Xiaomi 14T (Android 16 "Baklava")  
 ✅ Tasks 1–10 completos  
+✅ WakeLock + Reconnexión auto + PIN 4 dígitos  
+✅ Export/backup funcional en Android (modal JSON copiable)  
+✅ Icono Dark Cosmos v3 (mic violeta→rosa, ondas, ZOVA, bg #0a0a1f)  
+✅ Nombre: Kast → Buddy → **Zova** (`com.zova.voiceapp`)  
 ⏳ Task 11 — APK release firmado  
 ⏳ Task 12 — GitHub Releases + QR  
 
@@ -33,8 +37,9 @@ npx cap sync android
 # Verificar dispositivo conectado
 adb devices
 
-# Regenerar todos los iconos
-npx @capacitor/assets generate --iconBackgroundColor '#1a3a8f' --splashBackgroundColor '#1565c0'
+# Regenerar todos los iconos (Dark Cosmos bg)
+node -e "require('sharp')('assets/icon.svg').resize(1024,1024).png().toFile('assets/icon.png').then(()=>console.log('OK'))"
+npx @capacitor/assets generate --iconBackgroundColor '#0a0a1f' --iconBackgroundColorDark '#0a0a1f' --splashBackgroundColor '#0a0a1f' --splashBackgroundColorDark '#0a0a1f'
 ```
 
 ## Arquitectura
