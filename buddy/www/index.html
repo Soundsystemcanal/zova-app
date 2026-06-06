@@ -72,45 +72,6 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        /* ═══════════════════════════════════════
-           SIDEBAR (kept for reference, hidden)
-           ═══════════════════════════════════════ */
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-            text-align: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 1.7rem;
-            font-weight: 800;
-            letter-spacing: 0.12em;
-            margin-bottom: 4px;
-            cursor: pointer;
-            transition: opacity 0.15s;
-        }
-
-        .logo:hover { opacity: 0.75; }
-
-        .logo svg {
-            width: 38px;
-            height: 38px;
-            flex-shrink: 0;
-        }
-
-        .version-tag {
-            font-size: 0.7rem;
-            font-weight: 500;
-            color: var(--text-muted);
-            letter-spacing: 0.02em;
-            margin-left: 2px;
-            vertical-align: super;
-        }
-
         .btn-new-persona {
             width: 100%;
             padding: 10px;
@@ -2068,7 +2029,6 @@
       <button class="config-screen-btn" id="apiConfigBtn">&#9881; API Keys y Modelo</button>
       <button class="config-screen-btn" id="myInfoBtn">&#128100; Mis informaciones</button>
       <button class="config-screen-btn" id="backupBtn">&#128190; Copia de seguridad</button>
-      <button class="config-screen-btn" id="statsBtn" style="display:none"></button>
     </div>
 
   </div><!-- /appContent -->
@@ -2415,6 +2375,8 @@
     //  BOTTOM NAVIGATION
     // ════════════════════════════════════════════════
 
+    let currentTab = 'home';
+
     function switchTab(tab) {
         document.querySelectorAll('#appContent > div').forEach(s => s.classList.remove('active'));
         const screen = document.getElementById('screen' + tab.charAt(0).toUpperCase() + tab.slice(1));
@@ -2425,10 +2387,8 @@
         if (tab === 'personas') renderPersonasGrid();
         if (tab === 'stats') {
             renderScreenStats('periods');
-            document.querySelectorAll('#screenStatsTabBtns button').forEach(b => {
-                b.classList.toggle('active', b.dataset.statsTab === 'periods');
-            });
         }
+        currentTab = tab;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -2541,26 +2501,20 @@
     }
 
     function renderScreenStats(tab) {
-        // Render stats into the screen tab (not the modal)
-        const stats = getStats ? getStats() : {};
-        const container = document.getElementById('screenStatsContent');
-        if (!container) return;
-        // Temporarily redirect statsContent for renderStats reuse
-        const modalContainer = document.getElementById('statsContent');
-        const originalDisplay = modalContainer ? modalContainer.style.display : '';
-        // Call renderStats but patch the container temporarily
-        const origGetById = document.getElementById.bind(document);
-        const _origGetEl = document.getElementById;
-        document.getElementById = function(id) {
-            if (id === 'statsContent') return container;
-            if (id === 'statsTabBtns') return document.getElementById('screenStatsTabBtns');
-            return _origGetEl.call(document, id);
-        };
-        try {
-            renderStats(tab);
-        } finally {
-            document.getElementById = _origGetEl;
+        // Render stats into the screen container by swapping content after renderStats
+        const activeTab = tab || 'periods';
+        // Render into the modal container first (renderStats targets #statsContent)
+        renderStats(activeTab);
+        // Copy the rendered HTML into the screen container
+        const modalContent = document.getElementById('statsContent');
+        const screenContent = document.getElementById('screenStatsContent');
+        if (modalContent && screenContent) {
+            screenContent.innerHTML = modalContent.innerHTML;
         }
+        // Update screen tab buttons active state
+        document.querySelectorAll('#screenStatsTabBtns button').forEach(b => {
+            b.classList.toggle('active', b.dataset.statsTab === activeTab);
+        });
     }
 
     // ════════════════════════════════════════════════
@@ -2876,8 +2830,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             personas: getPersonas(),
             activePersonaId: getActiveId(),
             userInfo: getUserInfo(),
-            stats: getStats(),
-            sidebarCollapsed: localStorage.getItem('buddy_sidebarCollapsed') === 'true'
+            stats: getStats()
         };
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -2906,10 +2859,6 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
                 if (data.activePersonaId) setActiveId(data.activePersonaId);
                 if (data.userInfo !== undefined) setUserInfo(data.userInfo);
                 if (data.stats) localStorage.setItem('buddy_stats', JSON.stringify(data.stats));
-                if (data.sidebarCollapsed !== undefined) {
-                    localStorage.setItem('buddy_sidebarCollapsed', data.sidebarCollapsed);
-                    // setSidebarCollapsed removed — sidebar replaced by bottom nav
-                }
 
                 renderPersonaList();
                 renderPersonasGrid();
@@ -5685,10 +5634,6 @@ Règles de format :
     //  STATISTIQUES
     // ════════════════════════════════════════════════
 
-    document.getElementById('statsBtn').addEventListener('click', () => {
-        renderStats('periods');
-        document.getElementById('statsModal').classList.add('active');
-    });
     document.getElementById('closeStatsBtn').addEventListener('click', () => {
         document.getElementById('statsModal').classList.remove('active');
     });
@@ -5876,16 +5821,6 @@ Règles de format :
 
     renderPersonaList();
     showEmptyState();
-
-    // Init bottom nav event listener (also works for late script loading)
-    const _bottomNavEl = document.getElementById('bottomNav');
-    if (_bottomNavEl && !_bottomNavEl._navReady) {
-        _bottomNavEl._navReady = true;
-        _bottomNavEl.addEventListener('click', (e) => {
-            const tab = e.target.closest('.nav-tab');
-            if (tab) switchTab(tab.dataset.tab);
-        });
-    }
 
     // ════════════════════════════════════════════════
     //  RACCOURCIS CLAVIER
