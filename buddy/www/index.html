@@ -2697,7 +2697,17 @@
 
     let currentTab = 'home';
 
-    function switchTab(tab) {
+    async function switchTab(tab) {
+        // Block navigation away from Home during active conversation
+        if (currentTab === 'home' && tab !== 'home' && isConnected) {
+            const leave = await customConfirm(
+                '¿Terminar la conversación para navegar?',
+                { title: '📞 Conversación activa', confirmLabel: 'Terminar y salir', danger: true }
+            );
+            if (!leave) return; // user cancelled — stay on Home
+            stopConversation(true);
+        }
+
         document.querySelectorAll('#appContent > div').forEach(s => s.classList.remove('active'));
         const screen = document.getElementById('screen' + tab.charAt(0).toUpperCase() + tab.slice(1));
         if (screen) screen.classList.add('active');
@@ -2707,14 +2717,13 @@
         if (tab === 'personas') renderPersonasGrid();
         if (tab === 'stats') renderScreenStats('periods');
 
-        // Resume AudioContext when returning to Home (Android suspends it)
+        // Resume AudioContext when returning to Home
         if (tab === 'home' && isConnected) {
             if (audioContext && audioContext.state === 'suspended') {
                 audioContext.resume().catch(() => {});
             }
         }
 
-        // Update live indicator on all tabs
         updateLiveIndicator();
         currentTab = tab;
     }
