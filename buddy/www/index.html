@@ -66,67 +66,15 @@
                         var(--bg-primary);
             color: var(--text-primary);
             height: 100vh;
-            display: grid;
-            grid-template-columns: 280px 1fr;
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
-            transition: background 0.3s, color 0.3s, grid-template-columns 0.3s;
-        }
-
-        body.sidebar-collapsed {
-            grid-template-columns: 0px 1fr;
+            transition: background 0.3s, color 0.3s;
         }
 
         /* ═══════════════════════════════════════
-           SIDEBAR
+           SIDEBAR (kept for reference, hidden)
            ═══════════════════════════════════════ */
-        #sidebar {
-            background: var(--bg-sidebar);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            transition: background 0.3s, opacity 0.3s;
-            overflow: hidden;
-            position: relative;
-        }
-
-        body.sidebar-collapsed #sidebar {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        /* Toggle handle */
-        #sidebarToggle {
-            position: fixed;
-            top: 50%;
-            left: 280px;
-            transform: translateY(-50%);
-            z-index: 150;
-            width: 20px;
-            height: 48px;
-            background: var(--bg-sidebar);
-            border: 1px solid var(--border);
-            border-left: none;
-            border-radius: 0 10px 10px 0;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            font-size: 0.7rem;
-            transition: left 0.3s, background 0.15s, color 0.15s;
-        }
-
-        #sidebarToggle:hover {
-            background: var(--bg-active);
-            color: var(--text-primary);
-        }
-
-        body.sidebar-collapsed #sidebarToggle {
-            left: 0;
-            border-left: 1px solid var(--border);
-        }
-
         .sidebar-header {
             padding: 20px;
             border-bottom: 1px solid var(--border);
@@ -199,26 +147,9 @@
             background: var(--bg-active);
         }
 
-        .sidebar-section-header {
-            padding: 14px 14px 6px;
-            text-align: center;
-        }
+        /* Sidebar section styles removed — replaced by bottom nav */
 
-        .sidebar-section-title {
-            font-size: 0.82rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--text-primary);
-        }
-
-        .sidebar-section-subtitle {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        /* Liste des personas */
+        /* Liste des personas (kept for compat) */
         .persona-list {
             flex: 1;
             overflow-y: auto;
@@ -301,31 +232,7 @@
         .persona-item:hover .persona-item-delete { opacity: 0.6; }
         .persona-item-delete:hover { opacity: 1 !important; }
 
-        /* Footer sidebar */
-        .sidebar-footer {
-            padding: 12px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .sidebar-footer button {
-            width: 100%;
-            padding: 9px;
-            background: var(--bg-hover);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--text-secondary);
-            font-size: 0.82rem;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .sidebar-footer button:hover {
-            background: var(--bg-active);
-            color: var(--text-primary);
-        }
+        /* sidebar-footer removed — replaced by bottom nav */
 
 
         /* ═══════════════════════════════════════
@@ -1947,16 +1854,6 @@
         /* ═══════════════════════════════════════
            RESPONSIVE
            ═══════════════════════════════════════ */
-        @media (max-width: 900px) {
-            body { grid-template-columns: 0px 1fr; }
-            body.sidebar-collapsed { grid-template-columns: 0px 1fr; }
-            #sidebar { opacity: 0; pointer-events: none; }
-            #sidebarToggle { left: 0; border-left: 1px solid var(--border); }
-            #sidebarToggle.sidebar-open { left: 280px; border-left: none; }
-            body.sidebar-mobile-open { grid-template-columns: 280px 1fr; }
-            body.sidebar-mobile-open #sidebar { opacity: 1; pointer-events: auto; }
-        }
-
         @media (max-width: 600px) {
             .viz-container canvas { max-width: 140px; }
             #vizLinkWrap { margin: 0 8px; }
@@ -1979,131 +1876,222 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        /* ═══════════════════════════════════════
+           BOTTOM NAVIGATION & SCREENS
+           ═══════════════════════════════════════ */
+        #bottomNav {
+            display: flex;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+            flex-shrink: 0;
+            z-index: 100;
+        }
+
+        .nav-tab {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 6px 4px;
+            border: none;
+            background: none;
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            transition: color 0.2s;
+            font-family: inherit;
+        }
+
+        .nav-tab .nav-icon { font-size: 1.3rem; transition: transform 0.2s; }
+        .nav-tab.active { color: var(--accent); }
+        .nav-tab.active .nav-icon { transform: scale(1.15); }
+        .nav-tab:hover:not(.active) { color: var(--text-secondary); }
+
+        #appContent {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #screenHome, #screenPersonas, #screenStats, #screenConfig {
+            flex: 1;
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+        }
+
+        #screenHome.active, #screenPersonas.active,
+        #screenStats.active, #screenConfig.active {
+            display: flex;
+        }
+
+        #screenPersonas {
+            overflow-y: auto;
+            padding: 16px;
+            gap: 12px;
+        }
+
+        .personas-screen-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4px;
+            flex-shrink: 0;
+        }
+
+        .personas-screen-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        #screenConfig { overflow-y: auto; padding: 16px; }
+        #screenStats { overflow-y: auto; padding: 16px; }
+
+        .config-screen-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-bottom: 8px;
+            text-align: left;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+
+        .config-screen-btn:hover {
+            background: var(--bg-active);
+            color: var(--text-primary);
+        }
     </style>
 </head>
 <body>
 
-    <!-- ════════════════════════════════════════
-         SIDEBAR
-         ════════════════════════════════════════ -->
-    <aside id="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="buddyGrad" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stop-color="#8b5cf6"/>
-                            <stop offset="100%" stop-color="#ec4899"/>
-                        </linearGradient>
-                    </defs>
-                    <rect x="15" y="25" width="70" height="55" rx="14" fill="url(#buddyGrad)"/>
-                    <rect x="22" y="20" width="56" height="10" rx="5" fill="url(#buddyGrad)" opacity="0.6"/>
-                    <circle cx="37" cy="48" r="8" fill="#0a0a1f"/>
-                    <circle cx="63" cy="48" r="8" fill="#0a0a1f"/>
-                    <circle cx="37" cy="48" r="4" fill="#fff"/>
-                    <circle cx="63" cy="48" r="4" fill="#fff"/>
-                    <rect x="35" y="62" width="30" height="6" rx="3" fill="#0a0a1f"/>
-                    <rect x="8" y="45" width="10" height="6" rx="3" fill="url(#buddyGrad)" opacity="0.5"/>
-                    <rect x="82" y="45" width="10" height="6" rx="3" fill="url(#buddyGrad)" opacity="0.5"/>
-                </svg>
-                BUDDY<span class="version-tag">v1.7</span>
-            </div>
+  <!-- Hidden persona list for legacy JS compatibility -->
+  <div id="personaList" style="display:none"></div>
 
-            <button class="btn-new-persona" id="newPersonaBtn">+ Nouveau persona</button>
-            <label class="btn-import-persona" id="importPersonaLabel"><span class="icon">&#128194;</span> Importer un persona<input type="file" id="importPersonaInput" accept=".json" style="display:none"></label>
-        </div>
-        <div class="sidebar-section-header">
-            <div class="sidebar-section-title">Converser</div>
-            <div class="sidebar-section-subtitle">Lancer la conversation avec l'un de vos personas :</div>
-        </div>
-        <div class="persona-list" id="personaList"></div>
-        <div class="sidebar-footer">
-            <button id="myInfoBtn"><span class="icon">&#128100;</span> Mes infos</button>
-            <button id="statsBtn"><span class="icon">&#128202;</span> Statistiques</button>
-            <button id="apiConfigBtn"><span class="icon" style="font-size:1.15em">&#9881;</span> Configuration</button>
-            <button id="backupBtn"><span class="icon">&#128190;</span> Sauvegarde</button>
-        </div>
-    </aside>
+  <div id="appContent">
 
-    <!-- Toggle sidebar -->
-    <div id="sidebarToggle" title="Réduire / Afficher le panneau">&#9664;</div>
+    <!-- SCREEN: Home (conversation) -->
+    <div id="screenHome" class="active">
+      <button id="themeToggleBtn" class="main-top-btn" title="Tema" style="position:absolute;top:12px;right:14px;z-index:10">&#9789;</button>
+      <button id="homeBtn" class="main-top-btn" style="display:none">&#8962;</button>
 
-    <!-- ════════════════════════════════════════
-         ZONE PRINCIPALE
-         ════════════════════════════════════════ -->
-    <main id="main">
-        <button id="homeBtn" class="main-top-btn" title="Accueil">&#8962;</button>
-        <button id="themeToggleBtn" class="main-top-btn" title="Changer le thème">&#9789;</button>
-        <div id="emptyState">
-            <div class="welcome-title">Bienvenue sur Buddy</div>
-            <div class="welcome-subtitle">Choisissez un persona ou créez-en un nouveau</div>
-            <div class="welcome-grid" id="welcomeGrid"></div>
-        </div>
+      <div id="emptyState">
+          <div class="welcome-title">Bienvenido a Buddy</div>
+          <div class="welcome-subtitle">Elige un persona o crea uno nuevo</div>
+          <div class="welcome-grid" id="welcomeGrid"></div>
+      </div>
 
-        <div id="conversationArea" style="display:none">
-            <!-- Corps scrollable -->
-            <div id="conversationBody">
-                <!-- Fiche persona -->
-                <div id="personaHeader">
-                    <div id="personaHeaderAvatar"></div>
-                    <div class="persona-header-info">
-                        <div id="personaHeaderName"></div>
-                        <div id="personaHeaderDesc"></div>
-                    </div>
-                    <button class="btn-edit-persona" id="duplicatePersonaBtn" title="Dupliquer"><span class="icon">&#10697;</span></button>
-                    <button class="btn-edit-persona" id="editPersonaBtn" title="Modifier"><span class="icon">&#9998;</span></button>
-                </div>
+      <div id="conversationArea" style="display:none">
+          <div id="conversationBody">
+              <div id="personaHeader">
+                  <div id="personaHeaderAvatar"></div>
+                  <div class="persona-header-info">
+                      <div id="personaHeaderName"></div>
+                      <div id="personaHeaderDesc"></div>
+                  </div>
+                  <button class="btn-edit-persona" id="duplicatePersonaBtn" title="Duplicar"><span class="icon">&#10697;</span></button>
+                  <button class="btn-edit-persona" id="editPersonaBtn" title="Editar"><span class="icon">&#9998;</span></button>
+              </div>
+              <div id="vizBar">
+                  <span class="viz-label persona" id="personaVizLabel">Persona</span>
+                  <div id="vizLinkWrap"><canvas id="vizLinkCanvas" width="400" height="24"></canvas></div>
+                  <span class="viz-label user">Yo</span>
+              </div>
+              <div id="visualizers">
+                  <div class="viz-container"><canvas id="personaViz" width="280" height="280"></canvas></div>
+                  <div class="viz-container"><canvas id="userViz" width="280" height="280"></canvas></div>
+              </div>
+              <div id="controls">
+                  <button class="btn btn-start" id="startBtn">Iniciar conversación</button>
+                  <button class="btn-pause" id="pauseBtn" style="display:none">&#9208;</button>
+                  <button class="btn-mute" id="muteBtn" style="display:none"><span class="icon">&#127908;</span></button>
+                  <button class="btn btn-stop" id="stopBtn" style="display:none">Terminar</button>
+              </div>
+              <div id="status">Listo</div>
+              <div id="sessionBar" style="display:none">
+                  <div class="session-item"><span class="session-dot live"></span> <span id="sessionTimer">0:00</span></div>
+                  <div class="session-item" id="sessionModel"></div>
+                  <div class="session-item" id="sessionTokens"></div>
+                  <div class="session-item" id="sessionCost"></div>
+              </div>
+              <div class="transcript-header">
+                  <button class="transcript-toggle" id="transcriptToggle"><span class="icon">&#9660;</span> Transcripción</button>
+                  <div style="flex:1"></div>
+                  <button class="transcript-export-btn" id="copyTranscriptBtn"><span class="icon">&#128203;</span> Copiar</button>
+                  <button class="transcript-export-btn" id="exportTranscriptBtnConv"><span class="icon">&#128196;</span> Exportar</button>
+              </div>
+              <div id="transcript">
+                  <div class="transcript-empty">La transcripción aparecerá aquí...</div>
+              </div>
+          </div>
+      </div>
+      <div class="app-footer">Buddy — AI Voice Assistant &nbsp;·&nbsp; v1.0</div>
+    </div>
 
-                <!-- Noms + lien de connexion -->
-                <div id="vizBar">
-                    <span class="viz-label persona" id="personaVizLabel">Persona</span>
-                    <div id="vizLinkWrap"><canvas id="vizLinkCanvas" width="400" height="24"></canvas></div>
-                    <span class="viz-label user">Moi</span>
-                </div>
+    <!-- SCREEN: Personas -->
+    <div id="screenPersonas">
+      <div class="personas-screen-header">
+          <div class="personas-screen-title">Mis personas</div>
+          <button class="btn-new-persona" id="newPersonaBtn" style="width:auto;padding:8px 14px;font-size:0.82rem">+ Nuevo</button>
+      </div>
+      <label id="importPersonaLabel" style="display:none"><input type="file" id="importPersonaInput" accept=".json" style="display:none"></label>
+      <div class="welcome-grid" id="personasGrid"></div>
+    </div>
 
-                <!-- Visualiseurs : persona à gauche, moi à droite -->
-                <div id="visualizers">
-                    <div class="viz-container">
-                        <canvas id="personaViz" width="280" height="280"></canvas>
-                    </div>
-                    <div class="viz-container">
-                        <canvas id="userViz" width="280" height="280"></canvas>
-                    </div>
-                </div>
+    <!-- SCREEN: Stats -->
+    <div id="screenStats">
+      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--text-primary)">Estadísticas</h2>
+      <div class="stats-tabs" id="screenStatsTabBtns">
+          <button data-stats-tab="periods" class="active">Períodos</button>
+          <button data-stats-tab="personas">Personas</button>
+          <button data-stats-tab="models">Modelos</button>
+      </div>
+      <div id="screenStatsContent"></div>
+    </div>
 
-                <!-- Contrôles -->
-                <div id="controls">
-                    <button class="btn btn-start" id="startBtn" title="Démarrer (Espace)">Démarrer la conversation</button>
-                    <button class="btn-pause" id="pauseBtn" style="display:none" title="Pause / Reprendre (P)">&#9208;</button>
-                    <button class="btn-mute" id="muteBtn" style="display:none" title="Couper / activer le micro (M)"><span class="icon">&#127908;</span></button>
-                    <button class="btn btn-stop" id="stopBtn" style="display:none" title="Terminer (Espace / Échap)">Terminer</button>
-                </div>
-                <div id="status">Prêt</div>
+    <!-- SCREEN: Config -->
+    <div id="screenConfig">
+      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--text-primary)">Configuración</h2>
+      <button class="config-screen-btn" id="apiConfigBtn">&#9881; API Keys y Modelo</button>
+      <button class="config-screen-btn" id="myInfoBtn">&#128100; Mis informaciones</button>
+      <button class="config-screen-btn" id="backupBtn">&#128190; Copia de seguridad</button>
+      <button class="config-screen-btn" id="statsBtn" style="display:none"></button>
+    </div>
 
-                <!-- Barre de session -->
-                <div id="sessionBar" style="display:none">
-                    <div class="session-item"><span class="session-dot live"></span> <span id="sessionTimer">0:00</span></div>
-                    <div class="session-item" id="sessionModel"></div>
-                    <div class="session-item" id="sessionTokens"></div>
-                    <div class="session-item" id="sessionCost"></div>
-                </div>
+  </div><!-- /appContent -->
 
-                <!-- Transcription -->
-                <div class="transcript-header">
-                    <button class="transcript-toggle" id="transcriptToggle"><span class="icon">&#9660;</span> Transcription</button>
-                    <div style="flex:1"></div>
-                    <button class="transcript-export-btn" id="copyTranscriptBtn" title="Copier la transcription"><span class="icon">&#128203;</span> Copier</button>
-                    <button class="transcript-export-btn" id="exportTranscriptBtnConv" title="Exporter la transcription"><span class="icon">&#128196;</span> Exporter</button>
-                </div>
-                <div id="transcript">
-                    <div class="transcript-empty">La transcription apparaîtra ici...</div>
-                </div>
-            </div>
-        </div>
-        <div class="app-footer">
-    Buddy — AI Voice Assistant &nbsp;·&nbsp; v1.0
-</div>
-    </main>
+  <!-- BOTTOM NAVIGATION -->
+  <nav id="bottomNav">
+      <button class="nav-tab active" data-tab="home">
+          <span class="nav-icon">&#127968;</span>
+          <span>Inicio</span>
+      </button>
+      <button class="nav-tab" data-tab="personas">
+          <span class="nav-icon">&#128100;</span>
+          <span>Personas</span>
+      </button>
+      <button class="nav-tab" data-tab="stats">
+          <span class="nav-icon">&#128202;</span>
+          <span>Stats</span>
+      </button>
+      <button class="nav-tab" data-tab="config">
+          <span class="nav-icon">&#9881;&#65039;</span>
+          <span>Config</span>
+      </button>
+  </nav>
 
     <!-- ════════════════════════════════════════
          MODAL : Configuration
@@ -2424,6 +2412,158 @@
 
     <script>
     // ════════════════════════════════════════════════
+    //  BOTTOM NAVIGATION
+    // ════════════════════════════════════════════════
+
+    function switchTab(tab) {
+        document.querySelectorAll('#appContent > div').forEach(s => s.classList.remove('active'));
+        const screen = document.getElementById('screen' + tab.charAt(0).toUpperCase() + tab.slice(1));
+        if (screen) screen.classList.add('active');
+        document.querySelectorAll('.nav-tab').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tab);
+        });
+        if (tab === 'personas') renderPersonasGrid();
+        if (tab === 'stats') {
+            renderScreenStats('periods');
+            document.querySelectorAll('#screenStatsTabBtns button').forEach(b => {
+                b.classList.toggle('active', b.dataset.statsTab === 'periods');
+            });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const nav = document.getElementById('bottomNav');
+        if (nav) {
+            nav.addEventListener('click', (e) => {
+                const tab = e.target.closest('.nav-tab');
+                if (tab) switchTab(tab.dataset.tab);
+            });
+        }
+        const screenStatsTabs = document.getElementById('screenStatsTabBtns');
+        if (screenStatsTabs) {
+            screenStatsTabs.addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-stats-tab]');
+                if (!btn) return;
+                screenStatsTabs.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderScreenStats(btn.dataset.statsTab);
+            });
+        }
+    });
+
+    function renderPersonasGrid() {
+        const grid = document.getElementById('personasGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        const list = getPersonas();
+
+        list.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'welcome-card';
+            card.innerHTML = `
+                <button class="welcome-card-menu-btn" title="Opciones">&hellip;</button>
+                <div class="welcome-card-menu">
+                    <button data-action="edit"><span class="icon">&#9998;</span> Editar</button>
+                    <button data-action="duplicate"><span class="icon">&#10697;</span> Duplicar</button>
+                    <button data-action="export"><span class="icon">&#128190;</span> Exportar</button>
+                    <button data-action="delete" class="danger"><span class="icon">&#128465;</span> Eliminar</button>
+                </div>
+                <div class="welcome-card-avatar">
+                    ${p.image ? `<img src="${p.image}">` : `<div class="welcome-card-placeholder">${p.name.charAt(0).toUpperCase()}</div>`}
+                </div>
+                <div class="welcome-card-name">${esc(p.name)}</div>
+                <div class="welcome-card-desc">${esc(p.description || '')}</div>
+            `;
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.welcome-card-menu-btn') || e.target.closest('.welcome-card-menu')) return;
+                selectPersona(p.id);
+                switchTab('home');
+            });
+            const menuBtn = card.querySelector('.welcome-card-menu-btn');
+            const menu = card.querySelector('.welcome-card-menu');
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                grid.querySelectorAll('.welcome-card-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
+                menu.classList.toggle('open');
+            });
+            menu.querySelector('[data-action="edit"]').addEventListener('click', (e) => {
+                e.stopPropagation(); menu.classList.remove('open'); openPersonaModal(p);
+            });
+            menu.querySelector('[data-action="duplicate"]').addEventListener('click', (e) => {
+                e.stopPropagation(); menu.classList.remove('open');
+                const dup = {...JSON.parse(JSON.stringify(p)), id:'p_'+Date.now(), name: p.name+' (copia)'};
+                const all = getPersonas(); all.push(dup); savePersonas(all); renderPersonasGrid();
+            });
+            menu.querySelector('[data-action="export"]').addEventListener('click', (e) => {
+                e.stopPropagation(); menu.classList.remove('open');
+                const exp = { type:'buddy-persona', version:1, exportDate: new Date().toISOString(),
+                    persona: {name:p.name,description:p.description,image:p.image,model:p.model,
+                    voice:p.voice,reactivity:p.reactivity,creativity:p.creativity,greeting:p.greeting,
+                    translateLang:p.translateLang,prompt:p.prompt}};
+                downloadFile(JSON.stringify(exp,null,2), `buddy-persona-${p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}.json`, 'application/json');
+            });
+            menu.querySelector('[data-action="delete"]').addEventListener('click', async (e) => {
+                e.stopPropagation(); menu.classList.remove('open');
+                if (!await customConfirm(`¿Eliminar «${p.name}»?`, {title:'Eliminar persona',icon:'&#128465;',confirmLabel:'Eliminar',danger:true})) return;
+                const newList = getPersonas().filter(x => x.id !== p.id);
+                savePersonas(newList);
+                if (getActiveId() === p.id) { setActiveId(''); showEmptyState(); }
+                renderPersonasGrid();
+            });
+            grid.appendChild(card);
+        });
+
+        // Transcriptor card
+        const trCard = document.createElement('div');
+        trCard.className = 'welcome-card welcome-card-new';
+        trCard.innerHTML = `<div class="welcome-card-avatar"><div class="transcripteur-card-icon">T</div></div><div class="welcome-card-name">Transcriptor</div><div class="welcome-card-desc">Transcripción de voz</div>`;
+        trCard.addEventListener('click', () => { selectTranscripteur(); switchTab('home'); });
+        grid.appendChild(trCard);
+
+        // New persona card
+        const newCard = document.createElement('div');
+        newCard.className = 'welcome-card welcome-card-new';
+        newCard.innerHTML = `<div class="welcome-card-new-icon">+</div><div class="welcome-card-name">Nuevo persona</div>`;
+        newCard.addEventListener('click', () => openPersonaModal());
+        grid.appendChild(newCard);
+
+        // Import card
+        const importCard = document.createElement('label');
+        importCard.className = 'welcome-card welcome-card-new';
+        importCard.style.cursor = 'pointer';
+        importCard.innerHTML = `<div class="welcome-card-new-icon"><span class="icon">&#128194;</span></div><div class="welcome-card-name">Importar</div><input type="file" accept=".json" style="display:none" class="welcome-import-input">`;
+        importCard.querySelector('.welcome-import-input').addEventListener('change', (e) => {
+            document.getElementById('importPersonaInput').files = e.target.files;
+            document.getElementById('importPersonaInput').dispatchEvent(new Event('change'));
+            e.target.value = '';
+        });
+        grid.appendChild(importCard);
+    }
+
+    function renderScreenStats(tab) {
+        // Render stats into the screen tab (not the modal)
+        const stats = getStats ? getStats() : {};
+        const container = document.getElementById('screenStatsContent');
+        if (!container) return;
+        // Temporarily redirect statsContent for renderStats reuse
+        const modalContainer = document.getElementById('statsContent');
+        const originalDisplay = modalContainer ? modalContainer.style.display : '';
+        // Call renderStats but patch the container temporarily
+        const origGetById = document.getElementById.bind(document);
+        const _origGetEl = document.getElementById;
+        document.getElementById = function(id) {
+            if (id === 'statsContent') return container;
+            if (id === 'statsTabBtns') return document.getElementById('screenStatsTabBtns');
+            return _origGetEl.call(document, id);
+        };
+        try {
+            renderStats(tab);
+        } finally {
+            document.getElementById = _origGetEl;
+        }
+    }
+
+    // ════════════════════════════════════════════════
     //  DIALOGUES CUSTOM
     // ════════════════════════════════════════════════
 
@@ -2713,7 +2853,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         applyTheme(getTheme() === 'dark' ? 'light' : 'dark');
     });
 
-    document.getElementById('homeBtn').addEventListener('click', () => showEmptyState());
+    document.getElementById('homeBtn').addEventListener('click', () => { showEmptyState(); switchTab('home'); });
 
     // ════════════════════════════════════════════════
     //  SAUVEGARDE (EXPORT / IMPORT)
@@ -2768,10 +2908,11 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
                 if (data.stats) localStorage.setItem('buddy_stats', JSON.stringify(data.stats));
                 if (data.sidebarCollapsed !== undefined) {
                     localStorage.setItem('buddy_sidebarCollapsed', data.sidebarCollapsed);
-                    setSidebarCollapsed(data.sidebarCollapsed);
+                    // setSidebarCollapsed removed — sidebar replaced by bottom nav
                 }
 
                 renderPersonaList();
+                renderPersonasGrid();
                 const activeId = getActiveId();
                 if (activeId && getPersonas().find(p => p.id === activeId)) {
                     selectPersona(activeId);
@@ -2790,25 +2931,13 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     });
 
     // ════════════════════════════════════════════════
-    //  SIDEBAR TOGGLE
+    //  SIDEBAR TOGGLE (disabled — replaced by bottom nav)
     // ════════════════════════════════════════════════
 
-    const sidebarToggle = document.getElementById('sidebarToggle');
-
-    function setSidebarCollapsed(collapsed) {
-        document.body.classList.toggle('sidebar-collapsed', collapsed);
-        sidebarToggle.innerHTML = collapsed ? '&#9654;' : '&#9664;';
-        localStorage.setItem('buddy_sidebarCollapsed', collapsed);
-    }
-
-    sidebarToggle.addEventListener('click', () => {
-        setSidebarCollapsed(!document.body.classList.contains('sidebar-collapsed'));
-    });
-
-    // Restaurer l'état
-    if (localStorage.getItem('buddy_sidebarCollapsed') === 'true') {
-        setSidebarCollapsed(true);
-    }
+    // const sidebarToggle = document.getElementById('sidebarToggle');
+    // function setSidebarCollapsed(collapsed) { ... }
+    // sidebarToggle.addEventListener('click', ...);
+    // if (localStorage.getItem('buddy_sidebarCollapsed') === 'true') { setSidebarCollapsed(true); }
 
     // ════════════════════════════════════════════════
     //  MODAL CLÉ API
@@ -3081,7 +3210,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     }
 
     document.getElementById('newPersonaBtn').addEventListener('click', () => openPersonaModal());
-    document.querySelector('.logo').addEventListener('click', () => showEmptyState());
+    // document.querySelector('.logo') removed — logo no longer exists (sidebar replaced by bottom nav)
     document.getElementById('cancelPersonaBtn').addEventListener('click', closePersonaModal);
     document.getElementById('closePersonaBtn').addEventListener('click', closePersonaModal);
     document.getElementById('pModel').addEventListener('change', () => {
@@ -3108,6 +3237,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         list.push(duplicate);
         savePersonas(list);
         renderPersonaList();
+        renderPersonasGrid();
         selectPersona(duplicate.id);
     });
     document.getElementById('editPersonaBtn').addEventListener('click', () => {
@@ -3371,6 +3501,7 @@ Règles IMPÉRATIVES :
         savePersonas(list);
         closePersonaModal();
         renderPersonaList();
+        renderPersonasGrid();
         selectPersona(persona.id);
     });
 
@@ -3437,6 +3568,7 @@ Règles IMPÉRATIVES :
                 list.push(newPersona);
                 savePersonas(list);
                 renderPersonaList();
+                renderPersonasGrid();
                 selectPersona(newPersona.id);
 
             } catch (err) {
@@ -5744,6 +5876,16 @@ Règles de format :
 
     renderPersonaList();
     showEmptyState();
+
+    // Init bottom nav event listener (also works for late script loading)
+    const _bottomNavEl = document.getElementById('bottomNav');
+    if (_bottomNavEl && !_bottomNavEl._navReady) {
+        _bottomNavEl._navReady = true;
+        _bottomNavEl.addEventListener('click', (e) => {
+            const tab = e.target.closest('.nav-tab');
+            if (tab) switchTab(tab.dataset.tab);
+        });
+    }
 
     // ════════════════════════════════════════════════
     //  RACCOURCIS CLAVIER
