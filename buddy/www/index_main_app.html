@@ -4395,13 +4395,9 @@ Règles IMPÉRATIVES :
             }
         };
 
-        const blob = new Blob([JSON.stringify(personaExport, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `zova-persona-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
+        // Sur Android WebView, a.download ne fonctionne pas → modal copiable
+        const filename = `zova-persona-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`;
+        showExportModal(JSON.stringify(personaExport, null, 2), filename);
     });
 
     // Import persona
