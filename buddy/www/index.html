@@ -924,6 +924,66 @@
             color: var(--text-muted);
         }
 
+        /* ── Model Picker ──────────────────────────── */
+        #modelPickerWrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 8px;
+        }
+        .model-picker-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            padding: 5px 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: border-color 0.2s, color 0.2s;
+            font-family: inherit;
+        }
+        .model-picker-btn:hover { border-color: var(--violet); color: var(--text-primary); }
+        .model-picker-arrow { font-size: 0.65rem; opacity: 0.6; }
+        .model-picker-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 8px;
+            padding: 0 12px;
+        }
+        .model-picker-chip {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            color: var(--text-secondary);
+            font-size: 0.72rem;
+            padding: 5px 12px;
+            cursor: pointer;
+            text-align: center;
+            line-height: 1.3;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+        .model-picker-chip.active {
+            background: var(--violet);
+            border-color: var(--violet);
+            color: #fff;
+        }
+        .model-picker-chip:hover:not(.active) {
+            border-color: var(--violet);
+            color: var(--text-primary);
+        }
+        .model-picker-chip-cost {
+            display: block;
+            font-size: 0.65rem;
+            opacity: 0.7;
+            margin-top: 1px;
+        }
+
         .btn-pause {
             background: none;
             border: 2px solid var(--accent);
@@ -1870,6 +1930,41 @@
             .welcome-card-menu-btn { opacity: 1; }
         }
 
+        /* Model per action */
+        .model-action-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .model-action-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            width: 160px;
+            flex-shrink: 0;
+        }
+        .model-action-select {
+            flex: 1;
+            min-width: 0;
+            padding: 7px 10px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.78rem;
+            font-family: inherit;
+            cursor: pointer;
+        }
+        .model-action-cost {
+            font-size: 0.72rem;
+            color: var(--accent);
+            font-weight: 600;
+            flex-shrink: 0;
+            min-width: 70px;
+            text-align: right;
+        }
+
         /* Live conversation indicator */
         @keyframes livePulse {
             0%, 100% { opacity: 1; transform: scale(1); }
@@ -2123,6 +2218,43 @@
       <button class="config-screen-btn" id="myInfoBtn">&#128100; <span data-i18n="config_my_info">Mis informaciones</span></button>
       <button class="config-screen-btn" id="backupBtn">&#128190; <span data-i18n="config_backup">Copia de seguridad</span></button>
       <button class="config-screen-btn" id="themeToggleBtn">&#9789; <span id="themeToggleLabel">Mode sombre</span></button>
+      <!-- Budget & Modèles par action -->
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px">⚖️ Modèles par action</div>
+
+        <div class="model-action-row">
+          <div class="model-action-label">🎙️ Conversations</div>
+          <select id="modelConvSelect" class="model-action-select"></select>
+          <div id="modelConvCost" class="model-action-cost"></div>
+        </div>
+
+        <div class="model-action-row">
+          <div class="model-action-label">⚡ Groq — réponses</div>
+          <select id="modelGroqSelect" class="model-action-select">
+            <option value="llama-3.3-70b-versatile">Llama 3.3 70B — qualité ($0.001/min)</option>
+            <option value="llama-3.1-8b-instant">Llama 3.1 8B — rapide ($0.0005/min)</option>
+          </select>
+        </div>
+
+        <div class="model-action-row">
+          <div class="model-action-label">🧠 Mémoire épisodique</div>
+          <select id="modelMemorySelect" class="model-action-select">
+            <option value="llama3-8b-8192">Llama 3 8B — économique</option>
+            <option value="llama-3.3-70b-versatile">Llama 3.3 70B — précis</option>
+            <option value="gemma2-9b-it">Gemma 2 9B — alternatif</option>
+          </select>
+        </div>
+
+        <div class="model-action-row">
+          <div class="model-action-label">📝 Résumés / Insights</div>
+          <select id="modelInsightSelect" class="model-action-select">
+            <option value="llama3-8b-8192">Llama 3 8B — économique</option>
+            <option value="llama-3.3-70b-versatile">Llama 3.3 70B — précis</option>
+            <option value="gemma2-9b-it">Gemma 2 9B — alternatif</option>
+          </select>
+        </div>
+      </div>
+
       <!-- Episodic Memory -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
         <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🧠 Mémoire épisodique</div>
@@ -4707,11 +4839,11 @@ Règles IMPÉRATIVES :
     }
 
     async function generateMemory(persona, transcriptText) {
-        const groqKey = await getGroqApiKey();
-        if (!groqKey || !transcriptText.trim()) return;
+        if (!transcriptText.trim()) return;
 
-        const msgs = document.querySelectorAll('#transcript .transcript-msg');
-        if (msgs.length < MIN_MSGS_FOR_MEMORY) return;
+        // Count exchanges from transcript text instead of DOM (DOM may be stale)
+        const lineCount = transcriptText.split('\n').filter(l => l.trim()).length;
+        if (lineCount < MIN_MSGS_FOR_MEMORY) return;
 
         const personaName = persona ? persona.name : 'Zova';
         const date = new Date().toLocaleDateString(LANG === 'fr' ? 'fr-FR' : LANG === 'es' ? 'es-ES' : 'en-US', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -4722,29 +4854,41 @@ Focalise-toi sur: les sujets principaux, l'humeur, les informations importantes 
 Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: ${LANG === 'fr' ? 'français' : LANG === 'es' ? 'español' : 'english'}.`;
 
         try {
-            const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: 'llama3-8b-8192',
-                    messages: [
-                        { role: 'system', content: systemPrompt },
-                        { role: 'user', content: transcriptText.slice(0, 3000) }
-                    ],
-                    max_tokens: 100,
-                    temperature: 0.3
-                })
-            });
-            if (!resp.ok) return;
-            const data = await resp.json();
-            const summary = (data.choices?.[0]?.message?.content || '').trim();
-            if (summary.length > 10) {
-                saveMemory({
-                    date,
-                    personaId: persona?.id || '',
-                    personaName,
-                    summary
+            let summary = '';
+            const groqKey = await getGroqApiKey();
+            if (groqKey) {
+                // Groq preferred: cheapest and fastest
+                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: getModelMemory(),
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: transcriptText.slice(0, 3000) }
+                        ],
+                        max_tokens: 100,
+                        temperature: 0.3
+                    })
                 });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    summary = (data.choices?.[0]?.message?.content || '').trim();
+                }
+            }
+
+            if (!summary) {
+                // Fallback: OpenAI or Gemini via chatCompletion()
+                summary = await chatCompletion({
+                    systemPrompt,
+                    userPrompt: transcriptText.slice(0, 3000),
+                    temperature: 0.3,
+                    maxTokens: 100
+                });
+            }
+
+            if (summary.length > 10) {
+                saveMemory({ date, personaId: persona?.id || '', personaName, summary });
                 console.log('[Zova Memory] Saved:', summary.slice(0, 60) + '...');
             }
         } catch(e) {
@@ -6954,6 +7098,83 @@ Règles de format :
             overlay.classList.remove('active');
         });
     });
+
+    // ════════════════════════════════════════════════
+    //  MODÈLES PAR ACTION
+    // ════════════════════════════════════════════════
+
+    const MODEL_CONV_OPTIONS = [
+        { value: 'groq-8b',        label: 'Groq 8B — ultra éco',    cost: '~$0.0005/min' },
+        { value: 'groq-70b',       label: 'Groq 70B — équilibré',   cost: '~$0.001/min'  },
+        { value: 'ultravox-70b',   label: 'Ultravox — voix native', cost: '~$0.005/min'  },
+        { value: 'gemini',         label: 'Gemini Live',            cost: '~$0.01/min'   },
+        { value: 'openai',         label: 'OpenAI Realtime',        cost: '~$0.06/min'   },
+    ];
+
+    function getModelConv()    { return localStorage.getItem('buddy_modelConv')    || 'groq-70b'; }
+    function getModelGroq()    { return localStorage.getItem('buddy_modelGroq')    || 'llama-3.3-70b-versatile'; }
+    function getModelMemory()  { return localStorage.getItem('buddy_modelMemory')  || 'llama3-8b-8192'; }
+    function getModelInsight() { return localStorage.getItem('buddy_modelInsight') || 'llama3-8b-8192'; }
+
+    function initModelSelectors() {
+        // Conversation model selector
+        const convSel = document.getElementById('modelConvSelect');
+        convSel.innerHTML = MODEL_CONV_OPTIONS.map(o =>
+            `<option value="${o.value}">${o.label}</option>`
+        ).join('');
+        convSel.value = getModelConv();
+        updateConvCost();
+
+        convSel.addEventListener('change', () => {
+            localStorage.setItem('buddy_modelConv', convSel.value);
+            updateConvCost();
+            applyConvModel(convSel.value);
+        });
+
+        // Groq LLM model
+        const groqSel = document.getElementById('modelGroqSelect');
+        groqSel.value = getModelGroq();
+        groqSel.addEventListener('change', () => localStorage.setItem('buddy_modelGroq', groqSel.value));
+
+        // Memory model
+        const memSel = document.getElementById('modelMemorySelect');
+        memSel.value = getModelMemory();
+        memSel.addEventListener('change', () => localStorage.setItem('buddy_modelMemory', memSel.value));
+
+        // Insight model
+        const insSel = document.getElementById('modelInsightSelect');
+        insSel.value = getModelInsight();
+        insSel.addEventListener('change', () => localStorage.setItem('buddy_modelInsight', insSel.value));
+    }
+
+    function updateConvCost() {
+        const val = document.getElementById('modelConvSelect').value;
+        const opt = MODEL_CONV_OPTIONS.find(o => o.value === val);
+        const el = document.getElementById('modelConvCost');
+        if (el && opt) el.textContent = opt.cost;
+    }
+
+    function applyConvModel(val) {
+        // Map selector value to provider + modelId
+        if (val === 'openai') {
+            activeProvider = 'openai';
+            // keep current openai model
+        } else if (val === 'gemini') {
+            activeProvider = 'gemini';
+        } else if (val === 'ultravox-70b' || val === 'ultravox-8b') {
+            activeProvider = 'ultravox';
+            activeModelId = val;
+        } else if (val === 'groq-70b' || val === 'groq-8b') {
+            activeProvider = 'groq';
+            activeModelId = val;
+        }
+    }
+
+    initModelSelectors();
+    // Apply saved conv model on startup
+    applyConvModel(getModelConv());
+
+    // ════════════════════════════════════════════════
 
     // Memory buttons in Config
     function updateMemoryCount() {
