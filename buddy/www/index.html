@@ -5088,10 +5088,41 @@ Règles IMPÉRATIVES :
     let groqVADSilenceTimer = null;
     let groqRecordingActive = false;
 
+    let groqVadContext = null;
+    let groqAudioLevel = 0; // independent VAD level for Groq
+
     async function connectGroq(persona) {
         const apiKey = await getGroqApiKey();
         if (!apiKey) { openApiKeyModal(); return; }
         requestWakeLock();
+
+        // Get microphone stream
+        try {
+            if (!mediaStream || !mediaStream.active) {
+                mediaStream = await navigator.mediaDevices.getUserMedia({
+                    audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 }
+                });
+            }
+        } catch(e) {
+            setStatus('Microphone requis', 'error');
+            return;
+        }
+
+        // Setup independent audio level analyser for Groq VAD
+        if (groqVadContext) { try { groqVadContext.close(); } catch(e) {} }
+        groqVadContext = new AudioContext();
+        const analyser = groqVadContext.createAnalyser();
+        analyser.fftSize = 256;
+        const vadSource = groqVadContext.createMediaStreamSource(mediaStream);
+        vadSource.connect(analyser);
+        const vadData = new Uint8Array(analyser.frequencyBinCount);
+        const updateGroqLevel = () => {
+            if (!groqVadContext || groqVadContext.state === 'closed') return;
+            analyser.getByteFrequencyData(vadData);
+            groqAudioLevel = vadData.reduce((a, b) => a + b, 0) / vadData.length / 255;
+            requestAnimationFrame(updateGroqLevel);
+        };
+        updateGroqLevel();
 
         isConnected = true;
         micReady = true;
@@ -5104,13 +5135,20 @@ Règles IMPÉRATIVES :
                              'Hello! How can I help you?';
             await groqSpeak(greeting, persona);
         }
+        // Wait for TTS audio to fully stop before opening mic
+        await new Promise(r => setTimeout(r, 700));
         groqStartListening(persona);
     }
 
     function groqStartListening(persona) {
         if (groqSpeaking || groqRecordingActive || !isConnected) return;
+        if (!mediaStream || !mediaStream.active) {
+            setTimeout(() => groqStartListening(persona), 500);
+            return;
+        }
         groqChunks = [];
         groqRecordingActive = true;
+        setStatus('🎙️ ' + t('status_connected'), 'connected');
 
         const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
             ? 'audio/webm;codecs=opus' : 'audio/webm';
@@ -5119,20 +5157,33 @@ Règles IMPÉRATIVES :
         groqMediaRecorder.onstop = () => groqProcessAudio(persona);
         groqMediaRecorder.start(100);
 
+        let speechStarted = false;
+        const SILENCE_AFTER_SPEECH = 1800; // ms silence after speech detected
+        const MAX_WAIT_FOR_SPEECH = 8000;  // max wait for user to start speaking
+        const startedAt = Date.now();
+
         const checkSilence = () => {
             if (!groqRecordingActive) return;
-            if (userAudioLevel < 0.02) {
+            const level = groqAudioLevel;
+            if (level > 0.04) {
+                speechStarted = true;
+                clearTimeout(groqVADSilenceTimer);
+                groqVADSilenceTimer = null;
+            } else if (speechStarted) {
+                // User was speaking, now silent → wait then cut
                 if (!groqVADSilenceTimer) {
                     groqVADSilenceTimer = setTimeout(() => {
-                        if (groqRecordingActive && groqMediaRecorder && groqMediaRecorder.state !== 'inactive') {
+                        if (groqRecordingActive && groqMediaRecorder?.state !== 'inactive') {
                             groqRecordingActive = false;
                             groqMediaRecorder.stop();
                         }
-                    }, 1500);
+                    }, SILENCE_AFTER_SPEECH);
                 }
-            } else {
-                clearTimeout(groqVADSilenceTimer);
-                groqVADSilenceTimer = null;
+            } else if (Date.now() - startedAt > MAX_WAIT_FOR_SPEECH) {
+                // User never spoke — give up silently
+                groqRecordingActive = false;
+                if (groqMediaRecorder?.state !== 'inactive') groqMediaRecorder.stop();
+                return;
             }
             if (groqRecordingActive) requestAnimationFrame(checkSilence);
         };
@@ -6291,6 +6342,8 @@ Règles IMPÉRATIVES :
         groqVADSilenceTimer = null;
         groqRecordingActive = false;
         if (window.speechSynthesis) window.speechSynthesis.cancel();
+        if (groqVadContext) { try { groqVadContext.close(); } catch(e) {} groqVadContext = null; }
+        groqAudioLevel = 0;
         releaseWakeLock();
         cancelReconnect();
 
