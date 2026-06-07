@@ -6376,6 +6376,9 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
             const persona = getPersonas().find(p => p.id === getActiveId());
             activeModelId = getEffectiveModel(persona);
             activeProvider = getProviderForModel(activeModelId);
+            if (sessionModelOverride) {
+                applyConvModel(sessionModelOverride); // sobreescribe provider (y modelId para groq/ultravox)
+            }
 
             // Vérifier qu'on a la bonne clé API
             if (activeProvider === 'openai' && !await getApiKey()) { openApiKeyModal(); return; }
