@@ -5245,7 +5245,7 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
                 body: JSON.stringify({
                     systemPrompt: fullInstructions,
                     model: activeModelId,
-                    voice: persona.voice || 'Mark',
+                    voice: VOICES.ultravox.some(v => v.value === persona.voice) ? persona.voice : 'Mark',
                     firstSpeaker: (persona.greeting === 'user') ? 'FIRST_SPEAKER_USER' : 'FIRST_SPEAKER_AGENT',
                     temperature: (() => {
                         const temps = { 'precise': 0.5, 'balanced': 0.7, 'creative': 0.9, 'wild': 1.1 };
@@ -5390,6 +5390,7 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
             if (!groqVadContext || groqVadContext.state === 'closed') return;
             analyser.getByteFrequencyData(vadData);
             groqAudioLevel = vadData.reduce((a, b) => a + b, 0) / vadData.length / 255;
+            userAudioLevel = groqAudioLevel; // feed mic level into visualizer user circle
             requestAnimationFrame(updateGroqLevel);
         };
         updateGroqLevel();
@@ -6313,7 +6314,10 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
     function animate() {
         const time = performance.now() / 1000;
 
-        if (playbackAnalyser && isConnected) {
+        if (activeProvider === 'groq' && isConnected) {
+            // Groq TTS uses Capacitor native TTS (no Web Audio) — simulate persona level from speaking flag
+            gerardAudioLevel = groqSpeaking ? 0.55 + 0.15 * Math.sin(time * 8) : 0;
+        } else if (playbackAnalyser && isConnected) {
             const buf = new Float32Array(playbackAnalyser.fftSize);
             playbackAnalyser.getFloatTimeDomainData(buf);
             gerardAudioLevel = Math.min(1, computeLevel(buf) * 12);
