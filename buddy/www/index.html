@@ -631,15 +631,41 @@
         }
 
         .btn-stop {
-            background: var(--bg-hover);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-            box-shadow: none;
+            background: var(--danger);
+            color: #fff;
+            border: none;
+            box-shadow: 0 0 0 0 rgba(248,113,113,0.6);
+            animation: stopPulse 1.6s ease-in-out infinite;
+            position: relative;
+            padding-left: 32px;
+        }
+
+        .btn-stop::before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #fff;
+            animation: dotBlink 1.6s ease-in-out infinite;
         }
 
         .btn-stop:hover {
-            border-color: var(--danger);
-            color: var(--danger);
+            background: #dc2626;
+            transform: scale(1.04);
+        }
+
+        @keyframes stopPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(248,113,113,0.5); }
+            50%       { box-shadow: 0 0 0 10px rgba(248,113,113,0); }
+        }
+
+        @keyframes dotBlink {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.3; }
         }
 
         .btn-mute {
@@ -5141,14 +5167,15 @@ Règles IMPÉRATIVES :
     }
 
     function groqStartListening(persona) {
-        if (groqSpeaking || groqRecordingActive || !isConnected) return;
+        if (groqSpeaking) { setTimeout(() => groqStartListening(persona), 300); return; }
+        if (groqRecordingActive || !isConnected) return;
         if (!mediaStream || !mediaStream.active) {
             setTimeout(() => groqStartListening(persona), 500);
             return;
         }
         groqChunks = [];
         groqRecordingActive = true;
-        setStatus('🎙️ ' + t('status_connected'), 'connected');
+        setStatus(t('status_connected'), 'connected');
 
         const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
             ? 'audio/webm;codecs=opus' : 'audio/webm';
@@ -5170,7 +5197,6 @@ Règles IMPÉRATIVES :
                 clearTimeout(groqVADSilenceTimer);
                 groqVADSilenceTimer = null;
             } else if (speechStarted) {
-                // User was speaking, now silent → wait then cut
                 if (!groqVADSilenceTimer) {
                     groqVADSilenceTimer = setTimeout(() => {
                         if (groqRecordingActive && groqMediaRecorder?.state !== 'inactive') {
@@ -5180,7 +5206,6 @@ Règles IMPÉRATIVES :
                     }, SILENCE_AFTER_SPEECH);
                 }
             } else if (Date.now() - startedAt > MAX_WAIT_FOR_SPEECH) {
-                // User never spoke — give up silently
                 groqRecordingActive = false;
                 if (groqMediaRecorder?.state !== 'inactive') groqMediaRecorder.stop();
                 return;
