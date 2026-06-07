@@ -2413,7 +2413,10 @@
 
     <!-- SCREEN: Config -->
     <div id="screenConfig">
-      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--text-primary)" data-i18n="config_title">Configuración</h2>
+      <div style="position:relative;margin-bottom:16px">
+        <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-primary)" data-i18n="config_title">Configuración</h2>
+        <button id="openFaqBtn" title="FAQ">?</button>
+      </div>
       <div style="margin-bottom:12px">
           <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Idioma / Language / Langue</div>
           <div style="display:flex;gap:6px">
@@ -2895,6 +2898,17 @@
                     <input type="file" id="backupImportInput" accept=".json" style="display:none">
                 </label>
             </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         MODAL : FAQ
+         ════════════════════════════════════════ -->
+    <div class="modal-overlay" id="faqModal">
+        <div class="modal" style="position:relative">
+            <button class="modal-close" id="closeFaqBtn">&times;</button>
+            <h2 style="margin-bottom:1.2rem">FAQ</h2>
+            <div id="faqList"></div>
         </div>
     </div>
 
