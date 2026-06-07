@@ -6,12 +6,12 @@
 
 **Zova** es una app Android de voz IA con personas configurables. Single-file HTML + Capacitor. Sin backend. Usa OpenAI Realtime API / Ultravox / Groq. API keys en Android Keystore.
 
-- **App:** `buddy/www/index.html` (~6700 líneas)  
+- **App:** `buddy/www/index.html` (~6900 líneas)  
 - **Android:** `buddy/android/`  
 - **Icono fuente:** `buddy/assets/icon.svg` (micrófono Dark Cosmos) → compilado a `icon.png`
 - **ID:** `com.zova.voiceapp`
 
-## Estado (2026-06-06)
+## Estado (2026-06-07)
 
 ✅ App funcional en Xiaomi 14T (Android 16 "Baklava")  
 ✅ Tasks 1–10 completos  
@@ -19,6 +19,9 @@
 ✅ Export/backup funcional en Android (modal JSON copiable)  
 ✅ Icono Dark Cosmos v3 (mic violeta→rosa, ondas, ZOVA, bg #0a0a1f)  
 ✅ Nombre: Kast → Buddy → **Zova** (`com.zova.voiceapp`)  
+✅ FAQ trilingue (6 Q&A FR/EN/ES) — modal accordéon via bouton `?` dans Config  
+✅ Persona "Zova" pré-chargée (guide de bienvenue, voix shimmer, prompt TTS)  
+✅ Touch sensitivity — 300ms delay éliminé, min-height 44px, feedback visuel  
 ⏳ Task 11 — APK release firmado  
 ⏳ Task 12 — GitHub Releases + QR  
 
@@ -47,9 +50,13 @@ npx @capacitor/assets generate --iconBackgroundColor '#0a0a1f' --iconBackgroundC
 ```
 index.html (single-file app)
 ├── CSS: Dark Cosmos theme (violet #8b5cf6, pink #ec4899, bg #0a0a1f)
+│       Touch sensitivity: touch-action:manipulation, min-height 44px, tap feedback
 ├── HTML: 4 screens (Home, Personas, Stats, Config) + modales
+│       Modales: apiKey, persona, myInfo, stats, insights, backup, FAQ
 └── JS:
     ├── i18n: ES/EN/FR (auto-detect + selector)
+    ├── FAQ_CONTENT: objet trilingue 6 Q&A, openFaqModal() avec accordéon
+    ├── DEFAULT_PERSONA_ZOVA: persona guide pré-chargée (id: zova-default-v1)
     ├── SecureStorage: Android Keystore via capacitor-secure-storage-plugin
     ├── Providers: OpenAI Realtime, Gemini Live, Ultravox, Groq pipeline
     ├── WakeLock: screen-on durante conversación
@@ -65,6 +72,7 @@ index.html (single-file app)
 | No iniciaba conversación | Faltaba RECORD_AUDIO en AndroidManifest | Añadido |
 | Export no funcionaba | `a.download` inútil en WebView | `showExportModal()` con JSON copiable |
 | Gradle build error | `proguard-android.txt` deprecated | → `proguard-android-optimize.txt` |
+| Template literal non fermé dans DEFAULT_PERSONA_ZOVA | `\`` dans le prompt crashait le parser JS | Retiré le backslash → `` ` `` |
 
 ## Notas importantes
 
