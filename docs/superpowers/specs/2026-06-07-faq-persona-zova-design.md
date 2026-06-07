@@ -42,13 +42,13 @@ Depende de tus prioridades. **OpenAI Realtime** ofrece la mejor calidad y la lat
 ### Q3 — Comment entrer ma clé API ? / How do I enter my API key? / ¿Cómo introduzco mi clave API?
 
 **FR**  
-Va dans **Configuration → Clé API**, colle ta clé dans le champ correspondant à ton provider (OpenAI : `sk-...`, Gemini : `AIza...`, Ultravox : `utv-...`, Groq : `gsk_...`), puis appuie sur **Sauvegarder**. La clé est stockée exclusivement dans l'**Android Keystore** de ton téléphone — elle ne transite jamais par un serveur externe et n'est jamais lisible en clair. Tu peux configurer plusieurs providers en même temps.
+Commence par cliquer sur le lien de ton provider dans l'onglet **Clé API** pour créer ton compte et récupérer ta clé (OpenAI : `sk-...`, Gemini : `AIza...`, Ultravox : `utv-...`, Groq : `gsk_...`). Reviens ensuite dans l'app, colle la clé dans le champ correspondant et appuie sur **Sauvegarder**. La clé est stockée exclusivement dans l'**Android Keystore** de ton téléphone — elle ne transite jamais par un serveur externe et n'est jamais lisible en clair.
 
 **EN**  
-Go to **Settings → API Key**, paste your key in the field matching your provider (OpenAI: `sk-...`, Gemini: `AIza...`, Ultravox: `utv-...`, Groq: `gsk_...`), then tap **Save**. The key is stored exclusively in your phone's **Android Keystore** — it never passes through any external server and is never readable in plain text. You can configure multiple providers at the same time.
+Start by clicking the link for your provider in the **API Key** tab to create your account and retrieve your key (OpenAI: `sk-...`, Gemini: `AIza...`, Ultravox: `utv-...`, Groq: `gsk_...`). Then come back to the app, paste the key in the matching field and tap **Save**. The key is stored exclusively in your phone's **Android Keystore** — it never passes through any external server and is never readable in plain text.
 
 **ES**  
-Ve a **Configuración → Clave API**, pega tu clave en el campo correspondiente a tu proveedor (OpenAI: `sk-...`, Gemini: `AIza...`, Ultravox: `utv-...`, Groq: `gsk_...`) y pulsa **Guardar**. La clave se almacena exclusivamente en el **Android Keystore** de tu teléfono — nunca pasa por un servidor externo ni es legible en texto claro. Puedes configurar varios proveedores al mismo tiempo.
+Empieza haciendo clic en el enlace de tu proveedor en la pestaña **Clave API** para crear tu cuenta y obtener tu clave (OpenAI: `sk-...`, Gemini: `AIza...`, Ultravox: `utv-...`, Groq: `gsk_...`). Luego vuelve a la app, pega la clave en el campo correspondiente y pulsa **Guardar**. La clave se almacena exclusivamente en el **Android Keystore** de tu teléfono — nunca pasa por un servidor externo ni es legible en texto claro.
 
 ---
 
