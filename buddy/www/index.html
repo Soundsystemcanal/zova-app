@@ -3383,6 +3383,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
 
     let currentTranscriptAi = null; // élément en cours de streaming
     let activeProvider = 'openai'; // 'openai' ou 'gemini' pour la session en cours
+    let sessionModelOverride = ''; // model override temporal — se resetea al parar
     let activeModelId = '';        // modèle effectif de la session en cours
     let geminiSessionTimer = null; // timer pour la limite 15 min Gemini
     let editingPersonaId = null;
@@ -7182,9 +7183,75 @@ Règles de format :
         }
     }
 
+    async function renderModelPicker() {
+        const wrap = document.getElementById('modelPickerWrap');
+        if (!wrap) return;
+
+        // Modelo actual: override de sesión → modelo de persona → default Config
+        const persona = getPersonas().find(p => p.id === getActiveId());
+        const currentVal = sessionModelOverride
+            || (persona && persona.model ? getModelConvValueForModel(persona.model) : null)
+            || getModelConv();
+
+        // Actualizar label del botón
+        const currentOpt = MODEL_CONV_OPTIONS.find(o => o.value === currentVal) || MODEL_CONV_OPTIONS[1];
+        document.getElementById('modelPickerLabel').textContent = `⚙️ ${currentOpt.label} · ${currentOpt.cost}`;
+
+        // Filtrar modelos según keys disponibles
+        const [openaiKey, geminiKey, ultravoxKey, groqKey] = await Promise.all([
+            getApiKey(), getGeminiApiKey(), getUltravoxApiKey(), getGroqApiKey()
+        ]);
+        const hasKey = { openai: !!openaiKey, gemini: !!geminiKey, 'ultravox-70b': !!ultravoxKey, 'ultravox-8b': !!ultravoxKey, 'groq-70b': !!groqKey, 'groq-8b': !!groqKey };
+
+        const chips = document.getElementById('modelPickerChips');
+        const available = MODEL_CONV_OPTIONS.filter(o => hasKey[o.value]);
+        if (available.length === 0) {
+            chips.innerHTML = '<span style="font-size:0.75rem;color:var(--text-muted)">Aucune clé API configurée</span>';
+            return;
+        }
+
+        chips.innerHTML = available.map(o =>
+            `<button class="model-picker-chip${o.value === currentVal ? ' active' : ''}" data-val="${o.value}">
+                ${o.label}
+                <span class="model-picker-chip-cost">${o.cost}</span>
+            </button>`
+        ).join('');
+
+        chips.querySelectorAll('.model-picker-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                sessionModelOverride = chip.dataset.val;
+                chips.style.display = 'none';
+                renderModelPicker(); // actualizar label
+            });
+        });
+    }
+
+    // Convierte un modelId real (ej: 'gpt-4o-realtime-...') al valor de MODEL_CONV_OPTIONS
+    function getModelConvValueForModel(modelId) {
+        if (!modelId) return null;
+        if (modelId.startsWith('gemini')) return 'gemini';
+        if (modelId.startsWith('ultravox-70b') || modelId === 'ultravox-70b') return 'ultravox-70b';
+        if (modelId.startsWith('ultravox')) return 'ultravox-8b';
+        if (modelId === 'groq-70b' || modelId.includes('70b')) return 'groq-70b';
+        if (modelId === 'groq-8b' || modelId.includes('8b')) return 'groq-8b';
+        return 'openai';
+    }
+
     initModelSelectors();
     // Apply saved conv model on startup
     applyConvModel(getModelConv());
+
+    // Model picker en Home
+    document.getElementById('modelPickerBtn').addEventListener('click', async () => {
+        const chips = document.getElementById('modelPickerChips');
+        if (chips.style.display === 'none') {
+            await renderModelPicker(); // refresh keys y chips
+            chips.style.display = 'flex';
+        } else {
+            chips.style.display = 'none';
+        }
+    });
+    renderModelPicker(); // label inicial
 
     // ════════════════════════════════════════════════
 
