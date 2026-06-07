@@ -4401,6 +4401,8 @@ Règles IMPÉRATIVES :
         totalInputTokens = 0;
         totalOutputTokens = 0;
         updateTokenCounter();
+        sessionModelOverride = ''; // reset al cambiar de persona
+        renderModelPicker();
     }
 
     function selectTranscripteur() {
@@ -6396,6 +6398,7 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         }
 
         startBtn.style.display = 'none';
+        document.getElementById('modelPickerWrap').style.display = 'none';
         stopBtn.style.display = 'inline-block';
         muteBtn.style.display = 'inline-block';
         if (isTranscripteurMode) pauseBtn.style.display = 'flex';
@@ -6651,6 +6654,8 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         }
 
         isConnected = false;
+        sessionModelOverride = '';
+        renderModelPicker();
         micReady = false;
         waitingGreeting = false;
         isPaused = false;
@@ -6666,6 +6671,7 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         pendingFunctionCalls = {};
         currentTranscriptAi = null;
         startBtn.style.display = 'inline-block';
+        document.getElementById('modelPickerWrap').style.display = '';
         stopBtn.style.display = 'none';
         muteBtn.style.display = 'none';
         pauseBtn.style.display = 'none';
