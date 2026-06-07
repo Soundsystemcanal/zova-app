@@ -4418,10 +4418,12 @@ Règles IMPÉRATIVES :
                     name: p.name || 'Persona importé',
                     description: p.description || '',
                     image: p.image || null,
+                    model: p.model || '',
                     voice: p.voice || 'coral',
                     reactivity: p.reactivity || 'balanced',
                     creativity: p.creativity || 'balanced',
                     greeting: p.greeting || 'persona',
+                    translateLang: p.translateLang || 'en',
                     personaInfo: '',
                     prompt: p.prompt || DEFAULT_PROMPT(p.name || 'Mon assistant')
                 };
