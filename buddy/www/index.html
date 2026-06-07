@@ -74,11 +74,11 @@
         /* Remove blue flash on tap (Android WebView default) */
         * { -webkit-tap-highlight-color: transparent; }
         /* Ensure all buttons have a minimum 44px touch target */
-        button:not(.pin-key):not(.modal-close):not(.faq-q):not(.nav-tab) {
+        button:not(.pin-key):not(.modal-close):not(.faq-q):not(.nav-tab):not(#openFaqBtn) {
             min-height: 44px;
         }
         /* Stronger active state feedback for touch */
-        button:active, [role="button"]:active {
+        button:not(.pin-key):active, [role="button"]:active {
             opacity: 0.75;
             transform: scale(0.97);
             transition: opacity 0.05s, transform 0.05s;
@@ -653,7 +653,6 @@
         }
 
         .btn:hover { transform: scale(1.03); }
-        .btn:active { transform: scale(0.97); }
 
         .btn-start {
             background: var(--accent);
@@ -2276,7 +2275,6 @@
             justify-content: center;
             line-height: 1;
             touch-action: manipulation;
-            min-height: unset;
         }
     </style>
 </head>
