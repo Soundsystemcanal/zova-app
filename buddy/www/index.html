@@ -936,16 +936,17 @@
             border: 1px solid var(--border);
             border-radius: 20px;
             color: var(--text-secondary);
-            font-size: 0.78rem;
-            padding: 5px 14px;
+            font-size: 0.8rem;
+            padding: 8px 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 6px;
             transition: border-color 0.2s, color 0.2s;
             font-family: inherit;
+            min-height: 36px;
         }
-        .model-picker-btn:hover { border-color: var(--violet); color: var(--text-primary); }
+        .model-picker-btn:hover { border-color: var(--accent); color: var(--text-primary); }
         .model-picker-arrow { font-size: 0.65rem; opacity: 0.6; }
         .model-picker-chips {
             display: flex;
@@ -956,25 +957,29 @@
             padding: 0 12px;
         }
         .model-picker-chip {
-            background: var(--bg-card);
+            background: var(--bg-secondary);
             border: 1px solid var(--border);
             border-radius: 14px;
             color: var(--text-secondary);
-            font-size: 0.72rem;
-            padding: 5px 12px;
+            font-size: 0.75rem;
+            padding: 8px 12px;
             cursor: pointer;
             text-align: center;
             line-height: 1.3;
             transition: all 0.15s;
             font-family: inherit;
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .model-picker-chip.active {
-            background: var(--violet);
-            border-color: var(--violet);
+            background: var(--accent);
+            border-color: var(--accent);
             color: #fff;
         }
         .model-picker-chip:hover:not(.active) {
-            border-color: var(--violet);
+            border-color: var(--accent);
             color: var(--text-primary);
         }
         .model-picker-chip-cost {
