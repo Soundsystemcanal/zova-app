@@ -63,6 +63,33 @@
            ═══════════════════════════════════════ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        /* ═══════════════════════════════════════
+           TOUCH SENSITIVITY (Android WebView)
+           ═══════════════════════════════════════ */
+        /* Eliminate 300ms tap delay on all interactive elements */
+        a, button, input, select, textarea, label,
+        [role="button"], [tabindex] {
+            touch-action: manipulation;
+        }
+        /* Remove blue flash on tap (Android WebView default) */
+        * { -webkit-tap-highlight-color: transparent; }
+        /* Ensure all buttons have a minimum 44px touch target */
+        button:not(.pin-key):not(.modal-close):not(.faq-q):not(.nav-tab) {
+            min-height: 44px;
+        }
+        /* Stronger active state feedback for touch */
+        button:active, [role="button"]:active {
+            opacity: 0.75;
+            transform: scale(0.97);
+            transition: opacity 0.05s, transform 0.05s;
+        }
+        /* Nav tabs: keep their own sizing but get tap improvements */
+        .nav-tab { touch-action: manipulation; }
+        /* Config screen buttons: ensure good touch target */
+        .config-screen-btn { min-height: 48px; }
+        /* Persona cards: fast tap */
+        .welcome-card { touch-action: manipulation; }
+
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: radial-gradient(ellipse at 20% 50%, rgba(109,40,217,0.08) 0%, transparent 50%),
@@ -2188,6 +2215,68 @@
             border-radius: 50%;
             background: #34d399;
             animation: dotPulse 1.5s infinite;
+        }
+
+        /* ═══════════════════════════════════════
+           FAQ MODAL
+           ═══════════════════════════════════════ */
+        #faqModal .modal { max-width: 520px; max-height: 80vh; overflow-y: auto; }
+        .faq-item { border-bottom: 1px solid var(--border); }
+        .faq-item:last-child { border-bottom: none; }
+        .faq-q {
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.92rem;
+            font-weight: 600;
+            text-align: left;
+            padding: 14px 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            transition: color 0.15s;
+            touch-action: manipulation;
+            min-height: 48px;
+        }
+        .faq-q:hover { color: var(--accent); }
+        .faq-q .faq-arrow {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+        .faq-item.open .faq-q .faq-arrow { transform: rotate(180deg); }
+        .faq-a {
+            display: none;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            padding: 0 0 14px 0;
+        }
+        .faq-item.open .faq-a { display: block; }
+        #openFaqBtn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            touch-action: manipulation;
+            min-height: unset;
         }
     </style>
 </head>
