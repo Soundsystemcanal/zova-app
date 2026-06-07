@@ -10,6 +10,9 @@
   "plugins": {
     "CapacitorSecureStoragePlugin": {
       "keychainService": "buddy_secure_storage"
+    },
+    "CapacitorHttp": {
+      "enabled": true
     }
   }
 }

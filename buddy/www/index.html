@@ -1971,10 +1971,13 @@
             font-family: inherit;
         }
 
-        .nav-tab .nav-icon { font-size: 1.3rem; transition: transform 0.2s; }
+        .nav-tab .nav-icon { display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+        .nav-tab .nav-icon svg { width: 22px; height: 22px; fill: var(--text-muted); transition: fill 0.2s; }
         .nav-tab.active { color: var(--accent); }
         .nav-tab.active .nav-icon { transform: scale(1.15); }
+        .nav-tab.active .nav-icon svg { fill: url(#navGrad); filter: drop-shadow(0 0 5px rgba(139,92,246,0.5)); }
         .nav-tab:hover:not(.active) { color: var(--text-secondary); }
+        .nav-tab:hover:not(.active) .nav-icon svg { fill: var(--text-secondary); }
 
         #appContent {
             flex: 1;
@@ -2102,6 +2105,7 @@
                   <button class="btn btn-stop" id="stopBtn" style="display:none">Terminar</button>
               </div>
               <div id="status">Listo</div>
+              <button id="cancelReconnectBtn" style="display:none;margin-top:6px;padding:6px 14px;background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);border-radius:8px;font-size:0.8rem;cursor:pointer;">✕ Cancelar reconexión</button>
               <div id="sessionBar" style="display:none">
                   <div class="session-item"><span class="session-dot live"></span> <span id="sessionTimer">0:00</span></div>
                   <div class="session-item" id="sessionModel"></div>
@@ -2248,22 +2252,41 @@
     <button onclick="switchTab('home')" style="background:rgba(255,255,255,0.2);border:none;border-radius:6px;color:#fff;font-size:0.78rem;padding:4px 10px;cursor:pointer;font-weight:600;">Volver ›</button>
   </div>
 
+  <!-- Gradient definition for nav icons -->
+  <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden;">
+    <defs>
+      <linearGradient id="navGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#c4b5fd"/>
+        <stop offset="50%" stop-color="#8b5cf6"/>
+        <stop offset="100%" stop-color="#ec4899"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
   <!-- BOTTOM NAVIGATION -->
   <nav id="bottomNav">
       <button class="nav-tab active" data-tab="home">
-          <span class="nav-icon">&#127968;</span>
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          </span>
           <span data-i18n="nav_home">Inicio</span>
       </button>
       <button class="nav-tab" data-tab="personas">
-          <span class="nav-icon">&#128100;</span>
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </span>
           <span data-i18n="nav_personas">Personas</span>
       </button>
       <button class="nav-tab" data-tab="stats">
-          <span class="nav-icon">&#128202;</span>
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 9.2h3V19H5V9.2zm5.6-4.2h2.8V19h-2.8V5zm5.6 8h2.8v6h-2.8v-6z"/></svg>
+          </span>
           <span data-i18n="nav_stats">Stats</span>
       </button>
       <button class="nav-tab" data-tab="config">
-          <span class="nav-icon">&#9881;&#65039;</span>
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+          </span>
           <span data-i18n="nav_config">Config</span>
       </button>
   </nav>
@@ -2696,6 +2719,9 @@
             status_ready: 'Listo',
             status_connecting: 'Conectando...',
             status_connected: '¡Conectado — habla!',
+            status_error_connection: 'Error de conexión',
+            status_disconnected: 'Desconectado',
+            status_mic_required: 'Micrófono requerido',
             status_speaking: 'Hablando...',
             status_listening: 'Escuchando...',
             status_thinking: 'Pensando...',
@@ -2730,6 +2756,9 @@
             status_ready: 'Ready',
             status_connecting: 'Connecting...',
             status_connected: 'Connected — speak!',
+            status_error_connection: 'Connection error',
+            status_disconnected: 'Disconnected',
+            status_mic_required: 'Microphone required',
             status_speaking: 'Speaking...',
             status_listening: 'Listening...',
             status_thinking: 'Thinking...',
@@ -2764,6 +2793,9 @@
             status_ready: 'Prêt',
             status_connecting: 'Connexion...',
             status_connected: 'Connecté — parlez !',
+            status_error_connection: 'Erreur de connexion',
+            status_disconnected: 'Déconnecté',
+            status_mic_required: 'Microphone requis',
             status_speaking: 'Parle...',
             status_listening: 'Écoute...',
             status_thinking: 'Réfléchit...',
@@ -3004,16 +3036,32 @@
         return new Promise(resolve => {
             const overlay = document.createElement('div');
             overlay.className = 'dialog-overlay';
-            overlay.innerHTML = `<div class="dialog-box">
-                <div class="dialog-icon">${icon}</div>
-                ${title ? `<div class="dialog-title">${title}</div>` : ''}
-                <div class="dialog-message">${message}</div>
-                <div class="dialog-buttons">
-                    <button class="dialog-btn dialog-btn-primary">${btnLabel}</button>
-                </div>
-            </div>`;
+            const box = document.createElement('div');
+            box.className = 'dialog-box';
+            const iconEl = document.createElement('div');
+            iconEl.className = 'dialog-icon';
+            iconEl.textContent = icon;
+            box.appendChild(iconEl);
+            if (title) {
+                const titleEl = document.createElement('div');
+                titleEl.className = 'dialog-title';
+                titleEl.textContent = title;
+                box.appendChild(titleEl);
+            }
+            const msgEl = document.createElement('div');
+            msgEl.className = 'dialog-message';
+            msgEl.textContent = message;
+            box.appendChild(msgEl);
+            const btnsEl = document.createElement('div');
+            btnsEl.className = 'dialog-buttons';
+            const btnEl = document.createElement('button');
+            btnEl.className = 'dialog-btn dialog-btn-primary';
+            btnEl.textContent = btnLabel;
+            btnsEl.appendChild(btnEl);
+            box.appendChild(btnsEl);
+            overlay.appendChild(box);
             document.body.appendChild(overlay);
-            const btn = overlay.querySelector('.dialog-btn');
+            const btn = btnEl;
             const close = () => { overlay.remove(); resolve(); };
             btn.addEventListener('click', close);
             overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
@@ -3262,7 +3310,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     let playbackContext = null;
     let playbackAnalyser = null;
     let nextPlayTime = 0;
-    let playbackSources = [];
+    let playbackSources = new Set();
 
     let userAudioLevel = 0;
     let gerardAudioLevel = 0;
@@ -3276,7 +3324,13 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     let wakeLock = null;
     async function requestWakeLock() {
         if ('wakeLock' in navigator) {
-            try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+            } catch(e) {
+                console.warn('[WakeLock]', e.message);
+                setStatus('⚠️ Pantalla puede apagarse (sin permiso de pantalla activa)', 'error');
+                setTimeout(() => { if (isConnected) setStatus(t('status_connected'), 'connected'); }, 4000);
+            }
         }
     }
     function releaseWakeLock() {
@@ -3298,14 +3352,31 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         reconnectAttempts++;
         const delay = reconnectAttempts * 2000;
         setStatus(`Reconnexion dans ${delay/1000}s... (${reconnectAttempts}/${MAX_RECONNECT})`, 'error');
+        document.getElementById('cancelReconnectBtn').style.display = 'inline-block';
         reconnectTimer = setTimeout(() => {
-            if (shouldReconnect) { setStatus('Reconnexion...', ''); startFn(); }
+            if (shouldReconnect) {
+                document.getElementById('cancelReconnectBtn').style.display = 'none';
+                setStatus('Reconnexion...', '');
+                startFn();
+            }
         }, delay);
     }
     function cancelReconnect() {
         shouldReconnect = false;
         reconnectAttempts = 0;
         if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+        document.getElementById('cancelReconnectBtn').style.display = 'none';
+    }
+
+    function friendlyApiError(err) {
+        const msg = (err.message || err.name || '').toLowerCase();
+        if (msg.includes('401')) return 'API key inválida — revisa la configuración';
+        if (msg.includes('403')) return 'Sin acceso — verifica tu API key';
+        if (msg.includes('429')) return 'Límite de peticiones alcanzado — espera un momento';
+        if (msg.includes('500') || msg.includes('502') || msg.includes('503')) return 'Servidor no disponible — inténtalo de nuevo';
+        if (err.name === 'TimeoutError' || msg.includes('timeout') || msg.includes('aborted')) return 'Tiempo de espera agotado — red lenta o sin conexión';
+        if (msg.includes('failed to fetch') || msg.includes('networkerror') || msg.includes('network')) return 'Sin conexión de red';
+        return err.message || 'Error desconocido';
     }
 
     let totalInputTokens = 0;
@@ -3474,7 +3545,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         backupModal.classList.remove('active');
     });
 
-    document.getElementById('backupExportBtn').addEventListener('click', () => {
+    document.getElementById('backupExportBtn').addEventListener('click', async () => {
         const data = {
             version: 1,
             exportDate: new Date().toISOString(),
@@ -3486,6 +3557,18 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         };
         const content = JSON.stringify(data, null, 2);
         const filename = `zova-backup-${new Date().toISOString().slice(0,10)}.json`;
+
+        // Android: copy JSON to clipboard → user pastes wherever they want
+        if (IS_CAPACITOR) {
+            try {
+                await navigator.clipboard.writeText(content);
+                customAlert(`JSON copiado al portapapeles.\n\nPégalo en un correo, Google Drive, WhatsApp… y guárdalo como <b>${filename}</b>`, { title: '✅ Listo para pegar', icon: '&#128203;' });
+            } catch {
+                showExportModal(content, filename);
+            }
+            return;
+        }
+
         downloadFile(content, filename, 'application/json');
     });
 
@@ -4193,10 +4276,15 @@ Règles IMPÉRATIVES :
 
     let draggedPersonaId = null;
 
+    let _personaListCache = '';
     function renderPersonaList() {
         const container = document.getElementById('personaList');
         const list = getPersonas();
         const activeId = getActiveId();
+
+        const cacheKey = JSON.stringify(list.map(p => ({ id: p.id, name: p.name, desc: p.description, img: p.image }))) + '|' + activeId;
+        if (cacheKey === _personaListCache) return;
+        _personaListCache = cacheKey;
 
         container.innerHTML = '';
         list.forEach((p, idx) => {
@@ -4317,10 +4405,16 @@ Règles IMPÉRATIVES :
 
         // Header
         const avatarContainer = document.getElementById('personaHeaderAvatar');
+        avatarContainer.innerHTML = '';
         if (p.image) {
-            avatarContainer.innerHTML = `<img src="${p.image}">`;
+            const img = document.createElement('img');
+            img.src = p.image;
+            avatarContainer.appendChild(img);
         } else {
-            avatarContainer.innerHTML = `<div class="persona-header-placeholder">${p.name.charAt(0).toUpperCase()}</div>`;
+            const placeholder = document.createElement('div');
+            placeholder.className = 'persona-header-placeholder';
+            placeholder.textContent = p.name.charAt(0).toUpperCase();
+            avatarContainer.appendChild(placeholder);
         }
         document.getElementById('personaHeaderName').textContent = p.name;
         document.getElementById('personaHeaderDesc').textContent = p.description || '';
@@ -4602,16 +4696,13 @@ Règles IMPÉRATIVES :
         source.start(start);
         nextPlayTime = start + buf.duration;
 
-        playbackSources.push(source);
-        source.onended = () => {
-            const idx = playbackSources.indexOf(source);
-            if (idx > -1) playbackSources.splice(idx, 1);
-        };
+        playbackSources.add(source);
+        source.onended = () => { playbackSources.delete(source); };
     }
 
     function stopPlayback() {
         playbackSources.forEach(s => { try { s.stop(); } catch(e) {} });
-        playbackSources = [];
+        playbackSources = new Set();
         nextPlayTime = 0;
         gerardAudioLevel = 0;
     }
@@ -4733,12 +4824,23 @@ Règles IMPÉRATIVES :
                 return;
             }
             userAudioLevel = Math.min(1, computeLevel(input) * 8);
-            const b64 = float32ToPcm16Base64(input);
             if (activeProvider === 'gemini') {
+                const b64 = float32ToPcm16Base64(input);
                 ws.send(JSON.stringify({ realtimeInput: { audio: { data: b64, mimeType: `audio/pcm;rate=${currentMicSampleRate}` } } }));
+            } else if (activeProvider === 'ultravox') {
+                // Ultravox serverWebSocket expects raw PCM16 binary frames
+                const buf = new ArrayBuffer(input.length * 2);
+                const view = new DataView(buf);
+                for (let i = 0; i < input.length; i++) {
+                    const s = Math.max(-1, Math.min(1, input[i]));
+                    view.setInt16(i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+                }
+                ws.send(buf);
             } else if (activeModelId === 'gpt-realtime-translate') {
+                const b64 = float32ToPcm16Base64(input);
                 ws.send(JSON.stringify({ type: 'session.input_audio_buffer.append', audio: b64 }));
             } else {
+                const b64 = float32ToPcm16Base64(input);
                 ws.send(JSON.stringify({ type: 'input_audio_buffer.append', audio: b64 }));
             }
         };
@@ -4978,12 +5080,15 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
             ws.send(JSON.stringify({ type: 'session.update', session }));
         };
 
-        ws.onmessage = (e) => handleServerEvent(JSON.parse(e.data));
-        ws.onerror = () => setStatus('Erreur de connexion', 'error');
+        ws.onmessage = (e) => {
+            try { handleServerEvent(JSON.parse(e.data)); }
+            catch (err) { console.error('[OpenAI] onmessage parse error:', err); }
+        };
+        ws.onerror = () => setStatus(t('status_error_connection'), 'error');
         ws.onclose = (e) => {
             isConnected = false;
             if (e.code !== 1000) {
-                setStatus(`Déconnecté (code ${e.code})`, 'error');
+                setStatus(`${t('status_disconnected')} (${e.code})`, 'error');
                 scheduleReconnect(() => connectOpenAI(getPersonas().find(p => p.id === getActiveId())));
             }
         };
@@ -5018,11 +5123,14 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
             micReady = true;
         };
 
-        ws.onmessage = (e) => handleTranslateServerEvent(JSON.parse(e.data));
-        ws.onerror = () => setStatus('Erreur de connexion', 'error');
+        ws.onmessage = (e) => {
+            try { handleTranslateServerEvent(JSON.parse(e.data)); }
+            catch (err) { console.error('[Translate] onmessage parse error:', err); }
+        };
+        ws.onerror = () => setStatus(t('status_error_connection'), 'error');
         ws.onclose = (e) => {
             isConnected = false;
-            if (e.code !== 1000) setStatus(`Déconnecté (code ${e.code})`, 'error');
+            if (e.code !== 1000) setStatus(`${t('status_disconnected')} (${e.code})`, 'error');
         };
     }
 
@@ -5061,6 +5169,7 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
     async function connectGemini(persona) {
         const geminiKey = await getGeminiApiKey();
         if (!geminiKey) return;
+        shouldReconnect = true;
         const url = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${geminiKey}`;
 
         ws = new WebSocket(url);
@@ -5148,12 +5257,15 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         };
         ws.onerror = (err) => {
             console.error('[Gemini] WebSocket error:', err);
-            setStatus('Erreur de connexion Gemini', 'error');
+            setStatus(`${t('status_error_connection')} Gemini`, 'error');
         };
         ws.onclose = (e) => {
             isConnected = false;
             console.error('[Gemini] WebSocket closed:', e.code, e.reason);
-            if (e.code !== 1000) setStatus(`Gemini déconnecté (code ${e.code}${e.reason ? ' — ' + e.reason : ''})`, 'error');
+            if (e.code !== 1000) {
+                setStatus(`${t('status_disconnected')} Gemini (${e.code}${e.reason ? ' — ' + e.reason : ''})`, 'error');
+                scheduleReconnect(() => connectGemini(getPersonas().find(p => p.id === getActiveId())));
+            }
         };
     }
 
@@ -5168,12 +5280,17 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         let joinUrl;
         try {
             const fullInstructions = buildFullInstructions(persona);
+            const ultravoxModelMap = {
+                'ultravox-70b': 'fixie-ai/ultravox-70B',
+                'ultravox-8b':  'fixie-ai/ultravox-8B',
+            };
+            const ultravoxModel = ultravoxModelMap[activeModelId] || 'fixie-ai/ultravox-70B';
             const resp = await fetch('https://api.ultravox.ai/api/calls', {
                 method: 'POST',
                 headers: { 'X-API-Key': apiKey, 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     systemPrompt: fullInstructions,
-                    model: activeModelId,
+                    model: ultravoxModel,
                     voice: VOICES.ultravox.some(v => v.value === persona.voice) ? persona.voice : 'Mark',
                     firstSpeaker: (persona.greeting === 'user') ? 'FIRST_SPEAKER_USER' : 'FIRST_SPEAKER_AGENT',
                     temperature: (() => {
@@ -5193,7 +5310,8 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
             joinUrl = data.joinUrl;
             if (!joinUrl) throw new Error('No joinUrl in Ultravox response');
         } catch (err) {
-            setStatus(`Error: ${err.message}`, 'error');
+            console.error('[Ultravox connect error]', err.name, err.message, err);
+            setStatus(`Error: ${friendlyApiError(err)}`, 'error');
             return;
         }
 
@@ -5226,20 +5344,22 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
                         const start = Math.max(now + 0.05, nextPlayTime);
                         src.start(start);
                         nextPlayTime = start + audioBuf.duration;
-                        playbackSources.push(src);
+                        playbackSources.add(src);
                         src.onended = () => {
-                            const idx = playbackSources.indexOf(src);
-                            if (idx > -1) playbackSources.splice(idx, 1);
+                            playbackSources.delete(src);
                         };
                     });
                 }
             }
         };
 
-        ws.onerror = () => setStatus('Error de conexión Ultravox', 'error');
+        ws.onerror = () => setStatus(`${t('status_error_connection')} Ultravox`, 'error');
         ws.onclose = (e) => {
             isConnected = false;
-            if (e.code !== 1000) setStatus(`Ultravox desconectado (${e.code})`, 'error');
+            if (e.code !== 1000) {
+                setStatus(`${t('status_disconnected')} Ultravox (${e.code})`, 'error');
+                scheduleReconnect(() => connectUltravox(getPersonas().find(p => p.id === getActiveId())));
+            }
         };
     }
 
@@ -5285,6 +5405,7 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
     let groqSpeaking = false;
     let groqConversationHistory = [];
     let groqVADSilenceTimer = null;
+    let groqRetryTimer = null;
     let groqRecordingActive = false;
 
     let groqVadContext = null;
@@ -5303,7 +5424,7 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
                 });
             }
         } catch(e) {
-            setStatus('Microphone requis', 'error');
+            setStatus(t('status_mic_required'), 'error');
             return;
         }
 
@@ -5344,7 +5465,9 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         if (groqSpeaking) { setTimeout(() => groqStartListening(persona), 300); return; }
         if (groqRecordingActive || !isConnected) return;
         if (!mediaStream || !mediaStream.active) {
-            setTimeout(() => groqStartListening(persona), 500);
+            if (!groqRetryTimer) {
+                groqRetryTimer = setTimeout(() => { groqRetryTimer = null; groqStartListening(persona); }, 500);
+            }
             return;
         }
         groqChunks = [];
@@ -5410,7 +5533,8 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
             const sttResp = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${groqKey}` },
-                body: formData
+                body: formData,
+                signal: AbortSignal.timeout(15000)
             });
             if (!sttResp.ok) throw new Error(`STT ${sttResp.status}`);
             const sttData = await sttResp.json();
@@ -5437,7 +5561,8 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
                     messages: groqConversationHistory,
                     temperature: temps[persona.creativity] || 0.7,
                     max_tokens: 300
-                })
+                }),
+                signal: AbortSignal.timeout(10000)
             });
             if (!llmResp.ok) throw new Error(`LLM ${llmResp.status}`);
             const llmData = await llmResp.json();
@@ -5452,7 +5577,7 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
             await groqSpeak(aiText, persona);
 
         } catch (err) {
-            setStatus(`Error: ${err.message}`, 'error');
+            setStatus(`Error: ${friendlyApiError(err)}`, 'error');
             console.error('[Groq]', err);
             if (isConnected) groqStartListening(persona);
         }
@@ -5611,10 +5736,10 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
                 console.error('[Whisper] Parse error:', err);
             }
         };
-        ws.onerror = () => setStatus('Erreur de connexion', 'error');
+        ws.onerror = () => setStatus(t('status_error_connection'), 'error');
         ws.onclose = (e) => {
             isConnected = false;
-            if (e.code !== 1000) setStatus(`Déconnecté (code ${e.code})`, 'error');
+            if (e.code !== 1000) setStatus(`${t('status_disconnected')} (${e.code})`, 'error');
         };
     }
 
@@ -6268,7 +6393,11 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
             drawVizLink(time);
         }
 
-        animationId = requestAnimationFrame(animate);
+        if (isConnected) {
+            animationId = requestAnimationFrame(animate);
+        } else {
+            animationId = setTimeout(animate, 100);
+        }
     }
 
     animate();
@@ -6355,6 +6484,7 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
 
         try {
             if (!isTranscripteurMode) {
+                if (playbackContext) { playbackContext.close().catch(() => {}); playbackContext = null; }
                 playbackContext = new AudioContext({ sampleRate: 24000 });
                 playbackAnalyser = playbackContext.createAnalyser();
                 playbackAnalyser.fftSize = 2048;
@@ -6363,7 +6493,17 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
                 nextPlayTime = 0;
             }
 
-            const micRate = activeProvider === 'gemini' ? 16000 : 24000;
+            const micRate = activeProvider === 'gemini' ? 16000 : activeProvider === 'ultravox' ? 48000 : 24000;
+            const playbackRate = activeProvider === 'ultravox' ? 48000 : 24000;
+            if (!isTranscripteurMode && playbackContext) {
+                playbackContext.close().catch(() => {});
+                playbackContext = new AudioContext({ sampleRate: playbackRate });
+                playbackAnalyser = playbackContext.createAnalyser();
+                playbackAnalyser.fftSize = 2048;
+                playbackAnalyser.smoothingTimeConstant = 0.3;
+                playbackAnalyser.connect(playbackContext.destination);
+                nextPlayTime = 0;
+            }
             await startMicrophone(micRate);
             connectWebSocket();
         } catch (err) {
@@ -6374,6 +6514,10 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
     });
 
     stopBtn.addEventListener('click', () => stopConversation(true));
+    document.getElementById('cancelReconnectBtn').addEventListener('click', () => {
+        cancelReconnect();
+        setStatus(t('status_ready'));
+    });
 
     pauseBtn.addEventListener('click', () => {
         if (!isTranscripteurMode || !isConnected) return;
@@ -6473,11 +6617,15 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         `;
         document.body.appendChild(overlay);
         overlay.querySelector('#_exportCopyBtn').addEventListener('click', async () => {
+            const btn = overlay.querySelector('#_exportCopyBtn');
             try {
                 await navigator.clipboard.writeText(content);
-                overlay.querySelector('#_exportCopyBtn').textContent = '✅ Copiado!';
+                btn.textContent = '✅ Copiado!';
+                setTimeout(() => { btn.textContent = '📋 Copiar'; }, 2000);
             } catch {
                 overlay.querySelector('textarea').select();
+                btn.textContent = '✏️ Seleccionado — copia manualmente';
+                setTimeout(() => { btn.textContent = '📋 Copiar'; }, 3000);
             }
         });
         overlay.querySelector('#_exportCloseBtn').addEventListener('click', () => overlay.remove());
@@ -6593,6 +6741,8 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         pausedTime = 0;
         pauseStartedAt = null;
         if (geminiSessionTimer) { clearTimeout(geminiSessionTimer); geminiSessionTimer = null; }
+        if (groqRetryTimer) { clearTimeout(groqRetryTimer); groqRetryTimer = null; }
+        if (animationId != null) { cancelAnimationFrame(animationId); clearTimeout(animationId); animationId = null; }
         currentWhisperParagraph = null;
         if (ws) { ws.close(1000); ws = null; }
         stopPlayback();
@@ -6611,6 +6761,7 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         document.getElementById('sessionBar').style.display = 'none';
         vizLinkConnected = false;
         setStatus(t('status_ready'));
+        if (animationId == null) animate();
 
         // Extraire les insights si conversation significative (pas pour transcripteur ni traduction)
         if (analyzeInsights && hadConversation && !isTranscripteurMode && activeModelId !== 'gpt-realtime-translate') {
