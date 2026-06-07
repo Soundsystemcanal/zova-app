@@ -3097,6 +3097,110 @@
         }
     };
 
+    // ── FAQ ────────────────────────────────────────────
+    const FAQ_CONTENT = {
+        fr: [
+            {
+                q: 'Par où commencer ?',
+                a: 'Zova fonctionne sans serveur intermédiaire : tu parles directement aux IA via leur API officielle. Pour démarrer, choisis d\'abord un fournisseur (OpenAI, Gemini, Ultravox ou Groq), crée un compte sur leur site, obtiens une clé API, puis colle-la dans l\'onglet Clé API de la Configuration. C\'est tout — tu peux ensuite lancer ta première conversation.'
+            },
+            {
+                q: 'Quel provider choisir ?',
+                a: 'Tout dépend de tes priorités. OpenAI Realtime offre la meilleure qualité et la latence la plus faible. Gemini Live est excellent et très abordable. Ultravox est économique avec une bonne qualité. Groq est le moins cher de tous avec une latence légèrement plus élevée. Tu peux changer de provider à tout moment dans l\'onglet Modèle sans perdre tes conversations.'
+            },
+            {
+                q: 'Comment entrer ma clé API ?',
+                a: 'Commence par cliquer sur le lien de ton provider dans l\'onglet Clé API pour créer ton compte et récupérer ta clé. Reviens ensuite dans l\'app, colle la clé dans le champ correspondant et appuie sur Sauvegarder. La clé est stockée exclusivement dans l\'Android Keystore de ton téléphone — elle ne transite jamais par un serveur externe.'
+            },
+            {
+                q: 'Comment maîtriser mes dépenses ?',
+                a: 'Va dans Configuration → Budget et entre un montant mensuel maximum. Zova t\'avertira quand tu atteindras 90 % de la limite et bloquera les nouvelles conversations une fois le plafond dépassé. Le compteur se remet à zéro le 1er de chaque mois. Tu peux laisser le champ vide pour désactiver le plafond.'
+            },
+            {
+                q: 'Comment créer un assistant personnalisé ?',
+                a: 'Va dans l\'onglet Personas et appuie sur + Nouveau persona. Donne-lui un nom, une description, choisis une voix et un modèle. Le champ Prompt système définit sa personnalité : plus tu le détailles, plus il sera unique. Tu peux générer une image avec l\'IA ou en importer une depuis ta galerie.'
+            },
+            {
+                q: 'Comment sécuriser l\'app ?',
+                a: 'Va dans Configuration et appuie sur Activer le code PIN. Choisis un code à 4 chiffres : il te sera demandé à chaque ouverture de l\'app. Le PIN est stocké dans l\'Android Keystore au même titre que tes clés API. Tes données sont uniquement sur ton téléphone, jamais envoyées à Zova.'
+            }
+        ],
+        en: [
+            {
+                q: 'Where do I start?',
+                a: 'Zova works without any middleman server: you talk directly to AI providers via their official API. To get started, pick a provider (OpenAI, Gemini, Ultravox or Groq), create an account on their website, get an API key, then paste it in the API Key tab of Settings. That\'s it — you can then start your first conversation.'
+            },
+            {
+                q: 'Which provider should I choose?',
+                a: 'It depends on your priorities. OpenAI Realtime delivers the best quality and lowest latency. Gemini Live is excellent and very affordable. Ultravox is budget-friendly with good quality. Groq is the cheapest option with slightly higher latency. You can switch providers anytime in the Model tab without losing your conversations.'
+            },
+            {
+                q: 'How do I enter my API key?',
+                a: 'Start by clicking the link for your provider in the API Key tab to create your account and retrieve your key. Then come back to the app, paste the key in the matching field and tap Save. The key is stored exclusively in your phone\'s Android Keystore — it never passes through any external server.'
+            },
+            {
+                q: 'How do I control my spending?',
+                a: 'Go to Settings → Budget and enter a monthly maximum amount. Zova will warn you when you reach 90% of the limit and block new conversations once the cap is exceeded. The counter resets on the 1st of each month. You can leave the field empty to disable the cap.'
+            },
+            {
+                q: 'How do I create a custom assistant?',
+                a: 'Go to the Personas tab and tap + New persona. Give it a name, a description, choose a voice and a model. The System prompt field defines its personality: the more detailed it is, the more unique it will be. You can generate an image with AI or import one from your gallery.'
+            },
+            {
+                q: 'How do I secure the app?',
+                a: 'Go to Settings and tap Activate PIN code. Choose a 4-digit code: it will be required each time you open the app. The PIN is stored in the Android Keystore alongside your API keys. Your data stays only on your phone, never sent to Zova.'
+            }
+        ],
+        es: [
+            {
+                q: '¿Por dónde empezar?',
+                a: 'Zova funciona sin servidor intermediario: hablas directamente con las IAs a través de su API oficial. Para empezar, elige un proveedor (OpenAI, Gemini, Ultravox o Groq), crea una cuenta en su web, obtén una clave API y pégala en la pestaña Clave API de Configuración. Eso es todo — ya puedes iniciar tu primera conversación.'
+            },
+            {
+                q: '¿Qué proveedor elegir?',
+                a: 'Depende de tus prioridades. OpenAI Realtime ofrece la mejor calidad y la latencia más baja. Gemini Live es excelente y muy asequible. Ultravox es económico con buena calidad. Groq es el más barato con una latencia algo mayor. Puedes cambiar de proveedor en cualquier momento en la pestaña Modelo sin perder tus conversaciones.'
+            },
+            {
+                q: '¿Cómo introduzco mi clave API?',
+                a: 'Empieza haciendo clic en el enlace de tu proveedor en la pestaña Clave API para crear tu cuenta y obtener tu clave. Luego vuelve a la app, pega la clave en el campo correspondiente y pulsa Guardar. La clave se almacena exclusivamente en el Android Keystore de tu teléfono — nunca pasa por un servidor externo.'
+            },
+            {
+                q: '¿Cómo controlo mis gastos?',
+                a: 'Ve a Configuración → Presupuesto e introduce un importe máximo mensual. Zova te avisará cuando alcances el 90 % del límite y bloqueará nuevas conversaciones una vez superado el tope. El contador se reinicia el 1 de cada mes. Puedes dejar el campo vacío para desactivar el tope.'
+            },
+            {
+                q: '¿Cómo creo un asistente personalizado?',
+                a: 'Ve a la pestaña Personas y pulsa + Nueva persona. Dale un nombre, una descripción, elige una voz y un modelo. El campo Prompt del sistema define su personalidad: cuanto más detallado sea, más único será. Puedes generar una imagen con IA o importar una desde tu galería.'
+            },
+            {
+                q: '¿Cómo protejo la app?',
+                a: 'Ve a Configuración y pulsa Activar código PIN. Elige un código de 4 dígitos: se te pedirá cada vez que abras la app. El PIN se almacena en el Android Keystore junto a tus claves API. Tus datos permanecen únicamente en tu teléfono, nunca se envían a Zova.'
+            }
+        ]
+    };
+
+    function openFaqModal() {
+        const lang = LANG || 'fr';
+        const items = FAQ_CONTENT[lang] || FAQ_CONTENT['fr'];
+        const list = document.getElementById('faqList');
+        list.innerHTML = items.map((item, i) => `
+            <div class="faq-item" data-faq="${i}">
+                <button class="faq-q" data-faq="${i}">
+                    <span>${item.q}</span>
+                    <span class="faq-arrow">&#9660;</span>
+                </button>
+                <div class="faq-a">${item.a}</div>
+            </div>
+        `).join('');
+        list.querySelectorAll('.faq-q').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const item = btn.closest('.faq-item');
+                item.classList.toggle('open');
+            });
+        });
+        document.getElementById('faqModal').classList.add('active');
+    }
+
     function detectLang() {
         const saved = localStorage.getItem('buddy_lang');
         if (saved && TRANSLATIONS[saved]) return saved;
@@ -3196,6 +3300,17 @@
                 renderScreenStats(btn.dataset.statsTab);
             });
         }
+        // FAQ modal
+        const openFaqBtn = document.getElementById('openFaqBtn');
+        if (openFaqBtn) openFaqBtn.addEventListener('click', openFaqModal);
+        const closeFaqBtn = document.getElementById('closeFaqBtn');
+        if (closeFaqBtn) closeFaqBtn.addEventListener('click', () => {
+            document.getElementById('faqModal').classList.remove('active');
+        });
+        const faqModalEl = document.getElementById('faqModal');
+        if (faqModalEl) faqModalEl.addEventListener('click', (e) => {
+            if (e.target === faqModalEl) faqModalEl.classList.remove('active');
+        });
     });
 
     function renderPersonasGrid() {
