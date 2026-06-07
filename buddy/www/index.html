@@ -2097,6 +2097,31 @@
       <button class="config-screen-btn" id="myInfoBtn">&#128100; <span data-i18n="config_my_info">Mis informaciones</span></button>
       <button class="config-screen-btn" id="backupBtn">&#128190; <span data-i18n="config_backup">Copia de seguridad</span></button>
       <button class="config-screen-btn" id="themeToggleBtn">&#9789; <span id="themeToggleLabel">Mode sombre</span></button>
+      <!-- TTS Voice settings -->
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🎙️ Voix TTS (Groq)</div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:6px">Langue de la voix</div>
+          <select id="ttsLangSelect" style="width:100%;padding:9px 12px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:0.85rem;font-family:inherit;cursor:pointer">
+            <option value="auto">🌐 Auto (langue de l'UI)</option>
+            <option value="es-ES">🇪🇸 Español (es-ES)</option>
+            <option value="es-MX">🇲🇽 Español México (es-MX)</option>
+            <option value="fr-FR">🇫🇷 Français (fr-FR)</option>
+            <option value="en-US">🇺🇸 English US (en-US)</option>
+            <option value="en-GB">🇬🇧 English UK (en-GB)</option>
+            <option value="de-DE">🇩🇪 Deutsch (de-DE)</option>
+            <option value="it-IT">🇮🇹 Italiano (it-IT)</option>
+            <option value="pt-BR">🇧🇷 Português BR (pt-BR)</option>
+          </select>
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:6px">Vitesse: <span id="ttsRateVal">1.0</span>x</div>
+          <input type="range" id="ttsRateSlider" min="0.5" max="2.0" step="0.1" value="1.0"
+            style="width:100%;accent-color:var(--accent)">
+        </div>
+        <button class="config-screen-btn" id="ttsTestBtn">▶ Tester la voix</button>
+      </div>
+
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
         <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🔒 Sécurité</div>
         <button class="config-screen-btn" id="setPinBtn">🔢 Activer le code PIN</button>
@@ -5183,13 +5208,56 @@ Règles IMPÉRATIVES :
         }
     }
 
+    // ── TTS settings ─────────────────────────────────
+    function getTtsLang() {
+        const saved = localStorage.getItem('buddy_ttsLang');
+        if (saved && saved !== 'auto') return saved;
+        return LANG === 'es' ? 'es-ES' : LANG === 'fr' ? 'fr-FR' : 'en-US';
+    }
+    function getTtsRate() {
+        return parseFloat(localStorage.getItem('buddy_ttsRate') || '1.0');
+    }
+
+    // Init TTS controls
+    const ttsLangSelect = document.getElementById('ttsLangSelect');
+    const ttsRateSlider = document.getElementById('ttsRateSlider');
+    const ttsRateVal = document.getElementById('ttsRateVal');
+
+    ttsLangSelect.value = localStorage.getItem('buddy_ttsLang') || 'auto';
+    ttsRateSlider.value = getTtsRate();
+    ttsRateVal.textContent = getTtsRate().toFixed(1);
+
+    ttsLangSelect.addEventListener('change', () => {
+        localStorage.setItem('buddy_ttsLang', ttsLangSelect.value);
+    });
+    ttsRateSlider.addEventListener('input', () => {
+        const v = parseFloat(ttsRateSlider.value).toFixed(1);
+        ttsRateVal.textContent = v;
+        localStorage.setItem('buddy_ttsRate', v);
+    });
+    document.getElementById('ttsTestBtn').addEventListener('click', async () => {
+        const CapTTS = window.Capacitor?.Plugins?.TextToSpeech;
+        const lang = getTtsLang();
+        const rate = getTtsRate();
+        const samples = { 'es-ES': 'Hola, soy Zova, tu asistente de voz.', 'es-MX': 'Hola, soy Zova, tu asistente de voz.', 'fr-FR': 'Bonjour, je suis Zova, votre assistant vocal.', 'en-US': 'Hello, I am Zova, your voice assistant.', 'en-GB': 'Hello, I am Zova, your voice assistant.' };
+        const text = samples[lang] || 'Hello, I am Zova.';
+        if (CapTTS) {
+            try { await CapTTS.speak({ text, lang, rate, pitch: 1.0, volume: 1.0, category: 'ambient' }); } catch(e) { customAlert('TTS error: ' + e.message); }
+        } else if (window.speechSynthesis) {
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = lang; u.rate = rate;
+            window.speechSynthesis.speak(u);
+        }
+    });
+    // ─────────────────────────────────────────────────
+
     async function groqSpeak(text, persona) {
         groqSpeaking = true;
         setStatus(t('status_speaking'), 'connected');
         addTranscriptMessage(persona ? persona.name : 'Zova', text, 'ai');
         scrollTranscript();
 
-        const lang = LANG === 'es' ? 'es-ES' : LANG === 'fr' ? 'fr-FR' : 'en-US';
+        const lang = getTtsLang();
 
         const done = () => {
             groqSpeaking = false;
@@ -5197,11 +5265,13 @@ Règles IMPÉRATIVES :
             if (isConnected) groqStartListening(persona);
         };
 
+        const rate = getTtsRate();
+
         // 1. Capacitor native TTS (Android) — uses device TTS engine
         const CapTTS = window.Capacitor?.Plugins?.TextToSpeech;
         if (IS_CAPACITOR && CapTTS) {
             try {
-                await CapTTS.speak({ text, lang, rate: 1.0, pitch: 1.0, volume: 1.0, category: 'ambient' });
+                await CapTTS.speak({ text, lang, rate, pitch: 1.0, volume: 1.0, category: 'ambient' });
                 done();
                 return;
             } catch(e) {
@@ -5214,7 +5284,7 @@ Règles IMPÉRATIVES :
             return new Promise(resolve => {
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = lang;
-                utterance.rate = 1.0;
+                utterance.rate = rate;
                 utterance.onend = () => { done(); resolve(); };
                 utterance.onerror = () => { groqSpeaking = false; resolve(); };
                 window.speechSynthesis.speak(utterance);
