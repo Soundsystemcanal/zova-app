@@ -2123,6 +2123,14 @@
       <button class="config-screen-btn" id="myInfoBtn">&#128100; <span data-i18n="config_my_info">Mis informaciones</span></button>
       <button class="config-screen-btn" id="backupBtn">&#128190; <span data-i18n="config_backup">Copia de seguridad</span></button>
       <button class="config-screen-btn" id="themeToggleBtn">&#9789; <span id="themeToggleLabel">Mode sombre</span></button>
+      <!-- Episodic Memory -->
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🧠 Mémoire épisodique</div>
+        <div id="memoryCount" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px">Chargement...</div>
+        <button class="config-screen-btn" id="viewMemoryBtn">📖 Voir les souvenirs</button>
+        <button class="config-screen-btn" id="clearMemoryBtn" style="color:var(--danger)">🗑️ Effacer la mémoire</button>
+      </div>
+
       <!-- TTS Voice settings -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
         <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🎙️ Voix TTS (Groq)</div>
@@ -4677,8 +4685,85 @@ Règles IMPÉRATIVES :
     let pendingFunctionCalls = {};
 
     // Construit les instructions complètes (system prompt) pour un persona
+    // ════════════════════════════════════════════════
+    //  MÉMOIRE ÉPISODIQUE
+    // ════════════════════════════════════════════════
+
+    const MEMORY_KEY = 'buddy_memories';
+    const MAX_MEMORIES = 10;       // max stored
+    const MEMORIES_IN_PROMPT = 4;  // injected per conversation
+    const MIN_MSGS_FOR_MEMORY = 3; // min exchanges to generate memory
+
+    function getMemories() {
+        try { return JSON.parse(localStorage.getItem(MEMORY_KEY)) || []; }
+        catch { return []; }
+    }
+
+    function saveMemory(entry) {
+        const mems = getMemories();
+        mems.unshift(entry); // newest first
+        if (mems.length > MAX_MEMORIES) mems.splice(MAX_MEMORIES);
+        localStorage.setItem(MEMORY_KEY, JSON.stringify(mems));
+    }
+
+    async function generateMemory(persona, transcriptText) {
+        const groqKey = await getGroqApiKey();
+        if (!groqKey || !transcriptText.trim()) return;
+
+        const msgs = document.querySelectorAll('#transcript .transcript-msg');
+        if (msgs.length < MIN_MSGS_FOR_MEMORY) return;
+
+        const personaName = persona ? persona.name : 'Zova';
+        const date = new Date().toLocaleDateString(LANG === 'fr' ? 'fr-FR' : LANG === 'es' ? 'es-ES' : 'en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+
+        const systemPrompt = `Tu es un assistant qui résume des conversations de manière très concise.
+Génère un résumé en 2-3 phrases maximum (80 tokens max) de cette conversation entre l'utilisateur et ${personaName}.
+Focalise-toi sur: les sujets principaux, l'humeur, les informations importantes sur l'utilisateur.
+Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: ${LANG === 'fr' ? 'français' : LANG === 'es' ? 'español' : 'english'}.`;
+
+        try {
+            const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'llama3-8b-8192',
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: transcriptText.slice(0, 3000) }
+                    ],
+                    max_tokens: 100,
+                    temperature: 0.3
+                })
+            });
+            if (!resp.ok) return;
+            const data = await resp.json();
+            const summary = (data.choices?.[0]?.message?.content || '').trim();
+            if (summary.length > 10) {
+                saveMemory({
+                    date,
+                    personaId: persona?.id || '',
+                    personaName,
+                    summary
+                });
+                console.log('[Zova Memory] Saved:', summary.slice(0, 60) + '...');
+            }
+        } catch(e) {
+            console.warn('[Zova Memory] Failed to generate:', e.message);
+        }
+    }
+
+    // ════════════════════════════════════════════════
+
     function buildFullInstructions(persona) {
         let fullInstructions = persona.prompt;
+
+        // Inject episodic memories
+        const memories = getMemories().filter(m => !persona || m.personaId === persona.id || m.personaId === '');
+        const relevant = memories.slice(0, MEMORIES_IN_PROMPT);
+        if (relevant.length > 0) {
+            const memBlock = relevant.map(m => `- ${m.date} (${m.personaName}): ${m.summary}`).join('\n');
+            fullInstructions += `\n\n# Mémoire des sessions précédentes\nVoici un résumé de tes conversations récentes avec cet utilisateur. Utilise ces infos naturellement pour assurer la continuité :\n${memBlock}`;
+        }
 
         const toolSection = activeProvider === 'gemini'
             ? `\n\n# Outils à ta disposition
@@ -6438,6 +6523,13 @@ Règles IMPÉRATIVES :
         if (analyzeInsights && hadConversation && !isTranscripteurMode && activeModelId !== 'gpt-realtime-translate') {
             extractInsights();
         }
+
+        // Générer la mémoire épisodique post-session
+        if (hadConversation && !isTranscripteurMode && activeModelId !== 'gpt-realtime-translate') {
+            const persona = getPersonas().find(p => p.id === getActiveId());
+            const transcriptText = getTranscriptText(false);
+            generateMemory(persona, transcriptText); // async, non-bloquant
+        }
     }
 
     // ════════════════════════════════════════════════
@@ -6851,6 +6943,30 @@ Règles de format :
             if (overlay.id === 'apiKeyModal' && !await hasAnyApiKey()) return;
             overlay.classList.remove('active');
         });
+    });
+
+    // Memory buttons in Config
+    function updateMemoryCount() {
+        const mems = getMemories();
+        const el = document.getElementById('memoryCount');
+        if (el) el.textContent = mems.length === 0
+            ? 'Aucun souvenir enregistré'
+            : `${mems.length} souvenir${mems.length > 1 ? 's' : ''} enregistré${mems.length > 1 ? 's' : ''}`;
+    }
+    updateMemoryCount();
+
+    document.getElementById('viewMemoryBtn').addEventListener('click', () => {
+        const mems = getMemories();
+        if (!mems.length) { customAlert('Aucun souvenir encore. Les souvenirs sont générés automatiquement à la fin de chaque conversation.', { title: '🧠 Mémoire épisodique', icon: '🧠' }); return; }
+        const content = mems.map((m, i) => `**${i+1}. ${m.date} — ${m.personaName}**\n${m.summary}`).join('\n\n');
+        showExportModal(content, 'zova-memoires.txt');
+    });
+
+    document.getElementById('clearMemoryBtn').addEventListener('click', async () => {
+        if (!await customConfirm('Effacer tous les souvenirs ? Zova ne se souviendra plus des conversations précédentes.', { title: '🗑️ Effacer la mémoire', confirmLabel: 'Effacer', danger: true })) return;
+        localStorage.removeItem(MEMORY_KEY);
+        updateMemoryCount();
+        customAlert('Mémoire effacée.', { title: '🧠', icon: '✅' });
     });
 
     // PIN buttons in Config
