@@ -6774,8 +6774,18 @@ Règles de format :
 
     function statCost(s) {
         if (s.costDollars != null) return s.costDollars;
-        const p = PRICING[s.model] || PRICING['gpt-realtime-1.5'];
-        return ((s.inputTokens || 0) / 1000 * p.input) + ((s.outputTokens || 0) / 1000 * p.output);
+        const p = PRICING[s.model];
+
+        // perMinute pricing (Groq, Ultravox, Transcripteur)
+        if (p && p.perMinute != null) {
+            const minutes = (s.durationSeconds || 0) / 60;
+            return minutes * p.perMinute;
+        }
+
+        // Token-based pricing (OpenAI, Gemini)
+        const pricing = p || PRICING['gpt-realtime-1.5'];
+        if (pricing.input == null) return 0; // unknown model, show 0 rather than NaN
+        return ((s.inputTokens || 0) / 1000 * pricing.input) + ((s.outputTokens || 0) / 1000 * pricing.output);
     }
 
     function formatTokens(n) {
