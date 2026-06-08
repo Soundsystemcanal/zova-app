@@ -37,21 +37,21 @@
         }
 
         [data-theme="light"] {
-            --bg-primary: #f3f0ff;
+            --bg-primary: #f8f7ff;
             --bg-secondary: #ffffff;
             --bg-sidebar: #ede8ff;
-            --bg-input: #f5f2ff;
-            --bg-hover: rgba(109,40,217,0.06);
-            --bg-active: rgba(109,40,217,0.12);
+            --bg-input: #ffffff;
+            --bg-hover: rgba(109,40,217,0.09);
+            --bg-active: rgba(109,40,217,0.14);
             --text-primary: #1a0a2e;
             --text-secondary: #5a4a7a;
-            --text-muted: #9a8cb0;
+            --text-muted: #7c6fa0;
             --accent: #6d28d9;
             --accent2: #db2777;
             --danger: #dc2626;
             --success: #059669;
-            --border: rgba(109,40,217,0.15);
-            --shadow: rgba(109,40,217,0.12);
+            --border: rgba(109,40,217,0.22);
+            --shadow: rgba(109,40,217,0.15);
             --modal-bg: #ffffff;
             --canvas-bg: #ede8ff;
             --transcript-user: rgba(109,40,217,0.08);
@@ -582,6 +582,17 @@
             width: 100%;
             max-width: 260px;
             aspect-ratio: 1;
+        }
+
+        /* En mode clair : titres hardcodés #E8DFD0 → var(--text-primary) */
+        [data-theme="light"] .welcome-title,
+        [data-theme="light"] .personas-screen-title,
+        [data-theme="light"] #screenStats h2,
+        [data-theme="light"] #screenConfig h2 {
+            color: var(--text-primary);
+        }
+        [data-theme="light"] .welcome-subtitle {
+            color: var(--text-muted);
         }
 
         /* En mode clair, fond sombre pour les visualiseurs */
@@ -1642,7 +1653,7 @@
 
         .config-layout {
             display: grid;
-            grid-template-columns: 170px 1fr;
+            grid-template-columns: 120px 1fr;
             min-height: 380px;
             border-top: 1px solid var(--border);
             border-bottom: 1px solid var(--border);
@@ -1662,9 +1673,9 @@
         .config-nav-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 11px 18px;
-            font-size: 0.88rem;
+            gap: 6px;
+            padding: 11px 12px;
+            font-size: 0.82rem;
             font-weight: 500;
             color: var(--text-secondary);
             cursor: pointer;
@@ -2429,43 +2440,6 @@
       <button class="config-screen-btn" id="myInfoBtn">&#128100; <span data-i18n="config_my_info">Mis informaciones</span></button>
       <button class="config-screen-btn" id="backupBtn">&#128190; <span data-i18n="config_backup">Copia de seguridad</span></button>
       <button class="config-screen-btn" id="themeToggleBtn">&#9789; <span id="themeToggleLabel">Mode sombre</span></button>
-      <!-- Budget & Modèles par action -->
-      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px">⚖️ Modèles par action</div>
-
-        <div class="model-action-row">
-          <div class="model-action-label">🎙️ Conversations</div>
-          <select id="modelConvSelect" class="model-action-select"></select>
-          <div id="modelConvCost" class="model-action-cost"></div>
-        </div>
-
-        <div class="model-action-row">
-          <div class="model-action-label">⚡ Groq — réponses</div>
-          <select id="modelGroqSelect" class="model-action-select">
-            <option value="llama-3.3-70b-versatile">🟡 Llama 3.3 70B — equilibrado ($0.001/min)</option>
-            <option value="llama-3.1-8b-instant">🟢 Llama 3.1 8B — económico ($0.0005/min)</option>
-          </select>
-        </div>
-
-        <div class="model-action-row">
-          <div class="model-action-label">🧠 Mémoire épisodique</div>
-          <select id="modelMemorySelect" class="model-action-select">
-            <option value="llama3-8b-8192">🟢 Llama 3 8B — económico ($0.05/M)</option>
-            <option value="llama-3.3-70b-versatile">🟡 Llama 3.3 70B — equilibrado ($0.59/M)</option>
-            <option value="gemma2-9b-it">🔵 Gemma 2 9B — alternativo ($0.20/M)</option>
-          </select>
-        </div>
-
-        <div class="model-action-row">
-          <div class="model-action-label">📝 Résumés / Insights</div>
-          <select id="modelInsightSelect" class="model-action-select">
-            <option value="llama3-8b-8192">🟢 Llama 3 8B — económico ($0.05/M)</option>
-            <option value="llama-3.3-70b-versatile">🟡 Llama 3.3 70B — equilibrado ($0.59/M)</option>
-            <option value="gemma2-9b-it">🔵 Gemma 2 9B — alternativo ($0.20/M)</option>
-          </select>
-        </div>
-      </div>
-
       <!-- Episodic Memory -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
         <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🧠 Mémoire épisodique</div>
@@ -2569,7 +2543,7 @@
                 <!-- Navigation gauche -->
                 <nav class="config-nav">
                     <button class="config-nav-item active" data-config-tab="api"><span class="icon">&#128273;</span> Clé API</button>
-                    <button class="config-nav-item" data-config-tab="model"><span class="icon">&#9881;</span> Modèle</button>
+                    <button class="config-nav-item" data-config-tab="model"><span class="icon">&#9881;</span> Modèles</button>
                     <button class="config-nav-item" data-config-tab="budget"><span class="icon">&#128176;</span> Budget</button>
                     <div style="flex:1"></div>
                     <button class="config-nav-item" data-config-tab="share"><span class="icon">&#128279;</span> Partager</button>
@@ -2611,47 +2585,96 @@
                         </div>
 
                         <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
-                        <label for="ultravoxApiKeyInput">Clave API Ultravox</label>
+                        <label for="ultravoxApiKeyInput">Clé API Ultravox</label>
                         <input type="password" id="ultravoxApiKeyInput" placeholder="utv-...">
-                        <div class="hint">Para modelos Ultravox. <a href="https://app.ultravox.ai/settings/api-keys" target="_blank" rel="noopener">Obtener clave gratuita</a></div>
+                        <div class="hint">Pour les conversations Ultravox (~$0.005/min). Clé gratuite disponible.</div>
                         <div id="ultravoxApiKeyStatus"></div>
+                        <div class="api-guide" style="margin:4px 0">
+                            <p><strong>Comment obtenir une clé API Ultravox :</strong></p>
+                            <ol>
+                                <li>Créez un compte sur <a href="https://app.ultravox.ai" target="_blank" rel="noopener">app.ultravox.ai</a></li>
+                                <li>Rendez-vous dans <a href="https://app.ultravox.ai/settings/api-keys" target="_blank" rel="noopener">Settings → API Keys</a></li>
+                                <li>Cliquez sur "Create API Key"</li>
+                                <li>Copiez la clé générée et collez-la ci-dessus</li>
+                            </ol>
+                            <p>Ultravox propose un quota gratuit généreux pour débuter.</p>
+                        </div>
 
                         <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
-                        <label for="groqApiKeyInput">Clave API Groq</label>
+                        <label for="groqApiKeyInput">Clé API Groq</label>
                         <input type="password" id="groqApiKeyInput" placeholder="gsk_...">
-                        <div class="hint">Para modelos Groq. <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Obtener clave gratuita</a></div>
+                        <div class="hint">Pour le pipeline Groq STT→LLM→TTS (~$0.001/min). Le moins cher.</div>
                         <div id="groqApiKeyStatus"></div>
+                        <div class="api-guide" style="margin:4px 0">
+                            <p><strong>Comment obtenir une clé API Groq :</strong></p>
+                            <ol>
+                                <li>Créez un compte sur <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a></li>
+                                <li>Rendez-vous dans <a href="https://console.groq.com/keys" target="_blank" rel="noopener">API Keys</a></li>
+                                <li>Cliquez sur "Create API Key"</li>
+                                <li>Copiez la clé générée et collez-la ci-dessus</li>
+                            </ol>
+                            <p>Groq est <strong>gratuit</strong> avec un quota très généreux — idéal pour commencer.</p>
+                        </div>
                     </div>
 
-                    <!-- Panel Modèle -->
+                    <!-- Panel Modèles -->
                     <div class="config-panel" id="configPanelModel">
-                        <label for="realtimeModelSelect">Modèle par défaut</label>
-                        <div class="hint" style="margin-bottom:8px">Utilisé pour les personas qui n'ont pas de modèle spécifique.</div>
+
+                        <!-- 🎙️ Provider de conversation -->
+                        <label for="modelConvSelect">🎙️ Conversations — provider</label>
+                        <div class="hint" style="margin-bottom:8px">Technologie utilisée pour les conversations vocales.</div>
+                        <select id="modelConvSelect" class="model-action-select"></select>
+                        <div id="modelConvCost" style="font-size:0.8rem;color:var(--accent);font-weight:600;margin:4px 0 10px"></div>
+
+                        <!-- OpenAI — variant de modèle -->
+                        <label for="realtimeModelSelect" style="font-size:0.8rem;color:var(--text-secondary)">OpenAI — variant de modèle</label>
+                        <div class="hint" style="margin-bottom:8px">Choix du modèle OpenAI Realtime spécifique.</div>
                         <select id="realtimeModelSelect">
-                            <optgroup label="OpenAI">
+                            <optgroup label="OpenAI Realtime">
                                 <option value="gpt-realtime-2">gpt-realtime-2 — dernier modèle</option>
                                 <option value="gpt-realtime-1.5">gpt-realtime-1.5</option>
                                 <option value="gpt-realtime-mini">gpt-realtime-mini — économique</option>
                                 <option value="gpt-realtime-translate">gpt-realtime-translate — interprète live</option>
                             </optgroup>
-                            <optgroup label="Google Gemini">
-                                <option value="gemini-3.1-flash-live-preview">Gemini 3.1 Flash Live — performant &amp; économique</option>
-                            </optgroup>
-                            <optgroup label="Ultravox">
-                                <option value="ultravox-70b">Ultravox Llama 3.3 70B — económico (~$0.005/min)</option>
-                                <option value="ultravox-8b">Ultravox Llama 3.1 8B — muy económico (~$0.002/min)</option>
-                            </optgroup>
-                            <optgroup label="Groq (Pipeline STT→LLM→TTS)">
-                                <option value="groq-70b">Groq Llama 3.3 70B — ultra económico (~$0.001/min)</option>
-                                <option value="groq-8b">Groq Llama 3.1 8B — más económico (~$0.0005/min)</option>
-                            </optgroup>
                         </select>
-                        <div id="modelPricingInfo" style="font-size:0.8rem;color:var(--text-secondary);padding:8px 12px;background:var(--bg-hover);border-radius:8px;margin-top:8px"></div>
+                        <div id="modelPricingInfo" style="font-size:0.8rem;color:var(--text-secondary);padding:8px 12px;background:var(--bg-hover);border-radius:8px;margin-top:6px"></div>
+
+                        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+
+                        <!-- ⚡ Groq réponses -->
+                        <label for="modelGroqSelect">⚡ Groq — réponses rapides</label>
+                        <div class="hint" style="margin-bottom:8px">Modèle LLM du pipeline Groq (STT → LLM → TTS).</div>
+                        <select id="modelGroqSelect" class="model-action-select">
+                            <option value="llama-3.3-70b-versatile">🟡 Llama 3.3 70B — équilibré (~$0.001/min)</option>
+                            <option value="llama-3.1-8b-instant">🟢 Llama 3.1 8B — économique (~$0.0005/min)</option>
+                        </select>
+
+                        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+
+                        <!-- 🧠 Mémoire -->
+                        <label for="modelMemorySelect">🧠 Mémoire épisodique</label>
+                        <div class="hint" style="margin-bottom:8px">Modèle pour extraire et résumer les souvenirs de conversation.</div>
+                        <select id="modelMemorySelect" class="model-action-select">
+                            <option value="llama3-8b-8192">🟢 Llama 3 8B — économique ($0.05/M tokens)</option>
+                            <option value="llama-3.3-70b-versatile">🟡 Llama 3.3 70B — équilibré ($0.59/M tokens)</option>
+                            <option value="gemma2-9b-it">🔵 Gemma 2 9B — alternatif ($0.20/M tokens)</option>
+                        </select>
+
+                        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+
+                        <!-- 📝 Insights -->
+                        <label for="modelInsightSelect">📝 Résumés &amp; Insights</label>
+                        <div class="hint" style="margin-bottom:8px">Modèle pour générer les résumés et analyses de conversations.</div>
+                        <select id="modelInsightSelect" class="model-action-select">
+                            <option value="llama3-8b-8192">🟢 Llama 3 8B — économique ($0.05/M tokens)</option>
+                            <option value="llama-3.3-70b-versatile">🟡 Llama 3.3 70B — équilibré ($0.59/M tokens)</option>
+                            <option value="gemma2-9b-it">🔵 Gemma 2 9B — alternatif ($0.20/M tokens)</option>
+                        </select>
                     </div>
 
                     <!-- Panel Budget -->
                     <div class="config-panel" id="configPanelBudget">
-                        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.5;margin:0">Définissez un plafond de dépenses mensuel. Buddy vous préviendra quand vous approcherez de la limite (90%) et bloquera les nouvelles conversations une fois le plafond atteint.</p>
+                        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.5;margin:0">Définissez un plafond de dépenses mensuel. Zova vous préviendra quand vous approcherez de la limite (90%) et bloquera les nouvelles conversations une fois le plafond atteint.</p>
                         <label for="budgetLimitInput">Montant maximum par mois</label>
                         <div style="display:flex;align-items:center;gap:10px">
                             <span style="font-size:1.1rem;color:var(--text-secondary);font-weight:600">$</span>
@@ -4035,14 +4058,9 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         const content = JSON.stringify(data, null, 2);
         const filename = `zova-backup-${new Date().toISOString().slice(0,10)}.json`;
 
-        // Android: copy JSON to clipboard → user pastes wherever they want
+        // Android: always use modal (clipboard truncates large JSON with images)
         if (IS_CAPACITOR) {
-            try {
-                await navigator.clipboard.writeText(content);
-                customAlert(`JSON copiado al portapapeles.\n\nPégalo en un correo, Google Drive, WhatsApp… y guárdalo como <b>${filename}</b>`, { title: '✅ Listo para pegar', icon: '&#128203;' });
-            } catch {
-                showExportModal(content, filename);
-            }
+            showExportModal(content, filename);
             return;
         }
 
