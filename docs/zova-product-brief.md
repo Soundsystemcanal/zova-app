@@ -4,6 +4,10 @@
 
 ---
 
+> 🔗 Identité de marque complète : [`docs/zova-brand-identity.md`](zova-brand-identity.md)
+
+---
+
 ## 1. Vision
 
 **Zova** est un assistant vocal IA personnel qui vit entièrement sur ton téléphone.  
@@ -105,11 +109,12 @@ Pas de serveur intermédiaire. Pas d'abonnement. Ton téléphone parle directeme
 
 **Zova** — court, mémorable, universel, pas de traduction parasite.
 
-Slogans candidats :
-- *"Ton IA. Ton téléphone. Tes règles."*
-- *"L'assistant vocal qui ne rapporte rien à personne."*
-- *"Parle à l'IA. Pas à une app."*
-- *"Voice AI, no strings attached."* *(EN)*
+**Slogan officiel :** *"Ton IA. Ton téléphone. Tes règles."*
+
+**Valeurs de marque (voir fiche complète) :**
+- Souveraineté technologique absolue
+- Liberté sans censure (éthique)
+- Transparence radicale des coûts
 
 ---
 
