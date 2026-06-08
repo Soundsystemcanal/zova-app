@@ -3759,9 +3759,15 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     // ── WakeLock ──────────────────────────────────────
     let wakeLock = null;
     async function requestWakeLock() {
+        // Fix C: démarrer/redémarrer le heartbeat dès qu'on est en conversation active
+        if (shouldReconnect) startHeartbeat();
         if ('wakeLock' in navigator) {
             try {
                 wakeLock = await navigator.wakeLock.request('screen');
+                // Fix A: écouter la libération forcée par l'OS (mode économie d'énergie)
+                wakeLock.addEventListener('release', () => {
+                    if (shouldReconnect) setTimeout(checkAndReconnect, 500);
+                });
             } catch(e) {
                 console.warn('[WakeLock]', e.message);
                 setStatus('⚠️ Pantalla puede apagarse (sin permiso de pantalla activa)', 'error');
@@ -3771,11 +3777,46 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     }
     function releaseWakeLock() {
         if (wakeLock) { wakeLock.release().catch(()=>{}); wakeLock = null; }
+        stopHeartbeat();
     }
-    // Re-acquire WakeLock if page becomes visible again
+    // Fix B: visibilitychange vérifie ws.readyState réel, pas isConnected périmé
     document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && isConnected) requestWakeLock();
+        if (document.visibilityState === 'visible') {
+            if (isConnected) requestWakeLock();
+            checkAndReconnect();
+        }
     });
+
+    // ── Heartbeat & détection de connexion morte ────────────────────────────
+    let heartbeatInterval = null;
+    function startHeartbeat() {
+        stopHeartbeat();
+        heartbeatInterval = setInterval(() => {
+            if (!shouldReconnect) { stopHeartbeat(); return; }
+            if (isConnected && activeProvider !== 'groq' && ws && ws.readyState !== WebSocket.OPEN) {
+                checkAndReconnect();
+            }
+        }, 25000);
+    }
+    function stopHeartbeat() {
+        if (heartbeatInterval) { clearInterval(heartbeatInterval); heartbeatInterval = null; }
+    }
+    // Détecte un WebSocket mort quand isConnected est périmé (après freeze/économie d'énergie)
+    function checkAndReconnect() {
+        if (!shouldReconnect) return;
+        if (activeProvider === 'groq') return; // Groq = pipeline HTTP, pas de WebSocket
+        if (isConnected && ws && ws.readyState !== WebSocket.OPEN) {
+            isConnected = false;
+            const persona = getPersonas().find(p => p.id === getActiveId());
+            if (!persona) return;
+            if (activeProvider === 'openai' || activeProvider === 'translate')
+                scheduleReconnect(() => connectOpenAI(persona));
+            else if (activeProvider === 'gemini')
+                scheduleReconnect(() => connectGemini(persona));
+            else if (activeProvider === 'ultravox')
+                scheduleReconnect(() => connectUltravox(persona));
+        }
+    }
 
     // ── Reconnexion auto ──────────────────────────────
     let shouldReconnect = false;
