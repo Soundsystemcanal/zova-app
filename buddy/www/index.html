@@ -2689,11 +2689,11 @@
                         <div style="text-align:center;padding:20px 0">
                             <div style="font-size:2.5rem;margin-bottom:12px;filter:grayscale(1);opacity:0.4">&#128279;</div>
                             <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px">Zova</div>
-                            <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:18px">Assistant vocal IA — par Renaud Dékode</div>
+                            <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:18px">Assistant vocal IA — par Xavier Bourdet</div>
                             <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;margin:0 0 18px">Vous aimez Zova ? Partagez-le avec vos amis et collègues !</p>
                             <div style="display:flex;flex-direction:column;gap:8px;max-width:300px;margin:0 auto">
                                 <button class="btn-small" id="copyShareLinkBtn" style="padding:10px 16px;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px"><span class="icon">&#128203;</span> Copier le lien</button>
-                                <a href="https://www.renaud-dekode.fr/c/kast-personnages/" target="_blank" rel="noopener" class="btn-small" style="padding:10px 16px;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px"><span class="icon">&#127760;</span> Bibliothèque de personas</a>
+                                <a href="https://soundsystemcanal.github.io/zova-app/" target="_blank" rel="noopener" class="btn-small" style="padding:10px 16px;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px"><span class="icon">&#127760;</span> Site Zova</a>
                             </div>
                         </div>
                     </div>
@@ -2852,7 +2852,7 @@
             <h2>Mes informations</h2>
             <div class="hint" style="margin-bottom:12px;text-align:center">Ces infos sont automatiquement transmises à tous vos personas pour personnaliser les échanges.</div>
             <textarea id="myInfoInput" style="min-height:250px" placeholder="Exemple :
-- Je m'appelle Renaud
+- Je m'appelle Xavier
 - Je vis à Paris
 - Je suis développeur freelance
 - J'ai un chat qui s'appelle Pixel
@@ -4241,7 +4241,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     const configTabMap = { api: 'configPanelApi', model: 'configPanelModel', budget: 'configPanelBudget', share: 'configPanelShare' };
 
     document.getElementById('copyShareLinkBtn').addEventListener('click', () => {
-        navigator.clipboard.writeText('https://www.renaud-dekode.fr/c/kast/').then(() => {
+        navigator.clipboard.writeText('https://soundsystemcanal.github.io/zova-app/').then(() => {
             const btn = document.getElementById('copyShareLinkBtn');
             btn.innerHTML = '<span class="icon">&#10003;</span> Lien copié !';
             setTimeout(() => { btn.innerHTML = '<span class="icon">&#128203;</span> Copier le lien'; }, 2000);

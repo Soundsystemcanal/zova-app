@@ -6,7 +6,7 @@
 
 ## Resumen
 
-Buddy es una app Android derivada de la web app de voz **Kast** (por Renaud Dékode). Se renombra, rediseña visualmente, se empaqueta como APK nativo via Capacitor, y se amplía con soporte de APIs baratas adicionales y almacenamiento seguro de claves API.
+Buddy es una app Android derivada de la web app de voz **Kast** (por Xavier Bourdet). Se renombra, rediseña visualmente, se empaqueta como APK nativo via Capacitor, y se amplía con soporte de APIs baratas adicionales y almacenamiento seguro de claves API.
 
 ---
 
@@ -97,5 +97,5 @@ Migración transparente al primer arranque.
 
 ## Fuente base
 
-HTML original: app Kast by Renaud Dékode (~4000 líneas, single-file, sin build step).  
+HTML original: app Kast by Xavier Bourdet (~4000 líneas, single-file, sin build step).  
 Mockups guardados en: `.superpowers/brainstorm/2160-1780734852/`

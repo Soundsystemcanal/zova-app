@@ -191,7 +191,7 @@ Localizar y reemplazar en el `<head>`:
 <title>Buddy — Voice Assistant</title>
 ```
 
-- [ ] **Step 5: Eliminar el crédito de Renaud Dékode del footer**
+- [ ] **Step 5: Eliminar el crédito de Xavier Bourdet del footer**
 
 Localizar el `<div class="app-footer">` y reemplazar con:
 
@@ -2119,6 +2119,187 @@ git push origin main
 
 ---
 
+## Task 13: Landing page — partager Zova avec le monde
+
+**Objectif :** Créer une page web publique pour présenter Zova, expliquer le concept, et permettre à n'importe qui de télécharger l'APK facilement.
+
+**Fichiers :**
+- Create: `landing/index.html` — single-file, hébergeable sur GitHub Pages
+
+**Philosophie :** La landing doit être aussi soignée que l'app — même univers Dark Cosmos, même slogan, même clarté. C'est la vitrine. Elle doit convaincre en 10 secondes.
+
+---
+
+- [ ] **Step 1 : Définir la structure de la page**
+
+La landing est un single-file HTML (CSS + JS inline) avec les sections suivantes, dans l'ordre :
+
+```
+1. Hero          — logo + slogan + bouton téléchargement + QR
+2. Concept       — "C'est quoi Zova ?" en 3 bullet points
+3. Providers     — tableau comparatif des 4 providers (coût, qualité)
+4. Fonctionnalités — icônes + titres (personas, PIN, mémoire, budget, FAQ)
+5. Installation  — 3 étapes illustrées (télécharger → autoriser → configurer)
+6. Footer        — lien GitHub, "par Xavier Bourdet"
+```
+
+- [ ] **Step 2 : Design — Dark Cosmos adapté au web**
+
+Utiliser exactement les mêmes variables CSS que l'app :
+
+```css
+:root {
+    --bg: #0a0a1f;
+    --accent: #8b5cf6;
+    --accent2: #ec4899;
+    --text: #e2d9f3;
+    --text-muted: #9a8cb0;
+    --card-bg: #0f0f2e;
+    --border: rgba(139,92,246,0.20);
+}
+body {
+    background: radial-gradient(ellipse at 20% 30%, rgba(109,40,217,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(236,72,153,0.10) 0%, transparent 50%),
+                var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', system-ui, sans-serif;
+    margin: 0;
+    line-height: 1.6;
+}
+```
+
+Polices : Syne (titres) + DM Sans (corps) — mêmes que l'app, via Google Fonts.
+
+- [ ] **Step 3 : Section Hero**
+
+```html
+<section class="hero">
+    <div class="hero-logo"><!-- SVG mic Dark Cosmos --></div>
+    <h1>Zova</h1>
+    <p class="hero-slogan">Ton IA. Ton téléphone. Tes règles.</p>
+    <p class="hero-sub">
+        Assistant vocal IA — sans serveur, sans abonnement, sans surveillance.
+        Tes clés API restent sur ton téléphone.
+    </p>
+    <a href="LIEN_APK" class="btn-download">⬇ Télécharger l'APK</a>
+    <div class="qr-block">
+        <img src="qr.png" alt="QR code téléchargement Zova">
+        <span>Scanner pour installer</span>
+    </div>
+</section>
+```
+
+- [ ] **Step 4 : Section Concept — 3 valeurs**
+
+```html
+<section class="concept">
+    <div class="concept-card">
+        <span class="icon">🔒</span>
+        <h3>Souverain</h3>
+        <p>Tes clés API sont chiffrées dans l'Android Keystore.
+           Zova ne voit jamais tes données — parce qu'il n'existe pas de serveur Zova.</p>
+    </div>
+    <div class="concept-card">
+        <span class="icon">🎭</span>
+        <h3>Personnalisable</h3>
+        <p>Crée des assistants sur mesure : nom, personnalité, voix, prompt libre.
+           Aucune limite, aucun filtre imposé.</p>
+    </div>
+    <div class="concept-card">
+        <span class="icon">💸</span>
+        <h3>Transparent</h3>
+        <p>Paye exactement ce que tu utilises, directement au provider.
+           Pas d'abonnement. Pas de surprise. Dès ~$0.001/min avec Groq.</p>
+    </div>
+</section>
+```
+
+- [ ] **Step 5 : Section Providers — tableau comparatif**
+
+```html
+<section class="providers">
+    <h2>4 providers au choix</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Provider</th><th>Qualité</th><th>Coût/min</th><th>Idéal pour</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>OpenAI Realtime</td><td>⭐⭐⭐⭐⭐</td><td>~$0.06</td><td>Qualité maximale</td></tr>
+            <tr><td>Gemini Live</td><td>⭐⭐⭐⭐</td><td>~$0.01</td><td>Rapport qualité/prix</td></tr>
+            <tr><td>Ultravox</td><td>⭐⭐⭐</td><td>~$0.005</td><td>Usage intense</td></tr>
+            <tr class="highlight"><td>Groq pipeline</td><td>⭐⭐⭐</td><td>~$0.001</td><td>Démarrer gratuitement</td></tr>
+        </tbody>
+    </table>
+    <p class="hint">Groq offre un quota gratuit généreux — idéal pour tester Zova sans sortir la carte bancaire.</p>
+</section>
+```
+
+- [ ] **Step 6 : Section Installation — 3 étapes**
+
+```html
+<section class="install">
+    <h2>Installer en 3 minutes</h2>
+    <div class="steps">
+        <div class="step">
+            <div class="step-num">1</div>
+            <h3>Télécharger</h3>
+            <p>Scanne le QR ou clique le bouton. Un fichier .apk se télécharge.</p>
+        </div>
+        <div class="step">
+            <div class="step-num">2</div>
+            <h3>Autoriser</h3>
+            <p>Android → Paramètres → autoriser l'installation depuis sources inconnues pour ton navigateur.</p>
+        </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <h3>Configurer</h3>
+            <p>Ouvre Zova → Config → colle ta clé API Groq (gratuite sur console.groq.com).</p>
+        </div>
+    </div>
+</section>
+```
+
+- [ ] **Step 7 : Hébergement sur GitHub Pages**
+
+```bash
+# Créer le dossier landing à la racine du repo
+mkdir landing
+# Créer landing/index.html avec le HTML complet
+# Dans GitHub → Settings → Pages → Source: main branch /landing
+```
+
+L'URL sera : `https://TU_USUARIO.github.io/zova/` (ou domaine custom si disponible)
+
+- [ ] **Step 8 : Lier la landing à l'app**
+
+Dans `buddy/www/index.html`, onglet Partager du modal Configuration, mettre à jour le lien :
+
+```html
+<a href="https://TU_USUARIO.github.io/zova/" target="_blank" rel="noopener" class="btn-small">
+    🌐 Page de téléchargement
+</a>
+```
+
+- [ ] **Step 9 : Vérifier sur mobile**
+
+Ouvrir la landing sur mobile (Chrome Android). Vérifier :
+- La page est lisible sans zoom
+- Le bouton téléchargement est bien visible et fonctionnel
+- Le QR code est scannable
+- L'ambiance Dark Cosmos est cohérente avec l'app
+
+- [ ] **Step 10 : Commit**
+
+```bash
+git add landing/
+git commit -m "feat: add Zova landing page for APK distribution (GitHub Pages)"
+git push origin main
+```
+
+---
+
 ## Self-Review contra el spec
 
 | Requisito del spec | Tarea que lo implementa | Estado |
@@ -2134,7 +2315,8 @@ git push origin main
 | Bottom navigation | Task 4 | ✅ |
 | Android Keystore seguro | Task 8 | ✅ |
 | Renombrar Kast → Buddy | Task 2 | ✅ |
+| Landing page de distribución | Task 13 | ⏳ |
 
 ---
 
-*Plan escrito el 2026-06-06. Spec en: `docs/superpowers/specs/2026-06-06-buddy-mobile-design.md`*
+*Plan escrito el 2026-06-06. Actualizado 2026-06-08 — Task 13 landing page añadida. Spec en: `docs/superpowers/specs/2026-06-06-buddy-mobile-design.md`*

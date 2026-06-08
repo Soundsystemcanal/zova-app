@@ -142,6 +142,7 @@ Pas de serveur intermédiaire. Pas d'abonnement. Ton téléphone parle directeme
 | FAQ + Zova | FAQ trilingue, persona guide pré-installée, touch sensitivity | ✅ Livré (2026-06-07) |
 | Task 11 | APK release signé (keystore de production) | ⏳ |
 | Task 12 | GitHub Releases + QR de téléchargement | ⏳ |
+| Task 13 | Landing page publique (GitHub Pages) — présentation + téléchargement APK + QR | ⏳ |
 | Futur | Biométrie (empreinte), mode traducteur live, bibliothèque de personas | 💡 |
 
 ---
@@ -157,4 +158,4 @@ Pas de serveur intermédiaire. Pas d'abonnement. Ton téléphone parle directeme
 
 ---
 
-*Document généré le 2026-06-07 — Projet Zova par Renaud Dékode*
+*Document généré le 2026-06-07 — Projet Zova par Xavier Bourdet*
