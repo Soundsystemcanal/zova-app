@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zova — Ton IA. Ton téléphone. Tes règles.</title>
+    <meta name="description" content="Zova est un assistant vocal IA pour Android. Sans serveur, sans abonnement. Tes clés API restent sur ton téléphone.">
+    <meta property="og:title" content="Zova — Assistant vocal IA pour Android">
+    <meta property="og:description" content="Sans serveur, sans abonnement. 4 providers au choix. Dès 0,001$/min.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/Soundsystemcanal/zova-app/main/buddy/assets/icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:       #0a0a1f;
+            --bg2:      #0f0f2e;
+            --accent:   #8b5cf6;
+            --accent2:  #ec4899;
+            --text:     #e2d9f3;
+            --muted:    #9a8cb0;
+            --border:   rgba(139,92,246,0.20);
+            --card:     rgba(15,15,46,0.85);
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background:
+                radial-gradient(ellipse at 15% 15%, rgba(139,92,246,0.13) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 85%, rgba(236,72,153,0.09) 0%, transparent 55%),
+                var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', system-ui, sans-serif;
+            line-height: 1.65;
+            overflow-x: hidden;
+        }
+        h1, h2, h3 { font-family: 'Syne', system-ui, sans-serif; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ─── HERO ─── */
+        .hero {
+            min-height: 100svh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px 24px 100px;
+            position: relative;
+        }
+        .hero-logo { width: 88px; height: 88px; margin-bottom: 28px; filter: drop-shadow(0 0 24px rgba(139,92,246,0.5)); }
+        .hero h1 {
+            font-size: clamp(3.5rem, 12vw, 6rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 45%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-slogan {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(1rem, 3vw, 1.35rem);
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: 0.04em;
+            margin-bottom: 14px;
+        }
+        .hero-sub {
+            font-size: clamp(0.88rem, 2.2vw, 1.05rem);
+            color: var(--muted);
+            max-width: 500px;
+            margin: 0 auto 44px;
+            font-weight: 300;
+        }
+        .btn-dl {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+            padding: 16px 38px;
+            border-radius: 50px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: 0.02em;
+            box-shadow: 0 6px 32px rgba(139,92,246,0.45);
+            transition: transform 0.18s, box-shadow 0.18s;
+            margin-bottom: 44px;
+        }
+        .btn-dl:hover { transform: translateY(-3px); box-shadow: 0 10px 42px rgba(139,92,246,0.55); text-decoration: none; }
+        .qr-block { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .qr-block img {
+            width: 148px; height: 148px;
+            border-radius: 14px;
+            border: 2px solid var(--border);
+            background: var(--bg2);
+        }
+        .qr-block span {
+            font-size: 0.72rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .scroll-hint {
+            position: absolute;
+            bottom: 36px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--muted);
+            font-size: 1.3rem;
+            animation: float 2.2s ease-in-out infinite;
+            opacity: 0.6;
+        }
+        @keyframes float {
+            0%,100% { transform: translateX(-50%) translateY(0); }
+            50%      { transform: translateX(-50%) translateY(7px); }
+        }
+
+        /* ─── SECTIONS ─── */
+        .section { padding: 90px 24px; max-width: 960px; margin: 0 auto; }
+        .section h2 {
+            font-size: clamp(1.7rem, 4.5vw, 2.5rem);
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--text), #c4b5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .divider {
+            width: 56px; height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            border-radius: 2px;
+            margin: 0 auto 52px;
+        }
+        .sep { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+        /* ─── CONCEPT ─── */
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+        }
+        .concept-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px 26px;
+            transition: transform 0.2s, border-color 0.2s;
+            backdrop-filter: blur(10px);
+        }
+        .concept-card:hover { transform: translateY(-5px); border-color: rgba(139,92,246,0.45); }
+        .concept-card .icon { font-size: 2.1rem; display: block; margin-bottom: 18px; }
+        .concept-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+        .concept-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.75; }
+
+        /* ─── PROVIDERS ─── */
+        .table-wrap { overflow-x: auto; border-radius: 16px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th {
+            background: rgba(139,92,246,0.12);
+            padding: 14px 18px;
+            text-align: left;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.74rem;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: var(--accent);
+            border-bottom: 1px solid var(--border);
+        }
+        td { padding: 14px 18px; border-bottom: 1px solid var(--border); color: var(--muted); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(139,92,246,0.05); }
+        tr.hl td { color: var(--text); background: rgba(139,92,246,0.08); }
+        tr.hl td:first-child { border-left: 3px solid var(--accent); }
+        .badge {
+            display: inline-block;
+            background: rgba(52,211,153,0.15);
+            color: #34d399;
+            font-size: 0.67rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 20px;
+            margin-left: 7px;
+            letter-spacing: 0.04em;
+            vertical-align: middle;
+        }
+        .table-note {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 18px;
+            font-style: italic;
+        }
+
+        /* ─── STEPS ─── */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+        }
+        .step {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px 24px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .step:hover { transform: translateY(-4px); }
+        .step-num {
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800; font-size: 1.35rem;
+            color: #fff;
+            margin: 0 auto 22px;
+            box-shadow: 0 4px 22px rgba(139,92,246,0.38);
+        }
+        .step h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+        .step p { font-size: 0.84rem; color: var(--muted); line-height: 1.7; }
+
+        /* ─── CTA BOTTOM ─── */
+        .cta {
+            text-align: center;
+            padding: 100px 24px;
+            background: radial-gradient(ellipse at center, rgba(139,92,246,0.12) 0%, transparent 65%);
+        }
+        .cta h2 {
+            font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+            font-weight: 800;
+            margin-bottom: 14px;
+            max-width: 640px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .cta p { color: var(--muted); font-size: 1rem; margin-bottom: 36px; }
+
+        /* ─── FOOTER ─── */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 36px 24px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+        .footer-links { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
+
+        @media (max-width: 560px) {
+            .hero { padding: 40px 20px 80px; }
+            th, td { padding: 11px 12px; font-size: 0.82rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════ HERO ══════════ -->
+<div class="hero">
+    <svg class="hero-logo" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#8b5cf6"/>
+                <stop offset="100%" stop-color="#ec4899"/>
+            </linearGradient>
+        </defs>
+        <rect x="28" y="8" width="24" height="36" rx="12" fill="url(#lg)"/>
+        <path d="M16 38c0 13.3 10.7 24 24 24s24-10.7 24-24" stroke="url(#lg)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        <line x1="40" y1="62" x2="40" y2="72" stroke="url(#lg)" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="29" y1="72" x2="51" y2="72" stroke="url(#lg)" stroke-width="3.5" stroke-linecap="round"/>
+        <rect x="34" y="18" width="4" height="8" rx="2" fill="rgba(255,255,255,0.25)"/>
+    </svg>
+
+    <h1>Zova</h1>
+    <p class="hero-slogan">Ton IA. Ton téléphone. Tes règles.</p>
+    <p class="hero-sub">Assistant vocal IA pour Android — sans serveur intermédiaire, sans abonnement mensuel, sans surveillance. Tes clés API restent sur ton téléphone.</p>
+
+    <a class="btn-dl" href="https://github.com/Soundsystemcanal/zova-app/releases/download/v1.0.0/Zova-v1.0.apk">
+        ⬇&nbsp; Télécharger Zova v1.0 · 3,8 Mo
+    </a>
+
+    <div class="qr-block">
+        <img src="qr-download.png" alt="QR code téléchargement Zova">
+        <span>Scanner pour télécharger</span>
+    </div>
+
+    <div class="scroll-hint">↓</div>
+</div>
+
+<hr class="sep">
+
+<!-- ══════════ CONCEPT ══════════ -->
+<div class="section">
+    <h2>Pourquoi Zova ?</h2>
+    <div class="divider"></div>
+    <div class="concept-grid">
+        <div class="concept-card">
+            <span class="icon">🔒</span>
+            <h3>Souverain</h3>
+            <p>Tes clés API sont chiffrées dans l'Android Keystore matériel. Zova ne voit jamais tes données — il n'existe aucun serveur Zova.</p>
+        </div>
+        <div class="concept-card">
+            <span class="icon">🎭</span>
+            <h3>Personnalisable</h3>
+            <p>Crée des assistants sur mesure : nom, personnalité, voix, prompt libre. Aucune limite, aucun filtre imposé par un tiers.</p>
+        </div>
+        <div class="concept-card">
+            <span class="icon">💸</span>
+            <h3>Transparent</h3>
+            <p>Paye exactement ce que tu utilises, directement au provider. Pas d'abonnement caché. Dès ~$0.001/min — ou gratuit pour commencer.</p>
+        </div>
+    </div>
+</div>
+
+<hr class="sep">
+
+<!-- ══════════ PROVIDERS ══════════ -->
+<div class="section">
+    <h2>4 providers au choix</h2>
+    <div class="divider"></div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Provider</th>
+                    <th>Qualité</th>
+                    <th>Coût / min</th>
+                    <th>Idéal pour</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>OpenAI Realtime</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>~$0.06</td>
+                    <td>Qualité maximale</td>
+                </tr>
+                <tr>
+                    <td>Gemini Live</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>~$0.01</td>
+                    <td>Rapport qualité/prix</td>
+                </tr>
+                <tr>
+                    <td>Ultravox</td>
+                    <td>⭐⭐⭐</td>
+                    <td>~$0.005</td>
+                    <td>Usage intensif</td>
+                </tr>
+                <tr class="hl">
+                    <td>Groq pipeline <span class="badge">GRATUIT</span></td>
+                    <td>⭐⭐⭐</td>
+                    <td>~$0.001</td>
+                    <td>Débuter sans CB</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <p class="table-note">Groq offre un quota gratuit généreux — parfait pour découvrir Zova sans frais.</p>
+</div>
+
+<hr class="sep">
+
+<!-- ══════════ INSTALLATION ══════════ -->
+<div class="section">
+    <h2>Installer en 3 minutes</h2>
+    <div class="divider"></div>
+    <div class="steps">
+        <div class="step">
+            <div class="step-num">1</div>
+            <h3>Télécharger</h3>
+            <p>Clique le bouton ou scanne le QR. Le fichier <strong>Zova-v1.0.apk</strong> (3,8 Mo) se télécharge sur ton Android.</p>
+        </div>
+        <div class="step">
+            <div class="step-num">2</div>
+            <h3>Autoriser</h3>
+            <p>Paramètres → Apps → ton navigateur → <em>"Installer des applis inconnues"</em> → Autoriser. Puis ouvre le fichier APK.</p>
+        </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <h3>Configurer</h3>
+            <p>Ouvre Zova → Config → Clé API → colle ta clé <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> (gratuite). C'est prêt !</p>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════ CTA BAS ══════════ -->
+<div class="cta">
+    <h2>Prêt à reprendre le contrôle ?</h2>
+    <p>Tes pensées, ta voix, ton IA. Personne d'autre.</p>
+    <a class="btn-dl" href="https://github.com/Soundsystemcanal/zova-app/releases/download/v1.0.0/Zova-v1.0.apk">
+        ⬇&nbsp; Télécharger Zova v1.0
+    </a>
+</div>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+    <div class="footer-links">
+        <a href="https://github.com/Soundsystemcanal/zova-app" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/Soundsystemcanal/zova-app/releases" target="_blank" rel="noopener">Releases</a>
+        <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Clé Groq gratuite</a>
+    </div>
+    <div>Zova v1.0 &nbsp;·&nbsp; par Renaud Dékode &nbsp;·&nbsp; <em>"Ton IA. Ton téléphone. Tes règles."</em></div>
+</footer>
+
+</body>
+</html>
