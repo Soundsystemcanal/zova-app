@@ -9,23 +9,25 @@
     android:background="@drawable/widget_bg"
     android:padding="10dp">
 
-    <!-- Icône micro -->
+    <!-- Icône Z (pas d'emoji — RemoteViews crash sur MIUI) -->
     <TextView
         android:id="@+id/widget_mic_icon"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:text="🎙"
-        android:textSize="20sp"
+        android:text="Z"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#f0e6ff"
         android:gravity="center"
-        android:background="#33ec4899"
+        android:background="#553b1d6e"
         android:padding="4dp" />
 
     <!-- Séparateur vertical -->
     <View
         android:layout_width="1dp"
         android:layout_height="26dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:background="#3b1d6e" />
 
     <!-- Textes -->
@@ -59,9 +61,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="›"
+        android:text=">"
         android:textColor="#8b5cf6"
         android:textSize="20sp"
-        android:layout_marginStart="4dp" />
+        android:layout_marginLeft="4dp" />
 
 </LinearLayout>
