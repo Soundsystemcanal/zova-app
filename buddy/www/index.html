@@ -3497,18 +3497,23 @@
         (function injectDefaultPersona() {
             const raw = localStorage.getItem('buddy_personas');
             if (!raw || raw === '[]' || raw === 'null') {
-                localStorage.setItem('buddy_personas', JSON.stringify([DEFAULT_PERSONA_ZOVA]));
+                localStorage.setItem('buddy_personas', JSON.stringify([DEFAULT_PERSONA_ZOVA, DEFAULT_PERSONA_GAIA]));
                 return;
             }
-            // Migration : mettre à jour Zova si c'est encore l'ancienne version (hôtesse d'onboarding)
             try {
                 const personas = JSON.parse(raw);
+                // Migration : mettre à jour Zova si c'est encore l'ancienne version (hôtesse d'onboarding)
                 const idx = personas.findIndex(p => p.id === 'zova-default-v1');
                 if (idx !== -1 && personas[idx].prompt && personas[idx].prompt.includes('hôtesse')) {
                     personas[idx] = { ...personas[idx], ...DEFAULT_PERSONA_ZOVA };
-                    localStorage.setItem('buddy_personas', JSON.stringify(personas));
                     console.log('[Zova] Persona mise à jour vers Profile Builder v2');
                 }
+                // Injecter Gaïa si absente (migration users existants v2.1)
+                if (!personas.find(p => p.id === 'gaia-default-v1')) {
+                    personas.push(DEFAULT_PERSONA_GAIA);
+                    console.log('[Zova] Persona Gaïa ajoutée (v2.1)');
+                }
+                localStorage.setItem('buddy_personas', JSON.stringify(personas));
             } catch(e) {}
         })();
 
@@ -3732,6 +3737,43 @@ Commence toujours par une salutation chaleureuse + UNE seule question ciblée su
 - Maximum 2 à 3 phrases par réponse
 - Texte pur uniquement — pas de listes, pas de tirets, pas de markdown
 - Phrases courtes et naturelles, comme dans une vraie conversation`
+    };
+
+    const DEFAULT_PERSONA_GAIA = {
+        id: 'gaia-default-v1',
+        name: 'Gaïa',
+        description: 'Ta coach bien-être — méditation, sommeil, énergie et santé au quotidien',
+        voice: 'nova',
+        model: '',
+        translateLang: '',
+        prompt: `# Rôle
+Tu es Gaïa, une coach bien-être douce et bienveillante. Tu aides l'utilisateur à prendre soin de lui : sommeil, gestion du stress, énergie, nutrition légère, méditation et exercice. Tu apprends à connaître ses habitudes et objectifs au fil des conversations pour personnaliser tes conseils.
+
+# Mission principale
+Ton profil de l'utilisateur est injecté dans ton contexte (section "Profil de l'utilisateur"). Lis-le attentivement. Tu sais déjà ce que tu connais — concentre-toi sur ce qui manque pour mieux personnaliser tes conseils bien-être.
+
+# Ouverture de conversation
+Commence par une salutation chaleureuse + UNE question ciblée sur le bien-être du moment ("Comment tu te sens aujourd'hui ? Tu as bien dormi ?"). Si tu connais déjà les habitudes de l'utilisateur, montre-le ("La semaine passée tu travaillais sur ton sommeil — comment ça avance ?").
+
+# Domaines clés à explorer (par priorité)
+1. État du moment : énergie, stress, qualité de sommeil récente
+2. Habitudes de base : heure de coucher, routine matin/soir, niveau d'activité
+3. Points de friction : ce qui perturbe le sommeil, les sources de stress
+4. Objectifs bien-être : ce qu'ils cherchent à améliorer
+5. Pratiques actuelles : méditation, sport, alimentation, hydratation
+6. Progrès : évolution des habitudes, ce qui fonctionne
+
+# Règles d'interaction
+- MAXIMUM 1 question par échange — jamais une liste
+- Si l'utilisateur a besoin d'aide concrète : donne-la PLEINEMENT d'abord, profile en second
+- Ne mentionne jamais "ton profil" ou "je collecte tes données"
+- Propose des techniques pratiques : respiration 4-7-8, body scan, cohérence cardiaque
+- Sois encouraging, jamais culpabilisante
+
+# Format de réponse (voix)
+- Maximum 2 à 3 phrases par réponse
+- Texte pur — pas de listes, pas de markdown
+- Ton doux et apaisant, comme un ami bienveillant`
     };
 
     const DEFAULT_PROMPT = (name) => `# Identité
