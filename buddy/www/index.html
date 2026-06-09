@@ -2385,7 +2385,7 @@ Minimum version required to store current data is: `+i+`.
                   <button class="btn-edit-persona" id="chaptersPersonaBtn" title="Chapitres" style="display:none"><span class="icon">📑</span></button>
                   <button class="btn-edit-persona" id="insightsPersonaBtn" title="Insights"><span class="icon">📊</span></button>
                   <button class="btn-edit-persona" id="duplicatePersonaBtn" title="Duplicar"><span class="icon">&#10697;</span></button>
-                  <button class="btn-edit-persona" id="editPersonaBtn" title="Editar"><span class="icon">&#9998;</span></button>
+                  <button class="btn-edit-persona" id="editPersonaBtn" title="Editar" style="display:none"><span class="icon">&#9998;</span></button>
               </div>
               <div id="vizBar">
                   <span class="viz-label persona" id="personaVizLabel">Persona</span>
@@ -5188,6 +5188,9 @@ Règles IMPÉRATIVES :
         // Header
         const avatarContainer = document.getElementById('personaHeaderAvatar');
         avatarContainer.innerHTML = '';
+        avatarContainer.style.cursor = 'pointer';
+        avatarContainer.title = 'Modifier';
+        avatarContainer.onclick = () => openPersonaModal(getPersonas().find(x => x.id === getActiveId()));
         if (p.image) {
             const img = document.createElement('img');
             img.src = p.image;
@@ -8336,15 +8339,11 @@ Langue : ${lang}`;
         if (btn.classList.contains('copied')) return;
         const text = isTranscripteurMode ? getTranscripteurText() : getTranscriptText();
         if (!text.trim()) { customAlert('Rien à copier.', { icon: '&#128203;' }); return; }
-        try {
-            await navigator.clipboard.writeText(text);
-            const original = btn.innerHTML;
-            btn.innerHTML = '<span class="icon">&#10003;</span> Copié !';
-            btn.classList.add('copied');
-            setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 2000);
-        } catch (err) {
-            customAlert('Impossible de copier dans le presse-papier.', { icon: '&#128203;' });
-        }
+        const original = btn.innerHTML;
+        btn.innerHTML = '<span class="icon">&#10003;</span> Copié !';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 2000);
+        try { await navigator.clipboard.writeText(text); } catch (err) {}
     });
 
     document.getElementById('exportTranscriptBtnConv').addEventListener('click', async () => {
