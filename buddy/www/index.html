@@ -2359,6 +2359,7 @@
                       <div id="personaHeaderName"></div>
                       <div id="personaHeaderDesc"></div>
                   </div>
+                  <button class="btn-edit-persona" id="chaptersPersonaBtn" title="Chapitres" style="display:none"><span class="icon">📑</span></button>
                   <button class="btn-edit-persona" id="insightsPersonaBtn" title="Insights"><span class="icon">📊</span></button>
                   <button class="btn-edit-persona" id="duplicatePersonaBtn" title="Duplicar"><span class="icon">&#10697;</span></button>
                   <button class="btn-edit-persona" id="editPersonaBtn" title="Editar"><span class="icon">&#9998;</span></button>
@@ -4618,6 +4619,11 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     document.getElementById('insightsPersonaBtn').addEventListener('click', () => {
         openPersonaInsightsModal();
     });
+    document.getElementById('chaptersPersonaBtn').addEventListener('click', () => {
+        const id = getActiveId();
+        const p = getPersonas().find(p => p.id === id);
+        openChaptersModal(id, p ? p.name : '');
+    });
 
     document.getElementById('clearImageBtn').addEventListener('click', () => {
         tempImage = null;
@@ -5087,6 +5093,9 @@ Règles IMPÉRATIVES :
         document.getElementById('editPersonaBtn').style.display = '';
         document.getElementById('duplicatePersonaBtn').style.display = '';
         document.getElementById('insightsPersonaBtn').style.display = '';
+        // Chapitres : ne montrer que s'il existe des chapitres pour la persona active
+        const _chapBtnR = document.getElementById('chaptersPersonaBtn');
+        if (_chapBtnR) _chapBtnR.style.display = localStorage.getItem('buddy_chapters_' + getActiveId()) ? '' : 'none';
         document.getElementById('personaHeader').style.display = '';
 
         // Header
@@ -5132,10 +5141,11 @@ Règles IMPÉRATIVES :
         document.getElementById('personaHeaderName').textContent = 'Transcripteur';
         document.getElementById('personaHeaderDesc').textContent = 'Transcripteur standard pour noter toutes vos idées';
 
-        // Cacher les boutons éditer/dupliquer/insights
+        // Cacher les boutons éditer/dupliquer/insights/chapitres
         document.getElementById('editPersonaBtn').style.display = 'none';
         document.getElementById('duplicatePersonaBtn').style.display = 'none';
         document.getElementById('insightsPersonaBtn').style.display = 'none';
+        document.getElementById('chaptersPersonaBtn').style.display = 'none';
 
         // Créer le layout horizontal : fiche à gauche, visualiseur à droite
         let trTop = document.getElementById('transcripteurTop');
@@ -5663,6 +5673,157 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         } catch(e) {
             console.warn('[Zova Memory] Failed to generate:', e.message);
         }
+    }
+
+    // ════════════════════════════════════════════════
+    //  CHAPITRAGE AUTOMATIQUE (Feature 3.4)
+    // ════════════════════════════════════════════════
+
+    const MIN_LINES_FOR_CHAPTERS = 40; // ~20 min de conversation
+
+    async function generateChapters(persona, transcriptText) {
+        if (!transcriptText.trim()) return;
+        const lineCount = transcriptText.split('\n').filter(l => l.trim()).length;
+        if (lineCount < MIN_LINES_FOR_CHAPTERS) return;
+
+        const systemPrompt = `Tu es un assistant qui analyse des transcriptions de conversations vocales.
+Identifie 3 à 5 chapitres thématiques dans la conversation ci-dessous.
+Pour chaque chapitre, donne :
+- title : titre court du chapitre (5-7 mots max)
+- summary : résumé en 1-2 phrases de ce qui a été discuté
+- exchanges : moment approximatif ("échanges 1-8", "échanges 9-20", etc.)
+Réponds UNIQUEMENT avec un JSON valide, sans texte avant ni après.
+Format : [{"title":"...","summary":"...","exchanges":"..."}]`;
+
+        try {
+            let result = '';
+            const groqKey = await getGroqApiKey();
+            if (groqKey) {
+                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: getModelMemory(),
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: transcriptText.slice(0, 6000) }
+                        ],
+                        max_tokens: 600,
+                        temperature: 0.3
+                    })
+                });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    result = (data.choices?.[0]?.message?.content || '').trim();
+                }
+            }
+            if (!result) {
+                result = await chatCompletion({
+                    systemPrompt,
+                    userPrompt: transcriptText.slice(0, 6000),
+                    temperature: 0.3,
+                    maxTokens: 600
+                });
+            }
+            if (!result) return;
+
+            const cleaned = result.replace(/```json\n?|\n?```/g, '').trim();
+            const chapters = JSON.parse(cleaned);
+            if (!Array.isArray(chapters) || chapters.length === 0) return;
+
+            const personaId = persona?.id || getActiveId();
+            localStorage.setItem('buddy_chapters_' + personaId, JSON.stringify(chapters));
+            localStorage.setItem('buddy_chapters_ts_' + personaId, new Date().toISOString());
+            console.log('[Zova Chapters] Générés:', chapters.length, 'chapitres pour', personaId);
+
+            // Mettre à jour le bouton header si on est sur la bonne persona
+            if (personaId === getActiveId()) {
+                const btn = document.getElementById('chaptersPersonaBtn');
+                if (btn) btn.style.display = '';
+            }
+            showChaptersBanner(personaId, persona?.name || '');
+        } catch(e) {
+            console.warn('[Zova Chapters] Erreur:', e.message);
+        }
+    }
+
+    function showChaptersBanner(personaId, personaName) {
+        const old = document.getElementById('_chaptersBanner');
+        if (old) old.remove();
+
+        const banner = document.createElement('div');
+        banner.id = '_chaptersBanner';
+        banner.style.cssText = [
+            'position:fixed;bottom:80px;left:50%;transform:translateX(-50%)',
+            'background:linear-gradient(135deg,#1a0a2e,#0f0f2e)',
+            'border:1px solid #8b5cf6;border-radius:14px;padding:10px 16px',
+            'display:flex;align-items:center;gap:10px;z-index:8000',
+            'box-shadow:0 4px 20px rgba(139,92,246,0.3);cursor:pointer',
+            'min-width:240px;max-width:90vw;transition:opacity 0.4s'
+        ].join(';');
+        banner.innerHTML = `
+            <span style="font-size:1.3rem">📑</span>
+            <div style="flex:1">
+                <div style="color:#f0e6ff;font-size:0.85rem;font-weight:600">Session longue analysée</div>
+                <div style="color:#9c7dd9;font-size:0.75rem">Voir les chapitres de la conversation</div>
+            </div>
+            <button id="_chaptersBannerClose" style="background:none;border:none;color:#9c7dd9;font-size:1.1rem;cursor:pointer;padding:0 4px;min-height:44px">×</button>
+        `;
+        document.body.appendChild(banner);
+
+        banner.addEventListener('click', (e) => {
+            if (e.target.id === '_chaptersBannerClose') { banner.remove(); return; }
+            openChaptersModal(personaId, personaName);
+        });
+        setTimeout(() => { if (banner.parentNode) banner.style.opacity = '0'; }, 8000);
+        setTimeout(() => { if (banner.parentNode) banner.remove(); }, 8400);
+    }
+
+    function openChaptersModal(personaId, personaName) {
+        const raw = localStorage.getItem('buddy_chapters_' + personaId);
+        if (!raw) { customAlert('Aucun chapitre disponible.'); return; }
+        let chapters;
+        try { chapters = JSON.parse(raw); } catch { customAlert('Données invalides.'); return; }
+
+        const ts = localStorage.getItem('buddy_chapters_ts_' + personaId);
+        const dateStr = ts ? new Date(ts).toLocaleDateString('fr-FR', {day:'numeric', month:'long', hour:'2-digit', minute:'2-digit'}) : '';
+
+        const chaptersHtml = chapters.map((ch, i) => `
+            <div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:14px;margin-bottom:10px">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                    <span style="background:#8b5cf6;color:#fff;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:20px">Ch. ${i+1}</span>
+                    <span style="color:#f0e6ff;font-weight:600;font-size:0.9rem">${esc(ch.title || '')}</span>
+                </div>
+                <div style="color:#b0a0d9;font-size:0.82rem;margin-bottom:4px">${esc(ch.summary || '')}</div>
+                <div style="color:#6b5a9c;font-size:0.75rem">${esc(ch.exchanges || '')}</div>
+            </div>
+        `).join('');
+
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay active';
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.6)';
+        overlay.innerHTML = `
+            <div style="background:var(--modal-bg);border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                    <div style="font-size:1.1rem;font-weight:700;color:var(--text-primary)">📑 Chapitres de session</div>
+                    <button id="_chapModalClose" style="background:none;border:none;font-size:1.4rem;color:var(--text-secondary);cursor:pointer;min-height:44px">×</button>
+                </div>
+                <div style="color:var(--text-secondary);font-size:0.8rem;margin-bottom:16px">${esc(personaName || '')} · ${dateStr}</div>
+                ${chaptersHtml}
+                <button id="_chapModalDelete" style="width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;color:var(--text-secondary);cursor:pointer;font-size:0.82rem;margin-top:6px">🗑 Effacer ces chapitres</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        overlay.querySelector('#_chapModalClose').addEventListener('click', () => overlay.remove());
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+        overlay.querySelector('#_chapModalDelete').addEventListener('click', async () => {
+            if (!await customConfirm('Effacer les chapitres de cette session ?', {title:'Effacer chapitres', confirmLabel:'Effacer', danger:true})) return;
+            localStorage.removeItem('buddy_chapters_' + personaId);
+            localStorage.removeItem('buddy_chapters_ts_' + personaId);
+            const btn = document.getElementById('chaptersPersonaBtn');
+            if (btn) btn.style.display = 'none';
+            overlay.remove();
+        });
     }
 
     // ════════════════════════════════════════════════
@@ -8152,6 +8313,7 @@ Langue : ${lang}`;
             generateMemory(persona, transcriptText);         // async, non-bloquant
             updateUserProfile(transcriptText);               // async, non-bloquant
             updatePersonaProfile(persona, transcriptText);   // async, non-bloquant — persona profile
+            generateChapters(persona, transcriptText);       // async, non-bloquant — session longue >40 échanges
         }
     }
 
