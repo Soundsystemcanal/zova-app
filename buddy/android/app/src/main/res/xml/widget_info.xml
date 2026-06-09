@@ -7,6 +7,7 @@
     android:targetCellHeight="1"
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/widget_zova"
+    android:previewLayout="@layout/widget_zova"
     android:resizeMode="none"
     android:widgetCategory="home_screen"
     android:description="@string/app_name" />
