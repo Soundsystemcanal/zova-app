@@ -2442,22 +2442,22 @@
       <button class="config-screen-btn" id="themeToggleBtn">&#9789; <span id="themeToggleLabel">Mode sombre</span></button>
       <!-- Episodic Memory -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🧠 Mémoire épisodique</div>
-        <div id="memoryCount" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px">Chargement...</div>
-        <button class="config-screen-btn" id="viewMemoryBtn">📖 Voir les souvenirs</button>
-        <button class="config-screen-btn" id="clearMemoryBtn" style="color:var(--danger)">🗑️ Effacer la mémoire</button>
+        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🧠 <span data-i18n="config_section_memory">Mémoire épisodique</span></div>
+        <div id="memoryCount" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px"></div>
+        <button class="config-screen-btn" id="viewMemoryBtn">📖 <span data-i18n="config_view_memory">Voir les souvenirs</span></button>
+        <button class="config-screen-btn" id="clearMemoryBtn" style="color:var(--danger)">🗑️ <span data-i18n="config_clear_memory">Effacer la mémoire</span></button>
       </div>
       <!-- User Profile -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">👤 Profil utilisateur</div>
-        <div id="profileCount" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px">Chargement...</div>
-        <button class="config-screen-btn" id="viewProfileBtn">🪪 Voir le profil</button>
-        <button class="config-screen-btn" id="clearProfileBtn" style="color:var(--danger)">🗑️ Effacer le profil</button>
+        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">👤 <span data-i18n="config_section_profile">Profil utilisateur</span></div>
+        <div id="profileCount" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px"></div>
+        <button class="config-screen-btn" id="viewProfileBtn">🪪 <span data-i18n="config_view_profile">Voir le profil</span></button>
+        <button class="config-screen-btn" id="clearProfileBtn" style="color:var(--danger)">🗑️ <span data-i18n="config_clear_profile">Effacer le profil</span></button>
       </div>
 
       <!-- TTS Voice settings -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🎙️ Voix TTS (Groq)</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🎙️ <span data-i18n="config_section_tts">Voix TTS (Groq)</span></div>
         <div style="margin-bottom:10px">
           <div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:6px">Langue de la voix</div>
           <select id="ttsLangSelect" style="width:100%;padding:9px 12px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:0.85rem;font-family:inherit;cursor:pointer">
@@ -2477,13 +2477,13 @@
           <input type="range" id="ttsRateSlider" min="0.5" max="2.0" step="0.1" value="1.0"
             style="width:100%;accent-color:var(--accent)">
         </div>
-        <button class="config-screen-btn" id="ttsTestBtn">▶ Tester la voix</button>
+        <button class="config-screen-btn" id="ttsTestBtn">▶ <span data-i18n="config_test_tts">Tester la voix</span></button>
       </div>
 
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🔒 Sécurité</div>
-        <button class="config-screen-btn" id="setPinBtn">🔢 Activer le code PIN</button>
-        <button class="config-screen-btn" id="removePinBtn" style="display:none">🔓 Supprimer le code PIN</button>
+        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🔒 <span data-i18n="config_section_security">Sécurité</span></div>
+        <button class="config-screen-btn" id="setPinBtn">🔢 <span data-i18n="config_set_pin">Activer le code PIN</span></button>
+        <button class="config-screen-btn" id="removePinBtn" style="display:none">🔓 <span data-i18n="config_remove_pin">Supprimer le code PIN</span></button>
       </div>
     </div>
 
@@ -2493,9 +2493,9 @@
   <div id="liveTabIndicator" style="display:none;position:fixed;top:0;left:0;right:0;z-index:999;background:linear-gradient(90deg,#8b5cf6,#ec4899);padding:8px 16px;align-items:center;justify-content:space-between;gap:10px;">
     <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:#fff;font-weight:600;">
       <span style="width:8px;height:8px;background:#fff;border-radius:50%;animation:livePulse 1s infinite;flex-shrink:0;"></span>
-      Conversación activa
+      <span data-i18n="live_active">Conversation active</span>
     </div>
-    <button onclick="switchTab('home')" style="background:rgba(255,255,255,0.2);border:none;border-radius:6px;color:#fff;font-size:0.78rem;padding:4px 10px;cursor:pointer;font-weight:600;">Volver ›</button>
+    <button onclick="switchTab('home')" style="background:rgba(255,255,255,0.2);border:none;border-radius:6px;color:#fff;font-size:0.78rem;padding:4px 10px;cursor:pointer;font-weight:600;" data-i18n="live_back">Retour ›</button>
   </div>
 
   <!-- Gradient definition for nav icons -->
@@ -2707,7 +2707,7 @@
                 </div>
             </div>
 
-            <button class="btn-save" id="saveApiKeyBtn">Sauvegarder</button>
+            <button class="btn-save" id="saveApiKeyBtn" data-i18n="btn_save">Sauvegarder</button>
         </div>
     </div>
 
@@ -2719,10 +2719,10 @@
             <button class="modal-close" id="closePersonaBtn">&times;</button>
             <h2 id="personaModalTitle">Nouveau persona</h2>
 
-            <label for="pName">Nom</label>
+            <label for="pName" data-i18n="modal_persona_name">Nom</label>
             <input type="text" id="pName" placeholder="Ex: Gérard">
 
-            <label for="pDescription">Description courte</label>
+            <label for="pDescription" data-i18n="modal_persona_desc">Description courte</label>
             <input type="text" id="pDescription" placeholder="Ex: Un assistant amical et bienveillant">
 
             <label>Image</label>
@@ -2751,7 +2751,7 @@
             </div>
             <div class="hint" id="imageHint"></div>
 
-            <label for="pModel">Modèle vocal</label>
+            <label for="pModel" data-i18n="modal_persona_model">Modèle vocal</label>
             <select id="pModel">
                 <option value="">Utiliser le modèle par défaut</option>
                 <optgroup label="OpenAI">
@@ -2794,7 +2794,7 @@
                 <div class="hint">Parlez dans n'importe quelle langue — la traduction sera dans la langue choisie ci-dessus.</div>
             </div>
 
-            <label for="pVoice">Voix</label>
+            <label for="pVoice" data-i18n="modal_persona_voice">Voix</label>
             <select id="pVoice"></select>
 
             <div id="conversationSettingsGroup" style="margin-top:12px">
@@ -2844,8 +2844,8 @@
             </div>
 
             <div class="modal-buttons">
-                <button class="btn-cancel" id="cancelPersonaBtn">Annuler</button>
-                <button class="btn-save" id="savePersonaBtn">Sauvegarder</button>
+                <button class="btn-cancel" id="cancelPersonaBtn" data-i18n="btn_cancel">Annuler</button>
+                <button class="btn-save" id="savePersonaBtn" data-i18n="btn_save">Sauvegarder</button>
             </div>
         </div>
     </div>
@@ -2856,8 +2856,8 @@
     <div class="modal-overlay" id="myInfoModal">
         <div class="modal" style="position:relative">
             <button class="modal-close" id="closeMyInfoBtn">&times;</button>
-            <h2>Mes informations</h2>
-            <div class="hint" style="margin-bottom:12px;text-align:center">Ces infos sont automatiquement transmises à tous vos personas pour personnaliser les échanges.</div>
+            <h2 data-i18n="modal_my_info_title">Mes informations</h2>
+            <div class="hint" style="margin-bottom:12px;text-align:center" data-i18n="modal_my_info_hint">Ces infos sont automatiquement transmises à tous vos personas pour personnaliser les échanges.</div>
             <textarea id="myInfoInput" style="min-height:250px" placeholder="Exemple :
 - Je m'appelle Xavier
 - Je vis à Paris
@@ -2865,7 +2865,7 @@
 - J'ai un chat qui s'appelle Pixel
 - Je préfère qu'on me tutoie
 - Mes sujets favoris : tech, IA, jeux vidéo"></textarea>
-            <button class="btn-save" id="saveMyInfoBtn">Sauvegarder</button>
+            <button class="btn-save" id="saveMyInfoBtn" data-i18n="btn_save">Sauvegarder</button>
         </div>
     </div>
 
@@ -3022,6 +3022,9 @@
             btn_start: 'Iniciar conversación',
             btn_start_transcribe: 'Iniciar transcripción',
             btn_stop: 'Terminar',
+            btn_save: 'Guardar',
+            btn_cancel: 'Cancelar',
+            btn_confirm: 'Confirmar',
             status_ready: 'Listo',
             status_connecting: 'Conectando...',
             status_connected: '¡Conectado — habla!',
@@ -3050,6 +3053,49 @@
             transcriptor_desc: 'Transcripción de voz',
             new_persona_card: 'Nuevo persona',
             import_persona_card: 'Importar',
+            // Config sections
+            config_section_memory: 'Memoria episódica',
+            config_section_profile: 'Perfil de usuario',
+            config_section_tts: 'Voz TTS (Groq)',
+            config_section_security: 'Seguridad',
+            config_view_memory: 'Ver recuerdos',
+            config_clear_memory: 'Borrar memoria',
+            config_view_profile: 'Ver perfil',
+            config_clear_profile: 'Borrar perfil',
+            config_test_tts: 'Probar voz',
+            config_set_pin: 'Activar código PIN',
+            config_remove_pin: 'Eliminar código PIN',
+            theme_dark: 'Modo oscuro',
+            theme_light: 'Modo claro',
+            // Memory / profile counts
+            memory_none: 'Sin recuerdos guardados',
+            memory_one: '1 recuerdo guardado',
+            memory_many: '{n} recuerdos guardados',
+            profile_none: 'Sin perfil aún — se construye tras cada conversación',
+            profile_has: '{f} hecho(s) · {t} tema(s)',
+            // Modals
+            modal_my_info_title: 'Mis informaciones',
+            modal_my_info_hint: 'Esta información se transmite automáticamente a todos tus personas para personalizar los intercambios.',
+            modal_persona_name: 'Nombre',
+            modal_persona_desc: 'Descripción corta',
+            modal_persona_model: 'Modelo de voz',
+            modal_persona_voice: 'Voz',
+            // Live indicator
+            live_active: 'Conversación activa',
+            live_back: 'Volver ›',
+            // PIN
+            pin_enter: 'Ingresa tu código',
+            pin_choose: 'Elige un código PIN',
+            pin_confirm_msg: 'Confirma tu código PIN',
+            pin_wrong: 'Código incorrecto',
+            pin_mismatch: 'Los códigos no coinciden',
+            pin_activated: 'Código PIN activado ✅',
+            pin_removed: 'Código PIN eliminado',
+            pin_security: 'Seguridad',
+            // Nav confirm
+            nav_leave_msg: '¿Terminar la conversación para navegar?',
+            nav_leave_title: '📞 Conversación activa',
+            nav_leave_btn: 'Terminar y salir',
         },
         en: {
             nav_home: 'Home', nav_personas: 'Personas', nav_stats: 'Stats', nav_config: 'Config',
@@ -3059,6 +3105,9 @@
             btn_start: 'Start conversation',
             btn_start_transcribe: 'Start transcription',
             btn_stop: 'End',
+            btn_save: 'Save',
+            btn_cancel: 'Cancel',
+            btn_confirm: 'Confirm',
             status_ready: 'Ready',
             status_connecting: 'Connecting...',
             status_connected: 'Connected — speak!',
@@ -3087,6 +3136,49 @@
             transcriptor_desc: 'Voice transcription',
             new_persona_card: 'New persona',
             import_persona_card: 'Import',
+            // Config sections
+            config_section_memory: 'Episodic memory',
+            config_section_profile: 'User profile',
+            config_section_tts: 'TTS Voice (Groq)',
+            config_section_security: 'Security',
+            config_view_memory: 'View memories',
+            config_clear_memory: 'Clear memory',
+            config_view_profile: 'View profile',
+            config_clear_profile: 'Clear profile',
+            config_test_tts: 'Test voice',
+            config_set_pin: 'Activate PIN code',
+            config_remove_pin: 'Remove PIN code',
+            theme_dark: 'Dark mode',
+            theme_light: 'Light mode',
+            // Memory / profile counts
+            memory_none: 'No memories saved',
+            memory_one: '1 memory saved',
+            memory_many: '{n} memories saved',
+            profile_none: 'No profile yet — builds after each conversation',
+            profile_has: '{f} fact(s) · {t} topic(s)',
+            // Modals
+            modal_my_info_title: 'My information',
+            modal_my_info_hint: 'This information is automatically shared with all your personas to personalise conversations.',
+            modal_persona_name: 'Name',
+            modal_persona_desc: 'Short description',
+            modal_persona_model: 'Voice model',
+            modal_persona_voice: 'Voice',
+            // Live indicator
+            live_active: 'Active conversation',
+            live_back: 'Back ›',
+            // PIN
+            pin_enter: 'Enter your code',
+            pin_choose: 'Choose a PIN code',
+            pin_confirm_msg: 'Confirm your PIN code',
+            pin_wrong: 'Incorrect code',
+            pin_mismatch: 'Codes do not match',
+            pin_activated: 'PIN code activated ✅',
+            pin_removed: 'PIN code removed',
+            pin_security: 'Security',
+            // Nav confirm
+            nav_leave_msg: 'End conversation to navigate?',
+            nav_leave_title: '📞 Active conversation',
+            nav_leave_btn: 'End and leave',
         },
         fr: {
             nav_home: 'Accueil', nav_personas: 'Personas', nav_stats: 'Stats', nav_config: 'Config',
@@ -3096,6 +3188,9 @@
             btn_start: 'Démarrer la conversation',
             btn_start_transcribe: 'Démarrer la transcription',
             btn_stop: 'Terminer',
+            btn_save: 'Sauvegarder',
+            btn_cancel: 'Annuler',
+            btn_confirm: 'Confirmer',
             status_ready: 'Prêt',
             status_connecting: 'Connexion...',
             status_connected: 'Connecté — parlez !',
@@ -3124,6 +3219,49 @@
             transcriptor_desc: 'Transcription vocale',
             new_persona_card: 'Nouveau persona',
             import_persona_card: 'Importer',
+            // Config sections
+            config_section_memory: 'Mémoire épisodique',
+            config_section_profile: 'Profil utilisateur',
+            config_section_tts: 'Voix TTS (Groq)',
+            config_section_security: 'Sécurité',
+            config_view_memory: 'Voir les souvenirs',
+            config_clear_memory: 'Effacer la mémoire',
+            config_view_profile: 'Voir le profil',
+            config_clear_profile: 'Effacer le profil',
+            config_test_tts: 'Tester la voix',
+            config_set_pin: 'Activer le code PIN',
+            config_remove_pin: 'Supprimer le code PIN',
+            theme_dark: 'Mode sombre',
+            theme_light: 'Mode clair',
+            // Memory / profile counts
+            memory_none: 'Aucun souvenir enregistré',
+            memory_one: '1 souvenir enregistré',
+            memory_many: '{n} souvenirs enregistrés',
+            profile_none: 'Aucun profil encore — se construit après chaque conversation',
+            profile_has: '{f} fait(s) · {t} sujet(s)',
+            // Modals
+            modal_my_info_title: 'Mes informations',
+            modal_my_info_hint: 'Ces infos sont automatiquement transmises à tous vos personas pour personnaliser les échanges.',
+            modal_persona_name: 'Nom',
+            modal_persona_desc: 'Description courte',
+            modal_persona_model: 'Modèle vocal',
+            modal_persona_voice: 'Voix',
+            // Live indicator
+            live_active: 'Conversation active',
+            live_back: 'Retour ›',
+            // PIN
+            pin_enter: 'Entrez votre code',
+            pin_choose: 'Choisissez un code PIN',
+            pin_confirm_msg: 'Confirmez le code PIN',
+            pin_wrong: 'Code incorrect',
+            pin_mismatch: 'Les codes ne correspondent pas',
+            pin_activated: 'Code PIN activé ✅',
+            pin_removed: 'Code PIN supprimé',
+            pin_security: 'Sécurité',
+            // Nav confirm
+            nav_leave_msg: 'Terminer la conversation pour naviguer ?',
+            nav_leave_title: '📞 Conversation active',
+            nav_leave_btn: 'Terminer et quitter',
         }
     };
 
@@ -3259,10 +3397,13 @@
         // Update start button text
         const startBtn = document.getElementById('startBtn');
         if (startBtn) {
-            // isTranscripteurMode will be defined later in the script
             startBtn.textContent = (typeof isTranscripteurMode !== 'undefined' && isTranscripteurMode)
                 ? t('btn_start_transcribe') : t('btn_start');
         }
+        // Refresh dynamic content that doesn't use data-i18n
+        applyTheme(getTheme());
+        if (typeof updateMemoryCount === 'function') updateMemoryCount();
+        if (typeof updateProfileCount === 'function') updateProfileCount();
     }
 
     // ════════════════════════════════════════════════
@@ -3275,8 +3416,8 @@
         // Block navigation away from Home during active conversation
         if (currentTab === 'home' && tab !== 'home' && isConnected) {
             const leave = await customConfirm(
-                '¿Terminar la conversación para navegar?',
-                { title: '📞 Conversación activa', confirmLabel: 'Terminar y salir', danger: true }
+                t('nav_leave_msg'),
+                { title: t('nav_leave_title'), confirmLabel: t('nav_leave_btn'), danger: true }
             );
             if (!leave) return; // user cancelled — stay on Home
             stopConversation(true);
@@ -3505,7 +3646,9 @@
         });
     }
 
-    function customConfirm(message, { title = '', icon = '&#9888;', confirmLabel = 'Confirmer', cancelLabel = 'Annuler', danger = false } = {}) {
+    function customConfirm(message, { title = '', icon = '&#9888;', confirmLabel = null, cancelLabel = null, danger = false } = {}) {
+        confirmLabel = confirmLabel ?? t('btn_confirm');
+        cancelLabel  = cancelLabel  ?? t('btn_cancel');
         return new Promise(resolve => {
             const overlay = document.createElement('div');
             overlay.className = 'dialog-overlay';
@@ -3935,9 +4078,9 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         const screen = document.getElementById('pinScreen');
         const title = document.getElementById('pinTitle');
         screen.classList.add('active');
-        if (mode === 'unlock') title.textContent = 'Entrez votre code';
-        else if (mode === 'set') title.textContent = 'Choisissez un code PIN';
-        else if (mode === 'confirm') title.textContent = 'Confirmez le code PIN';
+        if (mode === 'unlock') title.textContent = t('pin_enter');
+        else if (mode === 'set') title.textContent = t('pin_choose');
+        else if (mode === 'confirm') title.textContent = t('pin_confirm_msg');
         updatePinDots();
         document.getElementById('pinError').textContent = '';
     }
@@ -3974,7 +4117,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             if (pinBuffer === savedPin) {
                 hidePinScreen();
             } else {
-                document.getElementById('pinError').textContent = 'Code incorrect';
+                document.getElementById('pinError').textContent = t('pin_wrong');
                 pinBuffer = '';
                 updatePinDots();
             }
@@ -3982,20 +4125,20 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             pinTemp = pinBuffer;
             pinBuffer = '';
             pinMode = 'confirm';
-            document.getElementById('pinTitle').textContent = 'Confirmez le code PIN';
+            document.getElementById('pinTitle').textContent = t('pin_confirm_msg');
             document.getElementById('pinError').textContent = '';
             updatePinDots();
         } else if (pinMode === 'confirm') {
             if (pinBuffer === pinTemp) {
                 await SecureStore.set(PIN_KEY, pinBuffer);
                 hidePinScreen();
-                customAlert('Code PIN activé ✅', { title: 'Sécurité', icon: '🔒' });
+                customAlert(t('pin_activated'), { title: t('pin_security'), icon: '🔒' });
             } else {
-                document.getElementById('pinError').textContent = 'Les codes ne correspondent pas';
+                document.getElementById('pinError').textContent = t('pin_mismatch');
                 pinBuffer = '';
                 pinTemp = '';
                 pinMode = 'set';
-                document.getElementById('pinTitle').textContent = 'Choisissez un code PIN';
+                document.getElementById('pinTitle').textContent = t('pin_choose');
                 updatePinDots();
             }
         }
@@ -4009,13 +4152,13 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             await navigator.credentials.get({ publicKey: undefined, mediation: 'optional' });
             hidePinScreen();
         } catch(e) {
-            document.getElementById('pinError').textContent = 'Biométrie non disponible';
+            document.getElementById('pinError').textContent = t('pin_wrong');
         }
     }
 
     async function removePin() {
         await SecureStore.remove(PIN_KEY);
-        customAlert('Code PIN supprimé', { title: 'Sécurité', icon: '🔓' });
+        customAlert(t('pin_removed'), { title: t('pin_security'), icon: '🔓' });
     }
 
     // PIN keyboard events
@@ -4026,15 +4169,16 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
 
     // ════════════════════════════════════════════════
 
-    function applyTheme(t) {
-        document.documentElement.setAttribute('data-theme', t);
-        setThemeStorage(t);
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        setThemeStorage(theme);
         const btn = document.getElementById('themeToggleBtn');
-        const label = document.getElementById('themeToggleLabel');
-        if (t === 'dark') {
-            btn.innerHTML = '&#9788; <span id="themeToggleLabel">Mode clair</span>';
-        } else {
-            btn.innerHTML = '&#9789; <span id="themeToggleLabel">Mode sombre</span>';
+        if (btn) {
+            if (theme === 'dark') {
+                btn.innerHTML = `&#9788; <span id="themeToggleLabel">${t('theme_light')}</span>`;
+            } else {
+                btn.innerHTML = `&#9789; <span id="themeToggleLabel">${t('theme_dark')}</span>`;
+            }
         }
     }
 
@@ -8129,24 +8273,37 @@ Règles de format :
     function updateMemoryCount() {
         const mems = getMemories();
         const el = document.getElementById('memoryCount');
-        if (el) el.textContent = mems.length === 0
-            ? 'Aucun souvenir enregistré'
-            : `${mems.length} souvenir${mems.length > 1 ? 's' : ''} enregistré${mems.length > 1 ? 's' : ''}`;
+        if (!el) return;
+        if (mems.length === 0) {
+            el.textContent = t('memory_none');
+        } else if (mems.length === 1) {
+            el.textContent = t('memory_one');
+        } else {
+            el.textContent = t('memory_many').replace('{n}', mems.length);
+        }
     }
     updateMemoryCount();
 
     document.getElementById('viewMemoryBtn').addEventListener('click', () => {
         const mems = getMemories();
-        if (!mems.length) { customAlert('Aucun souvenir encore. Les souvenirs sont générés automatiquement à la fin de chaque conversation.', { title: '🧠 Mémoire épisodique', icon: '🧠' }); return; }
+        if (!mems.length) { customAlert(t('memory_none'), { title: '🧠 ' + t('config_section_memory'), icon: '🧠' }); return; }
         const content = mems.map((m, i) => `**${i+1}. ${m.date} — ${m.personaName}**\n${m.summary}`).join('\n\n');
         showExportModal(content, 'zova-memoires.txt');
     });
 
     document.getElementById('clearMemoryBtn').addEventListener('click', async () => {
-        if (!await customConfirm('Effacer tous les souvenirs ? Zova ne se souviendra plus des conversations précédentes.', { title: '🗑️ Effacer la mémoire', confirmLabel: 'Effacer', danger: true })) return;
+        if (!await customConfirm(
+            LANG === 'es' ? 'Borrar todos los recuerdos? Zova no recordará conversaciones anteriores.' :
+            LANG === 'en' ? 'Clear all memories? Zova will no longer remember previous conversations.' :
+            'Effacer tous les souvenirs ? Zova ne se souviendra plus des conversations précédentes.',
+            { title: '🗑️ ' + t('config_clear_memory'), confirmLabel: LANG === 'es' ? 'Borrar' : LANG === 'en' ? 'Clear' : 'Effacer', danger: true }
+        )) return;
         localStorage.removeItem(MEMORY_KEY);
         updateMemoryCount();
-        customAlert('Mémoire effacée.', { title: '🧠', icon: '✅' });
+        customAlert(
+            LANG === 'es' ? 'Memoria borrada.' : LANG === 'en' ? 'Memory cleared.' : 'Mémoire effacée.',
+            { title: '🧠', icon: '✅' }
+        );
     });
 
     function updateProfileCount() {
@@ -8154,12 +8311,12 @@ Règles de format :
         const el = document.getElementById('profileCount');
         if (!el) return;
         if (!profileHasContent(p)) {
-            el.textContent = 'Aucun profil encore — se construit après chaque conversation';
+            el.textContent = t('profile_none');
         } else {
             const facts = p.facts?.length || 0;
             const topics = p.topics?.length || 0;
             const updated = p.lastUpdated || '';
-            el.textContent = `${facts} fait${facts > 1 ? 's' : ''} · ${topics} sujet${topics > 1 ? 's' : ''}${updated ? ' · màj ' + updated : ''}`;
+            el.textContent = t('profile_has').replace('{f}', facts).replace('{t}', topics) + (updated ? ' · ' + updated : '');
         }
     }
     updateProfileCount();
@@ -8167,25 +8324,40 @@ Règles de format :
     document.getElementById('viewProfileBtn').addEventListener('click', () => {
         const p = getUserProfile();
         if (!profileHasContent(p)) {
-            customAlert('Aucun profil encore.<br><small style="opacity:0.7">Il se construit automatiquement après chaque conversation.</small>', { title: '👤 Profil utilisateur', icon: '👤' });
+            customAlert(t('profile_none'), { title: '👤 ' + t('config_section_profile'), icon: '👤' });
             return;
         }
         const lines = [];
-        if (p.name) lines.push(`<b>Nom :</b> ${p.name}`);
-        if (p.languages?.length) lines.push(`<b>Langues :</b> ${p.languages.join(', ')}`);
-        if (p.style) lines.push(`<b>Style :</b> ${p.style}`);
-        if (p.topics?.length) lines.push(`<b>Sujets :</b> ${p.topics.join(', ')}`);
-        if (p.facts?.length) lines.push(`<b>Infos :</b><br>• ${p.facts.join('<br>• ')}`);
-        if (p.goals?.length) lines.push(`<b>Objectifs :</b> ${p.goals.join(', ')}`);
-        if (p.lastUpdated) lines.push(`<small style="opacity:0.6">Mis à jour : ${p.lastUpdated}</small>`);
-        customAlert(lines.join('<br><br>'), { title: '👤 Profil utilisateur', icon: '🪪' });
+        const nameL  = LANG === 'es' ? 'Nombre' : LANG === 'en' ? 'Name' : 'Nom';
+        const langL  = LANG === 'es' ? 'Idiomas' : LANG === 'en' ? 'Languages' : 'Langues';
+        const styleL = LANG === 'es' ? 'Estilo' : LANG === 'en' ? 'Style' : 'Style';
+        const topicL = LANG === 'es' ? 'Temas' : LANG === 'en' ? 'Topics' : 'Sujets';
+        const factsL = LANG === 'es' ? 'Datos' : LANG === 'en' ? 'Facts' : 'Infos';
+        const goalsL = LANG === 'es' ? 'Objetivos' : LANG === 'en' ? 'Goals' : 'Objectifs';
+        const updL   = LANG === 'es' ? 'Actualizado' : LANG === 'en' ? 'Updated' : 'Mis à jour';
+        if (p.name) lines.push(`<b>${nameL} :</b> ${p.name}`);
+        if (p.languages?.length) lines.push(`<b>${langL} :</b> ${p.languages.join(', ')}`);
+        if (p.style) lines.push(`<b>${styleL} :</b> ${p.style}`);
+        if (p.topics?.length) lines.push(`<b>${topicL} :</b> ${p.topics.join(', ')}`);
+        if (p.facts?.length) lines.push(`<b>${factsL} :</b><br>• ${p.facts.join('<br>• ')}`);
+        if (p.goals?.length) lines.push(`<b>${goalsL} :</b> ${p.goals.join(', ')}`);
+        if (p.lastUpdated) lines.push(`<small style="opacity:0.6">${updL} : ${p.lastUpdated}</small>`);
+        customAlert(lines.join('<br><br>'), { title: '👤 ' + t('config_section_profile'), icon: '🪪' });
     });
 
     document.getElementById('clearProfileBtn').addEventListener('click', async () => {
-        if (!await customConfirm('Effacer le profil ? Zova repartira de zéro pour apprendre à te connaître.', { title: '🗑️ Effacer le profil', confirmLabel: 'Effacer', danger: true })) return;
+        if (!await customConfirm(
+            LANG === 'es' ? 'Borrar el perfil? Zova comenzará de cero para conocerte.' :
+            LANG === 'en' ? 'Clear the profile? Zova will start over to get to know you.' :
+            'Effacer le profil ? Zova repartira de zéro pour apprendre à te connaître.',
+            { title: '🗑️ ' + t('config_clear_profile'), confirmLabel: LANG === 'es' ? 'Borrar' : LANG === 'en' ? 'Clear' : 'Effacer', danger: true }
+        )) return;
         localStorage.removeItem(PROFILE_KEY);
         updateProfileCount();
-        customAlert('Profil effacé.', { title: '👤', icon: '✅' });
+        customAlert(
+            LANG === 'es' ? 'Perfil borrado.' : LANG === 'en' ? 'Profile cleared.' : 'Profil effacé.',
+            { title: '👤', icon: '✅' }
+        );
     });
 
     // PIN buttons in Config
