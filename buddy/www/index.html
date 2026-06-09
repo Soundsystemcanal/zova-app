@@ -703,6 +703,10 @@
             0%, 100% { box-shadow: 0 0 0 0 rgba(248,113,113,0.5); }
             50%       { box-shadow: 0 0 0 10px rgba(248,113,113,0); }
         }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
 
         @keyframes dotBlink {
             0%, 100% { opacity: 1; }
@@ -4055,6 +4059,8 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     let totalOutputTokens = 0;
 
     let currentTranscriptAi = null; // élément en cours de streaming
+    let lastGeminiAiMsg = null;     // référence Gemini après turnComplete (late transcription packets)
+    let hadAiTranscriptThisTurn = false; // flag pour récupération fallback OpenAI
     let activeProvider = 'openai'; // 'openai' ou 'gemini' pour la session en cours
 
     let activeModelId = '';        // modèle effectif de la session en cours
@@ -6681,6 +6687,7 @@ Règles STRICTES :
                     currentTranscriptAi = addTranscriptMessage(personaName, '', 'ai');
                 }
                 currentTranscriptAi.querySelector('.text').textContent += data.delta;
+                hadAiTranscriptThisTurn = true;
                 scrollTranscript();
                 break;
 
@@ -6732,6 +6739,30 @@ Règles STRICTES :
                     totalOutputTokens += data.response.usage.output_tokens || 0;
                     updateTokenCounter();
                 }
+                // Fallback transcript: if no delta events arrived, recover from final output
+                if (!hadAiTranscriptThisTurn && data.response?.output) {
+                    for (const item of data.response.output) {
+                        for (const part of (item.content || [])) {
+                            const finalText = (part.transcript || part.text || '').trim();
+                            if (finalText) {
+                                addTranscriptMessage(personaName, finalText, 'ai');
+                                break;
+                            }
+                        }
+                    }
+                } else if (hadAiTranscriptThisTurn && currentTranscriptAi && data.response?.output) {
+                    // Replace streamed text with final clean version if significantly better
+                    for (const item of data.response.output) {
+                        for (const part of (item.content || [])) {
+                            const finalText = (part.transcript || '').trim();
+                            const existing = currentTranscriptAi.querySelector('.text');
+                            if (finalText && existing && finalText.length > (existing.textContent || '').length * 0.8) {
+                                existing.textContent = finalText;
+                            }
+                        }
+                    }
+                }
+                hadAiTranscriptThisTurn = false;
                 // Activer le micro après le greeting initial
                 if (waitingGreeting) {
                     waitingGreeting = false;
@@ -6868,8 +6899,9 @@ Règles STRICTES :
 
             // Transcription de la sortie IA
             if (sc.outputTranscription && sc.outputTranscription.text) {
+                // Use currentTranscriptAi if active, or lastGeminiAiMsg for late packets after turnComplete
                 if (!currentTranscriptAi) {
-                    currentTranscriptAi = addTranscriptMessage(personaName, '', 'ai');
+                    currentTranscriptAi = lastGeminiAiMsg || addTranscriptMessage(personaName, '', 'ai');
                 }
                 currentTranscriptAi.querySelector('.text').textContent += sc.outputTranscription.text;
                 scrollTranscript();
@@ -6878,7 +6910,9 @@ Règles STRICTES :
             // Fin de tour
             if (sc.turnComplete) {
                 setStatus(t('status_connected'), 'connected');
+                lastGeminiAiMsg = currentTranscriptAi; // keep for late outputTranscription packets
                 currentTranscriptAi = null;
+                setTimeout(() => { lastGeminiAiMsg = null; }, 2500);
                 if (waitingGreeting) {
                     waitingGreeting = false;
                     setTimeout(() => { micReady = true; }, 500);
@@ -7414,6 +7448,105 @@ Règles STRICTES :
         URL.revokeObjectURL(url);
     }
 
+    // Share a text/plain file via Android share sheet (Capacitor) or download (web)
+    async function shareTextFile(content, filename) {
+        if (!IS_CAPACITOR) {
+            downloadFile(content, filename, 'text/plain;charset=utf-8');
+            return;
+        }
+        const { Filesystem, Share } = window.Capacitor.Plugins;
+        const b64 = btoa(unescape(encodeURIComponent(content)));
+        try {
+            const wr = await Filesystem.writeFile({ path: filename, data: b64, directory: 'CACHE', encoding: null });
+            await Share.share({ title: filename, files: [wr.uri], dialogTitle: filename });
+        } catch(e) {
+            console.warn('[shareTextFile] Fallback to copy modal:', e);
+            showExportModal(content, filename);
+        }
+    }
+
+    // Clean a conversation transcript with LLM (fix STT errors, add punctuation, remove fillers)
+    async function cleanTranscriptWithLLM(rawText) {
+        const lang = LANG === 'fr' ? 'français' : LANG === 'es' ? 'español' : 'english';
+        const systemPrompt = `Tu es un assistant de transcription. Nettoie cette transcription de conversation vocale en :
+1. Corrigeant les erreurs de reconnaissance vocale évidentes
+2. Ajoutant la ponctuation manquante
+3. Supprimant les mots de remplissage excessifs (euh, hmm, bah, heu...)
+4. Conservant le sens exact et le ton de chaque intervention
+5. Gardant le format "Nom: texte" pour chaque intervenant, sans ajouter de balises markdown
+Réponds UNIQUEMENT avec la transcription nettoyée, sans commentaires, sans introduction.
+Langue : ${lang}`;
+        try {
+            let cleaned = '';
+            const groqKey = await getGroqApiKey();
+            if (groqKey) {
+                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: getModelMemory(),
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: rawText.slice(0, 6000) }
+                        ],
+                        max_tokens: 2000,
+                        temperature: 0.2
+                    })
+                });
+                if (resp.ok) {
+                    const d = await resp.json();
+                    cleaned = (d.choices?.[0]?.message?.content || '').trim();
+                }
+            }
+            if (!cleaned) {
+                cleaned = await chatCompletion({ systemPrompt, userPrompt: rawText.slice(0, 6000), temperature: 0.2, maxTokens: 2000 });
+            }
+            return cleaned.length > 20 ? cleaned : rawText;
+        } catch(e) {
+            console.warn('[cleanTranscript] Failed:', e);
+            return rawText;
+        }
+    }
+
+    // Action sheet for transcript export: clean+share | share raw | copy
+    function showTranscriptExportSheet(rawText, filename) {
+        return new Promise(resolve => {
+            const hasGroqOrOpenAI = true; // LLM always available if API keys set
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:16px;';
+            overlay.innerHTML = `
+                <div style="background:var(--modal-bg);border-radius:16px;padding:20px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:10px;margin-bottom:8px;">
+                    <div style="font-weight:700;font-size:0.95rem;color:var(--text-primary);text-align:center;margin-bottom:4px;">&#128196; ${filename}</div>
+                    <button id="_texpClean" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+                        <span style="font-size:1.4rem;">&#10024;</span>
+                        <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
+                            <span>${LANG === 'es' ? 'Limpiar y compartir' : LANG === 'en' ? 'Clean & share' : 'Nettoyer et partager'}</span>
+                            <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">${LANG === 'es' ? 'IA corrige errores y puntuación' : LANG === 'en' ? 'AI fixes errors & punctuation' : 'IA corrige les erreurs et la ponctuation'}</span>
+                        </span>
+                    </button>
+                    <button id="_texpRaw" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+                        <span style="font-size:1.4rem;">&#128244;</span>
+                        <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
+                            <span>${LANG === 'es' ? 'Compartir tal cual' : LANG === 'en' ? 'Share as-is' : 'Partager tel quel'}</span>
+                            <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">${LANG === 'es' ? 'Rápido, sin corrección' : LANG === 'en' ? 'Fast, no correction' : 'Rapide, sans correction'}</span>
+                        </span>
+                    </button>
+                    <button id="_texpCopy" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+                        <span style="font-size:1.4rem;">&#128203;</span>
+                        <span>${LANG === 'es' ? 'Copiar al portapapeles' : LANG === 'en' ? 'Copy to clipboard' : 'Copier dans le presse-papier'}</span>
+                    </button>
+                    <button id="_texpCancel" style="padding:12px 16px;background:none;border:none;border-radius:12px;cursor:pointer;color:var(--text-muted);font-size:0.9rem;">${LANG === 'es' ? 'Cancelar' : LANG === 'en' ? 'Cancel' : 'Annuler'}</button>
+                </div>`;
+            const close = (v) => { overlay.remove(); resolve(v); };
+            overlay.querySelector('#_texpClean').addEventListener('click', () => close('clean'));
+            overlay.querySelector('#_texpRaw').addEventListener('click', () => close('raw'));
+            overlay.querySelector('#_texpCopy').addEventListener('click', () => close('copy'));
+            overlay.querySelector('#_texpCancel').addEventListener('click', () => close('cancel'));
+            overlay.addEventListener('click', e => { if (e.target === overlay) close('cancel'); });
+            document.body.appendChild(overlay);
+        });
+    }
+
     // Fonction universelle d'export : action sheet Partager + Enregistrer dans Zova (Android) ou téléchargement (web)
     async function exportJsonFile(content, filename) {
         if (!IS_CAPACITOR) {
@@ -7737,33 +7870,50 @@ Règles STRICTES :
         const timerText = document.getElementById('sessionTimer')?.textContent || '';
         const costText = document.getElementById('sessionCost')?.textContent || '';
 
-        if (isTranscripteurMode) {
-            const text = getTranscripteurText();
-            if (!text.trim()) { customAlert('Aucune transcription à exporter.', { icon: '&#128196;' }); return; }
-            const format = await askExportFormat();
-            if (format === 'cancel') return;
-            const filename = `zova-transcription-${new Date().toISOString().slice(0,10)}`;
-            if (format === 'md') {
-                downloadFile(`# Transcription Zova\n\n**Date :** ${date}\n**Durée :** ${timerText}\n**Coût estimé :** ${costText}\n\n---\n\n${text}`, filename + '.md', 'text/markdown;charset=utf-8');
-            } else {
-                downloadFile(`Transcription Zova\n${date}\nDurée : ${timerText}\nCoût estimé : ${costText}\n${'─'.repeat(40)}\n\n${text}`, filename + '.txt', 'text/plain;charset=utf-8');
+        const rawText = isTranscripteurMode ? getTranscripteurText() : getTranscriptText(false);
+        if (!rawText.trim()) { customAlert('Aucune transcription à exporter.', { icon: '&#128196;' }); return; }
+
+        const persona = isTranscripteurMode ? null : getPersonas().find(p => p.id === getActiveId());
+        const personaName = persona ? persona.name : 'conversation';
+        const model = isTranscripteurMode ? '' : (activeModelId || getRealtimeModel());
+        const baseName = isTranscripteurMode
+            ? `zova-transcription-${new Date().toISOString().slice(0,10)}`
+            : `zova-${personaName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${new Date().toISOString().slice(0,10)}`;
+
+        const buildHeader = () => isTranscripteurMode
+            ? `Transcription Zova\n${date}\nDurée : ${timerText}\n${'─'.repeat(40)}\n\n`
+            : `Conversation avec ${personaName}\n${date}\nModèle : ${model}\nDurée : ${timerText}${costText ? `\nCoût estimé : ${costText}` : ''}\n${'─'.repeat(40)}\n\n`;
+
+        const choice = await showTranscriptExportSheet(rawText, baseName + '.txt');
+        if (choice === 'cancel') return;
+
+        if (choice === 'copy') {
+            try {
+                await navigator.clipboard.writeText(buildHeader() + rawText);
+                const btn = document.getElementById('copyTranscriptBtn');
+                if (btn) { const o = btn.innerHTML; btn.innerHTML = '<span class="icon">&#10003;</span> Copié'; setTimeout(() => { btn.innerHTML = o; }, 1500); }
+                customAlert(LANG === 'es' ? 'Copiado.' : LANG === 'en' ? 'Copied.' : 'Copié dans le presse-papier.', { icon: '&#128203;' });
+            } catch {
+                customAlert('Impossible de copier dans le presse-papier.', { icon: '&#128203;' });
             }
-        } else {
-            const transcriptTxt = getTranscriptText(false);
-            if (!transcriptTxt.trim()) { customAlert('Aucune transcription à exporter.', { icon: '&#128196;' }); return; }
-            const format = await askExportFormat();
-            if (format === 'cancel') return;
-            const persona = getPersonas().find(p => p.id === getActiveId());
-            const personaName = persona ? persona.name : 'conversation';
-            const model = activeModelId || getRealtimeModel();
-            const filename = `buddy-${personaName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${new Date().toISOString().slice(0,10)}`;
-            if (format === 'md') {
-                const transcriptMd = getTranscriptText(true);
-                downloadFile(`# Conversation avec ${personaName}\n\n**Date :** ${date}\n**Modèle :** ${model}\n**Durée :** ${timerText}\n**Coût estimé :** ${costText}\n\n---\n\n${transcriptMd}`, filename + '.md', 'text/markdown;charset=utf-8');
-            } else {
-                downloadFile(`Conversation avec ${personaName}\n${date}\nModèle : ${model}\nDurée : ${timerText}\nCoût estimé : ${costText}\n${'─'.repeat(40)}\n\n${transcriptTxt}`, filename + '.txt', 'text/plain;charset=utf-8');
+            return;
+        }
+
+        let finalText = rawText;
+        if (choice === 'clean') {
+            // Show loading indicator
+            const loadingToast = document.createElement('div');
+            loadingToast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--modal-bg);border:1px solid var(--border);border-radius:12px;padding:12px 20px;z-index:9999;font-size:0.88rem;color:var(--text-primary);display:flex;align-items:center;gap:8px;box-shadow:0 4px 24px rgba(0,0,0,0.4);';
+            loadingToast.innerHTML = '<span style="animation:spin 1s linear infinite;display:inline-block;">&#9696;</span> ' + (LANG === 'es' ? 'Limpiando transcripción...' : LANG === 'en' ? 'Cleaning transcript...' : 'Nettoyage en cours...');
+            document.body.appendChild(loadingToast);
+            try {
+                finalText = await cleanTranscriptWithLLM(rawText);
+            } finally {
+                loadingToast.remove();
             }
         }
+
+        await shareTextFile(buildHeader() + finalText, baseName + '.txt');
     });
 
     function stopConversation(analyzeInsights = false) {
@@ -7776,6 +7926,8 @@ Règles STRICTES :
         groqChunks = [];
         groqSpeaking = false;
         groqConversationHistory = [];
+        hadAiTranscriptThisTurn = false;
+        lastGeminiAiMsg = null;
         clearTimeout(groqVADSilenceTimer);
         groqVADSilenceTimer = null;
         groqRecordingActive = false;
