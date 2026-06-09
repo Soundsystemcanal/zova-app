@@ -2919,12 +2919,12 @@
                     <strong>Enregistrer sur l'appareil</strong>
                     <span class="backup-action-sub">Dossier Téléchargements</span>
                 </button>
-                <label class="backup-action-btn backup-import">
+                <button class="backup-action-btn backup-import" id="backupImportBtn">
                     <span class="icon" style="font-size:1.3rem">&#8681;</span>
                     <strong>Importer</strong>
-                    <span class="backup-action-sub">Restaurer depuis un fichier</span>
-                    <input type="file" id="backupImportInput" accept=".json" style="display:none">
-                </label>
+                    <span class="backup-action-sub">Depuis l'appareil ou Drive…</span>
+                </button>
+                <input type="file" id="backupImportInput" accept=".json" style="display:none">
             </div>
         </div>
     </div>
@@ -3426,15 +3426,11 @@
         grid.appendChild(newCard);
 
         // Import card
-        const importCard = document.createElement('label');
+        const importCard = document.createElement('div');
         importCard.className = 'welcome-card welcome-card-new';
         importCard.style.cursor = 'pointer';
-        importCard.innerHTML = `<div class="welcome-card-new-icon"><span class="icon">&#128194;</span></div><div class="welcome-card-name">Importar</div><input type="file" accept=".json" style="display:none" class="welcome-import-input">`;
-        importCard.querySelector('.welcome-import-input').addEventListener('change', (e) => {
-            document.getElementById('importPersonaInput').files = e.target.files;
-            document.getElementById('importPersonaInput').dispatchEvent(new Event('change'));
-            e.target.value = '';
-        });
+        importCard.innerHTML = `<div class="welcome-card-new-icon"><span class="icon">&#128194;</span></div><div class="welcome-card-name">Importer</div>`;
+        importCard.addEventListener('click', () => showImportSheet('importPersonaInput', 'Importer un persona'));
         grid.appendChild(importCard);
     }
 
@@ -4123,6 +4119,10 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             return;
         }
         downloadFile(content, filename, 'application/json');
+    });
+
+    document.getElementById('backupImportBtn').addEventListener('click', () => {
+        showImportSheet('backupImportInput', 'Importer une sauvegarde');
     });
 
     document.getElementById('backupImportInput').addEventListener('change', (e) => {
@@ -5157,19 +5157,14 @@ Règles IMPÉRATIVES :
         });
 
         // Carte "Importer"
-        const importCard = document.createElement('label');
+        const importCard = document.createElement('div');
         importCard.className = 'welcome-card welcome-card-new';
         importCard.style.cursor = 'pointer';
         importCard.innerHTML = `
             <div class="welcome-card-new-icon"><span class="icon">&#128194;</span></div>
             <div class="welcome-card-name">Importer</div>
-            <input type="file" accept=".json" style="display:none" class="welcome-import-input">
         `;
-        importCard.querySelector('.welcome-import-input').addEventListener('change', (e) => {
-            document.getElementById('importPersonaInput').files = e.target.files;
-            document.getElementById('importPersonaInput').dispatchEvent(new Event('change'));
-            e.target.value = '';
-        });
+        importCard.addEventListener('click', () => showImportSheet('importPersonaInput', 'Importer un persona'));
         grid.appendChild(importCard);
 
         // Carte "+ Nouveau"
@@ -7218,6 +7213,44 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
                 showExportModal(content, filename);
             }
         });
+    }
+
+    // Panneau d'import unifié — ouvre le sélecteur de fichiers natif Android
+    function showImportSheet(inputId, label) {
+        if (!IS_CAPACITOR) {
+            document.getElementById(inputId).click();
+            return;
+        }
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:16px;';
+        overlay.innerHTML = `
+            <div style="background:var(--modal-bg);border-radius:16px;padding:20px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:10px;margin-bottom:8px;">
+                <div style="font-weight:700;font-size:0.95rem;color:var(--text-primary);text-align:center;margin-bottom:4px;">&#8681; ${label}</div>
+                <button id="_impDevice" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+                    <span style="font-size:1.4rem;">&#128247;</span>
+                    <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
+                        <span>Stockage de l'appareil</span>
+                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Téléchargements · Android/data/com.zova.voiceapp/files</span>
+                    </span>
+                </button>
+                <button id="_impCloud" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+                    <span style="font-size:1.4rem;">&#9925;</span>
+                    <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
+                        <span>Autre source</span>
+                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Google Drive · WhatsApp · email…</span>
+                    </span>
+                </button>
+                <button id="_impCancel" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-secondary);font-size:0.9rem;">Annuler</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        const close = () => overlay.remove();
+        overlay.querySelector('#_impCancel').addEventListener('click', close);
+        overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+        // Les deux boutons ouvrent le même sélecteur natif Android (fichiers locaux + cloud)
+        const openPicker = () => { close(); document.getElementById(inputId).click(); };
+        overlay.querySelector('#_impDevice').addEventListener('click', openPicker);
+        overlay.querySelector('#_impCloud').addEventListener('click', openPicker);
     }
 
     function showExportModal(content, filename) {
