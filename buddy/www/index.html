@@ -3096,6 +3096,11 @@
             nav_leave_msg: '¿Terminar la conversación para navegar?',
             nav_leave_title: '📞 Conversación activa',
             nav_leave_btn: 'Terminar y salir',
+            // First run
+            first_run_title: '👋 Bienvenido a Zova',
+            first_run_msg: '¿Tienes una copia de seguridad de una instalación anterior?',
+            first_run_restore: '📁 Restaurar backup',
+            first_run_setup: '🔑 Configurar claves API',
         },
         en: {
             nav_home: 'Home', nav_personas: 'Personas', nav_stats: 'Stats', nav_config: 'Config',
@@ -3179,6 +3184,11 @@
             nav_leave_msg: 'End conversation to navigate?',
             nav_leave_title: '📞 Active conversation',
             nav_leave_btn: 'End and leave',
+            // First run
+            first_run_title: '👋 Welcome to Zova',
+            first_run_msg: 'Do you have a backup from a previous installation?',
+            first_run_restore: '📁 Restore backup',
+            first_run_setup: '🔑 Set up API keys',
         },
         fr: {
             nav_home: 'Accueil', nav_personas: 'Personas', nav_stats: 'Stats', nav_config: 'Config',
@@ -3262,6 +3272,11 @@
             nav_leave_msg: 'Terminer la conversation pour naviguer ?',
             nav_leave_title: '📞 Conversation active',
             nav_leave_btn: 'Terminer et quitter',
+            // First run
+            first_run_title: '👋 Bienvenue sur Zova',
+            first_run_msg: 'Tu as une sauvegarde d\'une installation précédente ?',
+            first_run_restore: '📁 Restaurer un backup',
+            first_run_setup: '🔑 Configurer les clés API',
         }
     };
 
@@ -8382,7 +8397,24 @@ Règles de format :
             document.getElementById('removePinBtn').style.display = '';
         }
         await initPinScreen();
-        if (!await hasAnyApiKey()) openApiKeyModal();
+        if (!await hasAnyApiKey()) {
+            const wantsRestore = await customConfirm(
+                t('first_run_msg'),
+                {
+                    title: t('first_run_title'),
+                    icon: '👋',
+                    confirmLabel: t('first_run_restore'),
+                    cancelLabel: t('first_run_setup')
+                }
+            );
+            if (wantsRestore) {
+                // Open backup import — after a successful restore the API keys
+                // will be set (if included) and the modal won't show again on next launch
+                showImportSheet('backupImportInput', t('config_backup'));
+            } else {
+                openApiKeyModal();
+            }
+        }
     })();
 
     // ════════════════════════════════════════════════
