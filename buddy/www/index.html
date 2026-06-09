@@ -3398,7 +3398,7 @@
                     persona: {name:p.name,description:p.description,image:p.image,model:p.model,
                     voice:p.voice,reactivity:p.reactivity,creativity:p.creativity,greeting:p.greeting,
                     translateLang:p.translateLang,prompt:p.prompt}};
-                downloadFile(JSON.stringify(exp,null,2), `zova-persona-${p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}.json`, 'application/json');
+                exportJsonFile(JSON.stringify(exp,null,2), `zova-persona-${p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}.json`);
             });
             menu.querySelector('[data-action="delete"]').addEventListener('click', async (e) => {
                 e.stopPropagation(); menu.classList.remove('open');
@@ -4773,9 +4773,8 @@ Règles IMPÉRATIVES :
             }
         };
 
-        // Sur Android WebView, a.download ne fonctionne pas → modal copiable
         const filename = `zova-persona-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`;
-        showExportModal(JSON.stringify(personaExport, null, 2), filename);
+        exportJsonFile(JSON.stringify(personaExport, null, 2), filename);
     });
 
     // Import persona
@@ -5133,7 +5132,7 @@ Règles IMPÉRATIVES :
                     exportDate: new Date().toISOString(),
                     persona: { name: p.name, description: p.description, image: p.image, model: p.model, voice: p.voice, reactivity: p.reactivity, creativity: p.creativity, greeting: p.greeting, translateLang: p.translateLang, prompt: p.prompt }
                 };
-                downloadFile(JSON.stringify(personaExport, null, 2), `zova-persona-${p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`, 'application/json');
+                exportJsonFile(JSON.stringify(personaExport, null, 2), `zova-persona-${p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`);
             });
 
             menu.querySelector('[data-action="delete"]').addEventListener('click', async (e) => {
@@ -7163,6 +7162,62 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         a.download = filename;
         a.click();
         URL.revokeObjectURL(url);
+    }
+
+    // Fonction universelle d'export : Partager + Enregistrer sur l'appareil (Android) ou téléchargement (web)
+    async function exportJsonFile(content, filename) {
+        if (!IS_CAPACITOR) {
+            downloadFile(content, filename, 'application/json');
+            return;
+        }
+        const { Filesystem, Share } = window.Capacitor.Plugins;
+        const b64 = btoa(unescape(encodeURIComponent(content)));
+
+        // Mini action sheet avec les deux options
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:16px;';
+        overlay.innerHTML = `
+            <div style="background:var(--modal-bg);border-radius:16px;padding:20px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:10px;margin-bottom:8px;">
+                <div style="font-weight:700;font-size:0.95rem;color:var(--text-primary);text-align:center;margin-bottom:4px;">&#128190; ${filename}</div>
+                <button id="_expShare" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+                    <span style="font-size:1.4rem;">&#128244;</span>
+                    <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
+                        <span>Partager</span>
+                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Drive, WhatsApp, email…</span>
+                    </span>
+                </button>
+                <button id="_expLocal" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+                    <span style="font-size:1.4rem;">&#128247;</span>
+                    <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
+                        <span>Enregistrer sur l'appareil</span>
+                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Android → data → com.zova.voiceapp → files</span>
+                    </span>
+                </button>
+                <button id="_expCancel" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-secondary);font-size:0.9rem;">Annuler</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        const close = () => overlay.remove();
+        overlay.querySelector('#_expCancel').addEventListener('click', close);
+        overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+        overlay.querySelector('#_expShare').addEventListener('click', async () => {
+            close();
+            try {
+                const wr = await Filesystem.writeFile({ path: filename, data: b64, directory: 'CACHE', encoding: null });
+                await Share.share({ title: filename, files: [wr.uri], dialogTitle: 'Partager ' + filename });
+            } catch { showExportModal(content, filename); }
+        });
+
+        overlay.querySelector('#_expLocal').addEventListener('click', async () => {
+            close();
+            try {
+                await Filesystem.writeFile({ path: filename, data: b64, directory: 'EXTERNAL', encoding: null });
+                customAlert(`Fichier sauvegardé ✅<br><b>${filename}</b><br><small style="opacity:0.7">Android → data → com.zova.voiceapp → files</small>`, { title: '&#128247; Enregistré', icon: '&#10003;' });
+            } catch {
+                showExportModal(content, filename);
+            }
+        });
     }
 
     function showExportModal(content, filename) {
