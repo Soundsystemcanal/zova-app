@@ -7425,7 +7425,8 @@ Règles STRICTES :
     }
 
     // Liste les fichiers JSON du dossier privé EXTERNAL de l'app et appelle onPick(jsonStr, filename)
-    async function showZovaFiles(filter, onPick) {
+    // onEmpty (optionnel) : appelé si aucun fichier trouvé — permet de basculer vers le file picker
+    async function showZovaFiles(filter, onPick, onEmpty) {
         if (!IS_CAPACITOR) return;
         const { Filesystem } = window.Capacitor.Plugins;
         let files = [];
@@ -7438,10 +7439,19 @@ Règles STRICTES :
         } catch (e) { /* dossier vide ou inexistant */ }
 
         if (files.length === 0) {
-            customAlert(
-                'Aucun fichier trouv&#233;.<br><small style="opacity:0.7">Utilisez d\'abord <b>Exporter &#8594; Enregistrer dans Zova</b>.</small>',
-                { title: '&#128193; Sauvegardes Zova', icon: '&#128193;' }
+            const goElsewhere = await customConfirm(
+                'Aucun fichier trouv&#233; dans Zova.<br><br>' +
+                '<small style="opacity:0.75">Apr&#232;s une r&#233;installation, les fichiers locaux sont effac&#233;s par Android. ' +
+                'Si vous avez partag&#233; votre backup via Drive, email ou T&#233;l&#233;chargements, ' +
+                'utilisez le bouton ci-dessous pour le retrouver.</small>',
+                {
+                    title: '&#128193; Sauvegardes Zova',
+                    icon: '&#128202;',
+                    confirmLabel: '&#128194; Chercher sur l\'appareil',
+                    cancelLabel: t('btn_cancel')
+                }
             );
+            if (goElsewhere && onEmpty) onEmpty();
             return;
         }
 
@@ -7567,18 +7577,18 @@ Règles STRICTES :
         overlay.innerHTML = `
             <div style="background:var(--modal-bg);border-radius:16px;padding:20px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:10px;margin-bottom:8px;">
                 <div style="font-weight:700;font-size:0.95rem;color:var(--text-primary);text-align:center;margin-bottom:4px;">&#8681; ${label}</div>
+                <button id="_impOther" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+                    <span style="font-size:1.4rem;">&#9925;</span>
+                    <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
+                        <span>Choisir un fichier</span>
+                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">T&#233;l&#233;chargements · Drive · Email…</span>
+                    </span>
+                </button>
                 <button id="_impZova" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
                     <span style="font-size:1.4rem;">&#128193;</span>
                     <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
                         <span>Sauvegardes Zova</span>
-                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Fichiers enregistr&#233;s dans l'app</span>
-                    </span>
-                </button>
-                <button id="_impOther" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
-                    <span style="font-size:1.4rem;">&#9925;</span>
-                    <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
-                        <span>Autre source</span>
-                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Google Drive · T&#233;l&#233;chargements…</span>
+                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Fichiers enregistr&#233;s dans l&#39;app (m&#234;me install.)</span>
                     </span>
                 </button>
                 <button id="_impCancel" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-secondary);font-size:0.9rem;">Annuler</button>
@@ -7589,16 +7599,25 @@ Règles STRICTES :
         overlay.querySelector('#_impCancel').addEventListener('click', close);
         overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
 
+        const openFilePicker = () => {
+            // Petit délai pour laisser Android WebView reprendre le focus après fermeture overlay
+            setTimeout(() => document.getElementById(inputId).click(), 200);
+        };
+
         overlay.querySelector('#_impZova').addEventListener('click', () => {
             close();
-            showZovaFiles(filter, (jsonStr) => {
-                if (isBackup) processBackupJson(jsonStr);
-                else processPersonaJson(jsonStr);
-            });
+            showZovaFiles(
+                filter,
+                (jsonStr) => {
+                    if (isBackup) processBackupJson(jsonStr);
+                    else processPersonaJson(jsonStr);
+                },
+                openFilePicker   // fallback si dossier Zova vide
+            );
         });
         overlay.querySelector('#_impOther').addEventListener('click', () => {
             close();
-            document.getElementById(inputId).click();
+            openFilePicker();
         });
     }
 
