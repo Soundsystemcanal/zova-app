@@ -7392,7 +7392,7 @@ Règles STRICTES :
                     <span style="font-size:1.4rem;">&#128193;</span>
                     <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
                         <span>Enregistrer dans Zova</span>
-                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Reimporter via Importer → Sauvegardes Zova</span>
+                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Mise &#224; jour uniquement &#8212; effac&#233; si d&#233;sinstall.</span>
                     </span>
                 </button>
                 <button id="_expCancel" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-secondary);font-size:0.9rem;">Annuler</button>
@@ -7414,12 +7414,24 @@ Règles STRICTES :
         overlay.querySelector('#_expLocal').addEventListener('click', async () => {
             close();
             try {
-                await Filesystem.writeFile({ path: filename, data: b64, directory: 'EXTERNAL', encoding: null });
-                customAlert(
-                    `Fichier enregistr&#233; &#10003;<br><b>${filename}</b><br><br>` +
-                    `<small style="opacity:0.7">Pour importer : Sauvegarde &#8594; Importer &#8594; Sauvegardes Zova</small>`,
-                    { title: '&#128193; Enregistr&#233; dans Zova', icon: '&#10003;' }
+                const wr = await Filesystem.writeFile({ path: filename, data: b64, directory: 'EXTERNAL', encoding: null });
+                // Avertissement : fichier effacé si désinstallation → proposer aussi de partager
+                const alsoShare = await customConfirm(
+                    `<b>${filename}</b> enregistr&#233; dans Zova &#10003;<br><br>` +
+                    `<span style="color:#fbbf24;font-size:0.85rem;">&#9888;&#65039; Ce fichier sera <b>effac&#233;</b> si vous d&#233;sinstallez l&#39;app.<br>` +
+                    `Pour une sauvegarde durable, partagez-le aussi vers Drive, email ou T&#233;l&#233;chargements.</span>`,
+                    {
+                        title: '&#128193; Enregistr&#233; dans Zova',
+                        icon: '&#10003;',
+                        confirmLabel: '&#128244; Partager aussi',
+                        cancelLabel: 'OK, compris'
+                    }
                 );
+                if (alsoShare) {
+                    try {
+                        await Share.share({ title: filename, files: [wr.uri], dialogTitle: 'Partager ' + filename });
+                    } catch { /* share annulée */ }
+                }
             } catch { showExportModal(content, filename); }
         });
     }
