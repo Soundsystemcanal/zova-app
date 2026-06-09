@@ -8125,12 +8125,13 @@ Langue : ${lang}`;
             extractInsights();
         }
 
-        // Générer la mémoire épisodique + mettre à jour le profil utilisateur
+        // Générer la mémoire épisodique + mettre à jour les profils utilisateur
         if (hadConversation && !isTranscripteurMode && activeModelId !== 'gpt-realtime-translate') {
             const persona = getPersonas().find(p => p.id === getActiveId());
             const transcriptText = getTranscriptText(false);
-            generateMemory(persona, transcriptText);    // async, non-bloquant
-            updateUserProfile(transcriptText);          // async, non-bloquant
+            generateMemory(persona, transcriptText);         // async, non-bloquant
+            updateUserProfile(transcriptText);               // async, non-bloquant
+            updatePersonaProfile(persona, transcriptText);   // async, non-bloquant — persona profile
         }
     }
 
