@@ -4058,9 +4058,27 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         const content = JSON.stringify(data, null, 2);
         const filename = `zova-backup-${new Date().toISOString().slice(0,10)}.json`;
 
-        // Android: always use modal (clipboard truncates large JSON with images)
+        // Android v2: écrire dans le cache puis partager comme vrai fichier .json
         if (IS_CAPACITOR) {
-            showExportModal(content, filename);
+            try {
+                const { Filesystem, Share } = window.Capacitor.Plugins;
+                // Écrire le fichier dans le dossier cache de l'app (aucune permission requise)
+                const writeResult = await Filesystem.writeFile({
+                    path: filename,
+                    data: btoa(unescape(encodeURIComponent(content))),
+                    directory: 'CACHE',
+                    encoding: null   // binaire (base64)
+                });
+                // Ouvrir le panneau de partage Android natif avec le fichier
+                await Share.share({
+                    title: filename,
+                    files: [writeResult.uri],
+                    dialogTitle: 'Sauvegarder le backup Zova'
+                });
+            } catch (err) {
+                // Fallback : modal si Share ou Filesystem indisponible
+                showExportModal(content, filename);
+            }
             return;
         }
 
