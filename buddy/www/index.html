@@ -2910,9 +2910,14 @@
             <p style="text-align:center;font-size:0.85rem;color:var(--text-secondary);margin:16px 0">Exportez régulièrement une sauvegarde pour ne rien perdre. Vous pourrez la réimporter à tout moment.</p>
             <div class="backup-actions">
                 <button class="backup-action-btn backup-export" id="backupExportBtn">
-                    <span class="icon" style="font-size:1.3rem">&#8682;</span>
-                    <strong>Exporter</strong>
-                    <span class="backup-action-sub">Télécharger un fichier de sauvegarde</span>
+                    <span class="icon" style="font-size:1.3rem">&#128244;</span>
+                    <strong>Partager</strong>
+                    <span class="backup-action-sub">Drive, WhatsApp, email…</span>
+                </button>
+                <button class="backup-action-btn backup-export" id="backupSaveLocalBtn">
+                    <span class="icon" style="font-size:1.3rem">&#128247;</span>
+                    <strong>Enregistrer sur l'appareil</strong>
+                    <span class="backup-action-sub">Dossier Téléchargements</span>
                 </button>
                 <label class="backup-action-btn backup-import">
                     <span class="icon" style="font-size:1.3rem">&#8681;</span>
@@ -4045,8 +4050,9 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         backupModal.classList.remove('active');
     });
 
-    document.getElementById('backupExportBtn').addEventListener('click', async () => {
-        const data = {
+    // Helpers communs pour la génération du backup
+    function buildBackupData() {
+        return {
             version: 1,
             exportDate: new Date().toISOString(),
             theme: getTheme(),
@@ -4055,33 +4061,67 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             userInfo: getUserInfo(),
             stats: getStats()
         };
-        const content = JSON.stringify(data, null, 2);
-        const filename = `zova-backup-${new Date().toISOString().slice(0,10)}.json`;
+    }
+    function buildBackupFilename() {
+        return `zova-backup-${new Date().toISOString().slice(0,10)}.json`;
+    }
 
-        // Android v2: écrire dans le cache puis partager comme vrai fichier .json
+    // Bouton "Partager" — panneau de partage Android natif (Drive, WhatsApp, email…)
+    document.getElementById('backupExportBtn').addEventListener('click', async () => {
+        const content = JSON.stringify(buildBackupData(), null, 2);
+        const filename = buildBackupFilename();
+
         if (IS_CAPACITOR) {
             try {
                 const { Filesystem, Share } = window.Capacitor.Plugins;
-                // Écrire le fichier dans le dossier cache de l'app (aucune permission requise)
                 const writeResult = await Filesystem.writeFile({
                     path: filename,
                     data: btoa(unescape(encodeURIComponent(content))),
                     directory: 'CACHE',
-                    encoding: null   // binaire (base64)
+                    encoding: null
                 });
-                // Ouvrir le panneau de partage Android natif avec le fichier
                 await Share.share({
                     title: filename,
                     files: [writeResult.uri],
-                    dialogTitle: 'Sauvegarder le backup Zova'
+                    dialogTitle: 'Partager le backup Zova'
                 });
             } catch (err) {
-                // Fallback : modal si Share ou Filesystem indisponible
                 showExportModal(content, filename);
             }
             return;
         }
+        downloadFile(content, filename, 'application/json');
+    });
 
+    // Bouton "Enregistrer sur l'appareil" — écrit directement dans le dossier Téléchargements
+    document.getElementById('backupSaveLocalBtn') && document.getElementById('backupSaveLocalBtn').addEventListener('click', async () => {
+        const content = JSON.stringify(buildBackupData(), null, 2);
+        const filename = buildBackupFilename();
+
+        if (IS_CAPACITOR) {
+            try {
+                const { Filesystem } = window.Capacitor.Plugins;
+                // EXTERNAL = dossier privé de l'app sur stockage externe
+                // Chemin : Android/data/com.zova.voiceapp/files/
+                // Accessible via : Fichiers → Stockage interne → Android → data → com.zova.voiceapp → files
+                await Filesystem.writeFile({
+                    path: filename,
+                    data: btoa(unescape(encodeURIComponent(content))),
+                    directory: 'EXTERNAL',
+                    encoding: null
+                });
+                customAlert(
+                    `Fichier sauvegardé ✅<br><br>` +
+                    `<b>${filename}</b><br><br>` +
+                    `<small style="opacity:0.75">Pour le retrouver :<br>` +
+                    `Fichiers → Stockage interne → Android → data → com.zova.voiceapp → files</small>`,
+                    { title: '💾 Enregistré sur l\'appareil', icon: '&#128247;' }
+                );
+            } catch (err) {
+                showExportModal(content, filename);
+            }
+            return;
+        }
         downloadFile(content, filename, 'application/json');
     });
 
