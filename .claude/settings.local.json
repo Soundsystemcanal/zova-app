@@ -4,7 +4,13 @@
       "Bash(mkdir -p \"C:\\\\Users\\\\xavie\\\\.claude\\\\memory\")",
       "Bash(dir \"C:\\\\Users\\\\xavie\\\\Downloads\\\\Xavier_SEO_AEO_Analyser.html\")",
       "Read(//mnt/c/Users/xavie/**)",
-      "Read(//mnt/c/Users/**)"
+      "Read(//mnt/c/Users/**)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git commit *)",
+      "Bash(powershell -Command \"Get-Content index.html | Select-String -Pattern 'PERSONA_PROFILE_PREFIX' -Context 0,2\")",
+      "Bash(powershell -Command \"Get-Content index.html | Select-String -Pattern 'PERSONA_MEMORY_PREFIX' -Context 0,2 | head -30\")",
+      "Bash(git merge v2-beta --no-ff -m ' *)"
     ]
   }
 }
