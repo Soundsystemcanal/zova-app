@@ -5750,8 +5750,8 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
             translateLang: p.translateLang, prompt: p.prompt
         };
         const payload = { type: 'zova-persona', version: 1, exportDate: new Date().toISOString(), persona };
-        // Payload tronqué pour le QR (prompt max 1200 chars → base64 reste < 2800 bytes)
-        const qrPersona = { ...persona, prompt: (persona.prompt || '').slice(0, 1200) };
+        // Payload tronqué pour le QR : sans image (data URL = trop lourd), prompt max 1200 chars
+        const qrPersona = { ...persona, image: null, prompt: (persona.prompt || '').slice(0, 1200) };
         const qrPayload = { type: 'zova-persona', version: 1, exportDate: payload.exportDate, persona: qrPersona };
         const base64 = btoa(unescape(encodeURIComponent(JSON.stringify(qrPayload))));
         const deepLink = 'zova://import?p=' + base64;
