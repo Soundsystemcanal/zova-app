@@ -4221,7 +4221,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     // Helpers communs pour la génération du backup
     function buildBackupData() {
         return {
-            version: 1,
+            version: 2,
             exportDate: new Date().toISOString(),
             theme: getTheme(),
             personas: getPersonas(),
@@ -4229,6 +4229,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             userInfo: getUserInfo(),
             stats: getStats(),
             memories: getMemories(),
+            personaMemories: getAllPersonaMemoryMap(), // per-persona memories map
             userProfile: getUserProfile()
         };
     }
@@ -5534,9 +5535,11 @@ Règles IMPÉRATIVES :
     // ════════════════════════════════════════════════
 
     const MEMORY_KEY = 'buddy_memories';
-    const MAX_MEMORIES = 10;       // max stored
+    const MAX_MEMORIES = 10;       // max stored (global fallback)
     const MEMORIES_IN_PROMPT = 4;  // injected per conversation
     const MIN_MSGS_FOR_MEMORY = 3; // min exchanges to generate memory
+    const PERSONA_MEMORY_PREFIX = 'buddy_pmem_'; // per-persona memory key prefix
+    const MAX_PERSONA_MEMORIES = 5; // max stored per persona
 
     function getMemories() {
         try { return JSON.parse(localStorage.getItem(MEMORY_KEY)) || []; }
@@ -5548,6 +5551,39 @@ Règles IMPÉRATIVES :
         mems.unshift(entry); // newest first
         if (mems.length > MAX_MEMORIES) mems.splice(MAX_MEMORIES);
         localStorage.setItem(MEMORY_KEY, JSON.stringify(mems));
+    }
+
+    // Per-persona memory functions
+    function getPersonaMemories(personaId) {
+        if (!personaId) return [];
+        try { return JSON.parse(localStorage.getItem(PERSONA_MEMORY_PREFIX + personaId)) || []; }
+        catch { return []; }
+    }
+
+    function savePersonaMemory(entry, personaId) {
+        if (!personaId) return;
+        const mems = getPersonaMemories(personaId);
+        mems.unshift(entry); // newest first
+        if (mems.length > MAX_PERSONA_MEMORIES) mems.splice(MAX_PERSONA_MEMORIES);
+        localStorage.setItem(PERSONA_MEMORY_PREFIX + personaId, JSON.stringify(mems));
+    }
+
+    function clearPersonaMemories(personaId) {
+        if (!personaId) return;
+        localStorage.removeItem(PERSONA_MEMORY_PREFIX + personaId);
+    }
+
+    // Returns all persona memory keys currently in localStorage
+    function getAllPersonaMemoryMap() {
+        const map = {};
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(PERSONA_MEMORY_PREFIX)) {
+                const personaId = key.slice(PERSONA_MEMORY_PREFIX.length);
+                try { map[personaId] = JSON.parse(localStorage.getItem(key)) || []; } catch { /* skip */ }
+            }
+        }
+        return map;
     }
 
     async function generateMemory(persona, transcriptText) {
@@ -5600,7 +5636,10 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
             }
 
             if (summary.length > 10) {
-                saveMemory({ date, personaId: persona?.id || '', personaName, summary });
+                const entry = { date, personaId: persona?.id || '', personaName, summary };
+                saveMemory(entry);                          // global (backward compat)
+                if (persona?.id) savePersonaMemory(entry, persona.id); // per-persona
+                updateMemoryCount();
                 console.log('[Zova Memory] Saved:', summary.slice(0, 60) + '...');
             }
         } catch(e) {
@@ -5693,12 +5732,20 @@ Règles STRICTES :
     function buildFullInstructions(persona) {
         let fullInstructions = persona.prompt;
 
-        // Inject episodic memories
-        const memories = getMemories().filter(m => !persona || m.personaId === persona.id || m.personaId === '');
+        // Inject episodic memories — prefer per-persona, fallback to global filtered by persona
+        const personaMems = persona?.id ? getPersonaMemories(persona.id) : [];
+        const fallbackMems = getMemories().filter(m => !persona || m.personaId === persona.id || m.personaId === '');
+        const memories = personaMems.length > 0 ? personaMems : fallbackMems;
         const relevant = memories.slice(0, MEMORIES_IN_PROMPT);
         if (relevant.length > 0) {
             const memBlock = relevant.map(m => `- ${m.date} (${m.personaName}): ${m.summary}`).join('\n');
             fullInstructions += `\n\n# Mémoire des sessions précédentes\nVoici un résumé de tes conversations récentes avec cet utilisateur. Utilise ces infos naturellement pour assurer la continuité :\n${memBlock}`;
+        }
+
+        // Continuity hook — only when we have persona-specific memories (i.e. we've spoken before as THIS persona)
+        if (personaMems.length > 0) {
+            const last = personaMems[0]; // most recent session
+            fullInstructions += `\n\n# Accroche de reprise\nLa dernière conversation a eu lieu le ${last.date}. Résumé : ${last.summary}\n→ Pour ouvrir cette conversation, fais une référence naturelle et courte à ce sujet (1 phrase max, ex. "La dernière fois tu travaillais sur X, comment ça avance ?"). Si l'utilisateur lance directement un nouveau sujet, adapte-toi sans forcer le rappel.`;
         }
 
         const toolSection = activeProvider === 'gemini'
@@ -7528,6 +7575,11 @@ Règles STRICTES :
             if (data.userInfo !== undefined) setUserInfo(data.userInfo);
             if (data.stats) localStorage.setItem('buddy_stats', JSON.stringify(data.stats));
             if (data.memories) localStorage.setItem(MEMORY_KEY, JSON.stringify(data.memories));
+            if (data.personaMemories && typeof data.personaMemories === 'object') {
+                Object.entries(data.personaMemories).forEach(([personaId, mems]) => {
+                    if (Array.isArray(mems)) localStorage.setItem(PERSONA_MEMORY_PREFIX + personaId, JSON.stringify(mems));
+                });
+            }
             if (data.userProfile) setUserProfile(data.userProfile);
             renderPersonaList(); renderPersonasGrid();
             const activeId = getActiveId();
@@ -8315,9 +8367,11 @@ Règles de format :
 
     // ════════════════════════════════════════════════
 
-    // Memory buttons in Config
+    // Memory buttons in Config — shows count for the active persona
     function updateMemoryCount() {
-        const mems = getMemories();
+        const activeId = getActiveId();
+        const personaMems = activeId ? getPersonaMemories(activeId) : [];
+        const mems = personaMems.length > 0 ? personaMems : getMemories().filter(m => m.personaId === activeId || m.personaId === '');
         const el = document.getElementById('memoryCount');
         if (!el) return;
         if (mems.length === 0) {
@@ -8331,20 +8385,28 @@ Règles de format :
     updateMemoryCount();
 
     document.getElementById('viewMemoryBtn').addEventListener('click', () => {
-        const mems = getMemories();
+        const activeId = getActiveId();
+        const personaMems = activeId ? getPersonaMemories(activeId) : [];
+        const mems = personaMems.length > 0 ? personaMems : getMemories().filter(m => m.personaId === activeId || m.personaId === '');
         if (!mems.length) { customAlert(t('memory_none'), { title: '🧠 ' + t('config_section_memory'), icon: '🧠' }); return; }
         const content = mems.map((m, i) => `**${i+1}. ${m.date} — ${m.personaName}**\n${m.summary}`).join('\n\n');
         showExportModal(content, 'zova-memoires.txt');
     });
 
     document.getElementById('clearMemoryBtn').addEventListener('click', async () => {
+        const activeId = getActiveId();
+        const activePersona = activeId ? getPersonas().find(p => p.id === activeId) : null;
+        const personaLabel = activePersona ? ` (${activePersona.name})` : '';
         if (!await customConfirm(
-            LANG === 'es' ? 'Borrar todos los recuerdos? Zova no recordará conversaciones anteriores.' :
-            LANG === 'en' ? 'Clear all memories? Zova will no longer remember previous conversations.' :
-            'Effacer tous les souvenirs ? Zova ne se souviendra plus des conversations précédentes.',
+            LANG === 'es' ? `Borrar los recuerdos de esta persona${personaLabel}? No recordará conversaciones anteriores.` :
+            LANG === 'en' ? `Clear memories for this persona${personaLabel}? It will no longer remember previous conversations.` :
+            `Effacer les souvenirs de ce persona${personaLabel} ? Il ne se souviendra plus des conversations précédentes.`,
             { title: '🗑️ ' + t('config_clear_memory'), confirmLabel: LANG === 'es' ? 'Borrar' : LANG === 'en' ? 'Clear' : 'Effacer', danger: true }
         )) return;
-        localStorage.removeItem(MEMORY_KEY);
+        if (activeId) clearPersonaMemories(activeId);
+        // Also remove from global memories for this persona
+        const global = getMemories().filter(m => m.personaId !== activeId);
+        localStorage.setItem(MEMORY_KEY, JSON.stringify(global));
         updateMemoryCount();
         customAlert(
             LANG === 'es' ? 'Memoria borrada.' : LANG === 'en' ? 'Memory cleared.' : 'Mémoire effacée.',
