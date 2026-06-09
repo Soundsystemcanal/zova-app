@@ -259,9 +259,137 @@
         }
         .footer-links { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
 
+        /* ─── BETA BADGE ─── */
+        .beta-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(236,72,153,0.12);
+            border: 1px solid rgba(236,72,153,0.35);
+            color: #f472b6;
+            font-size: 0.73rem;
+            font-weight: 700;
+            padding: 5px 13px;
+            border-radius: 20px;
+            letter-spacing: 0.08em;
+            margin-bottom: 22px;
+        }
+        .beta-badge::before { content: '●'; font-size: 0.55rem; animation: pulse 1.8s ease-in-out infinite; }
+        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+        /* ─── CHANGELOG BUTTON ─── */
+        .btn-changelog {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: border-color 0.18s, color 0.18s;
+        }
+        .btn-changelog:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+
+        /* ─── WHAT'S NEW SECTION ─── */
+        .whats-new-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 36px;
+        }
+        .wn-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px 22px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .wn-card:hover { transform: translateY(-4px); border-color: rgba(139,92,246,0.45); }
+        .wn-card .icon { font-size: 1.7rem; display: block; margin-bottom: 12px; }
+        .wn-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 7px; color: var(--text); }
+        .wn-card p { font-size: 0.83rem; color: var(--muted); line-height: 1.7; }
+        .wn-center { text-align: center; }
+
+        /* ─── CHANGELOG MODAL ─── */
+        .cl-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 9999;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 24px 16px;
+            overflow-y: auto;
+        }
+        .cl-overlay.open { display: flex; }
+        .cl-box {
+            background: #0f0f2e;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px 32px;
+            max-width: 760px;
+            width: 100%;
+            position: relative;
+            margin: auto;
+        }
+        .cl-close {
+            position: absolute;
+            top: 18px; right: 20px;
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 1.4rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .cl-close:hover { color: var(--text); }
+        .cl-box h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #c4b5fd, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .cl-box .cl-subtitle { font-size: 0.82rem; color: var(--muted); margin-bottom: 28px; }
+        .cl-section { margin-bottom: 28px; }
+        .cl-section h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #c4b5fd;
+            margin-bottom: 12px;
+            padding-bottom: 7px;
+            border-bottom: 1px solid var(--border);
+        }
+        .cl-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .cl-list li { font-size: 0.86rem; color: var(--muted); padding-left: 18px; position: relative; line-height: 1.6; }
+        .cl-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-size: 0.8rem; }
+        .cl-list li strong { color: var(--text); }
+        .cl-tag {
+            display: inline-block;
+            background: rgba(139,92,246,0.15);
+            color: #c4b5fd;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        .cl-tag.fix { background: rgba(52,211,153,0.12); color: #34d399; }
+        .cl-tag.new { background: rgba(236,72,153,0.12); color: #f472b6; }
+
         @media (max-width: 560px) {
             .hero { padding: 40px 20px 80px; }
             th, td { padding: 11px 12px; font-size: 0.82rem; }
+            .cl-box { padding: 24px 18px; }
         }
     </style>
 </head>
@@ -283,6 +411,7 @@
         <rect x="34" y="18" width="4" height="8" rx="2" fill="rgba(255,255,255,0.25)"/>
     </svg>
 
+    <div class="beta-badge">v2-beta disponible</div>
     <h1>Zova</h1>
     <p class="hero-slogan">Ton IA. Ton téléphone. Tes règles.</p>
     <p class="hero-sub">Assistant vocal IA pour Android — sans serveur intermédiaire, sans abonnement mensuel, sans surveillance. Tes clés API restent sur ton téléphone.</p>
@@ -396,6 +525,40 @@
     </div>
 </div>
 
+<!-- ══════════ NOUVEAUTÉS V2-BETA ══════════ -->
+<hr class="sep">
+<div class="section">
+    <h2>Nouveautés v2-beta</h2>
+    <div class="divider"></div>
+    <div class="whats-new-grid">
+        <div class="wn-card">
+            <span class="icon">📁</span>
+            <h3>Export / Import fiable</h3>
+            <p>Partage le backup via Drive, WhatsApp ou email — ou enregistre-le directement dans l'app. Réimport en un tap, sans chercher dans les dossiers Android.</p>
+        </div>
+        <div class="wn-card">
+            <span class="icon">🧠</span>
+            <h3>Mémoire évolutive</h3>
+            <p>Deux couches de mémoire : résumés de sessions + profil utilisateur cumulatif. L'app apprend à te connaître au fil du temps et injecte ce contexte dans chaque conversation.</p>
+        </div>
+        <div class="wn-card">
+            <span class="icon">🔑</span>
+            <h3>Backup complet</h3>
+            <p>Le fichier de sauvegarde inclut désormais personas, mémoires, profil, et optionnellement les clés API — pour une restauration totale en cas de réinstallation.</p>
+        </div>
+        <div class="wn-card">
+            <span class="icon">👤</span>
+            <h3>Zova Profile Builder</h3>
+            <p>Le persona Zova pose des questions progressives pour mieux te connaître. Chaque session enrichit le profil : préférences, style, objectifs, sujets récurrents.</p>
+        </div>
+    </div>
+    <div class="wn-center">
+        <button class="btn-changelog" onclick="document.getElementById('clModal').classList.add('open')">
+            📖&nbsp; Voir le changelog complet v2-beta
+        </button>
+    </div>
+</div>
+
 <!-- ══════════ CTA BAS ══════════ -->
 <div class="cta">
     <h2>Prêt à reprendre le contrôle ?</h2>
@@ -410,10 +573,75 @@
     <div class="footer-links">
         <a href="https://github.com/Soundsystemcanal/zova-app" target="_blank" rel="noopener">GitHub</a>
         <a href="https://github.com/Soundsystemcanal/zova-app/releases" target="_blank" rel="noopener">Releases</a>
+        <a href="https://github.com/Soundsystemcanal/zova-app/tree/v2-beta" target="_blank" rel="noopener">v2-beta</a>
         <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Clé Groq gratuite</a>
     </div>
-    <div>Zova v1.1 &nbsp;·&nbsp; par Xavier Bourdet &nbsp;·&nbsp; <em>"Ton IA. Ton téléphone. Tes règles."</em></div>
+    <div>Zova v1.1 &nbsp;·&nbsp; v2-beta en cours &nbsp;·&nbsp; par Xavier Bourdet &nbsp;·&nbsp; <em>"Ton IA. Ton téléphone. Tes règles."</em></div>
 </footer>
+
+<!-- ══════════ MODAL CHANGELOG ══════════ -->
+<div class="cl-overlay" id="clModal" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="cl-box">
+        <button class="cl-close" onclick="document.getElementById('clModal').classList.remove('open')">✕</button>
+        <h2>Changelog v2-beta</h2>
+        <p class="cl-subtitle">Basé sur v1.1 · Branche v2-beta · 2026-06-09</p>
+
+        <div class="cl-section">
+            <h3>1. Export / Import fiable (Android 11+)</h3>
+            <ul class="cl-list">
+                <li><span class="cl-tag new">NEW</span><strong>Enregistrer dans Zova</strong> — écrit le fichier dans le dossier privé de l'app via <code>Filesystem.writeFile(EXTERNAL)</code></li>
+                <li><span class="cl-tag new">NEW</span><strong>Partager</strong> — share sheet Android natif (Drive, WhatsApp, email…)</li>
+                <li><span class="cl-tag new">NEW</span><strong>Sauvegardes Zova</strong> à l'import — l'app liste ses propres fichiers directement, sans passer par le sélecteur Android (contourne scoped storage)</li>
+                <li><span class="cl-tag new">NEW</span><strong>Clés API optionnelles</strong> dans le backup — demandées à l'export, restaurées séparément à l'import</li>
+                <li><span class="cl-tag fix">FIX</span>Export tronqué à 20 000 caractères — clipboard remplacé par Filesystem + Share</li>
+                <li><span class="cl-tag fix">FIX</span>Fichier introuvable à l'import — contournement du scoped storage Android 11+</li>
+            </ul>
+        </div>
+
+        <div class="cl-section">
+            <h3>2. Mémoire évolutive — 2 couches</h3>
+            <ul class="cl-list">
+                <li><span class="cl-tag">EXISTANT</span><strong>Mémoire épisodique</strong> (<code>buddy_memories</code>) — résumés de sessions, max 10, injectés dans le prompt</li>
+                <li><span class="cl-tag new">NEW</span><strong>Profil utilisateur cumulatif</strong> (<code>buddy_userProfile</code>) — JSON mis à jour par LLM après chaque session : nom, langues, style, sujets, faits, objectifs</li>
+                <li><span class="cl-tag new">NEW</span>Le profil est injecté dans le système prompt de tous les personas</li>
+                <li><span class="cl-tag new">NEW</span>UI Config : voir le profil formaté, effacer, compteur de faits/sujets</li>
+                <li><span class="cl-tag new">NEW</span>Profil inclus dans le backup/restore</li>
+            </ul>
+        </div>
+
+        <div class="cl-section">
+            <h3>3. Persona Zova — Profile Builder</h3>
+            <ul class="cl-list">
+                <li><span class="cl-tag new">NEW</span>Nouveau rôle : apprendre à connaître l'utilisateur progressivement (remplace l'hôtesse d'onboarding)</li>
+                <li><span class="cl-tag new">NEW</span>Lit le profil existant et pose 1-2 questions ciblées sur ce qui manque</li>
+                <li><span class="cl-tag new">NEW</span>Progression : identité → vie/travail → style → objectifs → intérêts → approfondissement</li>
+                <li><span class="cl-tag new">NEW</span>Migration automatique depuis l'ancienne version au premier lancement</li>
+            </ul>
+        </div>
+
+        <div class="cl-section">
+            <h3>4. Corrections de bugs</h3>
+            <ul class="cl-list">
+                <li><span class="cl-tag fix">FIX</span>Emojis et HTML affichés en brut dans les alertes — <code>customAlert()</code> utilise désormais <code>innerHTML</code></li>
+                <li><span class="cl-tag fix">FIX</span>Filtre import incorrect (<code>zova_backup</code> → <code>zova-backup</code>)</li>
+            </ul>
+        </div>
+
+        <div class="cl-section">
+            <h3>5. Nouvelles dépendances</h3>
+            <ul class="cl-list">
+                <li><code>@capacitor/filesystem@8.1.2</code> — lecture/écriture fichiers Android</li>
+                <li><code>@capacitor/share@8.0.1</code> — share sheet natif Android</li>
+            </ul>
+        </div>
+
+        <div style="text-align:center;margin-top:28px;">
+            <a href="https://github.com/Soundsystemcanal/zova-app/blob/v2-beta/docs/zova-v2-beta-changelog.md" target="_blank" rel="noopener" class="btn-changelog">
+                📄&nbsp; Voir sur GitHub
+            </a>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
