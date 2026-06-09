@@ -5228,6 +5228,7 @@ Règles IMPÉRATIVES :
                     <button data-action="edit"><span class="icon">&#9998;</span> Éditer</button>
                     <button data-action="duplicate"><span class="icon">&#10697;</span> Dupliquer</button>
                     <button data-action="export"><span class="icon">&#128190;</span> Exporter</button>
+                    <button data-action="qrcode"><span class="icon">&#128247;</span> QR Code</button>
                     <button data-action="delete" class="danger"><span class="icon">&#128465;</span> Supprimer</button>
                 </div>
                 <div class="welcome-card-avatar">
@@ -5277,6 +5278,12 @@ Règles IMPÉRATIVES :
                     persona: { name: p.name, description: p.description, image: p.image, model: p.model, voice: p.voice, reactivity: p.reactivity, creativity: p.creativity, greeting: p.greeting, translateLang: p.translateLang, prompt: p.prompt }
                 };
                 exportJsonFile(JSON.stringify(personaExport, null, 2), `zova-persona-${p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`);
+            });
+
+            menu.querySelector('[data-action="qrcode"]').addEventListener('click', (e) => {
+                e.stopPropagation();
+                menu.classList.remove('open');
+                openPersonaQRModal(p);
             });
 
             menu.querySelector('[data-action="delete"]').addEventListener('click', async (e) => {
@@ -5673,6 +5680,95 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         } catch(e) {
             console.warn('[Zova Memory] Failed to generate:', e.message);
         }
+    }
+
+    // ════════════════════════════════════════════════
+    //  PARTAGE PAR QR CODE (Feature 3.2)
+    // ════════════════════════════════════════════════
+
+    function openPersonaQRModal(p) {
+        const payload = {
+            type: 'zova-persona',
+            version: 1,
+            exportDate: new Date().toISOString(),
+            persona: {
+                name: p.name, description: p.description, image: p.image,
+                model: p.model, voice: p.voice, reactivity: p.reactivity,
+                creativity: p.creativity, greeting: p.greeting,
+                translateLang: p.translateLang, prompt: p.prompt
+            }
+        };
+        const base64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+        const deepLink = 'zova://import?p=' + base64;
+        const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=' + encodeURIComponent(deepLink);
+
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay active';
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.7)';
+        overlay.innerHTML = `
+            <div style="background:var(--modal-bg);border-radius:20px;padding:24px;max-width:320px;width:90%;text-align:center;position:relative">
+                <button id="_qrCloseBtn" style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:1.4rem;color:var(--text-secondary);cursor:pointer;min-height:44px;min-width:44px">×</button>
+                <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px;color:var(--text-primary)">📷 Partager <span style="color:var(--accent)">${esc(p.name)}</span></div>
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:16px">Scannez avec Zova pour importer cette persona</div>
+                <div style="background:#fff;border-radius:12px;padding:8px;display:inline-block;margin-bottom:16px">
+                    <img src="${qrUrl}" width="220" height="220" alt="QR Code" style="display:block;border-radius:8px"
+                         onerror="this.parentElement.innerHTML='<div style=padding:20px;color:#333;font-size:0.8rem>QR indisponible (pas de réseau)</div>'">
+                </div>
+                <div style="display:flex;gap:8px;justify-content:center">
+                    <button id="_qrCopyBtn" style="flex:1;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:0.85rem;min-height:44px">📋 Copier le lien</button>
+                    <button id="_qrShareBtn" style="flex:1;padding:10px;background:rgba(255,255,255,0.1);color:var(--text-primary);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:0.85rem;min-height:44px">📤 Partager</button>
+                </div>
+                <div id="_qrCopiedMsg" style="margin-top:8px;color:var(--accent);font-size:0.8rem;display:none">✅ Lien copié !</div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        overlay.querySelector('#_qrCloseBtn').addEventListener('click', () => overlay.remove());
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+        overlay.querySelector('#_qrCopyBtn').addEventListener('click', async () => {
+            try { await navigator.clipboard.writeText(deepLink); } catch(e) {}
+            const msg = overlay.querySelector('#_qrCopiedMsg');
+            msg.style.display = 'block';
+            setTimeout(() => { msg.style.display = 'none'; }, 2000);
+        });
+        overlay.querySelector('#_qrShareBtn').addEventListener('click', async () => {
+            if (IS_CAPACITOR && window.Capacitor?.Plugins?.Share) {
+                await window.Capacitor.Plugins.Share.share({
+                    title: 'Persona Zova — ' + p.name,
+                    text: 'Importe la persona «' + p.name + '» dans Zova',
+                    url: deepLink
+                });
+            } else if (navigator.share) {
+                navigator.share({ title: p.name, url: deepLink });
+            } else {
+                try { await navigator.clipboard.writeText(deepLink); } catch(e) {}
+                customAlert('Lien copié dans le presse-papiers.');
+            }
+        });
+    }
+
+    function handleDeepLink(url) {
+        if (!url) return;
+        try {
+            const parsed = new URL(url);
+            if (parsed.protocol === 'zova:' && parsed.pathname === '//import') {
+                const p = parsed.searchParams.get('p');
+                if (!p) return;
+                const json = decodeURIComponent(escape(atob(p)));
+                processPersonaJson(json);
+            }
+        } catch(e) {
+            console.error('[Zova] Deep link parse error', e);
+        }
+    }
+
+    // Écouter les deep links Capacitor (app déjà ouverte ou lancée via URL)
+    if (IS_CAPACITOR && window.Capacitor?.Plugins?.App) {
+        window.Capacitor.Plugins.App.addListener('appUrlOpen', (event) => {
+            handleDeepLink(event.url);
+        });
+        window.Capacitor.Plugins.App.getLaunchUrl().then(result => {
+            if (result && result.url) handleDeepLink(result.url);
+        }).catch(() => {});
     }
 
     // ════════════════════════════════════════════════
