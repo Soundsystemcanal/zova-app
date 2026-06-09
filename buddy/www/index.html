@@ -4236,7 +4236,8 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             userInfo: getUserInfo(),
             stats: getStats(),
             memories: getMemories(),
-            personaMemories: getAllPersonaMemoryMap(), // per-persona memories map
+            personaMemories: getAllPersonaMemoryMap(),   // per-persona memories map
+            personaProfiles: getAllPersonaProfileMap(),  // per-persona profile map
             userProfile: getUserProfile()
         };
     }
@@ -7827,6 +7828,11 @@ Langue : ${lang}`;
             if (data.personaMemories && typeof data.personaMemories === 'object') {
                 Object.entries(data.personaMemories).forEach(([personaId, mems]) => {
                     if (Array.isArray(mems)) localStorage.setItem(PERSONA_MEMORY_PREFIX + personaId, JSON.stringify(mems));
+                });
+            }
+            if (data.personaProfiles && typeof data.personaProfiles === 'object') {
+                Object.entries(data.personaProfiles).forEach(([personaId, profile]) => {
+                    if (profile && typeof profile === 'object') setPersonaProfile(profile, personaId);
                 });
             }
             if (data.userProfile) setUserProfile(data.userProfile);
