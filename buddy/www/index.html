@@ -5776,18 +5776,18 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         `;
         document.body.appendChild(overlay);
         if (window.ZovaQR) {
-            window.ZovaQR.toDataURL(deepLink, {errorCorrectionLevel:'L', margin:2, width:220})
-                .then(url => {
+            window.ZovaQR.toString(deepLink, {errorCorrectionLevel:'L', margin:2, width:220, type:'svg'})
+                .then(svg => {
                     const c = overlay.querySelector('#_qrContainer');
-                    if (c) c.innerHTML = `<img src="${url}" width="220" height="220" style="display:block;border-radius:8px">`;
+                    if (c) c.innerHTML = `<div style="width:220px;height:220px;border-radius:8px;overflow:hidden">${svg}</div>`;
                 })
-                .catch(() => {
+                .catch(err => {
                     const c = overlay.querySelector('#_qrContainer');
-                    if (c) c.innerHTML = '<div style="padding:20px;color:#333;font-size:0.8rem">QR non disponible</div>';
+                    if (c) c.innerHTML = `<div style="padding:20px;color:#333;font-size:0.75rem">Erreur: ${err && err.message ? err.message.slice(0,80) : err}</div>`;
                 });
         } else {
             const c = overlay.querySelector('#_qrContainer');
-            if (c) c.innerHTML = '<div style="padding:20px;color:#333;font-size:0.8rem">QR non disponible</div>';
+            if (c) c.innerHTML = '<div style="padding:20px;color:#333;font-size:0.8rem">ZovaQR non chargé</div>';
         }
         overlay.querySelector('#_qrCloseBtn').addEventListener('click', () => overlay.remove());
         overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
