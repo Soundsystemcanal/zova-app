@@ -4022,18 +4022,22 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     let shouldReconnect = false;
     let reconnectTimer = null;
     let reconnectAttempts = 0;
-    const MAX_RECONNECT = 3;
+    const MAX_RECONNECT_DELAY = 30000; // plafond backoff — 30s max entre tentatives
 
     function scheduleReconnect(startFn) {
-        if (!shouldReconnect || reconnectAttempts >= MAX_RECONNECT) return;
+        if (!shouldReconnect) return;
         reconnectAttempts++;
-        const delay = reconnectAttempts * 2000;
-        setStatus(`Reconnexion dans ${delay/1000}s... (${reconnectAttempts}/${MAX_RECONNECT})`, 'error');
+        // Backoff exponentiel : 2s → 4s → 8s → 16s → 30s → 30s → ...
+        const delay = Math.min(2000 * Math.pow(2, reconnectAttempts - 1), MAX_RECONNECT_DELAY);
+        const msg = reconnectAttempts <= 3
+            ? `Reconnexion dans ${Math.round(delay/1000)}s... (${reconnectAttempts})`
+            : `En attente du réseau... (${reconnectAttempts})`;
+        setStatus(msg, 'error');
         document.getElementById('cancelReconnectBtn').style.display = 'inline-block';
         reconnectTimer = setTimeout(() => {
             if (shouldReconnect) {
                 document.getElementById('cancelReconnectBtn').style.display = 'none';
-                setStatus('Reconnexion...', '');
+                setStatus(t('status_connecting'), '');
                 startFn();
             }
         }, delay);
@@ -5945,6 +5949,7 @@ Règles STRICTES :
         ws = new WebSocket(url, protocols);
 
         ws.onopen = () => {
+            reconnectAttempts = 0;
             isConnected = true;
             setStatus(t('status_connected'), 'connected');
 
@@ -6104,6 +6109,7 @@ Règles STRICTES :
         ws = new WebSocket(url);
 
         ws.onopen = () => {
+            reconnectAttempts = 0;
             setStatus('Configuration Gemini...');
 
             const fullInstructions = buildFullInstructions(persona);
@@ -6246,6 +6252,7 @@ Règles STRICTES :
 
         ws = new WebSocket(joinUrl);
         ws.onopen = () => {
+            reconnectAttempts = 0;
             isConnected = true;
             micReady = true;
             setStatus(t('status_connected'), 'connected');
