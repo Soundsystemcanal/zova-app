@@ -6,3 +6,6 @@ android/local.properties
 .DS_Store
 *.iml
 .idea/
+# Release signing — NE JAMAIS commiter ces fichiers
+zova-release-keystore.jks
+android/app/keystore.properties

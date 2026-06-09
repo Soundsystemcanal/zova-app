@@ -703,6 +703,10 @@
             0%, 100% { box-shadow: 0 0 0 0 rgba(248,113,113,0.5); }
             50%       { box-shadow: 0 0 0 10px rgba(248,113,113,0); }
         }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
 
         @keyframes dotBlink {
             0%, 100% { opacity: 1; }
@@ -2442,15 +2446,23 @@
       <button class="config-screen-btn" id="themeToggleBtn">&#9789; <span id="themeToggleLabel">Mode sombre</span></button>
       <!-- Episodic Memory -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🧠 Mémoire épisodique</div>
-        <div id="memoryCount" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px">Chargement...</div>
-        <button class="config-screen-btn" id="viewMemoryBtn">📖 Voir les souvenirs</button>
-        <button class="config-screen-btn" id="clearMemoryBtn" style="color:var(--danger)">🗑️ Effacer la mémoire</button>
+        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🧠 <span data-i18n="config_section_memory">Mémoire épisodique</span></div>
+        <div id="memoryCount" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px"></div>
+        <button class="config-screen-btn" id="viewMemoryBtn">📖 <span data-i18n="config_view_memory">Voir les souvenirs</span></button>
+        <button class="config-screen-btn" id="clearMemoryBtn" style="color:var(--danger)">🗑️ <span data-i18n="config_clear_memory">Effacer la mémoire</span></button>
+      </div>
+      <!-- User Profile -->
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">👤 <span id="profileSectionTitle" data-i18n="config_section_profile">Profil utilisateur</span></div>
+        <div id="profileCount" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px"></div>
+        <button class="config-screen-btn" id="viewProfileBtn">🪪 <span data-i18n="config_view_profile">Voir le profil</span></button>
+        <button class="config-screen-btn" id="clearProfileBtn" style="color:var(--danger)">🗑️ <span data-i18n="config_clear_profile">Effacer le profil</span></button>
+        <button id="viewGlobalProfileBtn" style="background:none;border:none;color:var(--text-muted);font-size:0.78rem;cursor:pointer;padding:4px 0;text-align:left;width:100%;">↓ <span id="viewGlobalProfileLabel">Voir / effacer le profil général</span></button>
       </div>
 
       <!-- TTS Voice settings -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🎙️ Voix TTS (Groq)</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🎙️ <span data-i18n="config_section_tts">Voix TTS (Groq)</span></div>
         <div style="margin-bottom:10px">
           <div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:6px">Langue de la voix</div>
           <select id="ttsLangSelect" style="width:100%;padding:9px 12px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:0.85rem;font-family:inherit;cursor:pointer">
@@ -2470,13 +2482,13 @@
           <input type="range" id="ttsRateSlider" min="0.5" max="2.0" step="0.1" value="1.0"
             style="width:100%;accent-color:var(--accent)">
         </div>
-        <button class="config-screen-btn" id="ttsTestBtn">▶ Tester la voix</button>
+        <button class="config-screen-btn" id="ttsTestBtn">▶ <span data-i18n="config_test_tts">Tester la voix</span></button>
       </div>
 
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🔒 Sécurité</div>
-        <button class="config-screen-btn" id="setPinBtn">🔢 Activer le code PIN</button>
-        <button class="config-screen-btn" id="removePinBtn" style="display:none">🔓 Supprimer le code PIN</button>
+        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🔒 <span data-i18n="config_section_security">Sécurité</span></div>
+        <button class="config-screen-btn" id="setPinBtn">🔢 <span data-i18n="config_set_pin">Activer le code PIN</span></button>
+        <button class="config-screen-btn" id="removePinBtn" style="display:none">🔓 <span data-i18n="config_remove_pin">Supprimer le code PIN</span></button>
       </div>
     </div>
 
@@ -2486,9 +2498,9 @@
   <div id="liveTabIndicator" style="display:none;position:fixed;top:0;left:0;right:0;z-index:999;background:linear-gradient(90deg,#8b5cf6,#ec4899);padding:8px 16px;align-items:center;justify-content:space-between;gap:10px;">
     <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:#fff;font-weight:600;">
       <span style="width:8px;height:8px;background:#fff;border-radius:50%;animation:livePulse 1s infinite;flex-shrink:0;"></span>
-      Conversación activa
+      <span data-i18n="live_active">Conversation active</span>
     </div>
-    <button onclick="switchTab('home')" style="background:rgba(255,255,255,0.2);border:none;border-radius:6px;color:#fff;font-size:0.78rem;padding:4px 10px;cursor:pointer;font-weight:600;">Volver ›</button>
+    <button onclick="switchTab('home')" style="background:rgba(255,255,255,0.2);border:none;border-radius:6px;color:#fff;font-size:0.78rem;padding:4px 10px;cursor:pointer;font-weight:600;" data-i18n="live_back">Retour ›</button>
   </div>
 
   <!-- Gradient definition for nav icons -->
@@ -2700,7 +2712,7 @@
                 </div>
             </div>
 
-            <button class="btn-save" id="saveApiKeyBtn">Sauvegarder</button>
+            <button class="btn-save" id="saveApiKeyBtn" data-i18n="btn_save">Sauvegarder</button>
         </div>
     </div>
 
@@ -2712,10 +2724,10 @@
             <button class="modal-close" id="closePersonaBtn">&times;</button>
             <h2 id="personaModalTitle">Nouveau persona</h2>
 
-            <label for="pName">Nom</label>
+            <label for="pName" data-i18n="modal_persona_name">Nom</label>
             <input type="text" id="pName" placeholder="Ex: Gérard">
 
-            <label for="pDescription">Description courte</label>
+            <label for="pDescription" data-i18n="modal_persona_desc">Description courte</label>
             <input type="text" id="pDescription" placeholder="Ex: Un assistant amical et bienveillant">
 
             <label>Image</label>
@@ -2744,7 +2756,7 @@
             </div>
             <div class="hint" id="imageHint"></div>
 
-            <label for="pModel">Modèle vocal</label>
+            <label for="pModel" data-i18n="modal_persona_model">Modèle vocal</label>
             <select id="pModel">
                 <option value="">Utiliser le modèle par défaut</option>
                 <optgroup label="OpenAI">
@@ -2787,7 +2799,7 @@
                 <div class="hint">Parlez dans n'importe quelle langue — la traduction sera dans la langue choisie ci-dessus.</div>
             </div>
 
-            <label for="pVoice">Voix</label>
+            <label for="pVoice" data-i18n="modal_persona_voice">Voix</label>
             <select id="pVoice"></select>
 
             <div id="conversationSettingsGroup" style="margin-top:12px">
@@ -2837,8 +2849,8 @@
             </div>
 
             <div class="modal-buttons">
-                <button class="btn-cancel" id="cancelPersonaBtn">Annuler</button>
-                <button class="btn-save" id="savePersonaBtn">Sauvegarder</button>
+                <button class="btn-cancel" id="cancelPersonaBtn" data-i18n="btn_cancel">Annuler</button>
+                <button class="btn-save" id="savePersonaBtn" data-i18n="btn_save">Sauvegarder</button>
             </div>
         </div>
     </div>
@@ -2849,8 +2861,8 @@
     <div class="modal-overlay" id="myInfoModal">
         <div class="modal" style="position:relative">
             <button class="modal-close" id="closeMyInfoBtn">&times;</button>
-            <h2>Mes informations</h2>
-            <div class="hint" style="margin-bottom:12px;text-align:center">Ces infos sont automatiquement transmises à tous vos personas pour personnaliser les échanges.</div>
+            <h2 data-i18n="modal_my_info_title">Mes informations</h2>
+            <div class="hint" style="margin-bottom:12px;text-align:center" data-i18n="modal_my_info_hint">Ces infos sont automatiquement transmises à tous vos personas pour personnaliser les échanges.</div>
             <textarea id="myInfoInput" style="min-height:250px" placeholder="Exemple :
 - Je m'appelle Xavier
 - Je vis à Paris
@@ -2858,7 +2870,7 @@
 - J'ai un chat qui s'appelle Pixel
 - Je préfère qu'on me tutoie
 - Mes sujets favoris : tech, IA, jeux vidéo"></textarea>
-            <button class="btn-save" id="saveMyInfoBtn">Sauvegarder</button>
+            <button class="btn-save" id="saveMyInfoBtn" data-i18n="btn_save">Sauvegarder</button>
         </div>
     </div>
 
@@ -2910,16 +2922,16 @@
             <p style="text-align:center;font-size:0.85rem;color:var(--text-secondary);margin:16px 0">Exportez régulièrement une sauvegarde pour ne rien perdre. Vous pourrez la réimporter à tout moment.</p>
             <div class="backup-actions">
                 <button class="backup-action-btn backup-export" id="backupExportBtn">
-                    <span class="icon" style="font-size:1.3rem">&#8682;</span>
+                    <span class="icon" style="font-size:1.3rem">&#128190;</span>
                     <strong>Exporter</strong>
-                    <span class="backup-action-sub">Télécharger un fichier de sauvegarde</span>
+                    <span class="backup-action-sub">Partager ou enregistrer dans Zova</span>
                 </button>
-                <label class="backup-action-btn backup-import">
+                <button class="backup-action-btn backup-import" id="backupImportBtn">
                     <span class="icon" style="font-size:1.3rem">&#8681;</span>
                     <strong>Importer</strong>
-                    <span class="backup-action-sub">Restaurer depuis un fichier</span>
-                    <input type="file" id="backupImportInput" accept=".json" style="display:none">
-                </label>
+                    <span class="backup-action-sub">Depuis l'appareil ou Drive…</span>
+                </button>
+                <input type="file" id="backupImportInput" accept=".json" style="display:none">
             </div>
         </div>
     </div>
@@ -3015,6 +3027,9 @@
             btn_start: 'Iniciar conversación',
             btn_start_transcribe: 'Iniciar transcripción',
             btn_stop: 'Terminar',
+            btn_save: 'Guardar',
+            btn_cancel: 'Cancelar',
+            btn_confirm: 'Confirmar',
             status_ready: 'Listo',
             status_connecting: 'Conectando...',
             status_connected: '¡Conectado — habla!',
@@ -3043,6 +3058,54 @@
             transcriptor_desc: 'Transcripción de voz',
             new_persona_card: 'Nuevo persona',
             import_persona_card: 'Importar',
+            // Config sections
+            config_section_memory: 'Memoria episódica',
+            config_section_profile: 'Perfil de usuario',
+            config_section_tts: 'Voz TTS (Groq)',
+            config_section_security: 'Seguridad',
+            config_view_memory: 'Ver recuerdos',
+            config_clear_memory: 'Borrar memoria',
+            config_view_profile: 'Ver perfil',
+            config_clear_profile: 'Borrar perfil',
+            config_test_tts: 'Probar voz',
+            config_set_pin: 'Activar código PIN',
+            config_remove_pin: 'Eliminar código PIN',
+            theme_dark: 'Modo oscuro',
+            theme_light: 'Modo claro',
+            // Memory / profile counts
+            memory_none: 'Sin recuerdos guardados',
+            memory_one: '1 recuerdo guardado',
+            memory_many: '{n} recuerdos guardados',
+            profile_none: 'Sin perfil aún — se construye tras cada conversación',
+            profile_has: '{f} hecho(s) · {t} tema(s)',
+            // Modals
+            modal_my_info_title: 'Mis informaciones',
+            modal_my_info_hint: 'Esta información se transmite automáticamente a todos tus personas para personalizar los intercambios.',
+            modal_persona_name: 'Nombre',
+            modal_persona_desc: 'Descripción corta',
+            modal_persona_model: 'Modelo de voz',
+            modal_persona_voice: 'Voz',
+            // Live indicator
+            live_active: 'Conversación activa',
+            live_back: 'Volver ›',
+            // PIN
+            pin_enter: 'Ingresa tu código',
+            pin_choose: 'Elige un código PIN',
+            pin_confirm_msg: 'Confirma tu código PIN',
+            pin_wrong: 'Código incorrecto',
+            pin_mismatch: 'Los códigos no coinciden',
+            pin_activated: 'Código PIN activado ✅',
+            pin_removed: 'Código PIN eliminado',
+            pin_security: 'Seguridad',
+            // Nav confirm
+            nav_leave_msg: '¿Terminar la conversación para navegar?',
+            nav_leave_title: '📞 Conversación activa',
+            nav_leave_btn: 'Terminar y salir',
+            // First run
+            first_run_title: '👋 Bienvenido a Zova',
+            first_run_msg: '¿Tienes una copia de seguridad de una instalación anterior?',
+            first_run_restore: '📁 Restaurar backup',
+            first_run_setup: '🔑 Configurar claves API',
         },
         en: {
             nav_home: 'Home', nav_personas: 'Personas', nav_stats: 'Stats', nav_config: 'Config',
@@ -3052,6 +3115,9 @@
             btn_start: 'Start conversation',
             btn_start_transcribe: 'Start transcription',
             btn_stop: 'End',
+            btn_save: 'Save',
+            btn_cancel: 'Cancel',
+            btn_confirm: 'Confirm',
             status_ready: 'Ready',
             status_connecting: 'Connecting...',
             status_connected: 'Connected — speak!',
@@ -3080,6 +3146,54 @@
             transcriptor_desc: 'Voice transcription',
             new_persona_card: 'New persona',
             import_persona_card: 'Import',
+            // Config sections
+            config_section_memory: 'Episodic memory',
+            config_section_profile: 'User profile',
+            config_section_tts: 'TTS Voice (Groq)',
+            config_section_security: 'Security',
+            config_view_memory: 'View memories',
+            config_clear_memory: 'Clear memory',
+            config_view_profile: 'View profile',
+            config_clear_profile: 'Clear profile',
+            config_test_tts: 'Test voice',
+            config_set_pin: 'Activate PIN code',
+            config_remove_pin: 'Remove PIN code',
+            theme_dark: 'Dark mode',
+            theme_light: 'Light mode',
+            // Memory / profile counts
+            memory_none: 'No memories saved',
+            memory_one: '1 memory saved',
+            memory_many: '{n} memories saved',
+            profile_none: 'No profile yet — builds after each conversation',
+            profile_has: '{f} fact(s) · {t} topic(s)',
+            // Modals
+            modal_my_info_title: 'My information',
+            modal_my_info_hint: 'This information is automatically shared with all your personas to personalise conversations.',
+            modal_persona_name: 'Name',
+            modal_persona_desc: 'Short description',
+            modal_persona_model: 'Voice model',
+            modal_persona_voice: 'Voice',
+            // Live indicator
+            live_active: 'Active conversation',
+            live_back: 'Back ›',
+            // PIN
+            pin_enter: 'Enter your code',
+            pin_choose: 'Choose a PIN code',
+            pin_confirm_msg: 'Confirm your PIN code',
+            pin_wrong: 'Incorrect code',
+            pin_mismatch: 'Codes do not match',
+            pin_activated: 'PIN code activated ✅',
+            pin_removed: 'PIN code removed',
+            pin_security: 'Security',
+            // Nav confirm
+            nav_leave_msg: 'End conversation to navigate?',
+            nav_leave_title: '📞 Active conversation',
+            nav_leave_btn: 'End and leave',
+            // First run
+            first_run_title: '👋 Welcome to Zova',
+            first_run_msg: 'Do you have a backup from a previous installation?',
+            first_run_restore: '📁 Restore backup',
+            first_run_setup: '🔑 Set up API keys',
         },
         fr: {
             nav_home: 'Accueil', nav_personas: 'Personas', nav_stats: 'Stats', nav_config: 'Config',
@@ -3089,6 +3203,9 @@
             btn_start: 'Démarrer la conversation',
             btn_start_transcribe: 'Démarrer la transcription',
             btn_stop: 'Terminer',
+            btn_save: 'Sauvegarder',
+            btn_cancel: 'Annuler',
+            btn_confirm: 'Confirmer',
             status_ready: 'Prêt',
             status_connecting: 'Connexion...',
             status_connected: 'Connecté — parlez !',
@@ -3117,6 +3234,54 @@
             transcriptor_desc: 'Transcription vocale',
             new_persona_card: 'Nouveau persona',
             import_persona_card: 'Importer',
+            // Config sections
+            config_section_memory: 'Mémoire épisodique',
+            config_section_profile: 'Profil utilisateur',
+            config_section_tts: 'Voix TTS (Groq)',
+            config_section_security: 'Sécurité',
+            config_view_memory: 'Voir les souvenirs',
+            config_clear_memory: 'Effacer la mémoire',
+            config_view_profile: 'Voir le profil',
+            config_clear_profile: 'Effacer le profil',
+            config_test_tts: 'Tester la voix',
+            config_set_pin: 'Activer le code PIN',
+            config_remove_pin: 'Supprimer le code PIN',
+            theme_dark: 'Mode sombre',
+            theme_light: 'Mode clair',
+            // Memory / profile counts
+            memory_none: 'Aucun souvenir enregistré',
+            memory_one: '1 souvenir enregistré',
+            memory_many: '{n} souvenirs enregistrés',
+            profile_none: 'Aucun profil encore — se construit après chaque conversation',
+            profile_has: '{f} fait(s) · {t} sujet(s)',
+            // Modals
+            modal_my_info_title: 'Mes informations',
+            modal_my_info_hint: 'Ces infos sont automatiquement transmises à tous vos personas pour personnaliser les échanges.',
+            modal_persona_name: 'Nom',
+            modal_persona_desc: 'Description courte',
+            modal_persona_model: 'Modèle vocal',
+            modal_persona_voice: 'Voix',
+            // Live indicator
+            live_active: 'Conversation active',
+            live_back: 'Retour ›',
+            // PIN
+            pin_enter: 'Entrez votre code',
+            pin_choose: 'Choisissez un code PIN',
+            pin_confirm_msg: 'Confirmez le code PIN',
+            pin_wrong: 'Code incorrect',
+            pin_mismatch: 'Les codes ne correspondent pas',
+            pin_activated: 'Code PIN activé ✅',
+            pin_removed: 'Code PIN supprimé',
+            pin_security: 'Sécurité',
+            // Nav confirm
+            nav_leave_msg: 'Terminer la conversation pour naviguer ?',
+            nav_leave_title: '📞 Conversation active',
+            nav_leave_btn: 'Terminer et quitter',
+            // First run
+            first_run_title: '👋 Bienvenue sur Zova',
+            first_run_msg: 'Tu as une sauvegarde d\'une installation précédente ?',
+            first_run_restore: '📁 Restaurer un backup',
+            first_run_setup: '🔑 Configurer les clés API',
         }
     };
 
@@ -3252,10 +3417,13 @@
         // Update start button text
         const startBtn = document.getElementById('startBtn');
         if (startBtn) {
-            // isTranscripteurMode will be defined later in the script
             startBtn.textContent = (typeof isTranscripteurMode !== 'undefined' && isTranscripteurMode)
                 ? t('btn_start_transcribe') : t('btn_start');
         }
+        // Refresh dynamic content that doesn't use data-i18n
+        applyTheme(getTheme());
+        if (typeof updateMemoryCount === 'function') updateMemoryCount();
+        if (typeof updateProfileCount === 'function') updateProfileCount();
     }
 
     // ════════════════════════════════════════════════
@@ -3268,8 +3436,8 @@
         // Block navigation away from Home during active conversation
         if (currentTab === 'home' && tab !== 'home' && isConnected) {
             const leave = await customConfirm(
-                '¿Terminar la conversación para navegar?',
-                { title: '📞 Conversación activa', confirmLabel: 'Terminar y salir', danger: true }
+                t('nav_leave_msg'),
+                { title: t('nav_leave_title'), confirmLabel: t('nav_leave_btn'), danger: true }
             );
             if (!leave) return; // user cancelled — stay on Home
             stopConversation(true);
@@ -3323,12 +3491,23 @@
                 renderScreenStats(btn.dataset.statsTab);
             });
         }
-        // Persona Zova par défaut — injectée uniquement si aucune persona n'existe
+        // Persona Zova par défaut — injectée si aucune persona, mise à jour si ancienne version
         (function injectDefaultPersona() {
             const raw = localStorage.getItem('buddy_personas');
             if (!raw || raw === '[]' || raw === 'null') {
                 localStorage.setItem('buddy_personas', JSON.stringify([DEFAULT_PERSONA_ZOVA]));
+                return;
             }
+            // Migration : mettre à jour Zova si c'est encore l'ancienne version (hôtesse d'onboarding)
+            try {
+                const personas = JSON.parse(raw);
+                const idx = personas.findIndex(p => p.id === 'zova-default-v1');
+                if (idx !== -1 && personas[idx].prompt && personas[idx].prompt.includes('hôtesse')) {
+                    personas[idx] = { ...personas[idx], ...DEFAULT_PERSONA_ZOVA };
+                    localStorage.setItem('buddy_personas', JSON.stringify(personas));
+                    console.log('[Zova] Persona mise à jour vers Profile Builder v2');
+                }
+            } catch(e) {}
         })();
 
         // FAQ modal
@@ -3393,7 +3572,7 @@
                     persona: {name:p.name,description:p.description,image:p.image,model:p.model,
                     voice:p.voice,reactivity:p.reactivity,creativity:p.creativity,greeting:p.greeting,
                     translateLang:p.translateLang,prompt:p.prompt}};
-                downloadFile(JSON.stringify(exp,null,2), `zova-persona-${p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}.json`, 'application/json');
+                exportJsonFile(JSON.stringify(exp,null,2), `zova-persona-${p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}.json`);
             });
             menu.querySelector('[data-action="delete"]').addEventListener('click', async (e) => {
                 e.stopPropagation(); menu.classList.remove('open');
@@ -3421,15 +3600,11 @@
         grid.appendChild(newCard);
 
         // Import card
-        const importCard = document.createElement('label');
+        const importCard = document.createElement('div');
         importCard.className = 'welcome-card welcome-card-new';
         importCard.style.cursor = 'pointer';
-        importCard.innerHTML = `<div class="welcome-card-new-icon"><span class="icon">&#128194;</span></div><div class="welcome-card-name">Importar</div><input type="file" accept=".json" style="display:none" class="welcome-import-input">`;
-        importCard.querySelector('.welcome-import-input').addEventListener('change', (e) => {
-            document.getElementById('importPersonaInput').files = e.target.files;
-            document.getElementById('importPersonaInput').dispatchEvent(new Event('change'));
-            e.target.value = '';
-        });
+        importCard.innerHTML = `<div class="welcome-card-new-icon"><span class="icon">&#128194;</span></div><div class="welcome-card-name">Importer</div>`;
+        importCard.addEventListener('click', () => showImportSheet('importPersonaInput', 'Importer un persona'));
         grid.appendChild(importCard);
     }
 
@@ -3462,17 +3637,17 @@
             box.className = 'dialog-box';
             const iconEl = document.createElement('div');
             iconEl.className = 'dialog-icon';
-            iconEl.textContent = icon;
+            iconEl.innerHTML = icon;
             box.appendChild(iconEl);
             if (title) {
                 const titleEl = document.createElement('div');
                 titleEl.className = 'dialog-title';
-                titleEl.textContent = title;
+                titleEl.innerHTML = title;
                 box.appendChild(titleEl);
             }
             const msgEl = document.createElement('div');
             msgEl.className = 'dialog-message';
-            msgEl.textContent = message;
+            msgEl.innerHTML = message;
             box.appendChild(msgEl);
             const btnsEl = document.createElement('div');
             btnsEl.className = 'dialog-buttons';
@@ -3491,7 +3666,9 @@
         });
     }
 
-    function customConfirm(message, { title = '', icon = '&#9888;', confirmLabel = 'Confirmer', cancelLabel = 'Annuler', danger = false } = {}) {
+    function customConfirm(message, { title = '', icon = '&#9888;', confirmLabel = null, cancelLabel = null, danger = false } = {}) {
+        confirmLabel = confirmLabel ?? t('btn_confirm');
+        cancelLabel  = cancelLabel  ?? t('btn_cancel');
         return new Promise(resolve => {
             const overlay = document.createElement('div');
             overlay.className = 'dialog-overlay';
@@ -3521,38 +3698,38 @@
     const DEFAULT_PERSONA_ZOVA = {
         id: 'zova-default-v1',
         name: 'Zova',
-        description: 'Ton guide de bienvenue — elle t\'aide à configurer l\'app de A à Z',
+        description: 'Ton assistante personnelle — apprend à te connaître au fil des conversations',
         voice: 'shimmer',
         model: '',
         translateLang: '',
-        prompt: `# Système et Rôle Principal
-Tu es Zova, l'assistante virtuelle de bienvenue de l'application Zova — un outil d'assistance vocale IA avancé pour Android. Ta seule mission est de guider, motiver et présenter l'application de manière enthousiaste aux utilisateurs qui l'ouvrent pour la première fois. Tu agis comme une hôtesse énergique, joyeuse et pleinement convaincue du potentiel de l'outil, en résolvant les doutes initiaux à partir des informations officielles de configuration.
+        prompt: `# Rôle
+Tu es Zova, l'assistante personnelle dédiée à apprendre à connaître l'utilisateur. Tu combines deux rôles : une assistante utile au quotidien ET une confidente curieuse qui enrichit ton profil à travers des conversations naturelles.
 
-# Protocole d'Ouverture de Conversation
-Lorsque l'utilisateur commence une conversation, tu dois l'initier toi-même de façon chaleureuse. Utilise exactement cette approche dans tes deux premières phrases :
-"Bienvenue chez Zova, ton nouvel outil pour t'accompagner le long de ta vie de tous les jours ! Veux-tu que je t'explique les fonctionnalités de l'application pour t'aider à bien la prendre en main ?"
+# Mission principale
+Ton profil de l'utilisateur est injecté dans ton contexte (section "Profil de l'utilisateur"). Lis-le attentivement au début de chaque conversation. Tu sais ce que tu connais déjà — concentre-toi sur ce qui manque.
 
-# Personnalité et Ton Verbal
-- Ton : Jovial, optimiste, chaleureux et très accueillant. Tu transmets l'enthousiasme.
-- Style : Conversationnel, frais, dynamique et très accessible.
-- Énergie : Haute et motivante, sans jamais être stridente.
+# Ouverture de conversation
+Commence toujours par une salutation chaleureuse + UNE seule question ciblée sur une info manquante dans le profil. Si le profil est vide : pose une question d'identité basique (prénom, langue, ce qui t'amène). Si tu connais déjà l'essentiel : montre que tu retiens ("la dernière fois tu me parlais de... comment ça avance ?").
 
-# Directives de Langage
-Tu parles en français courant, avec un langage moderne et proche. Intègre naturellement des expressions légèrement informelles ("c'est parti", "tu vas voir", "des trucs de dingue").
+# Progression des questions (par priorité croissante)
+1. Identité : prénom, langue préférée
+2. Contexte de vie : ce que tu fais, où tu en es en ce moment
+3. Style de communication : niveau de détail voulu, registre (formel/informel)
+4. Objectifs : pourquoi utiliser Zova, buts à court et long terme
+5. Centres d'intérêt : hobbies, sujets récurrents, passions
+6. Approfondissement : évolution des projets déjà connus, nouvelles nuances
 
-# Base de Connaissances
-Utilise exclusivement ces données pour répondre :
-1. PREMIER USAGE : La première chose à faire est de configurer la clé API dans Configuration → Clé API. Les clés sont sauvegardées de façon 100 % sécurisée dans l'Android Keystore.
-2. AVANTAGES : Zova fonctionne en local sur le téléphone sans serveurs intermédiaires — confidentialité maximale et personnalisation totale.
-3. FOURNISSEURS : 4 providers au choix — OpenAI Realtime (qualité maximale), Gemini Live (excellent et abordable), Ultravox (économique), Groq (coût minimal).
-4. BUDGET : Fonction de plafond mensuel dans Configuration → Budget pour maîtriser les dépenses.
-5. PERSONAS : Après la config API, tu peux créer des assistants virtuels sur mesure avec leur propre personnalité.
+# Règles d'interaction
+- MAXIMUM 1 à 2 questions par conversation — jamais une liste de questions
+- Si l'utilisateur pose une vraie question ou veut discuter d'autre chose : réponds-lui PLEINEMENT d'abord, puis reviens naturellement au profil-building
+- Ne mentionne jamais explicitement "ton profil" ou "je collecte tes données" — sois naturelle
+- Réutilise ce que tu sais : "tu m'avais dit que tu travaillais sur X..."
+- Sois curieuse, chaleureuse et attentionnée, jamais intrusive
 
-# Restrictions Audio (TTS)
-- Limite stricte de 2 à 3 phrases par réponse.
-- Aucun markdown, aucune liste, aucun tiret, aucun symbole dans les réponses — texte pur uniquement.
-- Ne répète pas les questions. Réponds directement.
-- Termine chaque réponse par une invitation à poser la prochaine question.`
+# Format de réponse (voix)
+- Maximum 2 à 3 phrases par réponse
+- Texte pur uniquement — pas de listes, pas de tirets, pas de markdown
+- Phrases courtes et naturelles, comme dans une vraie conversation`
     };
 
     const DEFAULT_PROMPT = (name) => `# Identité
@@ -3883,6 +4060,8 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     let totalOutputTokens = 0;
 
     let currentTranscriptAi = null; // élément en cours de streaming
+    let lastGeminiAiMsg = null;     // référence Gemini après turnComplete (late transcription packets)
+    let hadAiTranscriptThisTurn = false; // flag pour récupération fallback OpenAI
     let activeProvider = 'openai'; // 'openai' ou 'gemini' pour la session en cours
 
     let activeModelId = '';        // modèle effectif de la session en cours
@@ -3921,9 +4100,9 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         const screen = document.getElementById('pinScreen');
         const title = document.getElementById('pinTitle');
         screen.classList.add('active');
-        if (mode === 'unlock') title.textContent = 'Entrez votre code';
-        else if (mode === 'set') title.textContent = 'Choisissez un code PIN';
-        else if (mode === 'confirm') title.textContent = 'Confirmez le code PIN';
+        if (mode === 'unlock') title.textContent = t('pin_enter');
+        else if (mode === 'set') title.textContent = t('pin_choose');
+        else if (mode === 'confirm') title.textContent = t('pin_confirm_msg');
         updatePinDots();
         document.getElementById('pinError').textContent = '';
     }
@@ -3960,7 +4139,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             if (pinBuffer === savedPin) {
                 hidePinScreen();
             } else {
-                document.getElementById('pinError').textContent = 'Code incorrect';
+                document.getElementById('pinError').textContent = t('pin_wrong');
                 pinBuffer = '';
                 updatePinDots();
             }
@@ -3968,20 +4147,20 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             pinTemp = pinBuffer;
             pinBuffer = '';
             pinMode = 'confirm';
-            document.getElementById('pinTitle').textContent = 'Confirmez le code PIN';
+            document.getElementById('pinTitle').textContent = t('pin_confirm_msg');
             document.getElementById('pinError').textContent = '';
             updatePinDots();
         } else if (pinMode === 'confirm') {
             if (pinBuffer === pinTemp) {
                 await SecureStore.set(PIN_KEY, pinBuffer);
                 hidePinScreen();
-                customAlert('Code PIN activé ✅', { title: 'Sécurité', icon: '🔒' });
+                customAlert(t('pin_activated'), { title: t('pin_security'), icon: '🔒' });
             } else {
-                document.getElementById('pinError').textContent = 'Les codes ne correspondent pas';
+                document.getElementById('pinError').textContent = t('pin_mismatch');
                 pinBuffer = '';
                 pinTemp = '';
                 pinMode = 'set';
-                document.getElementById('pinTitle').textContent = 'Choisissez un code PIN';
+                document.getElementById('pinTitle').textContent = t('pin_choose');
                 updatePinDots();
             }
         }
@@ -3995,13 +4174,13 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             await navigator.credentials.get({ publicKey: undefined, mediation: 'optional' });
             hidePinScreen();
         } catch(e) {
-            document.getElementById('pinError').textContent = 'Biométrie non disponible';
+            document.getElementById('pinError').textContent = t('pin_wrong');
         }
     }
 
     async function removePin() {
         await SecureStore.remove(PIN_KEY);
-        customAlert('Code PIN supprimé', { title: 'Sécurité', icon: '🔓' });
+        customAlert(t('pin_removed'), { title: t('pin_security'), icon: '🔓' });
     }
 
     // PIN keyboard events
@@ -4012,15 +4191,16 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
 
     // ════════════════════════════════════════════════
 
-    function applyTheme(t) {
-        document.documentElement.setAttribute('data-theme', t);
-        setThemeStorage(t);
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        setThemeStorage(theme);
         const btn = document.getElementById('themeToggleBtn');
-        const label = document.getElementById('themeToggleLabel');
-        if (t === 'dark') {
-            btn.innerHTML = '&#9788; <span id="themeToggleLabel">Mode clair</span>';
-        } else {
-            btn.innerHTML = '&#9789; <span id="themeToggleLabel">Mode sombre</span>';
+        if (btn) {
+            if (theme === 'dark') {
+                btn.innerHTML = `&#9788; <span id="themeToggleLabel">${t('theme_light')}</span>`;
+            } else {
+                btn.innerHTML = `&#9789; <span id="themeToggleLabel">${t('theme_dark')}</span>`;
+            }
         }
     }
 
@@ -4045,26 +4225,51 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         backupModal.classList.remove('active');
     });
 
-    document.getElementById('backupExportBtn').addEventListener('click', async () => {
-        const data = {
-            version: 1,
+    // Helpers communs pour la génération du backup
+    function buildBackupData() {
+        return {
+            version: 2,
             exportDate: new Date().toISOString(),
             theme: getTheme(),
             personas: getPersonas(),
             activePersonaId: getActiveId(),
             userInfo: getUserInfo(),
-            stats: getStats()
+            stats: getStats(),
+            memories: getMemories(),
+            personaMemories: getAllPersonaMemoryMap(),   // per-persona memories map
+            personaProfiles: getAllPersonaProfileMap(),  // per-persona profile map
+            userProfile: getUserProfile()
         };
-        const content = JSON.stringify(data, null, 2);
-        const filename = `zova-backup-${new Date().toISOString().slice(0,10)}.json`;
+    }
+    function buildBackupFilename() {
+        return `zova-backup-${new Date().toISOString().slice(0,10)}.json`;
+    }
 
-        // Android: always use modal (clipboard truncates large JSON with images)
-        if (IS_CAPACITOR) {
-            showExportModal(content, filename);
-            return;
+    // Bouton "Exporter" — demande si inclure les clés API, puis action sheet
+    document.getElementById('backupExportBtn').addEventListener('click', async () => {
+        const includeKeys = await customConfirm(
+            '&#128274; Les cl&#233;s API seront incluses dans le fichier.<br><small style="opacity:0.75">&#9888; Ne partagez ce fichier qu\'avec vous-m&#234;me.</small>',
+            { title: 'Inclure les cl&#233;s API&#160;?', icon: '&#128274;', confirmLabel: 'Oui, inclure', cancelLabel: 'Non merci' }
+        );
+        const data = buildBackupData();
+        if (includeKeys) {
+            const [openai, gemini, ultravox, groq] = await Promise.all([
+                getApiKey(), getGeminiApiKey(), getUltravoxApiKey(), getGroqApiKey()
+            ]);
+            data.apiKeys = {
+                openai: openai || '',
+                gemini: gemini || '',
+                ultravox: ultravox || '',
+                groq: groq || ''
+            };
         }
+        const content = JSON.stringify(data, null, 2);
+        const filename = buildBackupFilename();
+        exportJsonFile(content, filename);
+    });
 
-        downloadFile(content, filename, 'application/json');
+    document.getElementById('backupImportBtn').addEventListener('click', () => {
+        showImportSheet('backupImportInput', 'Importer une sauvegarde');
     });
 
     document.getElementById('backupImportInput').addEventListener('change', (e) => {
@@ -4073,30 +4278,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         const reader = new FileReader();
         reader.onload = async (ev) => {
             try {
-                const data = JSON.parse(ev.target.result);
-                if (!data.version || !data.personas) {
-                    customAlert('Fichier de sauvegarde invalide.', { title: 'Erreur', icon: '&#10060;' });
-                    return;
-                }
-                if (!await customConfirm('Cela remplacera toutes vos données actuelles (personas, infos, stats). Votre clé API ne sera pas affectée.', { title: 'Restaurer une sauvegarde ?', icon: '&#128194;', confirmLabel: 'Restaurer', danger: true })) return;
-
-                if (data.theme) { setThemeStorage(data.theme); applyTheme(data.theme); }
-                if (data.personas) savePersonas(data.personas);
-                if (data.activePersonaId) setActiveId(data.activePersonaId);
-                if (data.userInfo !== undefined) setUserInfo(data.userInfo);
-                if (data.stats) localStorage.setItem('buddy_stats', JSON.stringify(data.stats));
-
-                renderPersonaList();
-                renderPersonasGrid();
-                const activeId = getActiveId();
-                if (activeId && getPersonas().find(p => p.id === activeId)) {
-                    selectPersona(activeId);
-                } else {
-                    showEmptyState();
-                }
-
-                backupModal.classList.remove('active');
-                customAlert('Vos données ont été restaurées avec succès.', { title: 'Import réussi', icon: '&#10004;' });
+                await processBackupJson(ev.target.result);
             } catch (err) {
                 customAlert('Erreur lors de l\'import : ' + err.message, { title: 'Erreur', icon: '&#10060;' });
             }
@@ -4715,9 +4897,8 @@ Règles IMPÉRATIVES :
             }
         };
 
-        // Sur Android WebView, a.download ne fonctionne pas → modal copiable
         const filename = `zova-persona-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`;
-        showExportModal(JSON.stringify(personaExport, null, 2), filename);
+        exportJsonFile(JSON.stringify(personaExport, null, 2), filename);
     });
 
     // Import persona
@@ -5075,7 +5256,7 @@ Règles IMPÉRATIVES :
                     exportDate: new Date().toISOString(),
                     persona: { name: p.name, description: p.description, image: p.image, model: p.model, voice: p.voice, reactivity: p.reactivity, creativity: p.creativity, greeting: p.greeting, translateLang: p.translateLang, prompt: p.prompt }
                 };
-                downloadFile(JSON.stringify(personaExport, null, 2), `zova-persona-${p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`, 'application/json');
+                exportJsonFile(JSON.stringify(personaExport, null, 2), `zova-persona-${p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`);
             });
 
             menu.querySelector('[data-action="delete"]').addEventListener('click', async (e) => {
@@ -5100,19 +5281,14 @@ Règles IMPÉRATIVES :
         });
 
         // Carte "Importer"
-        const importCard = document.createElement('label');
+        const importCard = document.createElement('div');
         importCard.className = 'welcome-card welcome-card-new';
         importCard.style.cursor = 'pointer';
         importCard.innerHTML = `
             <div class="welcome-card-new-icon"><span class="icon">&#128194;</span></div>
             <div class="welcome-card-name">Importer</div>
-            <input type="file" accept=".json" style="display:none" class="welcome-import-input">
         `;
-        importCard.querySelector('.welcome-import-input').addEventListener('change', (e) => {
-            document.getElementById('importPersonaInput').files = e.target.files;
-            document.getElementById('importPersonaInput').dispatchEvent(new Event('change'));
-            e.target.value = '';
-        });
+        importCard.addEventListener('click', () => showImportSheet('importPersonaInput', 'Importer un persona'));
         grid.appendChild(importCard);
 
         // Carte "+ Nouveau"
@@ -5367,9 +5543,11 @@ Règles IMPÉRATIVES :
     // ════════════════════════════════════════════════
 
     const MEMORY_KEY = 'buddy_memories';
-    const MAX_MEMORIES = 10;       // max stored
+    const MAX_MEMORIES = 10;       // max stored (global fallback)
     const MEMORIES_IN_PROMPT = 4;  // injected per conversation
     const MIN_MSGS_FOR_MEMORY = 3; // min exchanges to generate memory
+    const PERSONA_MEMORY_PREFIX = 'buddy_pmem_'; // per-persona memory key prefix
+    const MAX_PERSONA_MEMORIES = 5; // max stored per persona
 
     function getMemories() {
         try { return JSON.parse(localStorage.getItem(MEMORY_KEY)) || []; }
@@ -5381,6 +5559,39 @@ Règles IMPÉRATIVES :
         mems.unshift(entry); // newest first
         if (mems.length > MAX_MEMORIES) mems.splice(MAX_MEMORIES);
         localStorage.setItem(MEMORY_KEY, JSON.stringify(mems));
+    }
+
+    // Per-persona memory functions
+    function getPersonaMemories(personaId) {
+        if (!personaId) return [];
+        try { return JSON.parse(localStorage.getItem(PERSONA_MEMORY_PREFIX + personaId)) || []; }
+        catch { return []; }
+    }
+
+    function savePersonaMemory(entry, personaId) {
+        if (!personaId) return;
+        const mems = getPersonaMemories(personaId);
+        mems.unshift(entry); // newest first
+        if (mems.length > MAX_PERSONA_MEMORIES) mems.splice(MAX_PERSONA_MEMORIES);
+        localStorage.setItem(PERSONA_MEMORY_PREFIX + personaId, JSON.stringify(mems));
+    }
+
+    function clearPersonaMemories(personaId) {
+        if (!personaId) return;
+        localStorage.removeItem(PERSONA_MEMORY_PREFIX + personaId);
+    }
+
+    // Returns all persona memory keys currently in localStorage
+    function getAllPersonaMemoryMap() {
+        const map = {};
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(PERSONA_MEMORY_PREFIX)) {
+                const personaId = key.slice(PERSONA_MEMORY_PREFIX.length);
+                try { map[personaId] = JSON.parse(localStorage.getItem(key)) || []; } catch { /* skip */ }
+            }
+        }
+        return map;
     }
 
     async function generateMemory(persona, transcriptText) {
@@ -5433,7 +5644,10 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
             }
 
             if (summary.length > 10) {
-                saveMemory({ date, personaId: persona?.id || '', personaName, summary });
+                const entry = { date, personaId: persona?.id || '', personaName, summary };
+                saveMemory(entry);                          // global (backward compat)
+                if (persona?.id) savePersonaMemory(entry, persona.id); // per-persona
+                updateMemoryCount();
                 console.log('[Zova Memory] Saved:', summary.slice(0, 60) + '...');
             }
         } catch(e) {
@@ -5442,16 +5656,208 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
     }
 
     // ════════════════════════════════════════════════
+    //  PROFIL UTILISATEUR ÉVOLUTIF
+    // ════════════════════════════════════════════════
+
+    // ════════════════════════════════════════════════
+    //  PROFIL PAR PERSONA
+    // ════════════════════════════════════════════════
+
+    const PERSONA_PROFILE_PREFIX = 'buddy_pprofile_';
+
+    function getPersonaProfile(personaId) {
+        if (!personaId) return null;
+        try { return JSON.parse(localStorage.getItem(PERSONA_PROFILE_PREFIX + personaId)) || null; }
+        catch { return null; }
+    }
+
+    function setPersonaProfile(profile, personaId) {
+        if (!personaId || !profile) return;
+        localStorage.setItem(PERSONA_PROFILE_PREFIX + personaId, JSON.stringify(profile));
+    }
+
+    function clearPersonaProfile(personaId) {
+        if (!personaId) return;
+        localStorage.removeItem(PERSONA_PROFILE_PREFIX + personaId);
+    }
+
+    function getAllPersonaProfileMap() {
+        const map = {};
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(PERSONA_PROFILE_PREFIX)) {
+                const personaId = key.slice(PERSONA_PROFILE_PREFIX.length);
+                try { map[personaId] = JSON.parse(localStorage.getItem(key)) || {}; } catch { /* skip */ }
+            }
+        }
+        return map;
+    }
+
+    function personaProfileHasContent(p) {
+        if (!p) return false;
+        return !!(p.summary || p.facts?.length || p.goals?.length || p.preferences);
+    }
+
+    const PROFILE_KEY = 'buddy_userProfile';
+
+    function getUserProfile() {
+        try { return JSON.parse(localStorage.getItem(PROFILE_KEY)) || null; }
+        catch { return null; }
+    }
+    function setUserProfile(profile) {
+        localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+    }
+
+    function profileHasContent(p) {
+        if (!p) return false;
+        return (p.name || (p.facts && p.facts.length) || (p.topics && p.topics.length) || p.style);
+    }
+
+    async function updateUserProfile(transcriptText) {
+        if (!transcriptText.trim()) return;
+        const lineCount = transcriptText.split('\n').filter(l => l.trim()).length;
+        if (lineCount < MIN_MSGS_FOR_MEMORY) return;
+
+        const current = getUserProfile() || {};
+        const today = new Date().toISOString().slice(0, 10);
+        const profileJson = JSON.stringify(current, null, 2);
+
+        const systemPrompt = `Tu es un assistant qui maintient un profil utilisateur concis en JSON.
+
+Profil actuel :
+${profileJson}
+
+Règles STRICTES :
+- Mets à jour uniquement avec des infos clairement établies dans la conversation
+- max 5 éléments dans "facts", max 4 dans "topics", "style" = 1 phrase courte
+- Conserve les infos existantes pertinentes, remplace les obsolètes
+- Met "lastUpdated": "${today}"
+- Réponds UNIQUEMENT avec le JSON, sans markdown ni commentaire
+- Champs : name, languages[], topics[], style, facts[], goals[], lastUpdated`;
+
+        try {
+            let updated = null;
+            const groqKey = await getGroqApiKey();
+            if (groqKey) {
+                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: getModelMemory(),
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: transcriptText.slice(0, 3000) }
+                        ],
+                        max_tokens: 400,
+                        temperature: 0.2
+                    })
+                });
+                if (resp.ok) {
+                    const d = await resp.json();
+                    const raw = (d.choices?.[0]?.message?.content || '').trim();
+                    const m = raw.match(/\{[\s\S]*\}/);
+                    if (m) updated = JSON.parse(m[0]);
+                }
+            }
+            if (!updated) {
+                const raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 3000), temperature: 0.2, maxTokens: 400 });
+                const m = raw.match(/\{[\s\S]*\}/);
+                if (m) updated = JSON.parse(m[0]);
+            }
+            if (updated && typeof updated === 'object') {
+                setUserProfile(updated);
+                updateProfileCount();
+                console.log('[Zova Profile] Updated:', JSON.stringify(updated).slice(0, 80));
+            }
+        } catch(e) {
+            console.warn('[Zova Profile] Failed:', e.message);
+        }
+    }
+
+    async function updatePersonaProfile(persona, transcriptText) {
+        if (!transcriptText.trim() || !persona?.id) return;
+        const lineCount = transcriptText.split('\n').filter(l => l.trim()).length;
+        if (lineCount < MIN_MSGS_FOR_MEMORY) return;
+
+        const today = new Date().toISOString().slice(0, 10);
+        const current = getPersonaProfile(persona.id) || {};
+        const profileJson = JSON.stringify(current, null, 2);
+        const personaDesc = persona.description ? `Description : ${persona.description}` : '';
+
+        const systemPrompt = `Tu es un assistant qui maintient le profil utilisateur du point de vue de ${persona.name}.
+${personaDesc}
+
+Profil actuel pour ce persona :
+${profileJson}
+
+Règles STRICTES :
+- Ne capture que les infos pertinentes pour le rôle de ${persona.name}
+- max 6 éléments dans "facts", max 3 dans "goals"
+- "summary" = 1 phrase résumant ce que sait ${persona.name} sur l'utilisateur
+- "preferences" = 1 phrase sur le style attendu dans ce contexte
+- Conserve les infos pertinentes existantes, remplace les obsolètes
+- Met "lastUpdated": "${today}"
+- Réponds UNIQUEMENT avec le JSON, sans markdown ni commentaire
+- Champs obligatoires : summary, facts[], goals[], preferences, lastUpdated`;
+
+        try {
+            let updated = null;
+            const groqKey = await getGroqApiKey();
+            if (groqKey) {
+                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: getModelMemory(),
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: transcriptText.slice(0, 3000) }
+                        ],
+                        max_tokens: 400,
+                        temperature: 0.2
+                    })
+                });
+                if (resp.ok) {
+                    const d = await resp.json();
+                    const raw = (d.choices?.[0]?.message?.content || '').trim();
+                    const m = raw.match(/\{[\s\S]*\}/);
+                    if (m) updated = JSON.parse(m[0]);
+                }
+            }
+            if (!updated) {
+                const raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 3000), temperature: 0.2, maxTokens: 400 });
+                const m = raw.match(/\{[\s\S]*\}/);
+                if (m) updated = JSON.parse(m[0]);
+            }
+            if (updated && typeof updated === 'object') {
+                setPersonaProfile(updated, persona.id);
+                updatePersonaProfileCount();
+                console.log('[Zova PersonaProfile] Updated for', persona.name, ':', JSON.stringify(updated).slice(0, 80));
+            }
+        } catch(e) {
+            console.warn('[Zova PersonaProfile] Failed:', e.message);
+        }
+    }
+
+    // ════════════════════════════════════════════════
 
     function buildFullInstructions(persona) {
         let fullInstructions = persona.prompt;
 
-        // Inject episodic memories
-        const memories = getMemories().filter(m => !persona || m.personaId === persona.id || m.personaId === '');
+        // Inject episodic memories — prefer per-persona, fallback to global filtered by persona
+        const personaMems = persona?.id ? getPersonaMemories(persona.id) : [];
+        const fallbackMems = getMemories().filter(m => !persona || m.personaId === persona.id || m.personaId === '');
+        const memories = personaMems.length > 0 ? personaMems : fallbackMems;
         const relevant = memories.slice(0, MEMORIES_IN_PROMPT);
         if (relevant.length > 0) {
             const memBlock = relevant.map(m => `- ${m.date} (${m.personaName}): ${m.summary}`).join('\n');
             fullInstructions += `\n\n# Mémoire des sessions précédentes\nVoici un résumé de tes conversations récentes avec cet utilisateur. Utilise ces infos naturellement pour assurer la continuité :\n${memBlock}`;
+        }
+
+        // Continuity hook — only when we have persona-specific memories (i.e. we've spoken before as THIS persona)
+        if (personaMems.length > 0) {
+            const last = personaMems[0]; // most recent session
+            fullInstructions += `\n\n# Accroche de reprise\nLa dernière conversation a eu lieu le ${last.date}. Résumé : ${last.summary}\n→ Pour ouvrir cette conversation, fais une référence naturelle et courte à ce sujet (1 phrase max, ex. "La dernière fois tu travaillais sur X, comment ça avance ?"). Si l'utilisateur lance directement un nouveau sujet, adapte-toi sans forcer le rappel.`;
         }
 
         const toolSection = activeProvider === 'gemini'
@@ -5465,6 +5871,30 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
 - **Météo** : tu peux consulter la météo d'un lieu. Utilise-le quand l'utilisateur te demande le temps qu'il fait ou qu'il va faire.`;
 
         fullInstructions += toolSection;
+
+        // Inject persona-specific user profile (domain-focused)
+        const personaProf = persona?.id ? getPersonaProfile(persona.id) : null;
+        if (personaProfileHasContent(personaProf)) {
+            const lines = [];
+            if (personaProf.summary) lines.push(`Résumé : ${personaProf.summary}`);
+            if (personaProf.facts?.length) lines.push(`Ce que tu sais : ${personaProf.facts.join(' | ')}`);
+            if (personaProf.goals?.length) lines.push(`Objectifs dans ce contexte : ${personaProf.goals.join(', ')}`);
+            if (personaProf.preferences) lines.push(`Style attendu : ${personaProf.preferences}`);
+            fullInstructions += `\n\n# Profil ${persona.name} de l'utilisateur\nCe que tu as appris sur cet utilisateur dans vos échanges. Utilise-le naturellement :\n${lines.join('\n')}`;
+        }
+
+        // Inject user profile (cumulative)
+        const profile = getUserProfile();
+        if (profileHasContent(profile)) {
+            const lines = [];
+            if (profile.name) lines.push(`Prénom/nom : ${profile.name}`);
+            if (profile.languages?.length) lines.push(`Langues : ${profile.languages.join(', ')}`);
+            if (profile.style) lines.push(`Style de communication : ${profile.style}`);
+            if (profile.topics?.length) lines.push(`Sujets récurrents : ${profile.topics.join(', ')}`);
+            if (profile.facts?.length) lines.push(`Ce que tu sais : ${profile.facts.join(' | ')}`);
+            if (profile.goals?.length) lines.push(`Objectifs actuels : ${profile.goals.join(', ')}`);
+            fullInstructions += `\n\n# Profil de l'utilisateur\nVoici ce que tu connais sur cette personne. Utilise-le naturellement, sans le réciter :\n${lines.join('\n')}`;
+        }
 
         const userInfo = getUserInfo();
         if (userInfo.trim()) {
@@ -6374,6 +6804,7 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
                     currentTranscriptAi = addTranscriptMessage(personaName, '', 'ai');
                 }
                 currentTranscriptAi.querySelector('.text').textContent += data.delta;
+                hadAiTranscriptThisTurn = true;
                 scrollTranscript();
                 break;
 
@@ -6425,6 +6856,30 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
                     totalOutputTokens += data.response.usage.output_tokens || 0;
                     updateTokenCounter();
                 }
+                // Fallback transcript: if no delta events arrived, recover from final output
+                if (!hadAiTranscriptThisTurn && data.response?.output) {
+                    for (const item of data.response.output) {
+                        for (const part of (item.content || [])) {
+                            const finalText = (part.transcript || part.text || '').trim();
+                            if (finalText) {
+                                addTranscriptMessage(personaName, finalText, 'ai');
+                                break;
+                            }
+                        }
+                    }
+                } else if (hadAiTranscriptThisTurn && currentTranscriptAi && data.response?.output) {
+                    // Replace streamed text with final clean version if significantly better
+                    for (const item of data.response.output) {
+                        for (const part of (item.content || [])) {
+                            const finalText = (part.transcript || '').trim();
+                            const existing = currentTranscriptAi.querySelector('.text');
+                            if (finalText && existing && finalText.length > (existing.textContent || '').length * 0.8) {
+                                existing.textContent = finalText;
+                            }
+                        }
+                    }
+                }
+                hadAiTranscriptThisTurn = false;
                 // Activer le micro après le greeting initial
                 if (waitingGreeting) {
                     waitingGreeting = false;
@@ -6561,8 +7016,9 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
 
             // Transcription de la sortie IA
             if (sc.outputTranscription && sc.outputTranscription.text) {
+                // Use currentTranscriptAi if active, or lastGeminiAiMsg for late packets after turnComplete
                 if (!currentTranscriptAi) {
-                    currentTranscriptAi = addTranscriptMessage(personaName, '', 'ai');
+                    currentTranscriptAi = lastGeminiAiMsg || addTranscriptMessage(personaName, '', 'ai');
                 }
                 currentTranscriptAi.querySelector('.text').textContent += sc.outputTranscription.text;
                 scrollTranscript();
@@ -6571,7 +7027,9 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
             // Fin de tour
             if (sc.turnComplete) {
                 setStatus(t('status_connected'), 'connected');
+                lastGeminiAiMsg = currentTranscriptAi; // keep for late outputTranscription packets
                 currentTranscriptAi = null;
+                setTimeout(() => { lastGeminiAiMsg = null; }, 2500);
                 if (waitingGreeting) {
                     waitingGreeting = false;
                     setTimeout(() => { micReady = true; }, 500);
@@ -7107,6 +7565,381 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         URL.revokeObjectURL(url);
     }
 
+    // Share a text/plain file via Android share sheet (Capacitor) or download (web)
+    async function shareTextFile(content, filename) {
+        if (!IS_CAPACITOR) {
+            downloadFile(content, filename, 'text/plain;charset=utf-8');
+            return;
+        }
+        const { Filesystem, Share } = window.Capacitor.Plugins;
+        const b64 = btoa(unescape(encodeURIComponent(content)));
+        try {
+            const wr = await Filesystem.writeFile({ path: filename, data: b64, directory: 'CACHE', encoding: null });
+            await Share.share({ title: filename, files: [wr.uri], dialogTitle: filename });
+        } catch(e) {
+            console.warn('[shareTextFile] Fallback to copy modal:', e);
+            showExportModal(content, filename);
+        }
+    }
+
+    // Clean a conversation transcript with LLM (fix STT errors, add punctuation, remove fillers)
+    async function cleanTranscriptWithLLM(rawText) {
+        const lang = LANG === 'fr' ? 'français' : LANG === 'es' ? 'español' : 'english';
+        const systemPrompt = `Tu es un assistant de transcription. Nettoie cette transcription de conversation vocale en :
+1. Corrigeant les erreurs de reconnaissance vocale évidentes
+2. Ajoutant la ponctuation manquante
+3. Supprimant les mots de remplissage excessifs (euh, hmm, bah, heu...)
+4. Conservant le sens exact et le ton de chaque intervention
+5. Gardant le format "Nom: texte" pour chaque intervenant, sans ajouter de balises markdown
+Réponds UNIQUEMENT avec la transcription nettoyée, sans commentaires, sans introduction.
+Langue : ${lang}`;
+        try {
+            let cleaned = '';
+            const groqKey = await getGroqApiKey();
+            if (groqKey) {
+                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: getModelMemory(),
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: rawText.slice(0, 6000) }
+                        ],
+                        max_tokens: 2000,
+                        temperature: 0.2
+                    })
+                });
+                if (resp.ok) {
+                    const d = await resp.json();
+                    cleaned = (d.choices?.[0]?.message?.content || '').trim();
+                }
+            }
+            if (!cleaned) {
+                cleaned = await chatCompletion({ systemPrompt, userPrompt: rawText.slice(0, 6000), temperature: 0.2, maxTokens: 2000 });
+            }
+            return cleaned.length > 20 ? cleaned : rawText;
+        } catch(e) {
+            console.warn('[cleanTranscript] Failed:', e);
+            return rawText;
+        }
+    }
+
+    // Action sheet for transcript export: clean+share | share raw | copy
+    function showTranscriptExportSheet(rawText, filename) {
+        return new Promise(resolve => {
+            const hasGroqOrOpenAI = true; // LLM always available if API keys set
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:16px;';
+            overlay.innerHTML = `
+                <div style="background:var(--modal-bg);border-radius:16px;padding:20px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:10px;margin-bottom:8px;">
+                    <div style="font-weight:700;font-size:0.95rem;color:var(--text-primary);text-align:center;margin-bottom:4px;">&#128196; ${filename}</div>
+                    <button id="_texpClean" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+                        <span style="font-size:1.4rem;">&#10024;</span>
+                        <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
+                            <span>${LANG === 'es' ? 'Limpiar y compartir' : LANG === 'en' ? 'Clean & share' : 'Nettoyer et partager'}</span>
+                            <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">${LANG === 'es' ? 'IA corrige errores y puntuación' : LANG === 'en' ? 'AI fixes errors & punctuation' : 'IA corrige les erreurs et la ponctuation'}</span>
+                        </span>
+                    </button>
+                    <button id="_texpRaw" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+                        <span style="font-size:1.4rem;">&#128244;</span>
+                        <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
+                            <span>${LANG === 'es' ? 'Compartir tal cual' : LANG === 'en' ? 'Share as-is' : 'Partager tel quel'}</span>
+                            <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">${LANG === 'es' ? 'Rápido, sin corrección' : LANG === 'en' ? 'Fast, no correction' : 'Rapide, sans correction'}</span>
+                        </span>
+                    </button>
+                    <button id="_texpCopy" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+                        <span style="font-size:1.4rem;">&#128203;</span>
+                        <span>${LANG === 'es' ? 'Copiar al portapapeles' : LANG === 'en' ? 'Copy to clipboard' : 'Copier dans le presse-papier'}</span>
+                    </button>
+                    <button id="_texpCancel" style="padding:12px 16px;background:none;border:none;border-radius:12px;cursor:pointer;color:var(--text-muted);font-size:0.9rem;">${LANG === 'es' ? 'Cancelar' : LANG === 'en' ? 'Cancel' : 'Annuler'}</button>
+                </div>`;
+            const close = (v) => { overlay.remove(); resolve(v); };
+            overlay.querySelector('#_texpClean').addEventListener('click', () => close('clean'));
+            overlay.querySelector('#_texpRaw').addEventListener('click', () => close('raw'));
+            overlay.querySelector('#_texpCopy').addEventListener('click', () => close('copy'));
+            overlay.querySelector('#_texpCancel').addEventListener('click', () => close('cancel'));
+            overlay.addEventListener('click', e => { if (e.target === overlay) close('cancel'); });
+            document.body.appendChild(overlay);
+        });
+    }
+
+    // Fonction universelle d'export : action sheet Partager + Enregistrer dans Zova (Android) ou téléchargement (web)
+    async function exportJsonFile(content, filename) {
+        if (!IS_CAPACITOR) {
+            downloadFile(content, filename, 'application/json');
+            return;
+        }
+        const b64 = btoa(unescape(encodeURIComponent(content)));
+        const { Filesystem, Share } = window.Capacitor.Plugins;
+
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:16px;';
+        overlay.innerHTML = `
+            <div style="background:var(--modal-bg);border-radius:16px;padding:20px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:10px;margin-bottom:8px;">
+                <div style="font-weight:700;font-size:0.95rem;color:var(--text-primary);text-align:center;margin-bottom:4px;">&#128190; ${filename}</div>
+                <button id="_expShare" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+                    <span style="font-size:1.4rem;">&#128244;</span>
+                    <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
+                        <span>Partager</span>
+                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Drive, WhatsApp, email…</span>
+                    </span>
+                </button>
+                <button id="_expLocal" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+                    <span style="font-size:1.4rem;">&#128193;</span>
+                    <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
+                        <span>Enregistrer dans Zova</span>
+                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Mise &#224; jour uniquement &#8212; effac&#233; si d&#233;sinstall.</span>
+                    </span>
+                </button>
+                <button id="_expCancel" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-secondary);font-size:0.9rem;">Annuler</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        const close = () => overlay.remove();
+        overlay.querySelector('#_expCancel').addEventListener('click', close);
+        overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+        overlay.querySelector('#_expShare').addEventListener('click', async () => {
+            close();
+            try {
+                const wr = await Filesystem.writeFile({ path: filename, data: b64, directory: 'CACHE', encoding: null });
+                await Share.share({ title: filename, files: [wr.uri], dialogTitle: 'Partager ' + filename });
+            } catch { showExportModal(content, filename); }
+        });
+
+        overlay.querySelector('#_expLocal').addEventListener('click', async () => {
+            close();
+            try {
+                const wr = await Filesystem.writeFile({ path: filename, data: b64, directory: 'EXTERNAL', encoding: null });
+                // Avertissement : fichier effacé si désinstallation → proposer aussi de partager
+                const alsoShare = await customConfirm(
+                    `<b>${filename}</b> enregistr&#233; dans Zova &#10003;<br><br>` +
+                    `<span style="color:#fbbf24;font-size:0.85rem;">&#9888;&#65039; Ce fichier sera <b>effac&#233;</b> si vous d&#233;sinstallez l&#39;app.<br>` +
+                    `Pour une sauvegarde durable, partagez-le aussi vers Drive, email ou T&#233;l&#233;chargements.</span>`,
+                    {
+                        title: '&#128193; Enregistr&#233; dans Zova',
+                        icon: '&#10003;',
+                        confirmLabel: '&#128244; Partager aussi',
+                        cancelLabel: 'OK, compris'
+                    }
+                );
+                if (alsoShare) {
+                    try {
+                        await Share.share({ title: filename, files: [wr.uri], dialogTitle: 'Partager ' + filename });
+                    } catch { /* share annulée */ }
+                }
+            } catch { showExportModal(content, filename); }
+        });
+    }
+
+    // Liste les fichiers JSON du dossier privé EXTERNAL de l'app et appelle onPick(jsonStr, filename)
+    // onEmpty (optionnel) : appelé si aucun fichier trouvé — permet de basculer vers le file picker
+    async function showZovaFiles(filter, onPick, onEmpty) {
+        if (!IS_CAPACITOR) return;
+        const { Filesystem } = window.Capacitor.Plugins;
+        let files = [];
+        try {
+            const result = await Filesystem.readdir({ path: '', directory: 'EXTERNAL' });
+            files = (result.files || []).filter(f => {
+                const name = (typeof f === 'string') ? f : f.name;
+                return name.endsWith('.json') && (!filter || name.includes(filter));
+            });
+        } catch (e) { /* dossier vide ou inexistant */ }
+
+        if (files.length === 0) {
+            const goElsewhere = await customConfirm(
+                'Aucun fichier trouv&#233; dans Zova.<br><br>' +
+                '<small style="opacity:0.75">Apr&#232;s une r&#233;installation, les fichiers locaux sont effac&#233;s par Android. ' +
+                'Si vous avez partag&#233; votre backup via Drive, email ou T&#233;l&#233;chargements, ' +
+                'utilisez le bouton ci-dessous pour le retrouver.</small>',
+                {
+                    title: '&#128193; Sauvegardes Zova',
+                    icon: '&#128202;',
+                    confirmLabel: '&#128194; Chercher sur l\'appareil',
+                    cancelLabel: t('btn_cancel')
+                }
+            );
+            if (goElsewhere && onEmpty) onEmpty();
+            return;
+        }
+
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:16px;';
+        const items = files.map((f, i) => {
+            const name = (typeof f === 'string') ? f : f.name;
+            const mtime = (typeof f !== 'string' && f.mtime) ? new Date(f.mtime).toLocaleDateString() : '';
+            return `<button data-idx="${i}" style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:10px;cursor:pointer;color:var(--text-primary);font-size:0.9rem;text-align:left;width:100%;">
+                <span style="font-size:1.3rem;">&#128196;</span>
+                <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;flex:1;min-width:0;">
+                    <span style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px;">${name}</span>
+                    ${mtime ? `<span style="font-size:0.75rem;opacity:0.6;">${mtime}</span>` : ''}
+                </span>
+            </button>`;
+        }).join('');
+        overlay.innerHTML = `
+            <div style="background:var(--modal-bg);border-radius:16px;padding:20px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:10px;margin-bottom:8px;max-height:70vh;overflow-y:auto;">
+                <div style="font-weight:700;font-size:0.95rem;color:var(--text-primary);text-align:center;margin-bottom:4px;">&#128193; Sauvegardes Zova</div>
+                ${items}
+                <button id="_zfCancel" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-secondary);font-size:0.9rem;">Annuler</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        const close = () => overlay.remove();
+        overlay.querySelector('#_zfCancel').addEventListener('click', close);
+        overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+        overlay.querySelectorAll('[data-idx]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                close();
+                const idx = parseInt(btn.dataset.idx);
+                const name = (typeof files[idx] === 'string') ? files[idx] : files[idx].name;
+                try {
+                    const r = await Filesystem.readFile({ path: name, directory: 'EXTERNAL', encoding: 'utf8' });
+                    onPick(r.data, name);
+                } catch (e) {
+                    customAlert('Erreur lecture : ' + e.message, { title: 'Erreur', icon: '&#10060;' });
+                }
+            });
+        });
+    }
+
+    // Applique un JSON de sauvegarde depuis une string (utilisé par showZovaFiles)
+    async function processBackupJson(jsonStr) {
+        try {
+            const data = JSON.parse(jsonStr);
+            if (!data.version || !data.personas) {
+                customAlert('Fichier de sauvegarde invalide.', { title: 'Erreur', icon: '&#10060;' }); return;
+            }
+            const keysMsg = data.apiKeys
+                ? '<br><small style="opacity:0.75">&#128274; Ce fichier contient des cl&#233;s API — il vous sera demand&#233; si vous voulez les restaurer.</small>'
+                : '';
+            const ok = await customConfirm(
+                'Cela remplacera toutes vos donn&#233;es actuelles (personas, infos, stats).' + keysMsg,
+                { title: 'Restaurer une sauvegarde&#160;?', icon: '&#128194;', confirmLabel: 'Restaurer', danger: true }
+            );
+            if (!ok) return;
+            if (data.theme) { setThemeStorage(data.theme); applyTheme(data.theme); }
+            if (data.personas) savePersonas(data.personas);
+            if (data.activePersonaId) setActiveId(data.activePersonaId);
+            if (data.userInfo !== undefined) setUserInfo(data.userInfo);
+            if (data.stats) localStorage.setItem('buddy_stats', JSON.stringify(data.stats));
+            if (data.memories) localStorage.setItem(MEMORY_KEY, JSON.stringify(data.memories));
+            if (data.personaMemories && typeof data.personaMemories === 'object') {
+                Object.entries(data.personaMemories).forEach(([personaId, mems]) => {
+                    if (Array.isArray(mems)) localStorage.setItem(PERSONA_MEMORY_PREFIX + personaId, JSON.stringify(mems));
+                });
+            }
+            if (data.personaProfiles && typeof data.personaProfiles === 'object') {
+                Object.entries(data.personaProfiles).forEach(([personaId, profile]) => {
+                    if (profile && typeof profile === 'object') setPersonaProfile(profile, personaId);
+                });
+            }
+            if (data.userProfile) setUserProfile(data.userProfile);
+            renderPersonaList(); renderPersonasGrid();
+            const activeId = getActiveId();
+            if (activeId && getPersonas().find(p => p.id === activeId)) selectPersona(activeId); else showEmptyState();
+            backupModal.classList.remove('active');
+            // Restauration des clés API si présentes
+            if (data.apiKeys) {
+                const restoreKeys = await customConfirm(
+                    '&#128274; Ce fichier contient des cl&#233;s API. Voulez-vous les restaurer&#160;?',
+                    { title: 'Cl&#233;s API', icon: '&#128274;', confirmLabel: 'Oui, restaurer', cancelLabel: 'Non' }
+                );
+                if (restoreKeys) {
+                    if (data.apiKeys.openai) await setApiKey(data.apiKeys.openai);
+                    if (data.apiKeys.gemini) await setGeminiApiKey(data.apiKeys.gemini);
+                    if (data.apiKeys.ultravox) await setUltravoxApiKey(data.apiKeys.ultravox);
+                    if (data.apiKeys.groq) await setGroqApiKey(data.apiKeys.groq);
+                }
+            }
+            customAlert('Vos donn&#233;es ont &#233;t&#233; restaur&#233;es avec succ&#232;s.', { title: 'Import r&#233;ussi', icon: '&#10004;' });
+        } catch (err) {
+            customAlert('Erreur import : ' + err.message, { title: 'Erreur', icon: '&#10060;' });
+        }
+    }
+
+    // Applique un JSON de persona depuis une string
+    function processPersonaJson(jsonStr) {
+        try {
+            const data = JSON.parse(jsonStr);
+            if (!data.type || data.type !== 'zova-persona' || !data.persona) {
+                customAlert('Ce fichier n\'est pas un persona Zova valide.', { title: 'Erreur', icon: '&#10060;' }); return;
+            }
+            const p = data.persona;
+            const newPersona = {
+                id: 'p_' + Date.now(), name: p.name || 'Persona import&#233;',
+                description: p.description || '', image: p.image || null,
+                model: p.model || '', voice: p.voice || 'coral',
+                reactivity: p.reactivity || 'balanced', creativity: p.creativity || 'balanced',
+                greeting: p.greeting || 'persona', translateLang: p.translateLang || 'en',
+                personaInfo: '', prompt: p.prompt || DEFAULT_PROMPT(p.name || 'Mon assistant')
+            };
+            const list = getPersonas(); list.push(newPersona); savePersonas(list);
+            renderPersonaList(); renderPersonasGrid(); selectPersona(newPersona.id);
+        } catch (err) {
+            customAlert('Erreur import : ' + err.message, { title: 'Erreur', icon: '&#10060;' });
+        }
+    }
+
+    // Panneau d'import — option Sauvegardes Zova (dossier privé) + Autre source (sélecteur)
+    function showImportSheet(inputId, label) {
+        if (!IS_CAPACITOR) {
+            document.getElementById(inputId).click();
+            return;
+        }
+        const isBackup = inputId === 'backupImportInput';
+        const filter = isBackup ? 'zova-backup' : 'zova-persona';
+
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:16px;';
+        overlay.innerHTML = `
+            <div style="background:var(--modal-bg);border-radius:16px;padding:20px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:10px;margin-bottom:8px;">
+                <div style="font-weight:700;font-size:0.95rem;color:var(--text-primary);text-align:center;margin-bottom:4px;">&#8681; ${label}</div>
+                <button id="_impOther" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+                    <span style="font-size:1.4rem;">&#9925;</span>
+                    <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
+                        <span>Choisir un fichier</span>
+                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">T&#233;l&#233;chargements · Drive · Email…</span>
+                    </span>
+                </button>
+                <button id="_impZova" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+                    <span style="font-size:1.4rem;">&#128193;</span>
+                    <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
+                        <span>Sauvegardes Zova</span>
+                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Fichiers enregistr&#233;s dans l&#39;app (m&#234;me install.)</span>
+                    </span>
+                </button>
+                <button id="_impCancel" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-secondary);font-size:0.9rem;">Annuler</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        const close = () => overlay.remove();
+        overlay.querySelector('#_impCancel').addEventListener('click', close);
+        overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+        const openFilePicker = () => {
+            // Petit délai pour laisser Android WebView reprendre le focus après fermeture overlay
+            setTimeout(() => document.getElementById(inputId).click(), 200);
+        };
+
+        overlay.querySelector('#_impZova').addEventListener('click', () => {
+            close();
+            showZovaFiles(
+                filter,
+                (jsonStr) => {
+                    if (isBackup) processBackupJson(jsonStr);
+                    else processPersonaJson(jsonStr);
+                },
+                openFilePicker   // fallback si dossier Zova vide
+            );
+        });
+        overlay.querySelector('#_impOther').addEventListener('click', () => {
+            close();
+            openFilePicker();
+        });
+    }
+
     function showExportModal(content, filename) {
         const overlay = document.createElement('div');
         overlay.style.cssText = `
@@ -7159,33 +7992,50 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         const timerText = document.getElementById('sessionTimer')?.textContent || '';
         const costText = document.getElementById('sessionCost')?.textContent || '';
 
-        if (isTranscripteurMode) {
-            const text = getTranscripteurText();
-            if (!text.trim()) { customAlert('Aucune transcription à exporter.', { icon: '&#128196;' }); return; }
-            const format = await askExportFormat();
-            if (format === 'cancel') return;
-            const filename = `zova-transcription-${new Date().toISOString().slice(0,10)}`;
-            if (format === 'md') {
-                downloadFile(`# Transcription Zova\n\n**Date :** ${date}\n**Durée :** ${timerText}\n**Coût estimé :** ${costText}\n\n---\n\n${text}`, filename + '.md', 'text/markdown;charset=utf-8');
-            } else {
-                downloadFile(`Transcription Zova\n${date}\nDurée : ${timerText}\nCoût estimé : ${costText}\n${'─'.repeat(40)}\n\n${text}`, filename + '.txt', 'text/plain;charset=utf-8');
+        const rawText = isTranscripteurMode ? getTranscripteurText() : getTranscriptText(false);
+        if (!rawText.trim()) { customAlert('Aucune transcription à exporter.', { icon: '&#128196;' }); return; }
+
+        const persona = isTranscripteurMode ? null : getPersonas().find(p => p.id === getActiveId());
+        const personaName = persona ? persona.name : 'conversation';
+        const model = isTranscripteurMode ? '' : (activeModelId || getRealtimeModel());
+        const baseName = isTranscripteurMode
+            ? `zova-transcription-${new Date().toISOString().slice(0,10)}`
+            : `zova-${personaName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${new Date().toISOString().slice(0,10)}`;
+
+        const buildHeader = () => isTranscripteurMode
+            ? `Transcription Zova\n${date}\nDurée : ${timerText}\n${'─'.repeat(40)}\n\n`
+            : `Conversation avec ${personaName}\n${date}\nModèle : ${model}\nDurée : ${timerText}${costText ? `\nCoût estimé : ${costText}` : ''}\n${'─'.repeat(40)}\n\n`;
+
+        const choice = await showTranscriptExportSheet(rawText, baseName + '.txt');
+        if (choice === 'cancel') return;
+
+        if (choice === 'copy') {
+            try {
+                await navigator.clipboard.writeText(buildHeader() + rawText);
+                const btn = document.getElementById('copyTranscriptBtn');
+                if (btn) { const o = btn.innerHTML; btn.innerHTML = '<span class="icon">&#10003;</span> Copié'; setTimeout(() => { btn.innerHTML = o; }, 1500); }
+                customAlert(LANG === 'es' ? 'Copiado.' : LANG === 'en' ? 'Copied.' : 'Copié dans le presse-papier.', { icon: '&#128203;' });
+            } catch {
+                customAlert('Impossible de copier dans le presse-papier.', { icon: '&#128203;' });
             }
-        } else {
-            const transcriptTxt = getTranscriptText(false);
-            if (!transcriptTxt.trim()) { customAlert('Aucune transcription à exporter.', { icon: '&#128196;' }); return; }
-            const format = await askExportFormat();
-            if (format === 'cancel') return;
-            const persona = getPersonas().find(p => p.id === getActiveId());
-            const personaName = persona ? persona.name : 'conversation';
-            const model = activeModelId || getRealtimeModel();
-            const filename = `buddy-${personaName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${new Date().toISOString().slice(0,10)}`;
-            if (format === 'md') {
-                const transcriptMd = getTranscriptText(true);
-                downloadFile(`# Conversation avec ${personaName}\n\n**Date :** ${date}\n**Modèle :** ${model}\n**Durée :** ${timerText}\n**Coût estimé :** ${costText}\n\n---\n\n${transcriptMd}`, filename + '.md', 'text/markdown;charset=utf-8');
-            } else {
-                downloadFile(`Conversation avec ${personaName}\n${date}\nModèle : ${model}\nDurée : ${timerText}\nCoût estimé : ${costText}\n${'─'.repeat(40)}\n\n${transcriptTxt}`, filename + '.txt', 'text/plain;charset=utf-8');
+            return;
+        }
+
+        let finalText = rawText;
+        if (choice === 'clean') {
+            // Show loading indicator
+            const loadingToast = document.createElement('div');
+            loadingToast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--modal-bg);border:1px solid var(--border);border-radius:12px;padding:12px 20px;z-index:9999;font-size:0.88rem;color:var(--text-primary);display:flex;align-items:center;gap:8px;box-shadow:0 4px 24px rgba(0,0,0,0.4);';
+            loadingToast.innerHTML = '<span style="animation:spin 1s linear infinite;display:inline-block;">&#9696;</span> ' + (LANG === 'es' ? 'Limpiando transcripción...' : LANG === 'en' ? 'Cleaning transcript...' : 'Nettoyage en cours...');
+            document.body.appendChild(loadingToast);
+            try {
+                finalText = await cleanTranscriptWithLLM(rawText);
+            } finally {
+                loadingToast.remove();
             }
         }
+
+        await shareTextFile(buildHeader() + finalText, baseName + '.txt');
     });
 
     function stopConversation(analyzeInsights = false) {
@@ -7198,6 +8048,8 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         groqChunks = [];
         groqSpeaking = false;
         groqConversationHistory = [];
+        hadAiTranscriptThisTurn = false;
+        lastGeminiAiMsg = null;
         clearTimeout(groqVADSilenceTimer);
         groqVADSilenceTimer = null;
         groqRecordingActive = false;
@@ -7280,11 +8132,13 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
             extractInsights();
         }
 
-        // Générer la mémoire épisodique post-session
+        // Générer la mémoire épisodique + mettre à jour les profils utilisateur
         if (hadConversation && !isTranscripteurMode && activeModelId !== 'gpt-realtime-translate') {
             const persona = getPersonas().find(p => p.id === getActiveId());
             const transcriptText = getTranscriptText(false);
-            generateMemory(persona, transcriptText); // async, non-bloquant
+            generateMemory(persona, transcriptText);         // async, non-bloquant
+            updateUserProfile(transcriptText);               // async, non-bloquant
+            updatePersonaProfile(persona, transcriptText);   // async, non-bloquant — persona profile
         }
     }
 
@@ -7788,28 +8642,153 @@ Règles de format :
 
     // ════════════════════════════════════════════════
 
-    // Memory buttons in Config
+    // Memory buttons in Config — shows count for the active persona
     function updateMemoryCount() {
-        const mems = getMemories();
+        const activeId = getActiveId();
+        const personaMems = activeId ? getPersonaMemories(activeId) : [];
+        const mems = personaMems.length > 0 ? personaMems : getMemories().filter(m => m.personaId === activeId || m.personaId === '');
         const el = document.getElementById('memoryCount');
-        if (el) el.textContent = mems.length === 0
-            ? 'Aucun souvenir enregistré'
-            : `${mems.length} souvenir${mems.length > 1 ? 's' : ''} enregistré${mems.length > 1 ? 's' : ''}`;
+        if (!el) return;
+        if (mems.length === 0) {
+            el.textContent = t('memory_none');
+        } else if (mems.length === 1) {
+            el.textContent = t('memory_one');
+        } else {
+            el.textContent = t('memory_many').replace('{n}', mems.length);
+        }
     }
     updateMemoryCount();
 
     document.getElementById('viewMemoryBtn').addEventListener('click', () => {
-        const mems = getMemories();
-        if (!mems.length) { customAlert('Aucun souvenir encore. Les souvenirs sont générés automatiquement à la fin de chaque conversation.', { title: '🧠 Mémoire épisodique', icon: '🧠' }); return; }
+        const activeId = getActiveId();
+        const personaMems = activeId ? getPersonaMemories(activeId) : [];
+        const mems = personaMems.length > 0 ? personaMems : getMemories().filter(m => m.personaId === activeId || m.personaId === '');
+        if (!mems.length) { customAlert(t('memory_none'), { title: '🧠 ' + t('config_section_memory'), icon: '🧠' }); return; }
         const content = mems.map((m, i) => `**${i+1}. ${m.date} — ${m.personaName}**\n${m.summary}`).join('\n\n');
         showExportModal(content, 'zova-memoires.txt');
     });
 
     document.getElementById('clearMemoryBtn').addEventListener('click', async () => {
-        if (!await customConfirm('Effacer tous les souvenirs ? Zova ne se souviendra plus des conversations précédentes.', { title: '🗑️ Effacer la mémoire', confirmLabel: 'Effacer', danger: true })) return;
-        localStorage.removeItem(MEMORY_KEY);
+        const activeId = getActiveId();
+        const activePersona = activeId ? getPersonas().find(p => p.id === activeId) : null;
+        const personaLabel = activePersona ? ` (${activePersona.name})` : '';
+        if (!await customConfirm(
+            LANG === 'es' ? `Borrar los recuerdos de esta persona${personaLabel}? No recordará conversaciones anteriores.` :
+            LANG === 'en' ? `Clear memories for this persona${personaLabel}? It will no longer remember previous conversations.` :
+            `Effacer les souvenirs de ce persona${personaLabel} ? Il ne se souviendra plus des conversations précédentes.`,
+            { title: '🗑️ ' + t('config_clear_memory'), confirmLabel: LANG === 'es' ? 'Borrar' : LANG === 'en' ? 'Clear' : 'Effacer', danger: true }
+        )) return;
+        if (activeId) clearPersonaMemories(activeId);
+        // Also remove from global memories for this persona
+        const global = getMemories().filter(m => m.personaId !== activeId);
+        localStorage.setItem(MEMORY_KEY, JSON.stringify(global));
         updateMemoryCount();
-        customAlert('Mémoire effacée.', { title: '🧠', icon: '✅' });
+        customAlert(
+            LANG === 'es' ? 'Memoria borrada.' : LANG === 'en' ? 'Memory cleared.' : 'Mémoire effacée.',
+            { title: '🧠', icon: '✅' }
+        );
+    });
+
+    function updatePersonaProfileCount() {
+        const activeId = getActiveId();
+        const activePersona = activeId ? getPersonas().find(p => p.id === activeId) : null;
+        const personaProf = activeId ? getPersonaProfile(activeId) : null;
+        const el = document.getElementById('profileCount');
+        const titleEl = document.getElementById('profileSectionTitle');
+        if (titleEl && activePersona) {
+            titleEl.textContent = `Profil ${activePersona.name}`;
+            titleEl.removeAttribute('data-i18n');
+        } else if (titleEl) {
+            titleEl.textContent = t('config_section_profile');
+            titleEl.setAttribute('data-i18n', 'config_section_profile');
+        }
+        if (!el) return;
+        if (!personaProfileHasContent(personaProf)) {
+            el.textContent = t('profile_none');
+        } else {
+            const facts = personaProf.facts?.length || 0;
+            const updated = personaProf.lastUpdated || '';
+            el.textContent = `${facts} info${facts > 1 ? 's' : ''}` + (updated ? ' · màj ' + updated : '');
+        }
+    }
+    // Keep backward compat alias for existing calls in setLang/applyTheme
+    function updateProfileCount() { updatePersonaProfileCount(); }
+    updatePersonaProfileCount();
+
+    document.getElementById('viewProfileBtn').addEventListener('click', () => {
+        const activeId = getActiveId();
+        const activePersona = activeId ? getPersonas().find(p => p.id === activeId) : null;
+        const personaProf = activeId ? getPersonaProfile(activeId) : null;
+        if (!personaProfileHasContent(personaProf)) {
+            customAlert(t('profile_none'), { title: `👤 Profil ${activePersona?.name || ''}`, icon: '👤' });
+            return;
+        }
+        const lines = [];
+        const summL  = LANG === 'es' ? 'Resumen' : LANG === 'en' ? 'Summary' : 'Résumé';
+        const factsL = LANG === 'es' ? 'Lo que sabe' : LANG === 'en' ? 'What it knows' : "Ce qu'il sait";
+        const goalsL = LANG === 'es' ? 'Objetivos' : LANG === 'en' ? 'Goals' : 'Objectifs';
+        const prefL  = LANG === 'es' ? 'Estilo' : LANG === 'en' ? 'Style' : 'Style attendu';
+        const updL   = LANG === 'es' ? 'Actualizado' : LANG === 'en' ? 'Updated' : 'Mis à jour';
+        if (personaProf.summary) lines.push(`<b>${summL} :</b> ${personaProf.summary}`);
+        if (personaProf.facts?.length) lines.push(`<b>${factsL} :</b><br>• ${personaProf.facts.join('<br>• ')}`);
+        if (personaProf.goals?.length) lines.push(`<b>${goalsL} :</b> ${personaProf.goals.join(', ')}`);
+        if (personaProf.preferences) lines.push(`<b>${prefL} :</b> ${personaProf.preferences}`);
+        if (personaProf.lastUpdated) lines.push(`<small style="opacity:0.6">${updL} : ${personaProf.lastUpdated}</small>`);
+        customAlert(lines.join('<br><br>'), { title: `👤 Profil ${activePersona?.name || ''}`, icon: '🪪' });
+    });
+
+    document.getElementById('clearProfileBtn').addEventListener('click', async () => {
+        const activeId = getActiveId();
+        const activePersona = activeId ? getPersonas().find(p => p.id === activeId) : null;
+        const personaLabel = activePersona ? ` (${activePersona.name})` : '';
+        if (!await customConfirm(
+            LANG === 'es' ? `Borrar el perfil de este persona${personaLabel}? Empezará de cero.` :
+            LANG === 'en' ? `Clear the profile for this persona${personaLabel}? It will start over.` :
+            `Effacer le profil de ce persona${personaLabel} ? Il repartira de zéro.`,
+            { title: '🗑️ ' + t('config_clear_profile'), confirmLabel: LANG === 'es' ? 'Borrar' : LANG === 'en' ? 'Clear' : 'Effacer', danger: true }
+        )) return;
+        if (activeId) clearPersonaProfile(activeId);
+        updatePersonaProfileCount();
+        customAlert(
+            LANG === 'es' ? 'Perfil borrado.' : LANG === 'en' ? 'Profile cleared.' : 'Profil effacé.',
+            { title: '👤', icon: '✅' }
+        );
+    });
+
+    // Small link to access the global profile
+    document.getElementById('viewGlobalProfileBtn').addEventListener('click', () => {
+        const p = getUserProfile();
+        if (!profileHasContent(p)) {
+            customAlert(t('profile_none'), { title: '👤 ' + t('config_section_profile'), icon: '👤' });
+            return;
+        }
+        const lines = [];
+        const nameL  = LANG === 'es' ? 'Nombre' : LANG === 'en' ? 'Name' : 'Nom';
+        const langL  = LANG === 'es' ? 'Idiomas' : LANG === 'en' ? 'Languages' : 'Langues';
+        const styleL = LANG === 'es' ? 'Estilo' : LANG === 'en' ? 'Style' : 'Style';
+        const topicL = LANG === 'es' ? 'Temas' : LANG === 'en' ? 'Topics' : 'Sujets';
+        const factsL = LANG === 'es' ? 'Datos' : LANG === 'en' ? 'Facts' : 'Infos';
+        const goalsL = LANG === 'es' ? 'Objetivos' : LANG === 'en' ? 'Goals' : 'Objectifs';
+        const updL   = LANG === 'es' ? 'Actualizado' : LANG === 'en' ? 'Updated' : 'Mis à jour';
+        if (p.name) lines.push(`<b>${nameL} :</b> ${p.name}`);
+        if (p.languages?.length) lines.push(`<b>${langL} :</b> ${p.languages.join(', ')}`);
+        if (p.style) lines.push(`<b>${styleL} :</b> ${p.style}`);
+        if (p.topics?.length) lines.push(`<b>${topicL} :</b> ${p.topics.join(', ')}`);
+        if (p.facts?.length) lines.push(`<b>${factsL} :</b><br>• ${p.facts.join('<br>• ')}`);
+        if (p.goals?.length) lines.push(`<b>${goalsL} :</b> ${p.goals.join(', ')}`);
+        if (p.lastUpdated) lines.push(`<small style="opacity:0.6">${updL} : ${p.lastUpdated}</small>`);
+        const clearGlobal = async () => {
+            if (!await customConfirm(
+                LANG === 'es' ? 'Borrar el perfil general?' : LANG === 'en' ? 'Clear global profile?' : 'Effacer le profil général ?',
+                { confirmLabel: LANG === 'es' ? 'Borrar' : LANG === 'en' ? 'Clear' : 'Effacer', danger: true }
+            )) return;
+            localStorage.removeItem(PROFILE_KEY);
+            customAlert(LANG === 'es' ? 'Perfil general borrado.' : LANG === 'en' ? 'Global profile cleared.' : 'Profil général effacé.', { icon: '✅' });
+        };
+        customAlert(
+            lines.join('<br><br>') + `<br><br><button onclick="(${clearGlobal.toString()})()" style="background:none;border:1px solid var(--danger);color:var(--danger);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:0.82rem;">🗑️ ${LANG === 'es' ? 'Borrar perfil general' : LANG === 'en' ? 'Clear global profile' : 'Effacer profil général'}</button>`,
+            { title: '👤 ' + t('config_section_profile'), icon: '🌐' }
+        );
     });
 
     // PIN buttons in Config
@@ -7834,7 +8813,24 @@ Règles de format :
             document.getElementById('removePinBtn').style.display = '';
         }
         await initPinScreen();
-        if (!await hasAnyApiKey()) openApiKeyModal();
+        if (!await hasAnyApiKey()) {
+            const wantsRestore = await customConfirm(
+                t('first_run_msg'),
+                {
+                    title: t('first_run_title'),
+                    icon: '👋',
+                    confirmLabel: t('first_run_restore'),
+                    cancelLabel: t('first_run_setup')
+                }
+            );
+            if (wantsRestore) {
+                // Open backup import — after a successful restore the API keys
+                // will be set (if included) and the modal won't show again on next launch
+                showImportSheet('backupImportInput', t('config_backup'));
+            } else {
+                openApiKeyModal();
+            }
+        }
     })();
 
     // ════════════════════════════════════════════════

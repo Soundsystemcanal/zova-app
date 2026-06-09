@@ -12,12 +12,15 @@
     "@capacitor-community/text-to-speech": "^8.0.0",
     "@capacitor/android": "^8.0.0",
     "@capacitor/core": "^8.0.0",
+    "@capacitor/filesystem": "^8.1.2",
+    "@capacitor/share": "^8.0.1",
     "capacitor-secure-storage-plugin": "^0.13.0"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^8.0.0",
     "patch-package": "^8.0.1",
+    "qrcode": "^1.5.4",
     "sharp": "^0.34.5"
   }
 }
