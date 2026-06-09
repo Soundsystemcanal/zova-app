@@ -5772,6 +5772,71 @@ Règles STRICTES :
         }
     }
 
+    async function updatePersonaProfile(persona, transcriptText) {
+        if (!transcriptText.trim() || !persona?.id) return;
+        const lineCount = transcriptText.split('\n').filter(l => l.trim()).length;
+        if (lineCount < MIN_MSGS_FOR_MEMORY) return;
+
+        const today = new Date().toISOString().slice(0, 10);
+        const current = getPersonaProfile(persona.id) || {};
+        const profileJson = JSON.stringify(current, null, 2);
+        const personaDesc = persona.description ? `Description : ${persona.description}` : '';
+
+        const systemPrompt = `Tu es un assistant qui maintient le profil utilisateur du point de vue de ${persona.name}.
+${personaDesc}
+
+Profil actuel pour ce persona :
+${profileJson}
+
+Règles STRICTES :
+- Ne capture que les infos pertinentes pour le rôle de ${persona.name}
+- max 6 éléments dans "facts", max 3 dans "goals"
+- "summary" = 1 phrase résumant ce que sait ${persona.name} sur l'utilisateur
+- "preferences" = 1 phrase sur le style attendu dans ce contexte
+- Conserve les infos pertinentes existantes, remplace les obsolètes
+- Met "lastUpdated": "${today}"
+- Réponds UNIQUEMENT avec le JSON, sans markdown ni commentaire
+- Champs obligatoires : summary, facts[], goals[], preferences, lastUpdated`;
+
+        try {
+            let updated = null;
+            const groqKey = await getGroqApiKey();
+            if (groqKey) {
+                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: getModelMemory(),
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: transcriptText.slice(0, 3000) }
+                        ],
+                        max_tokens: 400,
+                        temperature: 0.2
+                    })
+                });
+                if (resp.ok) {
+                    const d = await resp.json();
+                    const raw = (d.choices?.[0]?.message?.content || '').trim();
+                    const m = raw.match(/\{[\s\S]*\}/);
+                    if (m) updated = JSON.parse(m[0]);
+                }
+            }
+            if (!updated) {
+                const raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 3000), temperature: 0.2, maxTokens: 400 });
+                const m = raw.match(/\{[\s\S]*\}/);
+                if (m) updated = JSON.parse(m[0]);
+            }
+            if (updated && typeof updated === 'object') {
+                setPersonaProfile(updated, persona.id);
+                updatePersonaProfileCount();
+                console.log('[Zova PersonaProfile] Updated for', persona.name, ':', JSON.stringify(updated).slice(0, 80));
+            }
+        } catch(e) {
+            console.warn('[Zova PersonaProfile] Failed:', e.message);
+        }
+    }
+
     // ════════════════════════════════════════════════
 
     function buildFullInstructions(persona) {
@@ -8619,6 +8684,11 @@ Règles de format :
         }
     }
     updateProfileCount();
+
+    function updatePersonaProfileCount() {
+        // Stub for future UI updates — called after persona profile is updated
+        // Will be extended when persona profile display is added to Config UI
+    }
 
     document.getElementById('viewProfileBtn').addEventListener('click', () => {
         const p = getUserProfile();
