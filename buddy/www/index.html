@@ -546,6 +546,13 @@
 
         .btn-edit-persona:hover { color: var(--accent); border-color: var(--accent); }
 
+        #insightsPersonaBtn {
+            background: rgba(139,92,246,0.18);
+            border-color: var(--accent);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
         /* Zone centrale scrollable */
         #conversationBody {
             flex: 1;
@@ -2743,7 +2750,8 @@ Minimum version required to store current data is: `+i+`.
 
             <label>Image</label>
             <div class="image-row">
-                <div id="pImagePreview" class="image-preview-placeholder">Pas d'image</div>
+                <div id="pImagePreview" class="image-preview-placeholder" style="cursor:pointer;position:relative" title="Appuyer pour modifier">Pas d'image</div>
+                <input type="file" accept="image/*" id="importImageInput" style="display:none">
                 <div class="image-actions">
                     <div style="display:flex;gap:6px;align-items:center">
                         <select id="pImageStyle" class="btn-small" style="padding:6px 8px;min-width:0">
@@ -2758,11 +2766,6 @@ Minimum version required to store current data is: `+i+`.
                         </select>
                         <button class="btn-small" id="generateImageBtn"><span class="icon">&#10024;</span> Générer</button>
                     </div>
-                    <label class="btn-small" style="text-align:center">
-                        <span class="icon">&#128193;</span> Importer
-                        <input type="file" accept="image/*" id="importImageInput" style="display:none">
-                    </label>
-                    <button class="btn-small" id="clearImageBtn"><span class="icon">&#10005;</span> Supprimer</button>
                 </div>
             </div>
             <div class="hint" id="imageHint"></div>
@@ -4618,23 +4621,49 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     function closePersonaModal() { personaModal.classList.remove('active'); }
 
     function renderImagePreview() {
-        const container = document.getElementById('pImagePreview');
+        const old = document.getElementById('pImagePreview');
+        const el = document.createElement(tempImage ? 'div' : 'div');
+        el.id = 'pImagePreview';
+        el.style.cssText = 'cursor:pointer;position:relative;flex-shrink:0';
+        el.title = 'Appuyer pour modifier';
         if (tempImage) {
-            container.className = '';
-            container.innerHTML = '';
-            const img = document.createElement('img');
-            img.src = tempImage;
-            img.className = 'image-preview';
-            container.replaceWith(img);
-            img.id = 'pImagePreview';
+            el.style.cssText += ';width:72px;height:72px;border-radius:12px;overflow:hidden';
+            el.innerHTML = `<img src="${tempImage}" style="width:100%;height:100%;object-fit:cover;display:block">` +
+                `<div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;border-radius:12px;opacity:0;transition:opacity 0.15s" class="_img_overlay">` +
+                `<span style="font-size:1.3rem">📷</span></div>`;
+            el.addEventListener('mouseenter', () => el.querySelector('._img_overlay').style.opacity = '1');
+            el.addEventListener('mouseleave', () => el.querySelector('._img_overlay').style.opacity = '0');
         } else {
-            const ph = document.createElement('div');
-            ph.className = 'image-preview-placeholder';
-            ph.id = 'pImagePreview';
-            ph.textContent = 'Pas d\'image';
-            const old = document.getElementById('pImagePreview');
-            old.replaceWith(ph);
+            el.className = 'image-preview-placeholder';
+            el.innerHTML = `<span style="font-size:1.1rem;display:block;margin-bottom:2px">📷</span><span style="font-size:0.7rem">Appuyer</span>`;
         }
+        el.addEventListener('click', showImageActionSheet);
+        old.replaceWith(el);
+    }
+
+    function showImageActionSheet() {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:flex-end;background:rgba(0,0,0,0.5)';
+        overlay.innerHTML = `<div style="width:100%;background:var(--modal-bg);border-radius:20px 20px 0 0;padding:20px 16px 32px;display:flex;flex-direction:column;gap:10px">
+            <div style="font-size:0.85rem;color:var(--text-secondary);text-align:center;margin-bottom:4px">Image du persona</div>
+            <button id="_imgGenBtn" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;min-height:44px">
+                <span style="font-size:1.3rem">✨</span> Générer avec l'IA
+            </button>
+            <button id="_imgImportBtn" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;min-height:44px">
+                <span style="font-size:1.3rem">📁</span> Importer depuis la galerie
+            </button>
+            ${tempImage ? `<button id="_imgDelBtn" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:12px;cursor:pointer;color:#ef4444;font-size:0.95rem;font-weight:600;min-height:44px">
+                <span style="font-size:1.3rem">🗑</span> Supprimer l'image
+            </button>` : ''}
+            <button id="_imgCancelBtn" style="padding:12px;background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:0.9rem;min-height:44px">Annuler</button>
+        </div>`;
+        const close = () => overlay.remove();
+        overlay.querySelector('#_imgGenBtn').addEventListener('click', () => { close(); document.getElementById('generateImageBtn').click(); });
+        overlay.querySelector('#_imgImportBtn').addEventListener('click', () => { close(); document.getElementById('importImageInput').click(); });
+        if (tempImage) overlay.querySelector('#_imgDelBtn').addEventListener('click', () => { close(); tempImage = null; renderImagePreview(); });
+        overlay.querySelector('#_imgCancelBtn').addEventListener('click', close);
+        overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+        document.body.appendChild(overlay);
     }
 
     document.getElementById('newPersonaBtn').addEventListener('click', () => openPersonaModal());
@@ -4679,11 +4708,6 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         const id = getActiveId();
         const p = getPersonas().find(p => p.id === id);
         openChaptersModal(id, p ? p.name : '');
-    });
-
-    document.getElementById('clearImageBtn').addEventListener('click', () => {
-        tempImage = null;
-        renderImagePreview();
     });
 
     document.getElementById('importImageInput').addEventListener('change', (e) => {
