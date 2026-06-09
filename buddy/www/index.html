@@ -830,10 +830,17 @@
             font-size: 0.82rem;
             cursor: pointer;
             padding: 5px 10px;
-            transition: all 0.15s;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
             gap: 4px;
+        }
+
+        .transcript-export-btn.copied {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            pointer-events: none;
         }
 
         .transcript-export-btn .icon {
@@ -8325,14 +8332,16 @@ Langue : ${lang}`;
     }
 
     document.getElementById('copyTranscriptBtn').addEventListener('click', async () => {
+        const btn = document.getElementById('copyTranscriptBtn');
+        if (btn.classList.contains('copied')) return;
         const text = isTranscripteurMode ? getTranscripteurText() : getTranscriptText();
         if (!text.trim()) { customAlert('Rien à copier.', { icon: '&#128203;' }); return; }
         try {
             await navigator.clipboard.writeText(text);
-            const btn = document.getElementById('copyTranscriptBtn');
             const original = btn.innerHTML;
-            btn.innerHTML = '<span class="icon">&#10003;</span> Copié';
-            setTimeout(() => { btn.innerHTML = original; }, 1500);
+            btn.innerHTML = '<span class="icon">&#10003;</span> Copié !';
+            btn.classList.add('copied');
+            setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 2000);
         } catch (err) {
             customAlert('Impossible de copier dans le presse-papier.', { icon: '&#128203;' });
         }
