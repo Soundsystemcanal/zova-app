@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -190,6 +191,427 @@
             display: inline-block;
             background: linear-gradient(135deg, var(--accent), var(--accent2));
             color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 8px;
+            margin-left: 6px;
+            vertical-align: middle;
+            letter-spacing: 0.05em;
+        }
+
+        /* TABLE */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { color: var(--muted); font-weight: 500; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; }
+        tr.hl td { color: #a78bfa; }
+        .badge {
+            display: inline-block;
+            background: rgba(139,92,246,0.2);
+            border: 1px solid rgba(139,92,246,0.4);
+            color: #a78bfa;
+            font-size: 0.68rem;
+            padding: 2px 8px;
+            border-radius: 8px;
+            margin-left: 6px;
+            font-weight: 600;
+        }
+        .table-note {
+            margin-top: 14px;
+            font-size: 0.82rem;
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        /* STEPS */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+        }
+        .step {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px 24px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .step:hover { transform: translateY(-4px); }
+        .step-num {
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800; font-size: 1.35rem;
+            color: #fff;
+            margin: 0 auto 22px;
+            box-shadow: 0 4px 22px rgba(139,92,246,0.38);
+        }
+        .step h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+        .step p { font-size: 0.84rem; color: var(--muted); line-height: 1.7; }
+
+        /* MANUEL */
+        .manual-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .manual-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+        .manual-card h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: var(--text);
+        }
+        .manual-card ul { list-style: none; padding: 0; }
+        .manual-card ul li {
+            font-size: 0.82rem;
+            color: var(--muted);
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(139,92,246,0.08);
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            line-height: 1.5;
+        }
+        .manual-card ul li:last-child { border-bottom: none; }
+        .manual-card ul li::before { content: "›"; color: var(--accent); flex-shrink: 0; font-weight: 700; }
+
+        /* CTA */
+        .cta {
+            text-align: center;
+            padding: 100px 24px;
+            background: radial-gradient(ellipse at center, rgba(139,92,246,0.12) 0%, transparent 65%);
+        }
+        .cta h2 {
+            font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+            font-weight: 800;
+            margin-bottom: 14px;
+            max-width: 640px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .cta p { color: var(--muted); font-size: 1rem; margin-bottom: 36px; }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 36px 24px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+        .footer-links { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
+
+        @media (max-width: 560px) {
+            .hero { padding: 40px 20px 80px; }
+            th, td { padding: 11px 12px; font-size: 0.82rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+    <svg class="hero-logo" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#8b5cf6"/>
+                <stop offset="100%" stop-color="#ec4899"/>
+            </linearGradient>
+        </defs>
+        <rect x="28" y="8" width="24" height="36" rx="12" fill="url(#lg)"/>
+        <path d="M16 38c0 13.3 10.7 24 24 24s24-10.7 24-24" stroke="url(#lg)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        <line x1="40" y1="62" x2="40" y2="72" stroke="url(#lg)" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="29" y1="72" x2="51" y2="72" stroke="url(#lg)" stroke-width="3.5" stroke-linecap="round"/>
+        <rect x="34" y="18" width="4" height="8" rx="2" fill="rgba(255,255,255,0.25)"/>
+    </svg>
+
+    <h1>Zova</h1>
+    <p class="hero-slogan">Ton IA. Ton téléphone. Tes règles.</p>
+    <p class="hero-sub">Assistant vocal IA pour Android — sans serveur intermédiaire, sans abonnement mensuel, sans surveillance. Tes clés API restent sur ton téléphone.</p>
+
+    <span class="version-badge">✦ v2.0 — Maintenant disponible</span>
+
+    <a class="btn-dl" href="https://github.com/Soundsystemcanal/zova-app/releases/download/v2.0.0/Zova-v2.0.apk">
+        ⬇&nbsp; Télécharger Zova v2.0 · 4 Mo
+    </a>
+
+    <div class="qr-block">
+        <img src="qr-download.png" alt="QR code téléchargement Zova">
+        <span>Scanner pour télécharger</span>
+    </div>
+
+    <div class="scroll-hint">↓</div>
+</div>
+
+<hr class="sep">
+
+<!-- POURQUOI ZOVA -->
+<div class="section">
+    <h2>Pourquoi Zova ?</h2>
+    <div class="divider"></div>
+    <div class="concept-grid">
+        <div class="concept-card">
+            <span class="icon">🔒</span>
+            <h3>Souverain</h3>
+            <p>Tes clés API sont chiffrées dans l'Android Keystore matériel. Zova ne voit jamais tes données — il n'existe aucun serveur Zova.</p>
+        </div>
+        <div class="concept-card">
+            <span class="icon">🎭</span>
+            <h3>Personnalisable</h3>
+            <p>Crée des assistants sur mesure : nom, personnalité, voix, prompt libre. Chaque persona apprend à te connaître et s'améliore avec le temps.</p>
+        </div>
+        <div class="concept-card">
+            <span class="icon">🧠</span>
+            <h3>Il se souvient</h3>
+            <p>Mémoire épisodique + profil adaptatif par persona. Chaque conversation enrichit la relation. Reprend naturellement là où vous vous êtes arrêtés.</p>
+        </div>
+        <div class="concept-card">
+            <span class="icon">💸</span>
+            <h3>Transparent</h3>
+            <p>Paye exactement ce que tu utilises, directement au provider. Pas d'abonnement caché. Dès ~$0.001/min — ou gratuit pour commencer.</p>
+        </div>
+    </div>
+</div>
+
+<hr class="sep">
+
+<!-- NOUVEAUTES v2 -->
+<div class="section">
+    <h2>Nouveautés v2.0</h2>
+    <div class="divider"></div>
+    <div class="features-grid">
+        <div class="feature-card">
+            <span class="feat-icon">🧠</span>
+            <h3>Mémoire par persona <span class="feat-new">NEW</span></h3>
+            <p>Chaque persona accumule ses propres souvenirs de tes conversations. À la reprise, il fait naturellement référence à la dernière session : <em>"La semaine dernière tu travaillais sur X..."</em></p>
+        </div>
+        <div class="feature-card">
+            <span class="feat-icon">📊</span>
+            <h3>Profil adaptatif <span class="feat-new">NEW</span></h3>
+            <p>Chaque persona construit son propre profil de toi, adapté à son domaine. Ton coach fitness connaît tes objectifs physiques. Ton assistant code connaît ton stack. Ton tuteur langue connaît ton niveau.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feat-icon">📝</span>
+            <h3>Export transcription <span class="feat-new">NEW</span></h3>
+            <p>Exporte ta conversation après chaque session. Option "Nettoyer" : l'IA corrige les erreurs de reconnaissance vocale, ajoute la ponctuation et supprime les hésitations avant de partager.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feat-icon">💾</span>
+            <h3>Backup fiable</h3>
+            <p>Export/import complet via le share sheet Android natif. Contourne les restrictions Android 11+. Inclut personas, mémoires, profils — avec option clés API chiffrées.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feat-icon">🌍</span>
+            <h3>Trilingue FR/EN/ES</h3>
+            <p>Interface complète en français, anglais et espagnol. Détection automatique selon la langue du téléphone, changeable à tout moment dans Config.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feat-icon">🚀</span>
+            <h3>Persona Zova</h3>
+            <p>Persona pré-chargée qui apprend progressivement à te connaître : qui tu es, tes projets, ton style. Se construit conversation après conversation, jamais intrusif.</p>
+        </div>
+    </div>
+</div>
+
+<hr class="sep">
+
+<!-- PROVIDERS -->
+<div class="section">
+    <h2>4 providers au choix</h2>
+    <div class="divider"></div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Provider</th>
+                    <th>Qualité</th>
+                    <th>Coût / min</th>
+                    <th>Idéal pour</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>OpenAI Realtime</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td>~$0.06</td>
+                    <td>Qualité maximale</td>
+                </tr>
+                <tr>
+                    <td>Gemini Live</td>
+                    <td>⭐⭐⭐⭐</td>
+                    <td>~$0.01</td>
+                    <td>Rapport qualité/prix</td>
+                </tr>
+                <tr>
+                    <td>Ultravox</td>
+                    <td>⭐⭐⭐</td>
+                    <td>~$0.005</td>
+                    <td>Usage intensif</td>
+                </tr>
+                <tr class="hl">
+                    <td>Groq pipeline <span class="badge">GRATUIT</span></td>
+                    <td>⭐⭐⭐</td>
+                    <td>~$0.001</td>
+                    <td>Débuter sans CB</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <p class="table-note">Groq offre un quota gratuit généreux — parfait pour découvrir Zova sans frais.</p>
+</div>
+
+<hr class="sep">
+
+<!-- INSTALLATION -->
+<div class="section">
+    <h2>Installer en 3 minutes</h2>
+    <div class="divider"></div>
+    <div class="steps">
+        <div class="step">
+            <div class="step-num">1</div>
+            <h3>Télécharger</h3>
+            <p>Clique le bouton ou scanne le QR. Le fichier <strong>Zova-v2.0.apk</strong> (~4 Mo) se télécharge sur ton Android.</p>
+        </div>
+        <div class="step">
+            <div class="step-num">2</div>
+            <h3>Autoriser</h3>
+            <p>Paramètres → Apps → ton navigateur → <em>"Installer des applis inconnues"</em> → Autoriser. Puis ouvre le fichier APK.</p>
+        </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <h3>Configurer</h3>
+            <p>Ouvre Zova → Config → Clé API → colle ta clé <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> (gratuite). C'est prêt !</p>
+        </div>
+    </div>
+</div>
+
+<hr class="sep">
+
+<!-- MANUEL D'UTILISATION -->
+<div class="section">
+    <h2>Manuel d'utilisation</h2>
+    <div class="divider"></div>
+    <div class="manual-grid">
+
+        <div class="manual-card">
+            <h3>🎤 Démarrer une conversation</h3>
+            <ul>
+                <li>Appuie sur le bouton central pour parler</li>
+                <li>L'écran reste allumé pendant la conversation (WakeLock)</li>
+                <li>Si la connexion se coupe, Zova reconnecte automatiquement (3 tentatives)</li>
+                <li>Appuie à nouveau pour terminer la session</li>
+            </ul>
+        </div>
+
+        <div class="manual-card">
+            <h3>🎭 Personas</h3>
+            <ul>
+                <li>Appuie sur le nom de la persona dans l'écran d'accueil pour changer</li>
+                <li>Config → Personas → "+" pour créer un assistant sur mesure</li>
+                <li>Chaque persona a son propre prompt, voix, mémoire et profil</li>
+                <li>La persona Zova apprend à te connaître au fil des conversations</li>
+            </ul>
+        </div>
+
+        <div class="manual-card">
+            <h3>🧠 Mémoire et profil adaptatif</h3>
+            <ul>
+                <li>Après chaque session, Zova génère un résumé et met à jour le profil (en arrière-plan)</li>
+                <li>Chaque persona a sa propre mémoire et son propre profil de toi</li>
+                <li>Config → section "Profil [nom persona]" pour voir ou effacer le profil actif</li>
+                <li>Lien discret "Voir le profil général" pour accéder au profil global commun</li>
+                <li>Config → Mémoires pour consulter ou effacer les résumés de sessions</li>
+            </ul>
+        </div>
+
+        <div class="manual-card">
+            <h3>📝 Transcription et export</h3>
+            <ul>
+                <li>La conversation s'affiche en temps réel dans l'onglet Transcription</li>
+                <li>Après la session : bouton "Exporter" pour partager le texte brut</li>
+                <li>Option "Nettoyer" : l'IA corrige les erreurs STT et ajoute la ponctuation</li>
+                <li>Partage via n'importe quelle app : email, WhatsApp, Notes, Drive…</li>
+            </ul>
+        </div>
+
+        <div class="manual-card">
+            <h3>💾 Backup et restore</h3>
+            <ul>
+                <li>Config → Exporter : partage via Drive/WhatsApp ou sauvegarde locale dans Zova</li>
+                <li>Inclut personas, mémoires, profils — option clés API en bonus</li>
+                <li>Config → Importer → "Sauvegardes Zova" pour restaurer sans chercher le fichier</li>
+                <li>Compatible Android 11+ (contourne les restrictions scoped storage)</li>
+            </ul>
+        </div>
+
+        <div class="manual-card">
+            <h3>🔐 Sécurité et PIN</h3>
+            <ul>
+                <li>Clés API chiffrées dans l'Android Keystore matériel (jamais en clair)</li>
+                <li>Option PIN 4 chiffres pour verrouiller l'accès à l'app</li>
+                <li>Aucune donnée envoyée à des serveurs Zova — connexion directe au provider</li>
+                <li>Les clés ne quittent ton téléphone qu'à l'export si tu le demandes explicitement</li>
+            </ul>
+        </div>
+
+        <div class="manual-card">
+            <h3>⚙️ Providers et clés API</h3>
+            <ul>
+                <li><strong>Groq</strong> (pour débuter) : <a href="https://console.groq.com/keys" target="_blank">console.groq.com</a> — quota gratuit</li>
+                <li><strong>OpenAI</strong> : <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a></li>
+                <li><strong>Gemini</strong> : <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com</a></li>
+                <li><strong>Ultravox</strong> : <a href="https://app.ultravox.ai" target="_blank">app.ultravox.ai</a></li>
+            </ul>
+        </div>
+
+        <div class="manual-card">
+            <h3>❓ Dépannage rapide</h3>
+            <ul>
+                <li>Bouton "?" dans Config → FAQ complète FR/EN/ES intégrée dans l'app</li>
+                <li>Pas de micro : Paramètres → Apps → Zova → Permissions → Micro → Autoriser</li>
+                <li>Voix muette : normal sur Android WebView — le texte s'affiche quand même</li>
+                <li>Xiaomi : active "Débogage USB" + "Installer via USB" dans Options développeur</li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+<!-- CTA BAS -->
+<div class="cta">
+    <h2>Prêt à reprendre le contrôle ?</h2>
+    <p>Tes pensées, ta voix, ton IA. Personne d'autre.</p>
+    <a class="btn-dl" href="https://github.com/Soundsystemcanal/zova-app/releases/download/v2.0.0/Zova-v2.0.apk">
+        ⬇&nbsp; Télécharger Zova v2.0
+    </a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-links">
+        <a href="https://github.com/Soundsystemcanal/zova-app" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/Soundsystemcanal/zova-app/releases" target="_blank" rel="noopener">Releases</a>
+        <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Clé Groq gratuite</a>
+    </div>
+    <div>Zova v2.0 &nbsp;·&nbsp; par Xavier Bourdet &nbsp;·&nbsp; <em>"Ton IA. Ton téléphone. Tes règles."</em></div>
+</footer>
+
+</body>
+</html>
             font-size: 0.65rem;
             font-weight: 700;
             padding: 2px 8px;
