@@ -3545,6 +3545,7 @@
                     <button data-action="edit"><span class="icon">&#9998;</span> Editar</button>
                     <button data-action="duplicate"><span class="icon">&#10697;</span> Duplicar</button>
                     <button data-action="export"><span class="icon">&#128190;</span> Exportar</button>
+                    <button data-action="qrcode"><span class="icon">&#128247;</span> QR Code</button>
                     <button data-action="delete" class="danger"><span class="icon">&#128465;</span> Eliminar</button>
                 </div>
                 <div class="welcome-card-avatar">
@@ -3580,6 +3581,10 @@
                     voice:p.voice,reactivity:p.reactivity,creativity:p.creativity,greeting:p.greeting,
                     translateLang:p.translateLang,prompt:p.prompt}};
                 exportJsonFile(JSON.stringify(exp,null,2), `zova-persona-${p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}.json`);
+            });
+            menu.querySelector('[data-action="qrcode"]').addEventListener('click', (e) => {
+                e.stopPropagation(); menu.classList.remove('open');
+                openPersonaQRModal(p);
             });
             menu.querySelector('[data-action="delete"]').addEventListener('click', async (e) => {
                 e.stopPropagation(); menu.classList.remove('open');
