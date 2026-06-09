@@ -5743,18 +5743,17 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
     // ════════════════════════════════════════════════
 
     function openPersonaQRModal(p) {
-        const payload = {
-            type: 'zova-persona',
-            version: 1,
-            exportDate: new Date().toISOString(),
-            persona: {
-                name: p.name, description: p.description, image: p.image,
-                model: p.model, voice: p.voice, reactivity: p.reactivity,
-                creativity: p.creativity, greeting: p.greeting,
-                translateLang: p.translateLang, prompt: p.prompt
-            }
+        const persona = {
+            name: p.name, description: p.description, image: p.image,
+            model: p.model, voice: p.voice, reactivity: p.reactivity,
+            creativity: p.creativity, greeting: p.greeting,
+            translateLang: p.translateLang, prompt: p.prompt
         };
-        const base64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+        const payload = { type: 'zova-persona', version: 1, exportDate: new Date().toISOString(), persona };
+        // Payload tronqué pour le QR (prompt max 1200 chars → base64 reste < 2800 bytes)
+        const qrPersona = { ...persona, prompt: (persona.prompt || '').slice(0, 1200) };
+        const qrPayload = { type: 'zova-persona', version: 1, exportDate: payload.exportDate, persona: qrPersona };
+        const base64 = btoa(unescape(encodeURIComponent(JSON.stringify(qrPayload))));
         const deepLink = 'zova://import?p=' + base64;
 
         const overlay = document.createElement('div');
@@ -5777,7 +5776,7 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         `;
         document.body.appendChild(overlay);
         if (window.ZovaQR) {
-            window.ZovaQR.toDataURL(deepLink, {errorCorrectionLevel:'M', margin:2, width:220})
+            window.ZovaQR.toDataURL(deepLink, {errorCorrectionLevel:'L', margin:2, width:220})
                 .then(url => {
                     const c = overlay.querySelector('#_qrContainer');
                     if (c) c.innerHTML = `<img src="${url}" width="220" height="220" style="display:block;border-radius:8px">`;
@@ -5799,18 +5798,8 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
             setTimeout(() => { msg.style.display = 'none'; }, 2000);
         });
         overlay.querySelector('#_qrShareBtn').addEventListener('click', async () => {
-            if (IS_CAPACITOR && window.Capacitor?.Plugins?.Share) {
-                await window.Capacitor.Plugins.Share.share({
-                    title: 'Persona Zova — ' + p.name,
-                    text: 'Importe la persona «' + p.name + '» dans Zova',
-                    url: deepLink
-                });
-            } else if (navigator.share) {
-                navigator.share({ title: p.name, url: deepLink });
-            } else {
-                try { await navigator.clipboard.writeText(deepLink); } catch(e) {}
-                customAlert('Lien copié dans le presse-papiers.');
-            }
+            overlay.remove();
+            exportJsonFile(JSON.stringify(payload, null, 2), `zova-persona-${p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}.json`);
         });
     }
 
