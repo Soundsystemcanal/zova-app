@@ -2447,6 +2447,13 @@
         <button class="config-screen-btn" id="viewMemoryBtn">📖 Voir les souvenirs</button>
         <button class="config-screen-btn" id="clearMemoryBtn" style="color:var(--danger)">🗑️ Effacer la mémoire</button>
       </div>
+      <!-- User Profile -->
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">👤 Profil utilisateur</div>
+        <div id="profileCount" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px">Chargement...</div>
+        <button class="config-screen-btn" id="viewProfileBtn">🪪 Voir le profil</button>
+        <button class="config-screen-btn" id="clearProfileBtn" style="color:var(--danger)">🗑️ Effacer le profil</button>
+      </div>
 
       <!-- TTS Voice settings -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
@@ -2910,14 +2917,9 @@
             <p style="text-align:center;font-size:0.85rem;color:var(--text-secondary);margin:16px 0">Exportez régulièrement une sauvegarde pour ne rien perdre. Vous pourrez la réimporter à tout moment.</p>
             <div class="backup-actions">
                 <button class="backup-action-btn backup-export" id="backupExportBtn">
-                    <span class="icon" style="font-size:1.3rem">&#128244;</span>
-                    <strong>Partager</strong>
-                    <span class="backup-action-sub">Drive, WhatsApp, email…</span>
-                </button>
-                <button class="backup-action-btn backup-export" id="backupSaveLocalBtn">
-                    <span class="icon" style="font-size:1.3rem">&#128247;</span>
-                    <strong>Enregistrer sur l'appareil</strong>
-                    <span class="backup-action-sub">Dossier Téléchargements</span>
+                    <span class="icon" style="font-size:1.3rem">&#128190;</span>
+                    <strong>Exporter</strong>
+                    <span class="backup-action-sub">Partager ou enregistrer dans Zova</span>
                 </button>
                 <button class="backup-action-btn backup-import" id="backupImportBtn">
                     <span class="icon" style="font-size:1.3rem">&#8681;</span>
@@ -3328,12 +3330,23 @@
                 renderScreenStats(btn.dataset.statsTab);
             });
         }
-        // Persona Zova par défaut — injectée uniquement si aucune persona n'existe
+        // Persona Zova par défaut — injectée si aucune persona, mise à jour si ancienne version
         (function injectDefaultPersona() {
             const raw = localStorage.getItem('buddy_personas');
             if (!raw || raw === '[]' || raw === 'null') {
                 localStorage.setItem('buddy_personas', JSON.stringify([DEFAULT_PERSONA_ZOVA]));
+                return;
             }
+            // Migration : mettre à jour Zova si c'est encore l'ancienne version (hôtesse d'onboarding)
+            try {
+                const personas = JSON.parse(raw);
+                const idx = personas.findIndex(p => p.id === 'zova-default-v1');
+                if (idx !== -1 && personas[idx].prompt && personas[idx].prompt.includes('hôtesse')) {
+                    personas[idx] = { ...personas[idx], ...DEFAULT_PERSONA_ZOVA };
+                    localStorage.setItem('buddy_personas', JSON.stringify(personas));
+                    console.log('[Zova] Persona mise à jour vers Profile Builder v2');
+                }
+            } catch(e) {}
         })();
 
         // FAQ modal
@@ -3463,17 +3476,17 @@
             box.className = 'dialog-box';
             const iconEl = document.createElement('div');
             iconEl.className = 'dialog-icon';
-            iconEl.textContent = icon;
+            iconEl.innerHTML = icon;
             box.appendChild(iconEl);
             if (title) {
                 const titleEl = document.createElement('div');
                 titleEl.className = 'dialog-title';
-                titleEl.textContent = title;
+                titleEl.innerHTML = title;
                 box.appendChild(titleEl);
             }
             const msgEl = document.createElement('div');
             msgEl.className = 'dialog-message';
-            msgEl.textContent = message;
+            msgEl.innerHTML = message;
             box.appendChild(msgEl);
             const btnsEl = document.createElement('div');
             btnsEl.className = 'dialog-buttons';
@@ -3522,38 +3535,38 @@
     const DEFAULT_PERSONA_ZOVA = {
         id: 'zova-default-v1',
         name: 'Zova',
-        description: 'Ton guide de bienvenue — elle t\'aide à configurer l\'app de A à Z',
+        description: 'Ton assistante personnelle — apprend à te connaître au fil des conversations',
         voice: 'shimmer',
         model: '',
         translateLang: '',
-        prompt: `# Système et Rôle Principal
-Tu es Zova, l'assistante virtuelle de bienvenue de l'application Zova — un outil d'assistance vocale IA avancé pour Android. Ta seule mission est de guider, motiver et présenter l'application de manière enthousiaste aux utilisateurs qui l'ouvrent pour la première fois. Tu agis comme une hôtesse énergique, joyeuse et pleinement convaincue du potentiel de l'outil, en résolvant les doutes initiaux à partir des informations officielles de configuration.
+        prompt: `# Rôle
+Tu es Zova, l'assistante personnelle dédiée à apprendre à connaître l'utilisateur. Tu combines deux rôles : une assistante utile au quotidien ET une confidente curieuse qui enrichit ton profil à travers des conversations naturelles.
 
-# Protocole d'Ouverture de Conversation
-Lorsque l'utilisateur commence une conversation, tu dois l'initier toi-même de façon chaleureuse. Utilise exactement cette approche dans tes deux premières phrases :
-"Bienvenue chez Zova, ton nouvel outil pour t'accompagner le long de ta vie de tous les jours ! Veux-tu que je t'explique les fonctionnalités de l'application pour t'aider à bien la prendre en main ?"
+# Mission principale
+Ton profil de l'utilisateur est injecté dans ton contexte (section "Profil de l'utilisateur"). Lis-le attentivement au début de chaque conversation. Tu sais ce que tu connais déjà — concentre-toi sur ce qui manque.
 
-# Personnalité et Ton Verbal
-- Ton : Jovial, optimiste, chaleureux et très accueillant. Tu transmets l'enthousiasme.
-- Style : Conversationnel, frais, dynamique et très accessible.
-- Énergie : Haute et motivante, sans jamais être stridente.
+# Ouverture de conversation
+Commence toujours par une salutation chaleureuse + UNE seule question ciblée sur une info manquante dans le profil. Si le profil est vide : pose une question d'identité basique (prénom, langue, ce qui t'amène). Si tu connais déjà l'essentiel : montre que tu retiens ("la dernière fois tu me parlais de... comment ça avance ?").
 
-# Directives de Langage
-Tu parles en français courant, avec un langage moderne et proche. Intègre naturellement des expressions légèrement informelles ("c'est parti", "tu vas voir", "des trucs de dingue").
+# Progression des questions (par priorité croissante)
+1. Identité : prénom, langue préférée
+2. Contexte de vie : ce que tu fais, où tu en es en ce moment
+3. Style de communication : niveau de détail voulu, registre (formel/informel)
+4. Objectifs : pourquoi utiliser Zova, buts à court et long terme
+5. Centres d'intérêt : hobbies, sujets récurrents, passions
+6. Approfondissement : évolution des projets déjà connus, nouvelles nuances
 
-# Base de Connaissances
-Utilise exclusivement ces données pour répondre :
-1. PREMIER USAGE : La première chose à faire est de configurer la clé API dans Configuration → Clé API. Les clés sont sauvegardées de façon 100 % sécurisée dans l'Android Keystore.
-2. AVANTAGES : Zova fonctionne en local sur le téléphone sans serveurs intermédiaires — confidentialité maximale et personnalisation totale.
-3. FOURNISSEURS : 4 providers au choix — OpenAI Realtime (qualité maximale), Gemini Live (excellent et abordable), Ultravox (économique), Groq (coût minimal).
-4. BUDGET : Fonction de plafond mensuel dans Configuration → Budget pour maîtriser les dépenses.
-5. PERSONAS : Après la config API, tu peux créer des assistants virtuels sur mesure avec leur propre personnalité.
+# Règles d'interaction
+- MAXIMUM 1 à 2 questions par conversation — jamais une liste de questions
+- Si l'utilisateur pose une vraie question ou veut discuter d'autre chose : réponds-lui PLEINEMENT d'abord, puis reviens naturellement au profil-building
+- Ne mentionne jamais explicitement "ton profil" ou "je collecte tes données" — sois naturelle
+- Réutilise ce que tu sais : "tu m'avais dit que tu travaillais sur X..."
+- Sois curieuse, chaleureuse et attentionnée, jamais intrusive
 
-# Restrictions Audio (TTS)
-- Limite stricte de 2 à 3 phrases par réponse.
-- Aucun markdown, aucune liste, aucun tiret, aucun symbole dans les réponses — texte pur uniquement.
-- Ne répète pas les questions. Réponds directement.
-- Termine chaque réponse par une invitation à poser la prochaine question.`
+# Format de réponse (voix)
+- Maximum 2 à 3 phrases par réponse
+- Texte pur uniquement — pas de listes, pas de tirets, pas de markdown
+- Phrases courtes et naturelles, comme dans une vraie conversation`
     };
 
     const DEFAULT_PROMPT = (name) => `# Identité
@@ -4055,70 +4068,36 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             personas: getPersonas(),
             activePersonaId: getActiveId(),
             userInfo: getUserInfo(),
-            stats: getStats()
+            stats: getStats(),
+            memories: getMemories(),
+            userProfile: getUserProfile()
         };
     }
     function buildBackupFilename() {
         return `zova-backup-${new Date().toISOString().slice(0,10)}.json`;
     }
 
-    // Bouton "Partager" — panneau de partage Android natif (Drive, WhatsApp, email…)
+    // Bouton "Exporter" — demande si inclure les clés API, puis action sheet
     document.getElementById('backupExportBtn').addEventListener('click', async () => {
-        const content = JSON.stringify(buildBackupData(), null, 2);
-        const filename = buildBackupFilename();
-
-        if (IS_CAPACITOR) {
-            try {
-                const { Filesystem, Share } = window.Capacitor.Plugins;
-                const writeResult = await Filesystem.writeFile({
-                    path: filename,
-                    data: btoa(unescape(encodeURIComponent(content))),
-                    directory: 'CACHE',
-                    encoding: null
-                });
-                await Share.share({
-                    title: filename,
-                    files: [writeResult.uri],
-                    dialogTitle: 'Partager le backup Zova'
-                });
-            } catch (err) {
-                showExportModal(content, filename);
-            }
-            return;
+        const includeKeys = await customConfirm(
+            '&#128274; Les cl&#233;s API seront incluses dans le fichier.<br><small style="opacity:0.75">&#9888; Ne partagez ce fichier qu\'avec vous-m&#234;me.</small>',
+            { title: 'Inclure les cl&#233;s API&#160;?', icon: '&#128274;', confirmLabel: 'Oui, inclure', cancelLabel: 'Non merci' }
+        );
+        const data = buildBackupData();
+        if (includeKeys) {
+            const [openai, gemini, ultravox, groq] = await Promise.all([
+                getApiKey(), getGeminiApiKey(), getUltravoxApiKey(), getGroqApiKey()
+            ]);
+            data.apiKeys = {
+                openai: openai || '',
+                gemini: gemini || '',
+                ultravox: ultravox || '',
+                groq: groq || ''
+            };
         }
-        downloadFile(content, filename, 'application/json');
-    });
-
-    // Bouton "Enregistrer sur l'appareil" — écrit directement dans le dossier Téléchargements
-    document.getElementById('backupSaveLocalBtn') && document.getElementById('backupSaveLocalBtn').addEventListener('click', async () => {
-        const content = JSON.stringify(buildBackupData(), null, 2);
+        const content = JSON.stringify(data, null, 2);
         const filename = buildBackupFilename();
-
-        if (IS_CAPACITOR) {
-            try {
-                const { Filesystem } = window.Capacitor.Plugins;
-                // EXTERNAL = dossier privé de l'app sur stockage externe
-                // Chemin : Android/data/com.zova.voiceapp/files/
-                // Accessible via : Fichiers → Stockage interne → Android → data → com.zova.voiceapp → files
-                await Filesystem.writeFile({
-                    path: filename,
-                    data: btoa(unescape(encodeURIComponent(content))),
-                    directory: 'EXTERNAL',
-                    encoding: null
-                });
-                customAlert(
-                    `Fichier sauvegardé ✅<br><br>` +
-                    `<b>${filename}</b><br><br>` +
-                    `<small style="opacity:0.75">Pour le retrouver :<br>` +
-                    `Fichiers → Stockage interne → Android → data → com.zova.voiceapp → files</small>`,
-                    { title: '💾 Enregistré sur l\'appareil', icon: '&#128247;' }
-                );
-            } catch (err) {
-                showExportModal(content, filename);
-            }
-            return;
-        }
-        downloadFile(content, filename, 'application/json');
+        exportJsonFile(content, filename);
     });
 
     document.getElementById('backupImportBtn').addEventListener('click', () => {
@@ -4131,30 +4110,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         const reader = new FileReader();
         reader.onload = async (ev) => {
             try {
-                const data = JSON.parse(ev.target.result);
-                if (!data.version || !data.personas) {
-                    customAlert('Fichier de sauvegarde invalide.', { title: 'Erreur', icon: '&#10060;' });
-                    return;
-                }
-                if (!await customConfirm('Cela remplacera toutes vos données actuelles (personas, infos, stats). Votre clé API ne sera pas affectée.', { title: 'Restaurer une sauvegarde ?', icon: '&#128194;', confirmLabel: 'Restaurer', danger: true })) return;
-
-                if (data.theme) { setThemeStorage(data.theme); applyTheme(data.theme); }
-                if (data.personas) savePersonas(data.personas);
-                if (data.activePersonaId) setActiveId(data.activePersonaId);
-                if (data.userInfo !== undefined) setUserInfo(data.userInfo);
-                if (data.stats) localStorage.setItem('buddy_stats', JSON.stringify(data.stats));
-
-                renderPersonaList();
-                renderPersonasGrid();
-                const activeId = getActiveId();
-                if (activeId && getPersonas().find(p => p.id === activeId)) {
-                    selectPersona(activeId);
-                } else {
-                    showEmptyState();
-                }
-
-                backupModal.classList.remove('active');
-                customAlert('Vos données ont été restaurées avec succès.', { title: 'Import réussi', icon: '&#10004;' });
+                await processBackupJson(ev.target.result);
             } catch (err) {
                 customAlert('Erreur lors de l\'import : ' + err.message, { title: 'Erreur', icon: '&#10060;' });
             }
@@ -5494,6 +5450,86 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
     }
 
     // ════════════════════════════════════════════════
+    //  PROFIL UTILISATEUR ÉVOLUTIF
+    // ════════════════════════════════════════════════
+
+    const PROFILE_KEY = 'buddy_userProfile';
+
+    function getUserProfile() {
+        try { return JSON.parse(localStorage.getItem(PROFILE_KEY)) || null; }
+        catch { return null; }
+    }
+    function setUserProfile(profile) {
+        localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+    }
+
+    function profileHasContent(p) {
+        if (!p) return false;
+        return (p.name || (p.facts && p.facts.length) || (p.topics && p.topics.length) || p.style);
+    }
+
+    async function updateUserProfile(transcriptText) {
+        if (!transcriptText.trim()) return;
+        const lineCount = transcriptText.split('\n').filter(l => l.trim()).length;
+        if (lineCount < MIN_MSGS_FOR_MEMORY) return;
+
+        const current = getUserProfile() || {};
+        const today = new Date().toISOString().slice(0, 10);
+        const profileJson = JSON.stringify(current, null, 2);
+
+        const systemPrompt = `Tu es un assistant qui maintient un profil utilisateur concis en JSON.
+
+Profil actuel :
+${profileJson}
+
+Règles STRICTES :
+- Mets à jour uniquement avec des infos clairement établies dans la conversation
+- max 5 éléments dans "facts", max 4 dans "topics", "style" = 1 phrase courte
+- Conserve les infos existantes pertinentes, remplace les obsolètes
+- Met "lastUpdated": "${today}"
+- Réponds UNIQUEMENT avec le JSON, sans markdown ni commentaire
+- Champs : name, languages[], topics[], style, facts[], goals[], lastUpdated`;
+
+        try {
+            let updated = null;
+            const groqKey = await getGroqApiKey();
+            if (groqKey) {
+                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: getModelMemory(),
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: transcriptText.slice(0, 3000) }
+                        ],
+                        max_tokens: 400,
+                        temperature: 0.2
+                    })
+                });
+                if (resp.ok) {
+                    const d = await resp.json();
+                    const raw = (d.choices?.[0]?.message?.content || '').trim();
+                    const m = raw.match(/\{[\s\S]*\}/);
+                    if (m) updated = JSON.parse(m[0]);
+                }
+            }
+            if (!updated) {
+                const raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 3000), temperature: 0.2, maxTokens: 400 });
+                const m = raw.match(/\{[\s\S]*\}/);
+                if (m) updated = JSON.parse(m[0]);
+            }
+            if (updated && typeof updated === 'object') {
+                setUserProfile(updated);
+                updateProfileCount();
+                console.log('[Zova Profile] Updated:', JSON.stringify(updated).slice(0, 80));
+            }
+        } catch(e) {
+            console.warn('[Zova Profile] Failed:', e.message);
+        }
+    }
+
+    // ════════════════════════════════════════════════
 
     function buildFullInstructions(persona) {
         let fullInstructions = persona.prompt;
@@ -5517,6 +5553,19 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
 - **Météo** : tu peux consulter la météo d'un lieu. Utilise-le quand l'utilisateur te demande le temps qu'il fait ou qu'il va faire.`;
 
         fullInstructions += toolSection;
+
+        // Inject user profile (cumulative)
+        const profile = getUserProfile();
+        if (profileHasContent(profile)) {
+            const lines = [];
+            if (profile.name) lines.push(`Prénom/nom : ${profile.name}`);
+            if (profile.languages?.length) lines.push(`Langues : ${profile.languages.join(', ')}`);
+            if (profile.style) lines.push(`Style de communication : ${profile.style}`);
+            if (profile.topics?.length) lines.push(`Sujets récurrents : ${profile.topics.join(', ')}`);
+            if (profile.facts?.length) lines.push(`Ce que tu sais : ${profile.facts.join(' | ')}`);
+            if (profile.goals?.length) lines.push(`Objectifs actuels : ${profile.goals.join(', ')}`);
+            fullInstructions += `\n\n# Profil de l'utilisateur\nVoici ce que tu connais sur cette personne. Utilise-le naturellement, sans le réciter :\n${lines.join('\n')}`;
+        }
 
         const userInfo = getUserInfo();
         if (userInfo.trim()) {
@@ -7159,16 +7208,15 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         URL.revokeObjectURL(url);
     }
 
-    // Fonction universelle d'export : Partager + Enregistrer sur l'appareil (Android) ou téléchargement (web)
+    // Fonction universelle d'export : action sheet Partager + Enregistrer dans Zova (Android) ou téléchargement (web)
     async function exportJsonFile(content, filename) {
         if (!IS_CAPACITOR) {
             downloadFile(content, filename, 'application/json');
             return;
         }
-        const { Filesystem, Share } = window.Capacitor.Plugins;
         const b64 = btoa(unescape(encodeURIComponent(content)));
+        const { Filesystem, Share } = window.Capacitor.Plugins;
 
-        // Mini action sheet avec les deux options
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:16px;';
         overlay.innerHTML = `
@@ -7182,10 +7230,10 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
                     </span>
                 </button>
                 <button id="_expLocal" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
-                    <span style="font-size:1.4rem;">&#128247;</span>
+                    <span style="font-size:1.4rem;">&#128193;</span>
                     <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
-                        <span>Enregistrer sur l'appareil</span>
-                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Android → data → com.zova.voiceapp → files</span>
+                        <span>Enregistrer dans Zova</span>
+                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Reimporter via Importer → Sauvegardes Zova</span>
                     </span>
                 </button>
                 <button id="_expCancel" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-secondary);font-size:0.9rem;">Annuler</button>
@@ -7208,36 +7256,170 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
             close();
             try {
                 await Filesystem.writeFile({ path: filename, data: b64, directory: 'EXTERNAL', encoding: null });
-                customAlert(`Fichier sauvegardé ✅<br><b>${filename}</b><br><small style="opacity:0.7">Android → data → com.zova.voiceapp → files</small>`, { title: '&#128247; Enregistré', icon: '&#10003;' });
-            } catch {
-                showExportModal(content, filename);
-            }
+                customAlert(
+                    `Fichier enregistr&#233; &#10003;<br><b>${filename}</b><br><br>` +
+                    `<small style="opacity:0.7">Pour importer : Sauvegarde &#8594; Importer &#8594; Sauvegardes Zova</small>`,
+                    { title: '&#128193; Enregistr&#233; dans Zova', icon: '&#10003;' }
+                );
+            } catch { showExportModal(content, filename); }
         });
     }
 
-    // Panneau d'import unifié — ouvre le sélecteur de fichiers natif Android
+    // Liste les fichiers JSON du dossier privé EXTERNAL de l'app et appelle onPick(jsonStr, filename)
+    async function showZovaFiles(filter, onPick) {
+        if (!IS_CAPACITOR) return;
+        const { Filesystem } = window.Capacitor.Plugins;
+        let files = [];
+        try {
+            const result = await Filesystem.readdir({ path: '', directory: 'EXTERNAL' });
+            files = (result.files || []).filter(f => {
+                const name = (typeof f === 'string') ? f : f.name;
+                return name.endsWith('.json') && (!filter || name.includes(filter));
+            });
+        } catch (e) { /* dossier vide ou inexistant */ }
+
+        if (files.length === 0) {
+            customAlert(
+                'Aucun fichier trouv&#233;.<br><small style="opacity:0.7">Utilisez d\'abord <b>Exporter &#8594; Enregistrer dans Zova</b>.</small>',
+                { title: '&#128193; Sauvegardes Zova', icon: '&#128193;' }
+            );
+            return;
+        }
+
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:16px;';
+        const items = files.map((f, i) => {
+            const name = (typeof f === 'string') ? f : f.name;
+            const mtime = (typeof f !== 'string' && f.mtime) ? new Date(f.mtime).toLocaleDateString() : '';
+            return `<button data-idx="${i}" style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:10px;cursor:pointer;color:var(--text-primary);font-size:0.9rem;text-align:left;width:100%;">
+                <span style="font-size:1.3rem;">&#128196;</span>
+                <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;flex:1;min-width:0;">
+                    <span style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px;">${name}</span>
+                    ${mtime ? `<span style="font-size:0.75rem;opacity:0.6;">${mtime}</span>` : ''}
+                </span>
+            </button>`;
+        }).join('');
+        overlay.innerHTML = `
+            <div style="background:var(--modal-bg);border-radius:16px;padding:20px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:10px;margin-bottom:8px;max-height:70vh;overflow-y:auto;">
+                <div style="font-weight:700;font-size:0.95rem;color:var(--text-primary);text-align:center;margin-bottom:4px;">&#128193; Sauvegardes Zova</div>
+                ${items}
+                <button id="_zfCancel" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-secondary);font-size:0.9rem;">Annuler</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        const close = () => overlay.remove();
+        overlay.querySelector('#_zfCancel').addEventListener('click', close);
+        overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+        overlay.querySelectorAll('[data-idx]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                close();
+                const idx = parseInt(btn.dataset.idx);
+                const name = (typeof files[idx] === 'string') ? files[idx] : files[idx].name;
+                try {
+                    const r = await Filesystem.readFile({ path: name, directory: 'EXTERNAL', encoding: 'utf8' });
+                    onPick(r.data, name);
+                } catch (e) {
+                    customAlert('Erreur lecture : ' + e.message, { title: 'Erreur', icon: '&#10060;' });
+                }
+            });
+        });
+    }
+
+    // Applique un JSON de sauvegarde depuis une string (utilisé par showZovaFiles)
+    async function processBackupJson(jsonStr) {
+        try {
+            const data = JSON.parse(jsonStr);
+            if (!data.version || !data.personas) {
+                customAlert('Fichier de sauvegarde invalide.', { title: 'Erreur', icon: '&#10060;' }); return;
+            }
+            const keysMsg = data.apiKeys
+                ? '<br><small style="opacity:0.75">&#128274; Ce fichier contient des cl&#233;s API — il vous sera demand&#233; si vous voulez les restaurer.</small>'
+                : '';
+            const ok = await customConfirm(
+                'Cela remplacera toutes vos donn&#233;es actuelles (personas, infos, stats).' + keysMsg,
+                { title: 'Restaurer une sauvegarde&#160;?', icon: '&#128194;', confirmLabel: 'Restaurer', danger: true }
+            );
+            if (!ok) return;
+            if (data.theme) { setThemeStorage(data.theme); applyTheme(data.theme); }
+            if (data.personas) savePersonas(data.personas);
+            if (data.activePersonaId) setActiveId(data.activePersonaId);
+            if (data.userInfo !== undefined) setUserInfo(data.userInfo);
+            if (data.stats) localStorage.setItem('buddy_stats', JSON.stringify(data.stats));
+            if (data.memories) localStorage.setItem(MEMORY_KEY, JSON.stringify(data.memories));
+            if (data.userProfile) setUserProfile(data.userProfile);
+            renderPersonaList(); renderPersonasGrid();
+            const activeId = getActiveId();
+            if (activeId && getPersonas().find(p => p.id === activeId)) selectPersona(activeId); else showEmptyState();
+            backupModal.classList.remove('active');
+            // Restauration des clés API si présentes
+            if (data.apiKeys) {
+                const restoreKeys = await customConfirm(
+                    '&#128274; Ce fichier contient des cl&#233;s API. Voulez-vous les restaurer&#160;?',
+                    { title: 'Cl&#233;s API', icon: '&#128274;', confirmLabel: 'Oui, restaurer', cancelLabel: 'Non' }
+                );
+                if (restoreKeys) {
+                    if (data.apiKeys.openai) await setApiKey(data.apiKeys.openai);
+                    if (data.apiKeys.gemini) await setGeminiApiKey(data.apiKeys.gemini);
+                    if (data.apiKeys.ultravox) await setUltravoxApiKey(data.apiKeys.ultravox);
+                    if (data.apiKeys.groq) await setGroqApiKey(data.apiKeys.groq);
+                }
+            }
+            customAlert('Vos donn&#233;es ont &#233;t&#233; restaur&#233;es avec succ&#232;s.', { title: 'Import r&#233;ussi', icon: '&#10004;' });
+        } catch (err) {
+            customAlert('Erreur import : ' + err.message, { title: 'Erreur', icon: '&#10060;' });
+        }
+    }
+
+    // Applique un JSON de persona depuis une string
+    function processPersonaJson(jsonStr) {
+        try {
+            const data = JSON.parse(jsonStr);
+            if (!data.type || data.type !== 'zova-persona' || !data.persona) {
+                customAlert('Ce fichier n\'est pas un persona Zova valide.', { title: 'Erreur', icon: '&#10060;' }); return;
+            }
+            const p = data.persona;
+            const newPersona = {
+                id: 'p_' + Date.now(), name: p.name || 'Persona import&#233;',
+                description: p.description || '', image: p.image || null,
+                model: p.model || '', voice: p.voice || 'coral',
+                reactivity: p.reactivity || 'balanced', creativity: p.creativity || 'balanced',
+                greeting: p.greeting || 'persona', translateLang: p.translateLang || 'en',
+                personaInfo: '', prompt: p.prompt || DEFAULT_PROMPT(p.name || 'Mon assistant')
+            };
+            const list = getPersonas(); list.push(newPersona); savePersonas(list);
+            renderPersonaList(); renderPersonasGrid(); selectPersona(newPersona.id);
+        } catch (err) {
+            customAlert('Erreur import : ' + err.message, { title: 'Erreur', icon: '&#10060;' });
+        }
+    }
+
+    // Panneau d'import — option Sauvegardes Zova (dossier privé) + Autre source (sélecteur)
     function showImportSheet(inputId, label) {
         if (!IS_CAPACITOR) {
             document.getElementById(inputId).click();
             return;
         }
+        const isBackup = inputId === 'backupImportInput';
+        const filter = isBackup ? 'zova-backup' : 'zova-persona';
+
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding:16px;';
         overlay.innerHTML = `
             <div style="background:var(--modal-bg);border-radius:16px;padding:20px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:10px;margin-bottom:8px;">
                 <div style="font-weight:700;font-size:0.95rem;color:var(--text-primary);text-align:center;margin-bottom:4px;">&#8681; ${label}</div>
-                <button id="_impDevice" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
-                    <span style="font-size:1.4rem;">&#128247;</span>
+                <button id="_impZova" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+                    <span style="font-size:1.4rem;">&#128193;</span>
                     <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
-                        <span>Stockage de l'appareil</span>
-                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Téléchargements · Android/data/com.zova.voiceapp/files</span>
+                        <span>Sauvegardes Zova</span>
+                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Fichiers enregistr&#233;s dans l'app</span>
                     </span>
                 </button>
-                <button id="_impCloud" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
+                <button id="_impOther" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;">
                     <span style="font-size:1.4rem;">&#9925;</span>
                     <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
                         <span>Autre source</span>
-                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Google Drive · WhatsApp · email…</span>
+                        <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Google Drive · T&#233;l&#233;chargements…</span>
                     </span>
                 </button>
                 <button id="_impCancel" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-secondary);font-size:0.9rem;">Annuler</button>
@@ -7247,10 +7429,18 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         const close = () => overlay.remove();
         overlay.querySelector('#_impCancel').addEventListener('click', close);
         overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-        // Les deux boutons ouvrent le même sélecteur natif Android (fichiers locaux + cloud)
-        const openPicker = () => { close(); document.getElementById(inputId).click(); };
-        overlay.querySelector('#_impDevice').addEventListener('click', openPicker);
-        overlay.querySelector('#_impCloud').addEventListener('click', openPicker);
+
+        overlay.querySelector('#_impZova').addEventListener('click', () => {
+            close();
+            showZovaFiles(filter, (jsonStr) => {
+                if (isBackup) processBackupJson(jsonStr);
+                else processPersonaJson(jsonStr);
+            });
+        });
+        overlay.querySelector('#_impOther').addEventListener('click', () => {
+            close();
+            document.getElementById(inputId).click();
+        });
     }
 
     function showExportModal(content, filename) {
@@ -7426,11 +7616,12 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
             extractInsights();
         }
 
-        // Générer la mémoire épisodique post-session
+        // Générer la mémoire épisodique + mettre à jour le profil utilisateur
         if (hadConversation && !isTranscripteurMode && activeModelId !== 'gpt-realtime-translate') {
             const persona = getPersonas().find(p => p.id === getActiveId());
             const transcriptText = getTranscriptText(false);
-            generateMemory(persona, transcriptText); // async, non-bloquant
+            generateMemory(persona, transcriptText);    // async, non-bloquant
+            updateUserProfile(transcriptText);          // async, non-bloquant
         }
     }
 
@@ -7956,6 +8147,45 @@ Règles de format :
         localStorage.removeItem(MEMORY_KEY);
         updateMemoryCount();
         customAlert('Mémoire effacée.', { title: '🧠', icon: '✅' });
+    });
+
+    function updateProfileCount() {
+        const p = getUserProfile();
+        const el = document.getElementById('profileCount');
+        if (!el) return;
+        if (!profileHasContent(p)) {
+            el.textContent = 'Aucun profil encore — se construit après chaque conversation';
+        } else {
+            const facts = p.facts?.length || 0;
+            const topics = p.topics?.length || 0;
+            const updated = p.lastUpdated || '';
+            el.textContent = `${facts} fait${facts > 1 ? 's' : ''} · ${topics} sujet${topics > 1 ? 's' : ''}${updated ? ' · màj ' + updated : ''}`;
+        }
+    }
+    updateProfileCount();
+
+    document.getElementById('viewProfileBtn').addEventListener('click', () => {
+        const p = getUserProfile();
+        if (!profileHasContent(p)) {
+            customAlert('Aucun profil encore.<br><small style="opacity:0.7">Il se construit automatiquement après chaque conversation.</small>', { title: '👤 Profil utilisateur', icon: '👤' });
+            return;
+        }
+        const lines = [];
+        if (p.name) lines.push(`<b>Nom :</b> ${p.name}`);
+        if (p.languages?.length) lines.push(`<b>Langues :</b> ${p.languages.join(', ')}`);
+        if (p.style) lines.push(`<b>Style :</b> ${p.style}`);
+        if (p.topics?.length) lines.push(`<b>Sujets :</b> ${p.topics.join(', ')}`);
+        if (p.facts?.length) lines.push(`<b>Infos :</b><br>• ${p.facts.join('<br>• ')}`);
+        if (p.goals?.length) lines.push(`<b>Objectifs :</b> ${p.goals.join(', ')}`);
+        if (p.lastUpdated) lines.push(`<small style="opacity:0.6">Mis à jour : ${p.lastUpdated}</small>`);
+        customAlert(lines.join('<br><br>'), { title: '👤 Profil utilisateur', icon: '🪪' });
+    });
+
+    document.getElementById('clearProfileBtn').addEventListener('click', async () => {
+        if (!await customConfirm('Effacer le profil ? Zova repartira de zéro pour apprendre à te connaître.', { title: '🗑️ Effacer le profil', confirmLabel: 'Effacer', danger: true })) return;
+        localStorage.removeItem(PROFILE_KEY);
+        updateProfileCount();
+        customAlert('Profil effacé.', { title: '👤', icon: '✅' });
     });
 
     // PIN buttons in Config
