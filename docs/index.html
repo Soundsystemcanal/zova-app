@@ -386,6 +386,58 @@
         .cl-tag.fix { background: rgba(52,211,153,0.12); color: #34d399; }
         .cl-tag.new { background: rgba(236,72,153,0.12); color: #f472b6; }
 
+        /* ─── UPDATE WARNING ─── */
+        .update-warning {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: rgba(251,191,36,0.10);
+            border: 1px solid rgba(251,191,36,0.35);
+            border-radius: 14px;
+            padding: 14px 18px;
+            margin: 0 auto 28px;
+            max-width: 520px;
+            text-align: left;
+            color: var(--text);
+        }
+        .update-warning .uw-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1; }
+        .update-warning .uw-body { font-size: 0.85rem; line-height: 1.6; }
+        .update-warning .uw-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #fbbf24;
+            margin-bottom: 4px;
+        }
+        .update-warning .uw-body strong { color: #fbbf24; }
+        .update-warning .uw-body code {
+            background: rgba(251,191,36,0.15);
+            border-radius: 4px;
+            padding: 1px 5px;
+            font-size: 0.82rem;
+            color: #fde68a;
+        }
+        .step-warn {
+            background: rgba(251,191,36,0.08);
+            border: 1px solid rgba(251,191,36,0.25);
+            border-radius: 16px;
+            padding: 18px 22px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+        .step-warn-icon { font-size: 1.6rem; flex-shrink: 0; }
+        .step-warn-body { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
+        .step-warn-body strong { color: #fbbf24; }
+        .step-warn-body code {
+            background: rgba(251,191,36,0.12);
+            border-radius: 4px;
+            padding: 1px 5px;
+            font-size: 0.82rem;
+            color: #fde68a;
+        }
+
         @media (max-width: 560px) {
             .hero { padding: 40px 20px 80px; }
             th, td { padding: 11px 12px; font-size: 0.82rem; }
@@ -415,6 +467,16 @@
     <h1>Zova</h1>
     <p class="hero-slogan">Ton IA. Ton téléphone. Tes règles.</p>
     <p class="hero-sub">Assistant vocal IA pour Android — sans serveur intermédiaire, sans abonnement mensuel, sans surveillance. Tes clés API restent sur ton téléphone.</p>
+
+    <div class="update-warning">
+        <div class="uw-icon">⚠️</div>
+        <div class="uw-body">
+            <div class="uw-title">Mise à jour depuis une version précédente ?</div>
+            Sauvegarde tes données <strong>avant</strong> d'installer la nouvelle version.<br>
+            Dans Zova : <code>Config → Sauvegarde → Exporter</code> — partage ou enregistre le fichier JSON.<br>
+            <span style="opacity:0.7;font-size:0.8rem;">L'app te proposera de le restaurer au premier lancement.</span>
+        </div>
+    </div>
 
     <a class="btn-dl" href="https://github.com/Soundsystemcanal/zova-app/releases/download/v2.0.0-beta/Zova-v2.0-beta.apk">
         ⬇&nbsp; Télécharger Zova v2.0-beta · 3,9 Mo
@@ -509,6 +571,16 @@
 <div class="section">
     <h2>Installer en 3 minutes</h2>
     <div class="divider"></div>
+    <div class="step-warn">
+        <div class="step-warn-icon">⚠️</div>
+        <div class="step-warn-body">
+            <strong>Tu mets à jour depuis une version précédente ?</strong><br>
+            Exporte tes données <strong>avant</strong> d'installer : ouvre Zova → <code>Config → Sauvegarde → Exporter</code>.<br>
+            Partage ou enregistre le fichier JSON. Au premier lancement après installation,
+            Zova te proposera de le restaurer automatiquement.
+        </div>
+    </div>
+
     <div class="steps">
         <div class="step">
             <div class="step-num">1</div>
