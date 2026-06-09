@@ -2453,10 +2453,11 @@
       </div>
       <!-- User Profile -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">👤 <span data-i18n="config_section_profile">Profil utilisateur</span></div>
+        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">👤 <span id="profileSectionTitle" data-i18n="config_section_profile">Profil utilisateur</span></div>
         <div id="profileCount" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px"></div>
         <button class="config-screen-btn" id="viewProfileBtn">🪪 <span data-i18n="config_view_profile">Voir le profil</span></button>
         <button class="config-screen-btn" id="clearProfileBtn" style="color:var(--danger)">🗑️ <span data-i18n="config_clear_profile">Effacer le profil</span></button>
+        <button id="viewGlobalProfileBtn" style="background:none;border:none;color:var(--text-muted);font-size:0.78rem;cursor:pointer;padding:4px 0;text-align:left;width:100%;">↓ <span id="viewGlobalProfileLabel">Voir / effacer le profil général</span></button>
       </div>
 
       <!-- TTS Voice settings -->
@@ -8682,27 +8683,74 @@ Règles de format :
         );
     });
 
-    function updateProfileCount() {
-        const p = getUserProfile();
+    function updatePersonaProfileCount() {
+        const activeId = getActiveId();
+        const activePersona = activeId ? getPersonas().find(p => p.id === activeId) : null;
+        const personaProf = activeId ? getPersonaProfile(activeId) : null;
         const el = document.getElementById('profileCount');
+        const titleEl = document.getElementById('profileSectionTitle');
+        if (titleEl && activePersona) {
+            titleEl.textContent = `Profil ${activePersona.name}`;
+            titleEl.removeAttribute('data-i18n');
+        } else if (titleEl) {
+            titleEl.textContent = t('config_section_profile');
+            titleEl.setAttribute('data-i18n', 'config_section_profile');
+        }
         if (!el) return;
-        if (!profileHasContent(p)) {
+        if (!personaProfileHasContent(personaProf)) {
             el.textContent = t('profile_none');
         } else {
-            const facts = p.facts?.length || 0;
-            const topics = p.topics?.length || 0;
-            const updated = p.lastUpdated || '';
-            el.textContent = t('profile_has').replace('{f}', facts).replace('{t}', topics) + (updated ? ' · ' + updated : '');
+            const facts = personaProf.facts?.length || 0;
+            const updated = personaProf.lastUpdated || '';
+            el.textContent = `${facts} info${facts > 1 ? 's' : ''}` + (updated ? ' · màj ' + updated : '');
         }
     }
-    updateProfileCount();
-
-    function updatePersonaProfileCount() {
-        // Stub for future UI updates — called after persona profile is updated
-        // Will be extended when persona profile display is added to Config UI
-    }
+    // Keep backward compat alias for existing calls in setLang/applyTheme
+    function updateProfileCount() { updatePersonaProfileCount(); }
+    updatePersonaProfileCount();
 
     document.getElementById('viewProfileBtn').addEventListener('click', () => {
+        const activeId = getActiveId();
+        const activePersona = activeId ? getPersonas().find(p => p.id === activeId) : null;
+        const personaProf = activeId ? getPersonaProfile(activeId) : null;
+        if (!personaProfileHasContent(personaProf)) {
+            customAlert(t('profile_none'), { title: `👤 Profil ${activePersona?.name || ''}`, icon: '👤' });
+            return;
+        }
+        const lines = [];
+        const summL  = LANG === 'es' ? 'Resumen' : LANG === 'en' ? 'Summary' : 'Résumé';
+        const factsL = LANG === 'es' ? 'Lo que sabe' : LANG === 'en' ? 'What it knows' : "Ce qu'il sait";
+        const goalsL = LANG === 'es' ? 'Objetivos' : LANG === 'en' ? 'Goals' : 'Objectifs';
+        const prefL  = LANG === 'es' ? 'Estilo' : LANG === 'en' ? 'Style' : 'Style attendu';
+        const updL   = LANG === 'es' ? 'Actualizado' : LANG === 'en' ? 'Updated' : 'Mis à jour';
+        if (personaProf.summary) lines.push(`<b>${summL} :</b> ${personaProf.summary}`);
+        if (personaProf.facts?.length) lines.push(`<b>${factsL} :</b><br>• ${personaProf.facts.join('<br>• ')}`);
+        if (personaProf.goals?.length) lines.push(`<b>${goalsL} :</b> ${personaProf.goals.join(', ')}`);
+        if (personaProf.preferences) lines.push(`<b>${prefL} :</b> ${personaProf.preferences}`);
+        if (personaProf.lastUpdated) lines.push(`<small style="opacity:0.6">${updL} : ${personaProf.lastUpdated}</small>`);
+        customAlert(lines.join('<br><br>'), { title: `👤 Profil ${activePersona?.name || ''}`, icon: '🪪' });
+    });
+
+    document.getElementById('clearProfileBtn').addEventListener('click', async () => {
+        const activeId = getActiveId();
+        const activePersona = activeId ? getPersonas().find(p => p.id === activeId) : null;
+        const personaLabel = activePersona ? ` (${activePersona.name})` : '';
+        if (!await customConfirm(
+            LANG === 'es' ? `Borrar el perfil de este persona${personaLabel}? Empezará de cero.` :
+            LANG === 'en' ? `Clear the profile for this persona${personaLabel}? It will start over.` :
+            `Effacer le profil de ce persona${personaLabel} ? Il repartira de zéro.`,
+            { title: '🗑️ ' + t('config_clear_profile'), confirmLabel: LANG === 'es' ? 'Borrar' : LANG === 'en' ? 'Clear' : 'Effacer', danger: true }
+        )) return;
+        if (activeId) clearPersonaProfile(activeId);
+        updatePersonaProfileCount();
+        customAlert(
+            LANG === 'es' ? 'Perfil borrado.' : LANG === 'en' ? 'Profile cleared.' : 'Profil effacé.',
+            { title: '👤', icon: '✅' }
+        );
+    });
+
+    // Small link to access the global profile
+    document.getElementById('viewGlobalProfileBtn').addEventListener('click', () => {
         const p = getUserProfile();
         if (!profileHasContent(p)) {
             customAlert(t('profile_none'), { title: '👤 ' + t('config_section_profile'), icon: '👤' });
@@ -8723,21 +8771,17 @@ Règles de format :
         if (p.facts?.length) lines.push(`<b>${factsL} :</b><br>• ${p.facts.join('<br>• ')}`);
         if (p.goals?.length) lines.push(`<b>${goalsL} :</b> ${p.goals.join(', ')}`);
         if (p.lastUpdated) lines.push(`<small style="opacity:0.6">${updL} : ${p.lastUpdated}</small>`);
-        customAlert(lines.join('<br><br>'), { title: '👤 ' + t('config_section_profile'), icon: '🪪' });
-    });
-
-    document.getElementById('clearProfileBtn').addEventListener('click', async () => {
-        if (!await customConfirm(
-            LANG === 'es' ? 'Borrar el perfil? Zova comenzará de cero para conocerte.' :
-            LANG === 'en' ? 'Clear the profile? Zova will start over to get to know you.' :
-            'Effacer le profil ? Zova repartira de zéro pour apprendre à te connaître.',
-            { title: '🗑️ ' + t('config_clear_profile'), confirmLabel: LANG === 'es' ? 'Borrar' : LANG === 'en' ? 'Clear' : 'Effacer', danger: true }
-        )) return;
-        localStorage.removeItem(PROFILE_KEY);
-        updateProfileCount();
+        const clearGlobal = async () => {
+            if (!await customConfirm(
+                LANG === 'es' ? 'Borrar el perfil general?' : LANG === 'en' ? 'Clear global profile?' : 'Effacer le profil général ?',
+                { confirmLabel: LANG === 'es' ? 'Borrar' : LANG === 'en' ? 'Clear' : 'Effacer', danger: true }
+            )) return;
+            localStorage.removeItem(PROFILE_KEY);
+            customAlert(LANG === 'es' ? 'Perfil general borrado.' : LANG === 'en' ? 'Global profile cleared.' : 'Profil général effacé.', { icon: '✅' });
+        };
         customAlert(
-            LANG === 'es' ? 'Perfil borrado.' : LANG === 'en' ? 'Profile cleared.' : 'Profil effacé.',
-            { title: '👤', icon: '✅' }
+            lines.join('<br><br>') + `<br><br><button onclick="(${clearGlobal.toString()})()" style="background:none;border:1px solid var(--danger);color:var(--danger);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:0.82rem;">🗑️ ${LANG === 'es' ? 'Borrar perfil general' : LANG === 'en' ? 'Clear global profile' : 'Effacer profil général'}</button>`,
+            { title: '👤 ' + t('config_section_profile'), icon: '🌐' }
         );
     });
 
