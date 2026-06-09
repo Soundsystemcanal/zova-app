@@ -5870,6 +5870,17 @@ Règles STRICTES :
 
         fullInstructions += toolSection;
 
+        // Inject persona-specific user profile (domain-focused)
+        const personaProf = persona?.id ? getPersonaProfile(persona.id) : null;
+        if (personaProfileHasContent(personaProf)) {
+            const lines = [];
+            if (personaProf.summary) lines.push(`Résumé : ${personaProf.summary}`);
+            if (personaProf.facts?.length) lines.push(`Ce que tu sais : ${personaProf.facts.join(' | ')}`);
+            if (personaProf.goals?.length) lines.push(`Objectifs dans ce contexte : ${personaProf.goals.join(', ')}`);
+            if (personaProf.preferences) lines.push(`Style attendu : ${personaProf.preferences}`);
+            fullInstructions += `\n\n# Profil ${persona.name} de l'utilisateur\nCe que tu as appris sur cet utilisateur dans vos échanges. Utilise-le naturellement :\n${lines.join('\n')}`;
+        }
+
         // Inject user profile (cumulative)
         const profile = getUserProfile();
         if (profileHasContent(profile)) {
