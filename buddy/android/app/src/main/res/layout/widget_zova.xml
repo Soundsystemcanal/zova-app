@@ -9,7 +9,7 @@
     android:background="@drawable/widget_bg"
     android:padding="12dp">
 
-    <!-- Avatar lettre de la persona -->
+    <!-- Avatar lettre de la persona (couleur inline — drawable custom non supporté par RemoteViews MIUI) -->
     <TextView
         android:id="@+id/widget_avatar"
         android:layout_width="56dp"
@@ -19,7 +19,8 @@
         android:textStyle="bold"
         android:textColor="#f0e6ff"
         android:gravity="center"
-        android:background="@drawable/widget_avatar_bg" />
+        android:background="#3b1d6e"
+        android:padding="4dp" />
 
     <!-- Nom de la persona -->
     <TextView
