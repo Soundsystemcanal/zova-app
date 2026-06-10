@@ -693,6 +693,9 @@
   var raw = stored || navigator.language || navigator.userLanguage || 'fr';
   var lang = raw.toLowerCase().startsWith('es') ? 'es' : raw.toLowerCase().startsWith('en') ? 'en' : 'fr';
 
+  var q = function(s){ return document.querySelector(s); };
+  var qa = function(s){ return document.querySelectorAll(s); };
+
   var T = {
     fr: {
       title: 'Zova — Ton IA. Ton téléphone. Tes règles.',
@@ -854,8 +857,6 @@
 
   function applyLang(l) {
     var t = T[l] || T.fr;
-    var q = function(s){ return document.querySelector(s); };
-    var qa = function(s){ return document.querySelectorAll(s); };
     document.title = t.title;
     document.documentElement.lang = l;
     var m = q('meta[name="description"]'); if(m) m.content = t.meta_desc;
