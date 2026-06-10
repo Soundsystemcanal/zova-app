@@ -928,6 +928,30 @@
             border-bottom-right-radius: 4px;
         }
 
+        .post-session-summary {
+            align-self: center;
+            width: 100%;
+            background: rgba(139,92,246,0.06);
+            border: 1px solid rgba(139,92,246,0.18);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin: 8px 0 4px;
+            font-size: 0.8rem;
+            animation: toastIn 0.3s ease;
+        }
+        .pss-header {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            letter-spacing: 0.02em;
+        }
+        .pss-line {
+            color: var(--text-secondary);
+            margin: 3px 0;
+            transition: color 0.3s;
+        }
+        .pss-line.done { color: var(--text-primary); font-weight: 500; }
+
         .transcript-msg.ai {
             background: var(--transcript-ai);
             align-self: flex-start;
@@ -6038,9 +6062,15 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
                 if (persona?.id) savePersonaMemory(entry, persona.id); // per-persona
                 updateMemoryCount();
                 console.log('[Zova Memory] Saved:', summary.slice(0, 60) + '...');
+                const memLabel = LANG === 'es' ? '1 recuerdo guardado' : LANG === 'en' ? '1 memory saved' : '1 souvenir enregistré';
+                updatePssLine('pssMemory', `🧠 <strong>${memLabel}</strong>`);
+            } else {
+                const memLabel = LANG === 'es' ? 'Sesión demasiado corta' : LANG === 'en' ? 'Session too short' : 'Session trop courte';
+                updatePssLine('pssMemory', `🧠 ${memLabel}`);
             }
         } catch(e) {
             console.warn('[Zova Memory] Failed to generate:', e.message);
+            updatePssLine('pssMemory', `🧠 —`);
         }
     }
 
@@ -6096,7 +6126,8 @@ Langue: ${langName}. Réponds UNIQUEMENT avec le JSON.`;
             // Parse JSON — strip markdown fences if present
             const jsonStr = raw.replace(/^```[a-z]*\n?/i, '').replace(/```$/, '').trim();
             const result = JSON.parse(jsonStr);
-            if (Array.isArray(result.followups) && result.followups.length > 0) {
+            const fuCount = Array.isArray(result.followups) ? result.followups.length : 0;
+            if (fuCount > 0) {
                 saveFollowUps(result.followups, persona.id);
                 console.log('[Zova Follow-ups] Saved:', result.followups);
             }
@@ -6105,8 +6136,15 @@ Langue: ${langName}. Réponds UNIQUEMENT avec le JSON.`;
                 console.log('[Zova Bridge] Saved:', result.bridge);
             }
             updateFollowupsCount();
+            const fuLabel = fuCount === 0
+                ? (LANG === 'es' ? 'Sin compromisos detectados' : LANG === 'en' ? 'No follow-ups detected' : 'Aucun engagement détecté')
+                : fuCount === 1
+                    ? (LANG === 'es' ? '1 compromiso detectado' : LANG === 'en' ? '1 follow-up detected' : '1 suivi détecté')
+                    : (LANG === 'es' ? `${fuCount} compromisos detectados` : LANG === 'en' ? `${fuCount} follow-ups detected` : `${fuCount} suivis détectés`);
+            updatePssLine('pssFollowups', `📌 <strong>${fuLabel}</strong>`);
         } catch(e) {
             console.warn('[Zova Follow-ups] Failed:', e.message);
+            updatePssLine('pssFollowups', `📌 —`);
         }
     }
 
@@ -6547,6 +6585,57 @@ Règles STRICTES :
         } catch(e) {
             console.warn('[Zova PersonaProfile] Failed:', e.message);
         }
+    }
+
+    // ── Post-session summary card ────────────────────────────────────────────
+    let postSessionSummaryEl = null;
+
+    function showPostSessionSummary(duration, persona) {
+        const transcript = document.getElementById('transcript');
+        if (!transcript) return;
+        const existing = document.getElementById('postSessionSummary');
+        if (existing) existing.remove();
+
+        const fmtDur = (s) => {
+            if (s < 60) return s + 's';
+            const m = Math.floor(s / 60), r = s % 60;
+            return m + 'min' + (r > 0 ? ' ' + r + 's' : '');
+        };
+        const price = PRICING[activeModelId] || PRICING['gpt-realtime-1.5'];
+        const cost = (totalInputTokens / 1000 * price.input) + (totalOutputTokens / 1000 * price.output);
+        const costStr = cost > 0.0001 ? ` · ~$${cost.toFixed(4)}` : '';
+
+        const label = LANG === 'es' ? 'Sesión terminada' : LANG === 'en' ? 'Session ended' : 'Session terminée';
+        const analysing = LANG === 'es' ? 'Analizando...' : LANG === 'en' ? 'Analysing...' : 'Analyse en cours...';
+
+        const el = document.createElement('div');
+        el.id = 'postSessionSummary';
+        el.className = 'post-session-summary';
+        el.innerHTML = `
+            <div class="pss-header">${label} · ${fmtDur(duration)}${costStr}</div>
+            <div class="pss-line" id="pssMemory">🧠 <span>${analysing}</span></div>
+            <div class="pss-line" id="pssFollowups">📌 <span>${analysing}</span></div>`;
+        transcript.appendChild(el);
+        postSessionSummaryEl = el;
+        scrollTranscript();
+
+        // Fallback: clear "analysing" state if async never completes (e.g. session too short)
+        setTimeout(() => {
+            ['pssMemory', 'pssFollowups'].forEach(id => {
+                const line = document.getElementById(id);
+                if (line && !line.classList.contains('done')) {
+                    const dash = LANG === 'es' ? '—' : '—';
+                    line.innerHTML = line.innerHTML.replace(/<span>.*<\/span>/, `<span>${dash}</span>`);
+                }
+            });
+        }, 16000);
+    }
+
+    function updatePssLine(id, html) {
+        const line = document.getElementById(id);
+        if (!line) return;
+        line.className = 'pss-line done';
+        line.innerHTML = html;
     }
 
     // ════════════════════════════════════════════════
@@ -8954,6 +9043,7 @@ Langue : ${lang}`;
         if (hadConversation && !isTranscripteurMode && activeModelId !== 'gpt-realtime-translate') {
             const persona = getPersonas().find(p => p.id === getActiveId());
             const transcriptText = getTranscriptText(false);
+            showPostSessionSummary(duration, persona);
             generateMemory(persona, transcriptText);                    // async, non-bloquant
             updateUserProfile(transcriptText);                          // async, non-bloquant
             updatePersonaProfile(persona, transcriptText);              // async, non-bloquant
