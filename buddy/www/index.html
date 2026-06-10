@@ -6464,6 +6464,52 @@ Règles STRICTES :
 
     // ════════════════════════════════════════════════
 
+    // Score each memory by relevance to the persona context + recency, pick top N.
+    // Always keeps the most recent memory (slot 0) so continuity is preserved.
+    function selectRelevantMemories(memories, persona, n) {
+        if (!memories || memories.length === 0) return [];
+        if (memories.length <= n) return memories;
+
+        // Persona context: prompt + name + description — used for keyword matching
+        const contextText = [
+            persona?.prompt || '',
+            persona?.name || '',
+            persona?.description || '',
+            getFollowUps(persona?.id || '').join(' ')
+        ].join(' ').toLowerCase();
+
+        // Extract meaningful words (4+ chars, ignore stopwords)
+        const STOP = new Set(['avec','pour','dans','cette','comme','plus','mais','tout','bien','être','avoir','votre','voici','donc','ainsi','sans','lors','dont','aussi','quand','quel','vous','nous','ils','elles','that','this','with','from','have','will','your','about','what','when','they','them','their','para','como','pero','todo','bien','estar','tener','muy','este','esta','estos','estas']);
+        function keywords(text) {
+            return (text.toLowerCase().match(/\b[a-zàâçéèêëîïôûùüÿœæ]{4,}\b/g) || [])
+                .filter(w => !STOP.has(w));
+        }
+
+        const contextWords = new Set(keywords(contextText));
+
+        const scored = memories.map((mem, idx) => {
+            // Recency: index 0 = newest → score 1.0, decreasing
+            const recency = 1 - (idx / memories.length);
+
+            // Relevance: fraction of memory words that appear in persona context
+            const memWords = keywords(mem.summary || '');
+            const hits = memWords.filter(w => contextWords.has(w)).length;
+            const relevance = memWords.length > 0 ? hits / memWords.length : 0;
+
+            // Blend: 40% recency + 60% relevance
+            const score = 0.4 * recency + 0.6 * relevance;
+            return { mem, score, idx };
+        });
+
+        // Always keep the most recent memory (idx 0), fill remaining slots by score
+        const [newest, ...rest] = scored;
+        rest.sort((a, b) => b.score - a.score);
+        const picks = [newest, ...rest.slice(0, n - 1)];
+        // Re-sort chronologically (newest first = ascending idx)
+        picks.sort((a, b) => a.idx - b.idx);
+        return picks.map(p => p.mem);
+    }
+
     function buildFullInstructions(persona) {
         let fullInstructions = persona.prompt;
 
@@ -6471,7 +6517,7 @@ Règles STRICTES :
         const personaMems = persona?.id ? getPersonaMemories(persona.id) : [];
         const fallbackMems = getMemories().filter(m => !persona || m.personaId === persona.id || m.personaId === '');
         const memories = personaMems.length > 0 ? personaMems : fallbackMems;
-        const relevant = memories.slice(0, MEMORIES_IN_PROMPT);
+        const relevant = selectRelevantMemories(memories, persona, MEMORIES_IN_PROMPT);
         if (relevant.length > 0) {
             const memBlock = relevant.map(m => `- ${m.date} (${m.personaName}): ${m.summary}`).join('\n');
             fullInstructions += `\n\n# Mémoire des sessions précédentes\nVoici un résumé de tes conversations récentes avec cet utilisateur. Utilise ces infos naturellement pour assurer la continuité :\n${memBlock}`;
