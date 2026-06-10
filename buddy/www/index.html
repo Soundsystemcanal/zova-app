@@ -2541,6 +2541,14 @@ Minimum version required to store current data is: `+i+`.
         <button class="config-screen-btn" id="clearFollowupsBtn" style="color:var(--danger)">🗑️ <span data-i18n="config_clear_followups">Effacer les suivis</span></button>
       </div>
 
+      <!-- Objectifs / Goals -->
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🎯 <span data-i18n="config_section_goals">Objectifs</span></div>
+        <div id="goalsCount" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px"></div>
+        <button class="config-screen-btn" id="viewGoalsBtn">📋 <span data-i18n="config_view_goals">Voir les objectifs</span></button>
+        <button class="config-screen-btn" id="clearGoalsBtn" style="color:var(--danger)">🗑️ <span data-i18n="config_clear_goals">Effacer les objectifs</span></button>
+      </div>
+
       <!-- TTS Voice settings -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
         <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🎙️ <span data-i18n="config_section_tts">Voix TTS (Groq)</span></div>
@@ -3144,6 +3152,12 @@ Minimum version required to store current data is: `+i+`.
             followups_none: 'Sin seguimientos guardados',
             followups_one: '1 seguimiento pendiente',
             followups_many: '{n} seguimientos pendientes',
+            config_section_goals: 'Objetivos',
+            config_view_goals: 'Ver objetivos',
+            config_clear_goals: 'Borrar objetivos',
+            goals_none: 'Sin objetivos registrados',
+            goals_one: '1 objetivo activo',
+            goals_many: '{n} objetivos activos',
             config_section_profile: 'Perfil de usuario',
             config_section_tts: 'Voz TTS (Groq)',
             config_section_security: 'Seguridad',
@@ -3238,6 +3252,12 @@ Minimum version required to store current data is: `+i+`.
             followups_none: 'No follow-ups saved',
             followups_one: '1 pending follow-up',
             followups_many: '{n} pending follow-ups',
+            config_section_goals: 'Goals',
+            config_view_goals: 'View goals',
+            config_clear_goals: 'Clear goals',
+            goals_none: 'No goals recorded',
+            goals_one: '1 active goal',
+            goals_many: '{n} active goals',
             config_section_profile: 'User profile',
             config_section_tts: 'TTS Voice (Groq)',
             config_section_security: 'Security',
@@ -3332,6 +3352,12 @@ Minimum version required to store current data is: `+i+`.
             followups_none: 'Aucun suivi enregistré',
             followups_one: '1 suivi en attente',
             followups_many: '{n} suivis en attente',
+            config_section_goals: 'Objectifs',
+            config_view_goals: 'Voir les objectifs',
+            config_clear_goals: 'Effacer les objectifs',
+            goals_none: 'Aucun objectif enregistré',
+            goals_one: '1 objectif actif',
+            goals_many: '{n} objectifs actifs',
             config_section_profile: 'Profil utilisateur',
             config_section_tts: 'Voix TTS (Groq)',
             config_section_security: 'Sécurité',
@@ -3521,6 +3547,7 @@ Minimum version required to store current data is: `+i+`.
         if (typeof updateMemoryCount === 'function') updateMemoryCount();
         if (typeof updateProfileCount === 'function') updateProfileCount();
         if (typeof updateFollowupsCount === 'function') updateFollowupsCount();
+        if (typeof updateGoalsCount === 'function') updateGoalsCount();
     }
 
     // ════════════════════════════════════════════════
@@ -5916,6 +5943,26 @@ Règles IMPÉRATIVES :
         else localStorage.removeItem(BRIDGE_KEY_PREFIX + personaId);
     }
 
+    // ── Goals (objectifs long terme) ────────────────────────────────────────
+    const GOALS_KEY_PREFIX = 'buddy_goals_';
+    const MAX_GOALS = 10;
+
+    function getGoals(personaId) {
+        try { return JSON.parse(localStorage.getItem(GOALS_KEY_PREFIX + personaId)) || []; }
+        catch { return []; }
+    }
+    function saveGoals(goals, personaId) {
+        if (!personaId) return;
+        localStorage.setItem(GOALS_KEY_PREFIX + personaId, JSON.stringify(goals.slice(0, MAX_GOALS)));
+    }
+    function clearGoals(personaId) {
+        if (!personaId) return;
+        localStorage.removeItem(GOALS_KEY_PREFIX + personaId);
+    }
+    function activeGoals(personaId) {
+        return getGoals(personaId).filter(g => !g.done);
+    }
+
     // ── "Souviens-toi que…" — real-time memory command ──────────────────────
     const MEMORY_CMD_PATTERNS = [
         // FR
@@ -6145,6 +6192,134 @@ Langue: ${langName}. Réponds UNIQUEMENT avec le JSON.`;
         } catch(e) {
             console.warn('[Zova Follow-ups] Failed:', e.message);
             updatePssLine('pssFollowups', `📌 —`);
+        }
+    }
+
+    async function extractAndUpdateGoals(persona, transcriptText) {
+        if (!transcriptText.trim() || !persona?.id) return;
+        const lineCount = transcriptText.split('\n').filter(l => l.trim()).length;
+        if (lineCount < MIN_MSGS_FOR_MEMORY) return;
+
+        const existing = getGoals(persona.id);
+        const existingJson = existing.length > 0
+            ? JSON.stringify(existing.map(g => ({ id: g.id, text: g.text, progress: g.progress, done: g.done })))
+            : '[]';
+        const langName = LANG === 'fr' ? 'français' : LANG === 'es' ? 'español' : 'english';
+
+        const systemPrompt = `Tu analyses une conversation pour mettre à jour les objectifs long terme de l'utilisateur avec ${persona.name || 'Zova'}.
+
+Objectifs actuels: ${existingJson}
+
+Retourne UNIQUEMENT un JSON valide:
+{
+  "new": [{"id":"<timestamp_ms>","text":"objectif","progress":0,"done":false,"createdAt":"${new Date().toISOString().slice(0,10)}","updatedAt":"${new Date().toISOString().slice(0,10)}"}],
+  "updates": [{"id":"<id_existant>","progress":<0-100>,"done":<bool>,"updatedAt":"${new Date().toISOString().slice(0,10)}"}],
+  "remove": ["<id à supprimer si l'utilisateur dit explicitement qu'il abandonne cet objectif>"]
+}
+Règles: seulement si l'utilisateur mentionne EXPLICITEMENT un objectif, une progression ou un accomplissement. Tableaux vides [] si rien de pertinent. Max ${MAX_GOALS} objectifs au total. Langue: ${langName}.`;
+
+        try {
+            let raw = '';
+            const groqKey = await getGroqApiKey();
+            if (groqKey) {
+                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: getModelMemory(),
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: transcriptText.slice(0, 4000) }
+                        ],
+                        max_tokens: 400, temperature: 0.2
+                    })
+                });
+                if (resp.ok) raw = ((await resp.json()).choices?.[0]?.message?.content || '').trim();
+            }
+            if (!raw) raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 4000), temperature: 0.2, maxTokens: 400 });
+
+            const json = raw.replace(/^```[a-z]*\n?/i, '').replace(/```$/, '').trim();
+            const result = JSON.parse(json);
+
+            let goals = [...existing];
+            // Add new
+            if (Array.isArray(result.new)) {
+                result.new.forEach(g => { if (g.text && goals.length < MAX_GOALS) goals.push(g); });
+            }
+            // Update existing
+            if (Array.isArray(result.updates)) {
+                result.updates.forEach(u => {
+                    const g = goals.find(x => x.id === u.id);
+                    if (g) { if (u.progress != null) g.progress = u.progress; if (u.done != null) g.done = u.done; g.updatedAt = u.updatedAt || new Date().toISOString().slice(0, 10); }
+                });
+            }
+            // Remove
+            if (Array.isArray(result.remove)) {
+                goals = goals.filter(g => !result.remove.includes(g.id));
+            }
+
+            saveGoals(goals, persona.id);
+            updateGoalsCount();
+            const activeCount = goals.filter(g => !g.done).length;
+            console.log('[Zova Goals] Updated:', activeCount, 'active');
+
+            const changed = (result.new?.length || 0) + (result.updates?.length || 0);
+            if (changed > 0) {
+                const label = activeCount === 1
+                    ? (LANG === 'es' ? '1 objetivo actualizado' : LANG === 'en' ? '1 goal updated' : '1 objectif mis à jour')
+                    : (LANG === 'es' ? `${activeCount} objetivos activos` : LANG === 'en' ? `${activeCount} active goals` : `${activeCount} objectifs actifs`);
+                updatePssLine('pssGoals', `🎯 <strong>${label}</strong>`);
+            } else {
+                updatePssLine('pssGoals', `🎯 —`);
+            }
+        } catch(e) {
+            console.warn('[Zova Goals] Failed:', e.message);
+            updatePssLine('pssGoals', `🎯 —`);
+        }
+    }
+
+    async function consolidatePersonaMemories(persona) {
+        if (!persona?.id) return;
+        const mems = getPersonaMemories(persona.id);
+        const CONSOLIDATION_THRESHOLD = 6;
+        const KEEP_RECENT = 2;
+        if (mems.length < CONSOLIDATION_THRESHOLD) return;
+
+        const toMerge = mems.slice(KEEP_RECENT); // oldest entries (index is newest-first)
+        const mergeText = toMerge.map((m, i) => `Session ${i + 1} (${m.date}): ${m.summary}`).join('\n');
+        const langName = LANG === 'fr' ? 'français' : LANG === 'es' ? 'español' : 'english';
+        const systemPrompt = `Fusionne ces résumés de sessions en 1 résumé condensé (100 tokens max). Garde les infos clés sur l'utilisateur. Réponds UNIQUEMENT avec le résumé. Langue: ${langName}.`;
+
+        try {
+            let summary = '';
+            const groqKey = await getGroqApiKey();
+            if (groqKey) {
+                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: getModelMemory(),
+                        messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: mergeText }],
+                        max_tokens: 120, temperature: 0.3
+                    })
+                });
+                if (resp.ok) summary = ((await resp.json()).choices?.[0]?.message?.content || '').trim();
+            }
+            if (!summary) summary = await chatCompletion({ systemPrompt, userPrompt: mergeText, temperature: 0.3, maxTokens: 120 });
+            if (!summary) return;
+
+            const oldest = toMerge[toMerge.length - 1];
+            const newest = toMerge[0];
+            const consolidated = {
+                date: `${oldest.date} → ${newest.date}`,
+                personaId: persona.id, personaName: persona.name || '',
+                summary, consolidated: true
+            };
+            const newMems = [...mems.slice(0, KEEP_RECENT), consolidated];
+            localStorage.setItem(PERSONA_MEMORY_PREFIX + persona.id, JSON.stringify(newMems));
+            console.log('[Zova Memory] Consolidated', toMerge.length, 'entries → 1');
+        } catch(e) {
+            console.warn('[Zova Memory] Consolidation failed:', e.message);
         }
     }
 
@@ -6614,18 +6789,18 @@ Règles STRICTES :
         el.innerHTML = `
             <div class="pss-header">${label} · ${fmtDur(duration)}${costStr}</div>
             <div class="pss-line" id="pssMemory">🧠 <span>${analysing}</span></div>
-            <div class="pss-line" id="pssFollowups">📌 <span>${analysing}</span></div>`;
+            <div class="pss-line" id="pssFollowups">📌 <span>${analysing}</span></div>
+            <div class="pss-line" id="pssGoals">🎯 <span>${analysing}</span></div>`;
         transcript.appendChild(el);
         postSessionSummaryEl = el;
         scrollTranscript();
 
         // Fallback: clear "analysing" state if async never completes (e.g. session too short)
         setTimeout(() => {
-            ['pssMemory', 'pssFollowups'].forEach(id => {
+            ['pssMemory', 'pssFollowups', 'pssGoals'].forEach(id => {
                 const line = document.getElementById(id);
                 if (line && !line.classList.contains('done')) {
-                    const dash = LANG === 'es' ? '—' : '—';
-                    line.innerHTML = line.innerHTML.replace(/<span>.*<\/span>/, `<span>${dash}</span>`);
+                    line.innerHTML = line.innerHTML.replace(/<span>.*<\/span>/, `<span>—</span>`);
                 }
             });
         }, 16000);
@@ -6713,6 +6888,16 @@ Règles STRICTES :
         if (followups.length > 0) {
             const fuBlock = followups.map(f => `- ${f}`).join('\n');
             fullInstructions += `\n\n# Engagements de l'utilisateur (session précédente)\nL'utilisateur avait exprimé ces intentions ou engagements lors de la dernière session :\n${fuBlock}\n→ Si l'occasion se présente naturellement, demande comment ça s'est passé. Ne force pas si le sujet a changé.`;
+        }
+
+        // Goals — long-term objectives with progress
+        const goals = persona?.id ? activeGoals(persona.id) : [];
+        if (goals.length > 0) {
+            const goalsBlock = goals.map(g => {
+                const pct = g.progress != null ? ` (${g.progress}%)` : '';
+                return `- ${g.text}${pct}`;
+            }).join('\n');
+            fullInstructions += `\n\n# Objectifs long terme de l'utilisateur\nSuivis au fil des sessions :\n${goalsBlock}\n→ Si la conversation touche à ces sujets, fais référence naturellement à la progression. Ne force pas si hors-sujet.`;
         }
 
         const toolSection = activeProvider === 'gemini'
@@ -9049,6 +9234,8 @@ Langue : ${lang}`;
             updatePersonaProfile(persona, transcriptText);              // async, non-bloquant
             generateChapters(persona, transcriptText);                  // async, non-bloquant
             extractFollowUpsAndBridge(persona, transcriptText);         // async, non-bloquant
+            extractAndUpdateGoals(persona, transcriptText);             // async, non-bloquant
+            consolidatePersonaMemories(persona);                        // async, non-bloquant
         }
     }
 
@@ -9758,6 +9945,45 @@ Règles de format :
         customAlert(
             LANG === 'es' ? 'Seguimientos borrados.' : LANG === 'en' ? 'Follow-ups cleared.' : 'Suivis effacés.',
             { title: '📌', icon: '✅' }
+        );
+    });
+
+    function updateGoalsCount() {
+        const activeId = getActiveId();
+        const active = activeId ? activeGoals(activeId) : [];
+        const el = document.getElementById('goalsCount');
+        if (!el) return;
+        if (active.length === 0) el.textContent = t('goals_none');
+        else if (active.length === 1) el.textContent = t('goals_one');
+        else el.textContent = t('goals_many').replace('{n}', active.length);
+    }
+    updateGoalsCount();
+
+    document.getElementById('viewGoalsBtn').addEventListener('click', () => {
+        const activeId = getActiveId();
+        const goals = activeId ? getGoals(activeId) : [];
+        if (!goals.length) { customAlert(t('goals_none'), { title: '🎯 ' + t('config_section_goals'), icon: '🎯' }); return; }
+        const lines = goals.map(g => {
+            const pct = g.progress != null ? ` — ${g.progress}%` : '';
+            const done = g.done ? ' ✅' : '';
+            return `${done ? '~~' : ''}${g.text}${pct}${done ? '~~' : ''}${done}`;
+        });
+        customAlert(lines.join('\n'), { title: '🎯 ' + t('config_section_goals'), icon: '🎯' });
+    });
+
+    document.getElementById('clearGoalsBtn').addEventListener('click', async () => {
+        const activeId = getActiveId();
+        if (!await customConfirm(
+            LANG === 'es' ? '¿Borrar todos los objetivos de esta persona?' :
+            LANG === 'en' ? 'Clear all goals for this persona?' :
+            'Effacer tous les objectifs de ce persona ?',
+            { title: '🗑️ ' + t('config_clear_goals'), confirmLabel: LANG === 'es' ? 'Borrar' : LANG === 'en' ? 'Clear' : 'Effacer', danger: true }
+        )) return;
+        if (activeId) clearGoals(activeId);
+        updateGoalsCount();
+        customAlert(
+            LANG === 'es' ? 'Objetivos borrados.' : LANG === 'en' ? 'Goals cleared.' : 'Objectifs effacés.',
+            { title: '🎯', icon: '✅' }
         );
     });
 
