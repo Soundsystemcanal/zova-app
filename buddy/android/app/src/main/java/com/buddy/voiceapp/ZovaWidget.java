@@ -10,8 +10,8 @@ import android.content.SharedPreferences;
 import android.widget.RemoteViews;
 
 /**
- * Widget Android 4×1 — tap démarre la conversation directement.
- * Affiche : nom persona active · dernière session (ex: "Hier · 8 min").
+ * Widget Android 2×2 — tap démarre la conversation directement.
+ * Affiche : avatar lettre, nom persona, dernière session.
  */
 public class ZovaWidget extends AppWidgetProvider {
 
@@ -37,9 +37,11 @@ public class ZovaWidget extends AppWidgetProvider {
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_zova);
 
+        String avatarLetter = personaName.isEmpty() ? "Z" : String.valueOf(personaName.charAt(0)).toUpperCase();
+        views.setTextViewText(R.id.widget_avatar, avatarLetter);
         views.setTextViewText(R.id.widget_title, personaName);
-        views.setTextViewText(R.id.widget_subtitle, "Appuyer pour parler");
         views.setTextViewText(R.id.widget_session, lastSession);
+        views.setTextViewText(R.id.widget_subtitle, lastSession.isEmpty() ? "▶  Démarrer" : "▶  Démarrer");
 
         // Intent AUTO_START=true → conversation démarre direct
         Intent intent = new Intent(context, MainActivity.class);
@@ -51,7 +53,7 @@ public class ZovaWidget extends AppWidgetProvider {
         );
 
         views.setOnClickPendingIntent(R.id.widget_root, pi);
-        views.setOnClickPendingIntent(R.id.widget_mic_icon, pi);
+        views.setOnClickPendingIntent(R.id.widget_avatar, pi);
 
         mgr.updateAppWidget(widgetId, views);
     }
