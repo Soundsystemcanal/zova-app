@@ -5110,6 +5110,39 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         wizardData = { topic:'', tone:'chaleureux', formal:false, who:'persona', name:'', creativity:'balanced' };
     }
 
+    function openPersonaChoiceSheet() {
+        const overlay = document.createElement('div');
+        overlay.className = 'dialog-overlay'; // capté par le backButton existant
+        overlay.innerHTML = `<div class="dialog-box" style="text-align:left">
+            <div class="dialog-title" style="text-align:center">${t('wiz_choice_title')}</div>
+            <button id="_pcGuided" class="config-screen-btn" style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:56px;margin-bottom:10px">
+                <span style="font-weight:700">${t('wiz_guided')}</span>
+                <span style="font-size:0.78rem;opacity:0.7">${t('wiz_guided_sub')}</span>
+            </button>
+            <button id="_pcManual" class="config-screen-btn" style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:56px">
+                <span style="font-weight:700">${t('wiz_manual')}</span>
+                <span style="font-size:0.78rem;opacity:0.7">${t('wiz_manual_sub')}</span>
+            </button>
+            <div class="dialog-buttons" style="margin-top:14px">
+                <button class="dialog-btn" id="_pcCancel">${t('btn_cancel')}</button>
+            </div>
+        </div>`;
+        document.body.appendChild(overlay);
+        const close = () => overlay.remove();
+        overlay.querySelector('#_pcCancel').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+        overlay.querySelector('#_pcManual').addEventListener('click', () => { close(); openPersonaModal(); });
+        overlay.querySelector('#_pcGuided').addEventListener('click', async () => {
+            if (!await hasAnyApiKey()) {
+                close();
+                customAlert(t('wiz_need_key'), { title: t('wiz_choice_title'), icon: '&#128273;' });
+                return;
+            }
+            close();
+            openPersonaWizard();
+        });
+    }
+
     function openPersonaModal(persona = null) {
         editingPersonaId = persona ? persona.id : null;
         document.getElementById('personaModalTitle').textContent =
@@ -5194,7 +5227,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         document.body.appendChild(overlay);
     }
 
-    document.getElementById('newPersonaBtn').addEventListener('click', () => openPersonaModal());
+    document.getElementById('newPersonaBtn').addEventListener('click', () => openPersonaChoiceSheet());
     // document.querySelector('.logo') removed — logo no longer exists (sidebar replaced by bottom nav)
     document.getElementById('cancelPersonaBtn').addEventListener('click', closePersonaModal);
     document.getElementById('closePersonaBtn').addEventListener('click', closePersonaModal);
