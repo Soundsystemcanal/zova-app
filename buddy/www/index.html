@@ -3995,6 +3995,12 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     function getActiveId() { return localStorage.getItem('buddy_activePersonaId') || ''; }
     function setActiveId(id) { localStorage.setItem('buddy_activePersonaId', id); }
 
+    function notifyWidget(id) {
+        if (!window.ZovaBridge) return;
+        const p = getPersonas().find(x => x.id === (id || getActiveId()));
+        if (p) try { window.ZovaBridge.setPersonaName(p.name); } catch(e) {}
+    }
+
     function getUserInfo() { return localStorage.getItem('buddy_userInfo') || ''; }
     function setUserInfo(info) { localStorage.setItem('buddy_userInfo', info); }
 
@@ -5269,6 +5275,7 @@ Règles IMPÉRATIVES :
         document.getElementById('startBtn').textContent = t('btn_start');
 
         setActiveId(id);
+        notifyWidget(id);
         renderPersonaList();
 
         const p = getPersonas().find(x => x.id === id);
@@ -9455,6 +9462,7 @@ Règles de format :
         await migrateApiKeysToSecureStorage();
         renderPersonaList();
         showEmptyState();
+        notifyWidget(); // sync persona active → widget Android
         applyI18n();
         // Update PIN buttons state
         const savedPin = await SecureStore.get(PIN_KEY);
