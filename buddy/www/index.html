@@ -5083,6 +5083,32 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         }
     }
 
+    // ════════════════════════════════════════════════
+    //  WIZARD DE CRÉATION DE PERSONA
+    // ════════════════════════════════════════════════
+
+    // Mapping ton → voix, par fournisseur. Repli géré par updatePersonaVoiceList.
+    const WIZARD_VOICE_MAP = {
+        openai:   { chaleureux:'coral', pro:'alloy', fun:'shimmer', calme:'sage',  expert:'echo' },
+        gemini:   { chaleureux:'Fenrir', pro:'Kore', fun:'Zephyr',  calme:'Leda',  expert:'Charon' },
+        ultravox: { chaleureux:'Jessica', pro:'Tanya', fun:'Jessica', calme:'Tanya', expert:'David' }
+    };
+
+    function wizardToneToVoice(tone) {
+        const provider = getProviderForModel(getRealtimeModel());
+        const table = WIZARD_VOICE_MAP[provider] || WIZARD_VOICE_MAP.openai;
+        return table[tone] || table.chaleureux;
+    }
+
+    // État courant du wizard (réponses + index d'étape)
+    let wizardStep = 0;
+    let wizardData = { topic:'', tone:'chaleureux', formal:false, who:'persona', name:'', creativity:'balanced' };
+
+    function resetWizardData() {
+        wizardStep = 0;
+        wizardData = { topic:'', tone:'chaleureux', formal:false, who:'persona', name:'', creativity:'balanced' };
+    }
+
     function openPersonaModal(persona = null) {
         editingPersonaId = persona ? persona.id : null;
         document.getElementById('personaModalTitle').textContent =
