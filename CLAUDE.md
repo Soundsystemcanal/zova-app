@@ -15,12 +15,24 @@
 
 | Rama | Estado | Descripción |
 |------|--------|-------------|
-| `main` | ✅ Estable v1.1 | Versión pública, APK release firmado |
-| `v2-beta` | 🚧 Activa | Nuevas features (export/import, memoria, perfil) |
+| `main` | 🚧 En desarrollo v3 | Nouvelles features widget + mémoire proactive |
+| `v2-beta` | 🗂️ Archivée | Export/import, mémoire, profil |
 
 ## Estado (2026-06-10)
 
-### v1.1 (main)
+### v3 — en cours (main)
+✅ Widget 2×2 — avatar photo, nom persona, dernière session, AUTO_START  
+✅ Widget AUTO_START — PIN-aware (MutationObserver sur #pinScreen)  
+✅ Follow-ups — engagements user extraits post-session (LLM), affichés dans Config  
+✅ Bridge proactif — phrase d'accroche naturelle générée post-session, injectée dans prompt  
+✅ Sélection intelligente souvenirs — score pertinence (keyword overlap) + récence  
+🧪 En test sur Xiaomi 14T  
+
+### v2.1 (tag v2.1 / APK release)
+✅ APK release firmado (`buddy/Zova-v2.1.apk`, signé v2 scheme, versionCode 3)  
+✅ GitHub Releases + QR (`buddy/assets/qr-download.png` → v2.1 APK direct download)  
+
+### v1.1 (main — état avant v3)
 ✅ App funcional en Xiaomi 14T (Android 16 "Baklava")  
 ✅ Tasks 1–10 completos  
 ✅ WakeLock + Reconnexión auto + PIN 4 dígitos  
