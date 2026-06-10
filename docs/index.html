@@ -621,5 +621,284 @@
     <div>Zova v3.0 &nbsp;·&nbsp; par Xavier Bourdet &nbsp;·&nbsp; <em>"Ton IA. Ton téléphone. Tes règles."</em></div>
 </footer>
 
+
+<script>
+(function(){
+  var stored = localStorage.getItem('zova_lang');
+  var raw = stored || navigator.language || navigator.userLanguage || 'fr';
+  var lang = raw.toLowerCase().startsWith('es') ? 'es' : raw.toLowerCase().startsWith('en') ? 'en' : 'fr';
+
+  var T = {
+    fr: {
+      title: 'Zova — Ton IA. Ton téléphone. Tes règles.',
+      meta_desc: 'Zova est un assistant vocal IA pour Android. Sans serveur, sans abonnement. Tes clés API restent sur ton téléphone.',
+      hero_slogan: 'Ton IA. Ton téléphone. Tes règles.',
+      hero_sub: 'Assistant vocal IA pour Android — sans serveur intermédiaire, sans abonnement mensuel, sans surveillance. Tes clés API restent sur ton téléphone.',
+      hero_badge: '✦ v3.0 — Maintenant disponible',
+      hero_dl: '⬇  Télécharger Zova v3.0 · 4 Mo',
+      hero_qr: 'Scanner pour télécharger',
+      why_title: 'Pourquoi Zova ?',
+      c1_h: 'Souverain', c1_p: "Tes clés API sont chiffrées dans l'Android Keystore matériel. Zova ne voit jamais tes données — il n'existe aucun serveur Zova.",
+      c2_h: 'Personnalisable', c2_p: 'Crée des assistants sur mesure : nom, personnalité, voix, prompt libre. Chaque persona apprend à te connaître et s'améliore avec le temps.',
+      c3_h: 'Il se souvient', c3_p: 'Mémoire épisodique + profil adaptatif par persona. Chaque conversation enrichit la relation. Reprend naturellement là où vous vous êtes arrêtés.',
+      c4_h: 'Transparent', c4_p: 'Paye exactement ce que tu utilises, directement au provider. Pas d\'abonnement caché. Dès ~$0.001/min — ou gratuit pour commencer.',
+      feat_title: 'Ce que Zova sait faire',
+      f1_h: 'Mémoire intelligente', f1_p: 'Zova sélectionne les souvenirs les plus pertinents pour chaque conversation — par score de pertinence ET récence. Chaque persona a sa propre mémoire, indépendante des autres.',
+      f2_h: 'Suivis d\'engagements', f2_p: 'Après chaque session, Zova détecte automatiquement tes engagements et les garde en mémoire pour les relancer naturellement à la prochaine conversation.',
+      f3_h: 'Objectifs long terme', f3_p: 'Mentionne un objectif et Zova le retient. Session après session, ta progression est suivie et injectée dans le contexte. Consulte tes objectifs actifs dans Config.',
+      f4_h: '"Souviens-toi que…"', f4_p: 'Dis simplement "souviens-toi que je préfère les réponses courtes" et Zova mémorise instantanément le fait — toast de confirmation, sauvegardé dans ton profil.',
+      f5_h: 'Reconnexion transparente', f5_p: 'Quand la connexion coupe en pleine conversation, Zova reprend exactement là où elle s\'était arrêtée — sans se réintroduire, sans oublier le contexte.',
+      f6_h: 'Chapitrage automatique', f6_p: 'Les sessions longues (plus de 20 min) sont analysées après Stop : l\'IA découpe la conversation en chapitres thématiques avec titres et résumés. Consultables via le bouton 📑.',
+      f7_h: 'Profil adaptatif par persona', f7_p: 'Chaque persona construit son propre profil de toi, adapté à son domaine. Ton coach fitness connaît tes objectifs physiques. Ton assistant code connaît ton stack.',
+      f8_h: 'Export transcription + chapitres', f8_p: 'Exporte ta conversation avec les chapitres en table des matières. Option "Nettoyer" : l\'IA corrige les erreurs de reconnaissance vocale avant de partager.',
+      prov_title: '4 providers au choix',
+      th_quality: 'Qualité', th_cost: 'Coût / min', th_best: 'Idéal pour',
+      p1_best: 'Qualité maximale', p2_best: 'Rapport qualité/prix', p3_best: 'Usage intensif', p4_best: 'Débuter sans CB',
+      prov_note: 'Groq offre un quota gratuit généreux — parfait pour découvrir Zova sans frais.',
+      install_title: 'Installer en 3 minutes',
+      s1_h: 'Télécharger', s1_p: 'Clique le bouton ou scanne le QR. Le fichier <strong>Zova-v3.0.apk</strong> (~4 Mo) se télécharge sur ton Android.',
+      s2_h: 'Autoriser', s2_p: 'Paramètres → Apps → ton navigateur → <em>"Installer des applis inconnues"</em> → Autoriser. Puis ouvre le fichier APK.',
+      s3_h: 'Configurer', s3_p: 'Ouvre Zova → Config → Clé API → colle ta clé <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> (gratuite). C\'est prêt !',
+      manual_title: 'Manuel d\'utilisation',
+      m1_h: '🎤 Démarrer une conversation',
+      m1: ['Appuie sur le bouton central pour parler','L\'écran reste allumé pendant la conversation (WakeLock)','Si la connexion se coupe, Zova reconnecte automatiquement (3 tentatives)','Appuie à nouveau pour terminer la session'],
+      m2_h: '🎭 Personas',
+      m2: ['Appuie sur le nom de la persona dans l\'écran d\'accueil pour changer','Config → Personas → "+" pour créer un assistant sur mesure','Chaque persona a son propre prompt, voix, mémoire et profil','La persona Zova apprend à te connaître au fil des conversations'],
+      m3_h: '🧠 Mémoire et profil adaptatif',
+      m3: ['Après chaque session, Zova génère un résumé, met à jour le profil, détecte les engagements et les objectifs — en arrière-plan','Chaque persona a sa propre mémoire, profil, suivis et objectifs — indépendants','Dis "souviens-toi que…" pendant la conversation : Zova mémorise instantanément','Config → section "Profil [nom persona]" pour voir ou effacer le profil actif','Config → "Suivis" : engagements détectés post-session','Config → "Objectifs" : objectifs long terme et leur progression'],
+      m4_h: '📝 Transcription et export',
+      m4: ['La conversation s\'affiche en temps réel dans l\'onglet Transcription','Après la session : bouton "Exporter" pour partager le texte brut','Option "Nettoyer" : l\'IA corrige les erreurs STT et ajoute la ponctuation','Partage via n\'importe quelle app : email, WhatsApp, Notes, Drive…'],
+      m5_h: '💾 Backup et restore',
+      m5: ['Config → Exporter : partage via Drive/WhatsApp ou sauvegarde locale dans Zova','Inclut personas, mémoires, profils — option clés API en bonus','Config → Importer → "Sauvegardes Zova" pour restaurer sans chercher le fichier','Compatible Android 11+ (contourne les restrictions scoped storage)'],
+      m6_h: '🔐 Sécurité et PIN',
+      m6: ['Clés API chiffrées dans l\'Android Keystore matériel (jamais en clair)','Option PIN 4 chiffres pour verrouiller l\'accès à l\'app','Aucune donnée envoyée à des serveurs Zova — connexion directe au provider','Les clés ne quittent ton téléphone qu\'à l\'export si tu le demandes explicitement'],
+      m7_h: '⚙️ Providers et clés API',
+      m7: ['<strong>Groq</strong> (pour débuter) : <a href="https://console.groq.com/keys" target="_blank">console.groq.com</a> — quota gratuit','<strong>OpenAI</strong> : <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>','<strong>Gemini</strong> : <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com</a>','<strong>Ultravox</strong> : <a href="https://app.ultravox.ai" target="_blank">app.ultravox.ai</a>'],
+      m8_h: '❓ Dépannage rapide',
+      m8: ['Bouton "?" dans Config → FAQ complète FR/EN/ES intégrée dans l\'app','Pas de micro : Paramètres → Apps → Zova → Permissions → Micro → Autoriser','Voix muette : normal sur Android WebView — le texte s\'affiche quand même','Xiaomi : active "Débogage USB" + "Installer via USB" dans Options développeur'],
+      cta_h: 'Prêt à reprendre le contrôle ?',
+      cta_p: 'Tes pensées, ta voix, ton IA. Personne d\'autre.',
+      cta_dl: '⬇  Télécharger Zova v3.0',
+      footer: 'Zova v3.0  ·  par Xavier Bourdet  ·  <em>"Ton IA. Ton téléphone. Tes règles."</em>',
+      lang_label: '🌐 Langue'
+    },
+    en: {
+      title: 'Zova — Your AI. Your phone. Your rules.',
+      meta_desc: 'Zova is an AI voice assistant for Android. No server, no subscription. Your API keys stay on your phone.',
+      hero_slogan: 'Your AI. Your phone. Your rules.',
+      hero_sub: 'AI voice assistant for Android — no middleman server, no monthly subscription, no tracking. Your API keys stay on your phone.',
+      hero_badge: '✦ v3.0 — Now available',
+      hero_dl: '⬇  Download Zova v3.0 · 4 MB',
+      hero_qr: 'Scan to download',
+      why_title: 'Why Zova?',
+      c1_h: 'Sovereign', c1_p: 'Your API keys are encrypted in the hardware Android Keystore. Zova never sees your data — there is no Zova server.',
+      c2_h: 'Customizable', c2_p: 'Create custom assistants: name, personality, voice, free prompt. Each persona learns about you and improves over time.',
+      c3_h: 'It remembers', c3_p: 'Episodic memory + adaptive profile per persona. Each conversation enriches the relationship. Picks up naturally where you left off.',
+      c4_h: 'Transparent', c4_p: 'Pay exactly what you use, directly to the provider. No hidden subscription. From ~$0.001/min — or free to start.',
+      feat_title: 'What Zova can do',
+      f1_h: 'Smart memory', f1_p: 'Zova selects the most relevant memories for each conversation — by relevance score AND recency. Each persona has its own independent memory.',
+      f2_h: 'Engagement follow-ups', f2_p: 'After each session, Zova automatically detects your commitments and keeps them in memory to naturally bring them up next conversation.',
+      f3_h: 'Long-term goals', f3_p: 'Mention a goal and Zova remembers it. Session after session, your progress is tracked and injected into the context. View active goals in Config.',
+      f4_h: '"Remember that…"', f4_p: 'Just say "remember that I prefer short answers" and Zova instantly memorizes the fact — confirmation toast, saved in your profile.',
+      f5_h: 'Transparent reconnection', f5_p: 'When the connection drops mid-conversation, Zova resumes exactly where it left off — without re-introducing itself, without forgetting context.',
+      f6_h: 'Auto-chaptering', f6_p: 'Long sessions (over 20 min) are analyzed after Stop: the AI breaks the conversation into thematic chapters with titles and summaries. Accessible via the 📑 button.',
+      f7_h: 'Adaptive profile per persona', f7_p: 'Each persona builds its own profile of you, adapted to its domain. Your fitness coach knows your goals. Your coding assistant knows your stack.',
+      f8_h: 'Transcription export + chapters', f8_p: 'Export your conversation with chapters as a table of contents. "Clean" option: the AI corrects speech recognition errors before sharing.',
+      prov_title: '4 providers to choose from',
+      th_quality: 'Quality', th_cost: 'Cost / min', th_best: 'Best for',
+      p1_best: 'Maximum quality', p2_best: 'Best value', p3_best: 'Heavy use', p4_best: 'Start free',
+      prov_note: 'Groq offers a generous free quota — perfect for discovering Zova at no cost.',
+      install_title: 'Install in 3 minutes',
+      s1_h: 'Download', s1_p: 'Click the button or scan the QR. The <strong>Zova-v3.0.apk</strong> file (~4 MB) downloads to your Android.',
+      s2_h: 'Allow', s2_p: 'Settings → Apps → your browser → <em>"Install unknown apps"</em> → Allow. Then open the APK file.',
+      s3_h: 'Configure', s3_p: 'Open Zova → Config → API Key → paste your <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> key (free). Done!',
+      manual_title: 'User Manual',
+      m1_h: '🎤 Start a conversation',
+      m1: ['Tap the central button to speak','Screen stays on during conversation (WakeLock)','If the connection drops, Zova reconnects automatically (3 attempts)','Tap again to end the session'],
+      m2_h: '🎭 Personas',
+      m2: ['Tap the persona name on the home screen to switch','Config → Personas → "+" to create a custom assistant','Each persona has its own prompt, voice, memory and profile','The Zova persona learns about you through conversations'],
+      m3_h: '🧠 Memory & adaptive profile',
+      m3: ['After each session, Zova generates a summary, updates the profile, detects commitments and goals — in the background','Each persona has its own memory, profile, follow-ups and goals — independent','Say "remember that…" during the conversation: Zova memorizes instantly','Config → "Profile [persona name]" to view or clear the active profile','Config → "Follow-ups": post-session commitments','Config → "Goals": long-term goals and their progress'],
+      m4_h: '📝 Transcription & export',
+      m4: ['Conversation displays in real time in the Transcription tab','After session: "Export" button to share raw text','Option "Clean": AI corrects STT errors and adds punctuation','Share via any app: email, WhatsApp, Notes, Drive…'],
+      m5_h: '💾 Backup & restore',
+      m5: ['Config → Export: share via Drive/WhatsApp or save locally in Zova','Includes personas, memories, profiles — API keys option as bonus','Config → Import → "Zova Backups" to restore without searching for the file','Compatible with Android 11+ (bypasses scoped storage restrictions)'],
+      m6_h: '🔐 Security & PIN',
+      m6: ['API keys encrypted in hardware Android Keystore (never in plaintext)','Optional 4-digit PIN to lock app access','No data sent to Zova servers — direct connection to provider','Keys only leave your phone at export if you explicitly request it'],
+      m7_h: '⚙️ Providers & API keys',
+      m7: ['<strong>Groq</strong> (to start): <a href="https://console.groq.com/keys" target="_blank">console.groq.com</a> — free quota','<strong>OpenAI</strong>: <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>','<strong>Gemini</strong>: <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com</a>','<strong>Ultravox</strong>: <a href="https://app.ultravox.ai" target="_blank">app.ultravox.ai</a>'],
+      m8_h: '❓ Quick troubleshooting',
+      m8: ['"?" button in Config → full FR/EN/ES FAQ built into the app','No mic: Settings → Apps → Zova → Permissions → Microphone → Allow','Silent voice: normal on Android WebView — text still displays','Xiaomi: enable "USB debugging" + "Install via USB" in Developer options'],
+      cta_h: 'Ready to take back control?',
+      cta_p: 'Your thoughts, your voice, your AI. Nobody else.',
+      cta_dl: '⬇  Download Zova v3.0',
+      footer: 'Zova v3.0  ·  by Xavier Bourdet  ·  <em>"Your AI. Your phone. Your rules."</em>',
+      lang_label: '🌐 Language'
+    },
+    es: {
+      title: 'Zova — Tu IA. Tu teléfono. Tus reglas.',
+      meta_desc: 'Zova es un asistente de voz IA para Android. Sin servidor, sin suscripción. Tus claves API se quedan en tu teléfono.',
+      hero_slogan: 'Tu IA. Tu teléfono. Tus reglas.',
+      hero_sub: 'Asistente de voz IA para Android — sin servidor intermediario, sin suscripción mensual, sin vigilancia. Tus claves API se quedan en tu teléfono.',
+      hero_badge: '✦ v3.0 — Disponible ahora',
+      hero_dl: '⬇  Descargar Zova v3.0 · 4 MB',
+      hero_qr: 'Escanear para descargar',
+      why_title: '¿Por qué Zova?',
+      c1_h: 'Soberano', c1_p: 'Tus claves API están cifradas en el Android Keystore de hardware. Zova nunca ve tus datos — no existe ningún servidor Zova.',
+      c2_h: 'Personalizable', c2_p: 'Crea asistentes a medida: nombre, personalidad, voz, prompt libre. Cada persona aprende sobre ti y mejora con el tiempo.',
+      c3_h: 'Recuerda', c3_p: 'Memoria episódica + perfil adaptativo por persona. Cada conversación enriquece la relación. Retoma naturalmente donde lo dejaron.',
+      c4_h: 'Transparente', c4_p: 'Paga exactamente lo que usas, directamente al proveedor. Sin suscripción oculta. Desde ~$0.001/min — o gratis para empezar.',
+      feat_title: 'Lo que Zova sabe hacer',
+      f1_h: 'Memoria inteligente', f1_p: 'Zova selecciona los recuerdos más relevantes para cada conversación — por puntuación de pertinencia Y recencia. Cada persona tiene su propia memoria independiente.',
+      f2_h: 'Seguimiento de compromisos', f2_p: 'Después de cada sesión, Zova detecta automáticamente tus compromisos y los guarda para retomarlos naturalmente en la próxima conversación.',
+      f3_h: 'Objetivos a largo plazo', f3_p: 'Menciona un objetivo y Zova lo recuerda. Sesión tras sesión, tu progreso es rastreado e inyectado en el contexto. Consulta tus objetivos activos en Config.',
+      f4_h: '"Recuerda que…"', f4_p: 'Di simplemente "recuerda que prefiero respuestas cortas" y Zova memoriza instantáneamente el hecho — toast de confirmación, guardado en tu perfil.',
+      f5_h: 'Reconexión transparente', f5_p: 'Cuando la conexión se corta a mitad de conversación, Zova retoma exactamente donde se quedó — sin reintroducirse, sin olvidar el contexto.',
+      f6_h: 'Capitulado automático', f6_p: 'Las sesiones largas (más de 20 min) se analizan después de Stop: la IA divide la conversación en capítulos temáticos con títulos y resúmenes. Accesibles via el botón 📑.',
+      f7_h: 'Perfil adaptativo por persona', f7_p: 'Cada persona construye su propio perfil de ti, adaptado a su dominio. Tu coach de fitness conoce tus objetivos físicos. Tu asistente de código conoce tu stack.',
+      f8_h: 'Exportar transcripción + capítulos', f8_p: 'Exporta tu conversación con los capítulos como tabla de contenidos. Opción "Limpiar": la IA corrige los errores de reconocimiento de voz antes de compartir.',
+      prov_title: '4 proveedores a elegir',
+      th_quality: 'Calidad', th_cost: 'Coste / min', th_best: 'Ideal para',
+      p1_best: 'Calidad máxima', p2_best: 'Mejor relación calidad/precio', p3_best: 'Uso intensivo', p4_best: 'Empezar gratis',
+      prov_note: 'Groq ofrece una cuota gratuita generosa — perfecta para descubrir Zova sin coste.',
+      install_title: 'Instalar en 3 minutos',
+      s1_h: 'Descargar', s1_p: 'Haz clic en el botón o escanea el QR. El archivo <strong>Zova-v3.0.apk</strong> (~4 MB) se descarga en tu Android.',
+      s2_h: 'Permitir', s2_p: 'Ajustes → Apps → tu navegador → <em>"Instalar apps desconocidas"</em> → Permitir. Luego abre el archivo APK.',
+      s3_h: 'Configurar', s3_p: 'Abre Zova → Config → Clave API → pega tu clave <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> (gratis). ¡Listo!',
+      manual_title: 'Manual de uso',
+      m1_h: '🎤 Iniciar una conversación',
+      m1: ['Pulsa el botón central para hablar','La pantalla permanece encendida durante la conversación (WakeLock)','Si la conexión se corta, Zova reconecta automáticamente (3 intentos)','Pulsa de nuevo para terminar la sesión'],
+      m2_h: '🎭 Personas',
+      m2: ['Pulsa el nombre de la persona en la pantalla de inicio para cambiar','Config → Personas → "+" para crear un asistente personalizado','Cada persona tiene su propio prompt, voz, memoria y perfil','La persona Zova aprende a conocerte a lo largo de las conversaciones'],
+      m3_h: '🧠 Memoria y perfil adaptativo',
+      m3: ['Después de cada sesión, Zova genera un resumen, actualiza el perfil, detecta compromisos y objetivos — en segundo plano','Cada persona tiene su propia memoria, perfil, seguimientos y objetivos — independientes','Di "recuerda que…" durante la conversación: Zova memoriza instantáneamente','Config → sección "Perfil [nombre persona]" para ver o borrar el perfil activo','Config → "Seguimientos": compromisos detectados post-sesión','Config → "Objetivos": objetivos a largo plazo y su progreso'],
+      m4_h: '📝 Transcripción y exportación',
+      m4: ['La conversación se muestra en tiempo real en la pestaña Transcripción','Tras la sesión: botón "Exportar" para compartir el texto','Opción "Limpiar": la IA corrige errores de STT y añade puntuación','Comparte via cualquier app: email, WhatsApp, Notas, Drive…'],
+      m5_h: '💾 Backup y restauración',
+      m5: ['Config → Exportar: comparte via Drive/WhatsApp o guarda localmente en Zova','Incluye personas, memorias, perfiles — opción claves API como bonus','Config → Importar → "Copias Zova" para restaurar sin buscar el archivo','Compatible con Android 11+ (evita las restricciones de scoped storage)'],
+      m6_h: '🔐 Seguridad y PIN',
+      m6: ['Claves API cifradas en Android Keystore de hardware (nunca en texto claro)','Opción PIN de 4 dígitos para bloquear el acceso a la app','Ningún dato enviado a servidores Zova — conexión directa al proveedor','Las claves solo salen de tu teléfono al exportar si lo solicitas explícitamente'],
+      m7_h: '⚙️ Proveedores y claves API',
+      m7: ['<strong>Groq</strong> (para empezar): <a href="https://console.groq.com/keys" target="_blank">console.groq.com</a> — cuota gratuita','<strong>OpenAI</strong>: <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>','<strong>Gemini</strong>: <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com</a>','<strong>Ultravox</strong>: <a href="https://app.ultravox.ai" target="_blank">app.ultravox.ai</a>'],
+      m8_h: '❓ Solución rápida de problemas',
+      m8: ['Botón "?" en Config → FAQ completa FR/EN/ES integrada en la app','Sin micrófono: Ajustes → Apps → Zova → Permisos → Micrófono → Permitir','Voz silenciosa: normal en Android WebView — el texto se muestra igual','Xiaomi: activa "Depuración USB" + "Instalar via USB" en Opciones de desarrollador'],
+      cta_h: '¿Listo para recuperar el control?',
+      cta_p: 'Tus pensamientos, tu voz, tu IA. Nadie más.',
+      cta_dl: '⬇  Descargar Zova v3.0',
+      footer: 'Zova v3.0  ·  por Xavier Bourdet  ·  <em>"Tu IA. Tu teléfono. Tus reglas."</em>',
+      lang_label: '🌐 Idioma'
+    }
+  };
+
+  function applyLang(l) {
+    var t = T[l] || T.fr;
+    var q = function(s){ return document.querySelector(s); };
+    var qa = function(s){ return document.querySelectorAll(s); };
+
+    document.title = t.title;
+    document.documentElement.lang = l;
+    var m = q('meta[name="description"]'); if(m) m.content = t.meta_desc;
+
+    // Hero
+    var hs = q('.hero-slogan'); if(hs) hs.textContent = t.hero_slogan;
+    var hsub = q('.hero-sub'); if(hsub) hsub.textContent = t.hero_sub;
+    var hb = q('.version-badge'); if(hb) hb.textContent = t.hero_badge;
+    var btns = qa('.btn-dl'); if(btns[0]) btns[0].innerHTML = t.hero_dl;
+    var qrspan = q('.qr-block span'); if(qrspan) qrspan.textContent = t.hero_qr;
+
+    // Section titles (h2)
+    var h2s = qa('.section h2');
+    var titles = [t.why_title, t.feat_title, t.prov_title, t.install_title, t.manual_title];
+    titles.forEach(function(tx, i){ if(h2s[i]) h2s[i].textContent = tx; });
+
+    // Concept cards
+    var cc = qa('.concept-card');
+    [[t.c1_h,t.c1_p],[t.c2_h,t.c2_p],[t.c3_h,t.c3_p],[t.c4_h,t.c4_p]].forEach(function(d,i){
+      if(!cc[i]) return;
+      var h3 = cc[i].querySelector('h3'); var p = cc[i].querySelector('p');
+      if(h3) h3.textContent = d[0]; if(p) p.textContent = d[1];
+    });
+
+    // Feature cards
+    var fc = qa('.feature-card');
+    var feats = [
+      [t.f1_h,'v3'],[t.f2_h,'v3'],[t.f3_h,'v3'],[t.f4_h,'v3'],
+      [t.f5_h,''],[t.f6_h,''],[t.f7_h,''],[t.f8_h,'']
+    ];
+    var fdescs = [t.f1_p,t.f2_p,t.f3_p,t.f4_p,t.f5_p,t.f6_p,t.f7_p,t.f8_p];
+    feats.forEach(function(d,i){
+      if(!fc[i]) return;
+      var h3 = fc[i].querySelector('h3'); var p = fc[i].querySelector('p');
+      if(h3) h3.innerHTML = d[0] + (d[1] ? ' <span class="feat-new">'+d[1]+'</span>' : '');
+      if(p) p.textContent = fdescs[i];
+    });
+
+    // Providers table
+    var ths = qa('table th');
+    if(ths[1]) ths[1].textContent = t.th_quality;
+    if(ths[2]) ths[2].textContent = t.th_cost;
+    if(ths[3]) ths[3].textContent = t.th_best;
+    var rows = qa('tbody tr');
+    var bests = [t.p1_best, t.p2_best, t.p3_best, t.p4_best];
+    rows.forEach(function(r, i){ var tds = r.querySelectorAll('td'); if(tds[3]) tds[3].textContent = bests[i]; });
+    var tn = q('.table-note'); if(tn) tn.textContent = t.prov_note;
+
+    // Steps
+    var steps = qa('.step');
+    [[t.s1_h,t.s1_p],[t.s2_h,t.s2_p],[t.s3_h,t.s3_p]].forEach(function(d,i){
+      if(!steps[i]) return;
+      var h3 = steps[i].querySelector('h3'); var p = steps[i].querySelector('p');
+      if(h3) h3.textContent = d[0]; if(p) p.innerHTML = d[1];
+    });
+
+    // Manual cards
+    var mc = qa('.manual-card');
+    var mcData = [
+      [t.m1_h, t.m1],[t.m2_h, t.m2],[t.m3_h, t.m3],[t.m4_h, t.m4],
+      [t.m5_h, t.m5],[t.m6_h, t.m6],[t.m7_h, t.m7],[t.m8_h, t.m8]
+    ];
+    mcData.forEach(function(d, i){
+      if(!mc[i]) return;
+      var h3 = mc[i].querySelector('h3'); if(h3) h3.textContent = d[0];
+      var lis = mc[i].querySelectorAll('li');
+      d[1].forEach(function(txt, j){ if(lis[j]) lis[j].innerHTML = txt; });
+    });
+
+    // CTA
+    var ctah = q('.cta h2'); if(ctah) ctah.textContent = t.cta_h;
+    var ctap = q('.cta p'); if(ctap) ctap.textContent = t.cta_p;
+    if(btns[1]) btns[1].innerHTML = t.cta_dl;
+
+    // Footer
+    var footerDiv = q('footer > div:last-child'); if(footerDiv) footerDiv.innerHTML = t.footer;
+
+    // Lang switcher active state
+    qa('.lang-btn').forEach(function(b){ b.style.opacity = b.dataset.lang === l ? '1' : '0.45'; b.style.fontWeight = b.dataset.lang === l ? '700' : '400'; });
+  }
+
+  // Lang switcher
+  document.addEventListener('DOMContentLoaded', function(){
+    var footer = document.querySelector('footer');
+    if(footer){
+      var sw = document.createElement('div');
+      sw.style.cssText = 'display:flex;gap:12px;align-items:center;font-size:0.78rem;';
+      ['fr','en','es'].forEach(function(l){
+        var b = document.createElement('button');
+        b.className = 'lang-btn';
+        b.dataset.lang = l;
+        b.textContent = l.toUpperCase();
+        b.style.cssText = 'background:none;border:none;color:#9a8cb0;cursor:pointer;font-size:0.78rem;padding:2px 6px;border-radius:4px;transition:opacity 0.2s;';
+        b.addEventListener('click', function(){
+          localStorage.setItem('zova_lang', l);
+          applyLang(l);
+        });
+        sw.appendChild(b);
+      });
+      footer.insertBefore(sw, footer.firstChild);
+    }
+    applyLang(lang);
+  });
+})();
+</script>
 </body>
 </html>
