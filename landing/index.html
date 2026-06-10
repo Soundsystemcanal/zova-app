@@ -152,24 +152,6 @@
             margin-bottom: 40px;
         }
 
-        /* CONCEPT CARDS */
-        .concept-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-        }
-        .concept-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 32px 24px;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-        .concept-card:hover { transform: translateY(-3px); border-color: rgba(139,92,246,0.5); }
-        .concept-card .icon { font-size: 2rem; display: block; margin-bottom: 14px; }
-        .concept-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; color: var(--text); }
-        .concept-card p { font-size: 0.84rem; color: var(--muted); line-height: 1.7; }
-
         /* FEATURES v2 */
         .features-grid {
             display: grid;
@@ -374,6 +356,13 @@
             th, td { padding: 11px 12px; font-size: 0.82rem; }
             .topnav { padding: 10px 18px; }
         }
+
+        /* WHY SECTION (flux + carousel + piliers) */
+        #zova-why > * { max-width: 860px; margin-left: auto; margin-right: auto; }
+        #zova-carousel::-webkit-scrollbar { display: none; }
+        @media (max-width: 400px) {
+            #zova-pillars { grid-template-columns: 1fr !important; }
+        }
     </style>
 </head>
 <body>
@@ -424,33 +413,274 @@
 
 <hr class="sep">
 
-<!-- POURQUOI ZOVA -->
-<div class="section">
-    <h2>Pourquoi Zova ?</h2>
-    <div class="divider"></div>
-    <div class="concept-grid">
-        <div class="concept-card">
-            <span class="icon">🔒</span>
-            <h3>Souverain</h3>
-            <p>Tes clés API sont chiffrées dans l'Android Keystore matériel. Zova ne voit jamais tes données — il n'existe aucun serveur Zova.</p>
+<!-- ============================================================
+     SECTION POURQUOI ZOVA — Flux + Carousel cas d'usage + Piliers
+     ============================================================ -->
+<section id="zova-why" style="background:#0a0a1f; padding:48px 20px; font-family:'DM Sans',sans-serif; box-sizing:border-box;">
+
+  <!-- Header -->
+  <div style="text-align:center; margin-bottom:32px;">
+    <p data-i18n="w_label" style="font-size:11px; font-weight:600; letter-spacing:.12em; color:#8b5cf6; margin:0 0 10px; text-transform:uppercase;">Comment ça marche</p>
+    <p data-i18n="w_title" style="font-size:22px; font-weight:800; font-family:'Syne',sans-serif; color:#e2d9f3; margin:0; line-height:1.3;">Ton IA parle directement.<br>Sans intermédiaire.</p>
+  </div>
+
+  <!-- FLUX COMPARATIF -->
+  <div style="display:grid; grid-template-columns:1fr 28px 1fr; gap:10px; align-items:start; margin-bottom:32px;">
+
+    <div style="background:rgba(255,80,80,.06); border:.5px solid rgba(255,80,80,.22); border-radius:14px; padding:16px 14px;">
+      <div style="text-align:center; margin-bottom:14px;">
+        <span data-i18n="w_others" style="background:rgba(255,80,80,.12); color:#f87171; font-size:11px; font-weight:600; padding:3px 12px; border-radius:20px;">Les autres apps</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center;">
+        <div style="background:#12122e; border:.5px solid rgba(255,255,255,.1); border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:7px; width:100%; box-sizing:border-box;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9a8cb0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span data-i18n="w_you" style="font-size:12px; color:#c4b8e0;">Toi</span>
         </div>
-        <div class="concept-card">
-            <span class="icon">🎭</span>
-            <h3>Personnalisable</h3>
-            <p>Crée des assistants sur mesure : nom, personnalité, voix, prompt libre. Chaque persona apprend à te connaître et s'améliore avec le temps.</p>
+        <div style="width:1.5px; height:12px; background:rgba(255,255,255,.1);"></div>
+        <div style="background:rgba(251,146,60,.1); border:.5px solid rgba(251,146,60,.4); border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:7px; width:100%; box-sizing:border-box;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <div>
+            <p data-i18n="w_srv1" style="font-size:11px; color:#fdba74; margin:0; font-weight:600;">Serveur tiers</p>
+            <p data-i18n="w_srv1s" style="font-size:10px; color:#9a7050; margin:0;">Stocke tes données</p>
+          </div>
         </div>
-        <div class="concept-card">
-            <span class="icon">🧠</span>
-            <h3>Il se souvient</h3>
-            <p>Mémoire épisodique + profil adaptatif par persona. Chaque conversation enrichit la relation. Reprend naturellement là où vous vous êtes arrêtés.</p>
+        <div style="width:1.5px; height:12px; background:rgba(255,255,255,.1);"></div>
+        <div style="background:#12122e; border:.5px solid rgba(255,255,255,.1); border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:7px; width:100%; box-sizing:border-box;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9a8cb0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
+          <span data-i18n="w_ai" style="font-size:12px; color:#c4b8e0;">IA</span>
         </div>
-        <div class="concept-card">
-            <span class="icon">💸</span>
-            <h3>Transparent</h3>
-            <p>Paye exactement ce que tu utilises, directement au provider. Pas d'abonnement caché. Dès ~$0.001/min — ou gratuit pour commencer.</p>
+        <div style="width:1.5px; height:12px; background:rgba(255,255,255,.1);"></div>
+        <div style="background:rgba(251,146,60,.1); border:.5px solid rgba(251,146,60,.4); border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:7px; width:100%; box-sizing:border-box;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <div>
+            <p data-i18n="w_srv2" style="font-size:11px; color:#fdba74; margin:0; font-weight:600;">Retour via serveur</p>
+            <p data-i18n="w_srv2s" style="font-size:10px; color:#9a7050; margin:0;">Analyse tes échanges</p>
+          </div>
         </div>
+        <div style="width:1.5px; height:12px; background:rgba(255,255,255,.1);"></div>
+        <div style="background:#12122e; border:.5px solid rgba(255,255,255,.1); border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:7px; width:100%; box-sizing:border-box;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9a8cb0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span data-i18n="w_you" style="font-size:12px; color:#c4b8e0;">Toi</span>
+        </div>
+      </div>
+      <p data-i18n="w_exposed" style="font-size:11px; color:#f87171; text-align:center; margin:10px 0 0;">Tes conversations exposées</p>
     </div>
-</div>
+
+    <div style="display:flex; align-items:center; justify-content:center; padding-top:44px;">
+      <div style="width:24px; height:24px; background:rgba(139,92,246,.15); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+        <span style="font-size:9px; font-weight:700; color:#8b5cf6;">VS</span>
+      </div>
+    </div>
+
+    <div style="background:rgba(139,92,246,.06); border:.5px solid rgba(139,92,246,.35); border-radius:14px; padding:16px 14px;">
+      <div style="text-align:center; margin-bottom:14px;">
+        <span style="background:rgba(139,92,246,.2); color:#a78bfa; font-size:11px; font-weight:600; padding:3px 12px; border-radius:20px;">Zova</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center;">
+        <div style="background:rgba(139,92,246,.12); border:.5px solid rgba(139,92,246,.4); border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:7px; width:100%; box-sizing:border-box;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span data-i18n="w_you" style="font-size:12px; color:#c4b8e0;">Toi</span>
+        </div>
+        <div style="width:1.5px; height:12px; background:rgba(139,92,246,.4);"></div>
+        <div style="background:rgba(139,92,246,.15); border:1px solid rgba(139,92,246,.6); border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:7px; width:100%; box-sizing:border-box;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
+          <div>
+            <p data-i18n="w_direct" style="font-size:11px; color:#e2d9f3; margin:0; font-weight:600;">IA — directement</p>
+            <p style="font-size:10px; color:#9a8cb0; margin:0;">OpenAI · Gemini · Groq…</p>
+          </div>
+        </div>
+        <div style="width:1.5px; height:12px; background:rgba(139,92,246,.4);"></div>
+        <div style="background:rgba(139,92,246,.12); border:.5px solid rgba(139,92,246,.4); border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:7px; width:100%; box-sizing:border-box;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span data-i18n="w_you" style="font-size:12px; color:#c4b8e0;">Toi</span>
+        </div>
+      </div>
+      <p data-i18n="w_private" style="font-size:11px; color:#a78bfa; text-align:center; margin:10px 0 0;">Personne d'autre n'écoute</p>
+    </div>
+  </div>
+
+  <!-- SÉPARATEUR -->
+  <div style="height:.5px; background:rgba(139,92,246,.2); margin:0 0 32px;"></div>
+
+  <!-- CAS D'USAGE — CAROUSEL -->
+  <div style="margin-bottom:32px;">
+    <div style="text-align:center; margin-bottom:20px;">
+      <p data-i18n="w_uc_label" style="font-size:11px; font-weight:600; letter-spacing:.12em; color:#ec4899; margin:0 0 8px; text-transform:uppercase;">Ce que tu peux faire</p>
+      <p data-i18n="w_uc_title" style="font-size:20px; font-weight:800; font-family:'Syne',sans-serif; color:#e2d9f3; margin:0; line-height:1.3;">Parle. Zova s'occupe du reste.</p>
+    </div>
+
+    <div id="zova-carousel" style="display:flex; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; gap:12px; padding:4px 2px 12px; scrollbar-width:none; -ms-overflow-style:none;">
+
+      <div style="flex:0 0 calc(100% - 32px); scroll-snap-align:start; background:#0e0e28; border:.5px solid rgba(139,92,246,.25); border-radius:14px; padding:16px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+          <div style="width:34px; height:34px; background:rgba(139,92,246,.15); border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <span data-i18n="u1_t" style="font-size:13px; font-weight:600; color:#c4b8e0;">Traduction en direct</span>
+        </div>
+        <div style="background:rgba(255,255,255,.04); border-radius:8px; padding:10px; margin-bottom:8px;">
+          <p data-i18n="w_mic" style="font-size:11px; color:#9a8cb0; margin:0 0 4px;">🎙 Toi</p>
+          <p data-i18n="u1_q" style="font-size:12px; color:#e2d9f3; margin:0; font-style:italic;">"Traduis ma conversation avec mon médecin en espagnol"</p>
+        </div>
+        <div style="background:rgba(139,92,246,.08); border-radius:8px; padding:10px;">
+          <p style="font-size:11px; color:#8b5cf6; margin:0 0 4px;">✦ Zova</p>
+          <p data-i18n="u1_a" style="font-size:12px; color:#c4b8e0; margin:0; font-style:italic;">"Bien sûr. Je traduis en temps réel dès que tu parles."</p>
+        </div>
+      </div>
+
+      <div style="flex:0 0 calc(100% - 32px); scroll-snap-align:start; background:#0e0e28; border:.5px solid rgba(236,72,153,.22); border-radius:14px; padding:16px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+          <div style="width:34px; height:34px; background:rgba(236,72,153,.12); border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.8 19.8 0 0 1 1.62 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6.03 6.03l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <span data-i18n="u2_t" style="font-size:13px; font-weight:600; color:#c4b8e0;">Voyage & planning</span>
+        </div>
+        <div style="background:rgba(255,255,255,.04); border-radius:8px; padding:10px; margin-bottom:8px;">
+          <p data-i18n="w_mic" style="font-size:11px; color:#9a8cb0; margin:0 0 4px;">🎙 Toi</p>
+          <p data-i18n="u2_q" style="font-size:12px; color:#e2d9f3; margin:0; font-style:italic;">"Organise 10 jours à Tokyo, budget 2 000 €"</p>
+        </div>
+        <div style="background:rgba(236,72,153,.08); border-radius:8px; padding:10px;">
+          <p style="font-size:11px; color:#ec4899; margin:0 0 4px;">✦ Zova</p>
+          <p data-i18n="u2_a" style="font-size:12px; color:#c4b8e0; margin:0; font-style:italic;">"Voici un itinéraire jour par jour avec hôtels et transports…"</p>
+        </div>
+      </div>
+
+      <div style="flex:0 0 calc(100% - 32px); scroll-snap-align:start; background:#0e0e28; border:.5px solid rgba(139,92,246,.25); border-radius:14px; padding:16px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+          <div style="width:34px; height:34px; background:rgba(139,92,246,.15); border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <span data-i18n="u3_t" style="font-size:13px; font-weight:600; color:#c4b8e0;">Dev & code</span>
+        </div>
+        <div style="background:rgba(255,255,255,.04); border-radius:8px; padding:10px; margin-bottom:8px;">
+          <p data-i18n="w_mic" style="font-size:11px; color:#9a8cb0; margin:0 0 4px;">🎙 Toi</p>
+          <p data-i18n="u3_q" style="font-size:12px; color:#e2d9f3; margin:0; font-style:italic;">"Pourquoi mon script Python plante sur cette ligne ?"</p>
+        </div>
+        <div style="background:rgba(139,92,246,.08); border-radius:8px; padding:10px;">
+          <p style="font-size:11px; color:#8b5cf6; margin:0 0 4px;">✦ Zova</p>
+          <p data-i18n="u3_a" style="font-size:12px; color:#c4b8e0; margin:0; font-style:italic;">"C'est une erreur d'indentation ligne 42. Voici la correction…"</p>
+        </div>
+      </div>
+
+      <div style="flex:0 0 calc(100% - 32px); scroll-snap-align:start; background:#0e0e28; border:.5px solid rgba(236,72,153,.22); border-radius:14px; padding:16px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+          <div style="width:34px; height:34px; background:rgba(236,72,153,.12); border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <span data-i18n="u4_t" style="font-size:13px; font-weight:600; color:#c4b8e0;">Documents & contrats</span>
+        </div>
+        <div style="background:rgba(255,255,255,.04); border-radius:8px; padding:10px; margin-bottom:8px;">
+          <p data-i18n="w_mic" style="font-size:11px; color:#9a8cb0; margin:0 0 4px;">🎙 Toi</p>
+          <p data-i18n="u4_q" style="font-size:12px; color:#e2d9f3; margin:0; font-style:italic;">"Résume ce bail en 5 points clés, en simple"</p>
+        </div>
+        <div style="background:rgba(236,72,153,.08); border-radius:8px; padding:10px;">
+          <p style="font-size:11px; color:#ec4899; margin:0 0 4px;">✦ Zova</p>
+          <p data-i18n="u4_a" style="font-size:12px; color:#c4b8e0; margin:0; font-style:italic;">"1. Durée 3 ans renouvelable. 2. Loyer indexé sur l'IRL…"</p>
+        </div>
+      </div>
+
+      <div style="flex:0 0 calc(100% - 32px); scroll-snap-align:start; background:#0e0e28; border:.5px solid rgba(139,92,246,.25); border-radius:14px; padding:16px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+          <div style="width:34px; height:34px; background:rgba(139,92,246,.15); border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </div>
+          <span data-i18n="u5_t" style="font-size:13px; font-weight:600; color:#c4b8e0;">Apprentissage</span>
+        </div>
+        <div style="background:rgba(255,255,255,.04); border-radius:8px; padding:10px; margin-bottom:8px;">
+          <p data-i18n="w_mic" style="font-size:11px; color:#9a8cb0; margin:0 0 4px;">🎙 Toi</p>
+          <p data-i18n="u5_q" style="font-size:12px; color:#e2d9f3; margin:0; font-style:italic;">"Explique-moi la fusion nucléaire comme si j'avais 15 ans"</p>
+        </div>
+        <div style="background:rgba(139,92,246,.08); border-radius:8px; padding:10px;">
+          <p style="font-size:11px; color:#8b5cf6; margin:0 0 4px;">✦ Zova</p>
+          <p data-i18n="u5_a" style="font-size:12px; color:#c4b8e0; margin:0; font-style:italic;">"Imagine deux aimants qui fusionnent et libèrent une énergie…"</p>
+        </div>
+      </div>
+
+      <div style="flex:0 0 calc(100% - 32px); scroll-snap-align:start; background:#0e0e28; border:.5px solid rgba(236,72,153,.22); border-radius:14px; padding:16px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+          <div style="width:34px; height:34px; background:rgba(236,72,153,.12); border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <span data-i18n="u6_t" style="font-size:13px; font-weight:600; color:#c4b8e0;">Communication</span>
+        </div>
+        <div style="background:rgba(255,255,255,.04); border-radius:8px; padding:10px; margin-bottom:8px;">
+          <p data-i18n="w_mic" style="font-size:11px; color:#9a8cb0; margin:0 0 4px;">🎙 Toi</p>
+          <p data-i18n="u6_q" style="font-size:12px; color:#e2d9f3; margin:0; font-style:italic;">"Rédige un email de refus poli pour cette offre"</p>
+        </div>
+        <div style="background:rgba(236,72,153,.08); border-radius:8px; padding:10px;">
+          <p style="font-size:11px; color:#ec4899; margin:0 0 4px;">✦ Zova</p>
+          <p data-i18n="u6_a" style="font-size:12px; color:#c4b8e0; margin:0; font-style:italic;">"Objet : Suite à votre proposition — Madame, Monsieur…"</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Dots -->
+    <div id="zova-dots" style="display:flex; justify-content:center; gap:7px; margin-top:4px;">
+      <span class="zd" data-i="0" style="width:20px; height:5px; border-radius:3px; background:#8b5cf6; cursor:pointer; transition:all .25s; display:inline-block;"></span>
+      <span class="zd" data-i="1" style="width:6px;  height:5px; border-radius:3px; background:rgba(139,92,246,.3); cursor:pointer; transition:all .25s; display:inline-block;"></span>
+      <span class="zd" data-i="2" style="width:6px;  height:5px; border-radius:3px; background:rgba(139,92,246,.3); cursor:pointer; transition:all .25s; display:inline-block;"></span>
+      <span class="zd" data-i="3" style="width:6px;  height:5px; border-radius:3px; background:rgba(139,92,246,.3); cursor:pointer; transition:all .25s; display:inline-block;"></span>
+      <span class="zd" data-i="4" style="width:6px;  height:5px; border-radius:3px; background:rgba(139,92,246,.3); cursor:pointer; transition:all .25s; display:inline-block;"></span>
+      <span class="zd" data-i="5" style="width:6px;  height:5px; border-radius:3px; background:rgba(139,92,246,.3); cursor:pointer; transition:all .25s; display:inline-block;"></span>
+    </div>
+
+    <!-- Flèches -->
+    <div style="display:flex; justify-content:center; gap:12px; margin-top:14px;">
+      <button id="zova-prev" aria-label="Précédent" style="width:40px; height:40px; border-radius:50%; background:rgba(139,92,246,.12); border:.5px solid rgba(139,92,246,.35); color:#8b5cf6; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center;">&#8592;</button>
+      <button id="zova-next" aria-label="Suivant"    style="width:40px; height:40px; border-radius:50%; background:rgba(139,92,246,.12); border:.5px solid rgba(139,92,246,.35); color:#8b5cf6; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center;">&#8594;</button>
+    </div>
+  </div>
+
+  <!-- SÉPARATEUR -->
+  <div style="height:.5px; background:rgba(139,92,246,.2); margin:0 0 32px;"></div>
+
+  <!-- TROIS PILIERS -->
+  <div>
+    <div style="text-align:center; margin-bottom:20px;">
+      <p data-i18n="why_title" style="font-size:11px; font-weight:600; letter-spacing:.12em; color:#8b5cf6; margin:0 0 8px; text-transform:uppercase;">Pourquoi Zova ?</p>
+      <p data-i18n="w_why_title" style="font-size:20px; font-weight:800; font-family:'Syne',sans-serif; color:#e2d9f3; margin:0;">Ton IA. Ton téléphone. Tes règles.</p>
+    </div>
+    <div id="zova-pillars" style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px;">
+      <div style="background:#12122e; border:.5px solid rgba(139,92,246,.3); border-radius:14px; padding:16px 12px;">
+        <div style="width:38px; height:38px; background:rgba(139,92,246,.15); border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:12px;">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <p style="font-size:26px; font-weight:700; color:#e2d9f3; margin:0 0 2px; line-height:1;">0</p>
+        <p data-i18n="p1_l" style="font-size:12px; font-weight:600; color:#c4b8e0; margin:0 0 6px;">serveur inter&shy;médiaire</p>
+        <p data-i18n="p1_d" style="font-size:11px; color:#9a8cb0; margin:0; line-height:1.5;">Clés API dans l'Android Keystore. Zova ne voit rien.</p>
+      </div>
+      <div style="background:#12122e; border:.5px solid rgba(236,72,153,.3); border-radius:14px; padding:16px 12px;">
+        <div style="width:38px; height:38px; background:rgba(236,72,153,.12); border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:12px;">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <p data-i18n="p2_n" style="font-size:26px; font-weight:700; color:#e2d9f3; margin:0 0 2px; line-height:1;">~1$</p>
+        <p data-i18n="p2_l" style="font-size:12px; font-weight:600; color:#c4b8e0; margin:0 0 6px;">par mois</p>
+        <p data-i18n="p2_d" style="font-size:11px; color:#9a8cb0; margin:0; line-height:1.5;">Pay-as-you-go. Tu paies ce que tu utilises.</p>
+      </div>
+      <div style="background:#12122e; border:.5px solid rgba(139,92,246,.3); border-radius:14px; padding:16px 12px;">
+        <div style="width:38px; height:38px; background:rgba(139,92,246,.15); border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:12px;">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+        </div>
+        <p style="font-size:26px; font-weight:700; color:#e2d9f3; margin:0 0 2px; line-height:1;">4</p>
+        <p data-i18n="p3_l" style="font-size:12px; font-weight:600; color:#c4b8e0; margin:0 0 6px;">providers</p>
+        <p data-i18n="p3_d" style="font-size:11px; color:#9a8cb0; margin:0; line-height:1.5;">OpenAI, Gemini, Ultravox, Groq. Change en un tap.</p>
+      </div>
+    </div>
+    <div style="margin-top:20px; display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
+      <span style="font-size:11px; color:#9a8cb0; display:flex; align-items:center; gap:5px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        Android · APK direct
+      </span>
+      <span style="font-size:11px; color:#9a8cb0; display:flex; align-items:center; gap:5px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        FR · EN · ES
+      </span>
+    </div>
+  </div>
+
+</section>
+<!-- ============================================================ -->
 
 <hr class="sep">
 
@@ -689,6 +919,39 @@
 
 <script>
 (function(){
+  /* ── CAROUSEL ── */
+  var track   = document.getElementById('zova-carousel');
+  var dots    = document.querySelectorAll('#zova-dots .zd');
+  var btnPrev = document.getElementById('zova-prev');
+  var btnNext = document.getElementById('zova-next');
+  var total   = 6;
+  var current = 0;
+
+  function paintDots() {
+    dots.forEach(function(d, i) {
+      d.style.width      = i === current ? '20px' : '6px';
+      d.style.background = i === current ? '#8b5cf6' : 'rgba(139,92,246,.3)';
+    });
+  }
+  function goTo(idx) {
+    current = (idx + total) % total;
+    track.scrollTo({ left: current * (track.scrollWidth / total), behavior: 'smooth' });
+    paintDots();
+  }
+
+  if (btnPrev) btnPrev.addEventListener('click', function() { goTo(current - 1); });
+  if (btnNext) btnNext.addEventListener('click', function() { goTo(current + 1); });
+  dots.forEach(function(d) {
+    d.addEventListener('click', function() { goTo(parseInt(d.getAttribute('data-i'), 10)); });
+  });
+  if (track) {
+    track.addEventListener('scroll', function() {
+      var idx = Math.round(track.scrollLeft / (track.scrollWidth / total));
+      if (idx !== current) { current = idx; paintDots(); }
+    }, { passive: true });
+  }
+
+  /* ── I18N ── */
   var stored = localStorage.getItem('zova_lang');
   var raw = stored || navigator.language || navigator.userLanguage || 'fr';
   var lang = raw.toLowerCase().startsWith('es') ? 'es' : raw.toLowerCase().startsWith('en') ? 'en' : 'fr';
@@ -703,13 +966,32 @@
       hero_slogan: 'Ton IA. Ton téléphone. Tes règles.',
       hero_sub: 'Assistant vocal IA pour Android — sans serveur intermédiaire, sans abonnement mensuel, sans surveillance. Tes clés API restent sur ton téléphone.',
       hero_badge: '✦ v3.0 — Maintenant disponible',
-      hero_dl: '⬇  Télécharger Zova v3.0 · 4 Mo',
+      hero_dl: '⬇  Télécharger Zova v3.0 · 4 Mo',
       hero_qr: 'Scanner pour télécharger',
       why_title: 'Pourquoi Zova ?',
-      c1_h: 'Souverain', c1_p: "Tes clés API sont chiffrées dans l'Android Keystore matériel. Zova ne voit jamais tes données — il n'existe aucun serveur Zova.",
-      c2_h: 'Personnalisable', c2_p: "Crée des assistants sur mesure : nom, personnalité, voix, prompt libre. Chaque persona apprend à te connaître et s'améliore avec le temps.",
-      c3_h: 'Il se souvient', c3_p: 'Mémoire épisodique + profil adaptatif par persona. Chaque conversation enrichit la relation. Reprend naturellement là où vous vous êtes arrêtés.',
-      c4_h: 'Transparent', c4_p: 'Paye exactement ce que tu utilises, directement au provider. Pas d\'abonnement caché. Dès ~$0.001/min — ou gratuit pour commencer.',
+      w_label: 'Comment ça marche',
+      w_title: 'Ton IA parle directement.<br>Sans intermédiaire.',
+      w_others: 'Les autres apps',
+      w_you: 'Toi',
+      w_srv1: 'Serveur tiers', w_srv1s: 'Stocke tes données',
+      w_ai: 'IA',
+      w_srv2: 'Retour via serveur', w_srv2s: 'Analyse tes échanges',
+      w_exposed: 'Tes conversations exposées',
+      w_direct: 'IA — directement',
+      w_private: "Personne d'autre n'écoute",
+      w_uc_label: 'Ce que tu peux faire',
+      w_uc_title: "Parle. Zova s'occupe du reste.",
+      w_mic: '🎙 Toi',
+      u1_t: 'Traduction en direct', u1_q: '"Traduis ma conversation avec mon médecin en espagnol"', u1_a: '"Bien sûr. Je traduis en temps réel dès que tu parles."',
+      u2_t: 'Voyage & planning', u2_q: '"Organise 10 jours à Tokyo, budget 2 000 €"', u2_a: '"Voici un itinéraire jour par jour avec hôtels et transports…"',
+      u3_t: 'Dev & code', u3_q: '"Pourquoi mon script Python plante sur cette ligne ?"', u3_a: '"C\'est une erreur d\'indentation ligne 42. Voici la correction…"',
+      u4_t: 'Documents & contrats', u4_q: '"Résume ce bail en 5 points clés, en simple"', u4_a: '"1. Durée 3 ans renouvelable. 2. Loyer indexé sur l\'IRL…"',
+      u5_t: 'Apprentissage', u5_q: '"Explique-moi la fusion nucléaire comme si j\'avais 15 ans"', u5_a: '"Imagine deux aimants qui fusionnent et libèrent une énergie…"',
+      u6_t: 'Communication', u6_q: '"Rédige un email de refus poli pour cette offre"', u6_a: '"Objet : Suite à votre proposition — Madame, Monsieur…"',
+      w_why_title: 'Ton IA. Ton téléphone. Tes règles.',
+      p1_l: 'serveur inter&shy;médiaire', p1_d: "Clés API dans l'Android Keystore. Zova ne voit rien.",
+      p2_n: '~1$', p2_l: 'par mois', p2_d: 'Pay-as-you-go. Tu paies ce que tu utilises.',
+      p3_l: 'providers', p3_d: 'OpenAI, Gemini, Ultravox, Groq. Change en un tap.',
       feat_title: 'Ce que Zova sait faire',
       f1_h: 'Mémoire intelligente', f1_p: 'Zova sélectionne les souvenirs les plus pertinents pour chaque conversation — par score de pertinence ET récence. Chaque persona a sa propre mémoire, indépendante des autres.',
       f2_h: 'Suivis d\'engagements', f2_p: 'Après chaque session, Zova détecte automatiquement tes engagements et les garde en mémoire pour les relancer naturellement à la prochaine conversation.',
@@ -746,8 +1028,9 @@
       m8: ['Bouton "?" dans Config → FAQ complète FR/EN/ES intégrée dans l\'app','Pas de micro : Paramètres → Apps → Zova → Permissions → Micro → Autoriser','Voix muette : normal sur Android WebView — le texte s\'affiche quand même','Xiaomi : active "Débogage USB" + "Installer via USB" dans Options développeur'],
       cta_h: 'Prêt à reprendre le contrôle ?',
       cta_p: 'Tes pensées, ta voix, ton IA. Personne d\'autre.',
-      cta_dl: '⬇  Télécharger Zova v3.0',
-      footer: 'Zova v3.0  ·  par Xavier Bourdet  ·  <em>"Ton IA. Ton téléphone. Tes règles."</em>'
+      cta_dl: '⬇  Télécharger Zova v3.0',
+      footer: 'Zova v3.0  ·  par Xavier Bourdet  ·  <em>"Ton IA. Ton téléphone. Tes règles."</em>',
+      lang_label: '🌐 Langue'
     },
     en: {
       title: 'Zova — Your AI. Your phone. Your rules.',
@@ -755,13 +1038,32 @@
       hero_slogan: 'Your AI. Your phone. Your rules.',
       hero_sub: 'AI voice assistant for Android — no middleman server, no monthly subscription, no tracking. Your API keys stay on your phone.',
       hero_badge: '✦ v3.0 — Now available',
-      hero_dl: '⬇  Download Zova v3.0 · 4 MB',
+      hero_dl: '⬇  Download Zova v3.0 · 4 MB',
       hero_qr: 'Scan to download',
       why_title: 'Why Zova?',
-      c1_h: 'Sovereign', c1_p: 'Your API keys are encrypted in the hardware Android Keystore. Zova never sees your data — there is no Zova server.',
-      c2_h: 'Customizable', c2_p: 'Create custom assistants: name, personality, voice, free prompt. Each persona learns about you and improves over time.',
-      c3_h: 'It remembers', c3_p: 'Episodic memory + adaptive profile per persona. Each conversation enriches the relationship. Picks up naturally where you left off.',
-      c4_h: 'Transparent', c4_p: 'Pay exactly what you use, directly to the provider. No hidden subscription. From ~$0.001/min — or free to start.',
+      w_label: 'How it works',
+      w_title: 'Your AI talks directly.<br>No middleman.',
+      w_others: 'Other apps',
+      w_you: 'You',
+      w_srv1: 'Third-party server', w_srv1s: 'Stores your data',
+      w_ai: 'AI',
+      w_srv2: 'Back via server', w_srv2s: 'Analyzes your chats',
+      w_exposed: 'Your conversations exposed',
+      w_direct: 'AI — directly',
+      w_private: 'Nobody else is listening',
+      w_uc_label: 'What you can do',
+      w_uc_title: 'Speak. Zova handles the rest.',
+      w_mic: '🎙 You',
+      u1_t: 'Live translation', u1_q: '"Translate my conversation with my doctor into Spanish"', u1_a: '"Sure. I\'ll translate in real time as you speak."',
+      u2_t: 'Travel & planning', u2_q: '"Plan 10 days in Tokyo on a €2,000 budget"', u2_a: '"Here\'s a day-by-day itinerary with hotels and transport…"',
+      u3_t: 'Dev & code', u3_q: '"Why does my Python script crash on this line?"', u3_a: '"It\'s an indentation error on line 42. Here\'s the fix…"',
+      u4_t: 'Documents & contracts', u4_q: '"Summarize this lease in 5 key points, in plain language"', u4_a: '"1. 3-year renewable term. 2. Rent indexed to inflation…"',
+      u5_t: 'Learning', u5_q: '"Explain nuclear fusion like I\'m 15"', u5_a: '"Imagine two magnets merging and releasing energy…"',
+      u6_t: 'Communication', u6_q: '"Write a polite rejection email for this offer"', u6_a: '"Subject: Regarding your proposal — Dear Sir or Madam…"',
+      w_why_title: 'Your AI. Your phone. Your rules.',
+      p1_l: 'middleman servers', p1_d: 'API keys in the Android Keystore. Zova sees nothing.',
+      p2_n: '~$1', p2_l: 'per month', p2_d: 'Pay-as-you-go. You pay for what you use.',
+      p3_l: 'providers', p3_d: 'OpenAI, Gemini, Ultravox, Groq. Switch in one tap.',
       feat_title: 'What Zova can do',
       f1_h: 'Smart memory', f1_p: 'Zova selects the most relevant memories for each conversation — by relevance score AND recency. Each persona has its own independent memory.',
       f2_h: 'Engagement follow-ups', f2_p: 'After each session, Zova automatically detects your commitments and keeps them in memory to naturally bring them up next conversation.',
@@ -798,8 +1100,9 @@
       m8: ['"?" button in Config → full FR/EN/ES FAQ built into the app','No mic: Settings → Apps → Zova → Permissions → Microphone → Allow','Silent voice: normal on Android WebView — text still displays','Xiaomi: enable "USB debugging" + "Install via USB" in Developer options'],
       cta_h: 'Ready to take back control?',
       cta_p: 'Your thoughts, your voice, your AI. Nobody else.',
-      cta_dl: '⬇  Download Zova v3.0',
-      footer: 'Zova v3.0  ·  by Xavier Bourdet  ·  <em>"Your AI. Your phone. Your rules."</em>'
+      cta_dl: '⬇  Download Zova v3.0',
+      footer: 'Zova v3.0  ·  by Xavier Bourdet  ·  <em>"Your AI. Your phone. Your rules."</em>',
+      lang_label: '🌐 Language'
     },
     es: {
       title: 'Zova — Tu IA. Tu teléfono. Tus reglas.',
@@ -807,13 +1110,32 @@
       hero_slogan: 'Tu IA. Tu teléfono. Tus reglas.',
       hero_sub: 'Asistente de voz IA para Android — sin servidor intermediario, sin suscripción mensual, sin vigilancia. Tus claves API se quedan en tu teléfono.',
       hero_badge: '✦ v3.0 — Disponible ahora',
-      hero_dl: '⬇  Descargar Zova v3.0 · 4 MB',
+      hero_dl: '⬇  Descargar Zova v3.0 · 4 MB',
       hero_qr: 'Escanear para descargar',
       why_title: '¿Por qué Zova?',
-      c1_h: 'Soberano', c1_p: 'Tus claves API están cifradas en el Android Keystore de hardware. Zova nunca ve tus datos — no existe ningún servidor Zova.',
-      c2_h: 'Personalizable', c2_p: 'Crea asistentes a medida: nombre, personalidad, voz, prompt libre. Cada persona aprende sobre ti y mejora con el tiempo.',
-      c3_h: 'Recuerda', c3_p: 'Memoria episódica + perfil adaptativo por persona. Cada conversación enriquece la relación. Retoma naturalmente donde lo dejaron.',
-      c4_h: 'Transparente', c4_p: 'Paga exactamente lo que usas, directamente al proveedor. Sin suscripción oculta. Desde ~$0.001/min — o gratis para empezar.',
+      w_label: 'Cómo funciona',
+      w_title: 'Tu IA habla directamente.<br>Sin intermediarios.',
+      w_others: 'Las otras apps',
+      w_you: 'Tú',
+      w_srv1: 'Servidor de terceros', w_srv1s: 'Almacena tus datos',
+      w_ai: 'IA',
+      w_srv2: 'Vuelta vía servidor', w_srv2s: 'Analiza tus conversaciones',
+      w_exposed: 'Tus conversaciones expuestas',
+      w_direct: 'IA — directamente',
+      w_private: 'Nadie más escucha',
+      w_uc_label: 'Lo que puedes hacer',
+      w_uc_title: 'Habla. Zova se encarga del resto.',
+      w_mic: '🎙 Tú',
+      u1_t: 'Traducción en directo', u1_q: '"Traduce mi conversación con mi médico al inglés"', u1_a: '"Claro. Traduzco en tiempo real en cuanto hables."',
+      u2_t: 'Viajes y planificación', u2_q: '"Organiza 10 días en Tokio con 2.000 € de presupuesto"', u2_a: '"Aquí tienes un itinerario día a día con hoteles y transporte…"',
+      u3_t: 'Dev y código', u3_q: '"¿Por qué mi script de Python falla en esta línea?"', u3_a: '"Es un error de indentación en la línea 42. Aquí está la corrección…"',
+      u4_t: 'Documentos y contratos', u4_q: '"Resume este contrato de alquiler en 5 puntos clave, en simple"', u4_a: '"1. Duración 3 años renovable. 2. Renta indexada al IPC…"',
+      u5_t: 'Aprendizaje', u5_q: '"Explícame la fusión nuclear como si tuviera 15 años"', u5_a: '"Imagina dos imanes que se fusionan y liberan una energía…"',
+      u6_t: 'Comunicación', u6_q: '"Redacta un email de rechazo educado para esta oferta"', u6_a: '"Asunto: En respuesta a su propuesta — Estimados señores…"',
+      w_why_title: 'Tu IA. Tu teléfono. Tus reglas.',
+      p1_l: 'servidores inter&shy;mediarios', p1_d: 'Claves API en el Android Keystore. Zova no ve nada.',
+      p2_n: '~1$', p2_l: 'al mes', p2_d: 'Pay-as-you-go. Pagas lo que usas.',
+      p3_l: 'proveedores', p3_d: 'OpenAI, Gemini, Ultravox, Groq. Cambia en un tap.',
       feat_title: 'Lo que Zova sabe hacer',
       f1_h: 'Memoria inteligente', f1_p: 'Zova selecciona los recuerdos más relevantes para cada conversación — por puntuación de pertinencia Y recencia. Cada persona tiene su propia memoria independiente.',
       f2_h: 'Seguimiento de compromisos', f2_p: 'Después de cada sesión, Zova detecta automáticamente tus compromisos y los guarda para retomarlos naturalmente en la próxima conversación.',
@@ -850,61 +1172,91 @@
       m8: ['Botón "?" en Config → FAQ completa FR/EN/ES integrada en la app','Sin micrófono: Ajustes → Apps → Zova → Permisos → Micrófono → Permitir','Voz silenciosa: normal en Android WebView — el texto se muestra igual','Xiaomi: activa "Depuración USB" + "Instalar via USB" en Opciones de desarrollador'],
       cta_h: '¿Listo para recuperar el control?',
       cta_p: 'Tus pensamientos, tu voz, tu IA. Nadie más.',
-      cta_dl: '⬇  Descargar Zova v3.0',
-      footer: 'Zova v3.0  ·  por Xavier Bourdet  ·  <em>"Tu IA. Tu teléfono. Tus reglas."</em>'
+      cta_dl: '⬇  Descargar Zova v3.0',
+      footer: 'Zova v3.0  ·  por Xavier Bourdet  ·  <em>"Tu IA. Tu teléfono. Tus reglas."</em>',
+      lang_label: '🌐 Idioma'
     }
   };
 
   function applyLang(l) {
     var t = T[l] || T.fr;
+
     document.title = t.title;
     document.documentElement.lang = l;
     var m = q('meta[name="description"]'); if(m) m.content = t.meta_desc;
+
+    // Tous les éléments marqués data-i18n (section "Pourquoi Zova")
+    qa('[data-i18n]').forEach(function(el){
+      var k = el.getAttribute('data-i18n');
+      if (t[k] !== undefined) el.innerHTML = t[k];
+    });
+
+    // Hero
     var hs = q('.hero-slogan'); if(hs) hs.textContent = t.hero_slogan;
     var hsub = q('.hero-sub'); if(hsub) hsub.textContent = t.hero_sub;
     var hb = q('.version-badge'); if(hb) hb.textContent = t.hero_badge;
     var btns = qa('.btn-dl'); if(btns[0]) btns[0].innerHTML = t.hero_dl;
     var qrspan = q('.qr-block span'); if(qrspan) qrspan.textContent = t.hero_qr;
+
+    // Section titles (h2) — feat, prov, install, manual
     var h2s = qa('.section h2');
-    [t.why_title,t.feat_title,t.prov_title,t.install_title,t.manual_title].forEach(function(tx,i){ if(h2s[i]) h2s[i].textContent = tx; });
-    var cc = qa('.concept-card');
-    [[t.c1_h,t.c1_p],[t.c2_h,t.c2_p],[t.c3_h,t.c3_p],[t.c4_h,t.c4_p]].forEach(function(d,i){
-      if(!cc[i]) return;
-      var h3=cc[i].querySelector('h3'),p=cc[i].querySelector('p');
-      if(h3) h3.textContent=d[0]; if(p) p.textContent=d[1];
-    });
+    var titles = [t.feat_title, t.prov_title, t.install_title, t.manual_title];
+    titles.forEach(function(tx, i){ if(h2s[i]) h2s[i].textContent = tx; });
+
+    // Feature cards
     var fc = qa('.feature-card');
-    var feats=[[t.f1_h,'v3'],[t.f2_h,'v3'],[t.f3_h,'v3'],[t.f4_h,'v3'],[t.f5_h,''],[t.f6_h,''],[t.f7_h,''],[t.f8_h,'']];
-    var fdescs=[t.f1_p,t.f2_p,t.f3_p,t.f4_p,t.f5_p,t.f6_p,t.f7_p,t.f8_p];
+    var feats = [
+      [t.f1_h,'v3'],[t.f2_h,'v3'],[t.f3_h,'v3'],[t.f4_h,'v3'],
+      [t.f5_h,''],[t.f6_h,''],[t.f7_h,''],[t.f8_h,'']
+    ];
+    var fdescs = [t.f1_p,t.f2_p,t.f3_p,t.f4_p,t.f5_p,t.f6_p,t.f7_p,t.f8_p];
     feats.forEach(function(d,i){
       if(!fc[i]) return;
-      var h3=fc[i].querySelector('h3'),p=fc[i].querySelector('p');
-      if(h3) h3.innerHTML=d[0]+(d[1]?' <span class="feat-new">'+d[1]+'</span>':'');
-      if(p) p.textContent=fdescs[i];
+      var h3 = fc[i].querySelector('h3'); var p = fc[i].querySelector('p');
+      if(h3) h3.innerHTML = d[0] + (d[1] ? ' <span class="feat-new">'+d[1]+'</span>' : '');
+      if(p) p.textContent = fdescs[i];
     });
-    var ths=qa('table th');
-    if(ths[1]) ths[1].textContent=t.th_quality;
-    if(ths[2]) ths[2].textContent=t.th_cost;
-    if(ths[3]) ths[3].textContent=t.th_best;
-    qa('tbody tr').forEach(function(r,i){ var tds=r.querySelectorAll('td'); if(tds[3]) tds[3].textContent=[t.p1_best,t.p2_best,t.p3_best,t.p4_best][i]; });
-    var tn=q('.table-note'); if(tn) tn.textContent=t.prov_note;
-    var steps=qa('.step');
+
+    // Providers table
+    var ths = qa('table th');
+    if(ths[1]) ths[1].textContent = t.th_quality;
+    if(ths[2]) ths[2].textContent = t.th_cost;
+    if(ths[3]) ths[3].textContent = t.th_best;
+    var rows = qa('tbody tr');
+    var bests = [t.p1_best, t.p2_best, t.p3_best, t.p4_best];
+    rows.forEach(function(r, i){ var tds = r.querySelectorAll('td'); if(tds[3]) tds[3].textContent = bests[i]; });
+    var tn = q('.table-note'); if(tn) tn.textContent = t.prov_note;
+
+    // Steps
+    var steps = qa('.step');
     [[t.s1_h,t.s1_p],[t.s2_h,t.s2_p],[t.s3_h,t.s3_p]].forEach(function(d,i){
       if(!steps[i]) return;
-      var h3=steps[i].querySelector('h3'),p=steps[i].querySelector('p');
-      if(h3) h3.textContent=d[0]; if(p) p.innerHTML=d[1];
+      var h3 = steps[i].querySelector('h3'); var p = steps[i].querySelector('p');
+      if(h3) h3.textContent = d[0]; if(p) p.innerHTML = d[1];
     });
-    var mc=qa('.manual-card');
-    [[t.m1_h,t.m1],[t.m2_h,t.m2],[t.m3_h,t.m3],[t.m4_h,t.m4],[t.m5_h,t.m5],[t.m6_h,t.m6],[t.m7_h,t.m7],[t.m8_h,t.m8]].forEach(function(d,i){
+
+    // Manual cards
+    var mc = qa('.manual-card');
+    var mcData = [
+      [t.m1_h, t.m1],[t.m2_h, t.m2],[t.m3_h, t.m3],[t.m4_h, t.m4],
+      [t.m5_h, t.m5],[t.m6_h, t.m6],[t.m7_h, t.m7],[t.m8_h, t.m8]
+    ];
+    mcData.forEach(function(d, i){
       if(!mc[i]) return;
-      var h3=mc[i].querySelector('h3'); if(h3) h3.textContent=d[0];
-      mc[i].querySelectorAll('li').forEach(function(li,j){ if(d[1][j]!==undefined) li.innerHTML=d[1][j]; });
+      var h3 = mc[i].querySelector('h3'); if(h3) h3.textContent = d[0];
+      var lis = mc[i].querySelectorAll('li');
+      d[1].forEach(function(txt, j){ if(lis[j]) lis[j].innerHTML = txt; });
     });
-    var ctah=q('.cta h2'),ctap=q('.cta p');
-    if(ctah) ctah.textContent=t.cta_h;
-    if(ctap) ctap.textContent=t.cta_p;
-    if(btns[1]) btns[1].innerHTML=t.cta_dl;
-    var fd=q('footer > div:last-child'); if(fd) fd.innerHTML=t.footer;
+
+    // CTA
+    var ctah = q('.cta h2'); if(ctah) ctah.textContent = t.cta_h;
+    var ctap = q('.cta p'); if(ctap) ctap.textContent = t.cta_p;
+    if(btns[1]) btns[1].innerHTML = t.cta_dl;
+
+    // Footer
+    var footerDiv = q('footer > div:last-child'); if(footerDiv) footerDiv.innerHTML = t.footer;
+
+    // Lang switcher active state
     qa('.lang-btn').forEach(function(b){ b.classList.toggle('lang-active', b.dataset.lang === l); });
   }
 
