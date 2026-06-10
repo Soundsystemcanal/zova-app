@@ -47,7 +47,7 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 60px 24px 100px;
+            padding: 104px 24px 100px;
             position: relative;
         }
         .hero-logo { width: 88px; height: 88px; margin-bottom: 28px; filter: drop-shadow(0 0 24px rgba(139,92,246,0.5)); }
@@ -315,13 +315,78 @@
         }
         .footer-links { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
 
+        /* TOPNAV */
+        .topnav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 28px;
+            background: rgba(10,10,31,0.72);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(139,92,246,0.14);
+        }
+        .topnav-logo {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.05rem;
+            letter-spacing: 0.1em;
+            background: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        .lang-switcher {
+            display: flex;
+            gap: 2px;
+            background: rgba(139,92,246,0.08);
+            border: 1px solid rgba(139,92,246,0.22);
+            border-radius: 30px;
+            padding: 3px;
+        }
+        .lang-btn {
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.73rem;
+            font-weight: 500;
+            padding: 5px 14px;
+            border-radius: 20px;
+            transition: background 0.2s, color 0.2s;
+            letter-spacing: 0.05em;
+        }
+        .lang-btn:hover { color: var(--text); background: rgba(139,92,246,0.15); }
+        .lang-btn.lang-active {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+            font-weight: 700;
+            box-shadow: 0 2px 12px rgba(139,92,246,0.35);
+        }
+
         @media (max-width: 560px) {
-            .hero { padding: 40px 20px 80px; }
+            .hero { padding: 80px 20px 80px; }
             th, td { padding: 11px 12px; font-size: 0.82rem; }
+            .topnav { padding: 10px 18px; }
         }
     </style>
 </head>
 <body>
+
+<!-- TOPNAV -->
+<nav class="topnav">
+    <a href="#" class="topnav-logo">ZOVA</a>
+    <div class="lang-switcher">
+        <button class="lang-btn" data-lang="fr">FR</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="es">ES</button>
+    </div>
+</nav>
 
 <!-- HERO -->
 <div class="hero">
@@ -873,29 +938,13 @@
     var footerDiv = q('footer > div:last-child'); if(footerDiv) footerDiv.innerHTML = t.footer;
 
     // Lang switcher active state
-    qa('.lang-btn').forEach(function(b){ b.style.opacity = b.dataset.lang === l ? '1' : '0.45'; b.style.fontWeight = b.dataset.lang === l ? '700' : '400'; });
+    qa('.lang-btn').forEach(function(b){ b.classList.toggle('lang-active', b.dataset.lang === l); });
   }
 
-  // Lang switcher
   document.addEventListener('DOMContentLoaded', function(){
-    var footer = document.querySelector('footer');
-    if(footer){
-      var sw = document.createElement('div');
-      sw.style.cssText = 'display:flex;gap:12px;align-items:center;font-size:0.78rem;';
-      ['fr','en','es'].forEach(function(l){
-        var b = document.createElement('button');
-        b.className = 'lang-btn';
-        b.dataset.lang = l;
-        b.textContent = l.toUpperCase();
-        b.style.cssText = 'background:none;border:none;color:#9a8cb0;cursor:pointer;font-size:0.78rem;padding:2px 6px;border-radius:4px;transition:opacity 0.2s;';
-        b.addEventListener('click', function(){
-          localStorage.setItem('zova_lang', l);
-          applyLang(l);
-        });
-        sw.appendChild(b);
-      });
-      footer.insertBefore(sw, footer.firstChild);
-    }
+    qa('.lang-btn').forEach(function(b){
+      b.addEventListener('click', function(){ localStorage.setItem('zova_lang', b.dataset.lang); applyLang(b.dataset.lang); });
+    });
     applyLang(lang);
   });
 })();
