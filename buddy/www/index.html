@@ -941,7 +941,7 @@
         }
         .pss-header {
             font-size: 0.72rem;
-            color: var(--text-muted);
+            color: var(--text-secondary);
             margin-bottom: 6px;
             letter-spacing: 0.02em;
         }
@@ -6196,9 +6196,9 @@ Langue: ${langName}. Réponds UNIQUEMENT avec le JSON.`;
     }
 
     async function extractAndUpdateGoals(persona, transcriptText) {
-        if (!transcriptText.trim() || !persona?.id) return;
+        if (!transcriptText.trim() || !persona?.id) { updatePssLine('pssGoals', `🎯 —`); return; }
         const lineCount = transcriptText.split('\n').filter(l => l.trim()).length;
-        if (lineCount < MIN_MSGS_FOR_MEMORY) return;
+        if (lineCount < MIN_MSGS_FOR_MEMORY) { updatePssLine('pssGoals', `🎯 —`); return; }
 
         const existing = getGoals(persona.id);
         const existingJson = existing.length > 0
