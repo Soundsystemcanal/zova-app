@@ -41,7 +41,7 @@
 ✅ Persona Zova v3 — section doc app intégrée dans le prompt (providers, personas, mémoire, export, widget, chapitrage)  
 ✅ Export transcript — chapitres inclus comme table des matières si disponibles  
 ✅ Task 11 — APK release firmado (`buddy/Zova-v2.1.apk`, signé v2 scheme, versionCode 3)  
-⏳ Task 12 — GitHub Releases + QR  
+✅ Task 12 — GitHub Releases + QR (`buddy/assets/qr-download.png` → v2.1 APK direct download)  
 
 ### v2-beta (v2-beta)
 ✅ Export/Import fiable — contorna scoped storage Android 11+  
