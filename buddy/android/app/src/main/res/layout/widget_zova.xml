@@ -9,29 +9,29 @@
     android:background="@drawable/widget_bg"
     android:padding="10dp">
 
-    <!-- Icône Z (pas d'emoji — RemoteViews crash sur MIUI) -->
+    <!-- Icône Z -->
     <TextView
         android:id="@+id/widget_mic_icon"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:text="Z"
-        android:textSize="18sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="#f0e6ff"
         android:gravity="center"
         android:background="#553b1d6e"
         android:padding="4dp" />
 
-    <!-- Séparateur vertical (TextView vide — View plain non supporté par RemoteViews) -->
+    <!-- Séparateur vertical -->
     <TextView
         android:layout_width="1dp"
-        android:layout_height="26dp"
+        android:layout_height="30dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:background="#3b1d6e"
         android:text="" />
 
-    <!-- Textes -->
+    <!-- Nom persona + sous-titre + dernière session -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -56,15 +56,24 @@
             android:textColor="#9c7dd9"
             android:textSize="10sp" />
 
+        <TextView
+            android:id="@+id/widget_session"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#6b4fa8"
+            android:textSize="9sp"
+            android:layout_marginTop="1dp" />
+
     </LinearLayout>
 
     <!-- Flèche -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=">"
+        android:text="›"
         android:textColor="#8b5cf6"
-        android:textSize="20sp"
+        android:textSize="24sp"
         android:layout_marginLeft="4dp" />
 
 </LinearLayout>

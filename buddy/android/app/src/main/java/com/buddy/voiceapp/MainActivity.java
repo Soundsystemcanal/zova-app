@@ -66,5 +66,12 @@ public class MainActivity extends BridgeActivity {
                 .edit().putString(ZovaWidget.KEY_PERSONA, name).apply();
             ZovaWidget.updateAllWidgets(activity);
         }
+
+        @JavascriptInterface
+        public void setLastSession(String info) {
+            activity.getSharedPreferences(ZovaWidget.PREFS_NAME, MODE_PRIVATE)
+                .edit().putString(ZovaWidget.KEY_SESSION, info).apply();
+            ZovaWidget.updateAllWidgets(activity);
+        }
     }
 }

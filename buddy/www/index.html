@@ -2440,7 +2440,7 @@ Minimum version required to store current data is: `+i+`.
               </div>
           </div>
       </div>
-      <div class="app-footer">Zova — AI Voice Assistant &nbsp;·&nbsp; v1.0</div>
+      <div class="app-footer">Zova — AI Voice Assistant &nbsp;·&nbsp; v2.1</div>
     </div>
 
     <!-- SCREEN: Personas -->
@@ -3999,6 +3999,20 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         if (!window.ZovaBridge) return;
         const p = getPersonas().find(x => x.id === (id || getActiveId()));
         if (p) try { window.ZovaBridge.setPersonaName(p.name); } catch(e) {}
+    }
+
+    function notifyWidgetSession(durationSeconds) {
+        if (!window.ZovaBridge) return;
+        const mins = Math.max(1, Math.round(durationSeconds / 60));
+        const now = new Date();
+        const today = new Date().toDateString();
+        const yesterday = new Date(now - 86400000).toDateString();
+        const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+        let dateStr;
+        if (new Date().toDateString() === today) dateStr = "Aujourd'hui";
+        else if (new Date().toDateString() === yesterday) dateStr = "Hier";
+        else dateStr = days[new Date().getDay()];
+        try { window.ZovaBridge.setLastSession(dateStr + ' · ' + mins + ' min'); } catch(e) {}
     }
 
     function getUserInfo() { return localStorage.getItem('buddy_userInfo') || ''; }
@@ -8628,6 +8642,7 @@ Langue : ${lang}`;
                     durationSeconds: duration
                 });
             }
+            notifyWidgetSession(duration);
         }
 
         isConnected = false;

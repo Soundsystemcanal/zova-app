@@ -10,13 +10,14 @@ import android.content.SharedPreferences;
 import android.widget.RemoteViews;
 
 /**
- * Widget Android 2×1 — tap démarre la conversation directement.
- * Affiche le nom de la persona active (mis à jour via ZovaJSBridge).
+ * Widget Android 4×1 — tap démarre la conversation directement.
+ * Affiche : nom persona active · dernière session (ex: "Hier · 8 min").
  */
 public class ZovaWidget extends AppWidgetProvider {
 
-    static final String PREFS_NAME      = "ZovaWidget";
-    static final String KEY_PERSONA     = "persona_name";
+    static final String PREFS_NAME    = "ZovaWidget";
+    static final String KEY_PERSONA   = "persona_name";
+    static final String KEY_SESSION   = "last_session";
 
     @Override
     public void onUpdate(Context context, AppWidgetManager mgr, int[] ids) {
@@ -31,13 +32,14 @@ public class ZovaWidget extends AppWidgetProvider {
 
     static void updateWidget(Context context, AppWidgetManager mgr, int widgetId) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String personaName = prefs.getString(KEY_PERSONA, "Zova");
+        String personaName  = prefs.getString(KEY_PERSONA, "Zova");
+        String lastSession  = prefs.getString(KEY_SESSION, "");
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_zova);
 
-        // Nom de la persona active
         views.setTextViewText(R.id.widget_title, personaName);
         views.setTextViewText(R.id.widget_subtitle, "Appuyer pour parler");
+        views.setTextViewText(R.id.widget_session, lastSession);
 
         // Intent AUTO_START=true → conversation démarre direct
         Intent intent = new Intent(context, MainActivity.class);
