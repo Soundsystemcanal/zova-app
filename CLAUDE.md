@@ -6,7 +6,7 @@
 
 **Zova** es una app Android de voz IA con personas configurables. Single-file HTML + Capacitor. Sin backend. Usa OpenAI Realtime API / Ultravox / Groq. API keys en Android Keystore.
 
-- **App:** `buddy/www/index.html` (~8600 líneas)  
+- **App:** `buddy/www/index.html` (~9100 líneas)  
 - **Android:** `buddy/android/`  
 - **Icono fuente:** `buddy/assets/icon.svg` (micrófono Dark Cosmos) → compilado a `icon.png`
 - **ID:** `com.zova.voiceapp`
@@ -20,13 +20,17 @@
 
 ## Estado (2026-06-10)
 
-### v3 — en cours (main)
+### v3 — ✅ Testé et approuvé (main)
 ✅ Widget 2×2 — avatar photo, nom persona, dernière session, AUTO_START  
 ✅ Widget AUTO_START — PIN-aware (MutationObserver sur #pinScreen)  
 ✅ Follow-ups — engagements user extraits post-session (LLM), affichés dans Config  
 ✅ Bridge proactif — phrase d'accroche naturelle générée post-session, injectée dans prompt  
 ✅ Sélection intelligente souvenirs — score pertinence (keyword overlap) + récence  
-🧪 En test sur Xiaomi 14T  
+✅ Commande "souviens-toi que…" — détection en temps réel (14 patterns FR/EN/ES), toast 🧠  
+✅ Carte post-session — durée + coût + mémoire + suivis + objectifs (3 lignes async)  
+✅ Objectifs long terme — `buddy_goals_{id}`, tracking progression cross-session  
+✅ Consolidation mémoire — ≥6 souvenirs → fusion LLM des plus anciens, max 2 récents + 1 condensé  
+✅ Insights — coût $ affiché pour toutes sessions (OpenAI, Ultravox, Groq via `statCost()`)  
 
 ### v2.1 (tag v2.1 / APK release)
 ✅ APK release firmado (`buddy/Zova-v2.1.apk`, signé v2 scheme, versionCode 3)  
@@ -99,8 +103,10 @@ npx @capacitor/assets generate --iconBackgroundColor '#0a0a1f' --iconBackgroundC
 index.html (single-file app)
 ├── CSS: Dark Cosmos theme (violet #8b5cf6, pink #ec4899, bg #0a0a1f)
 │       Touch sensitivity: touch-action:manipulation, min-height 44px, tap feedback
+│       Animations: toastIn/toastOut (mémoire toast + carte post-session)
 ├── HTML: 4 screens (Home, Personas, Stats, Config) + modales
 │       Modales: apiKey, persona, myInfo, stats, insights, backup, FAQ
+│       Config: section Suivis (follow-ups) + section Objectifs par persona
 └── JS:
     ├── i18n: ES/EN/FR (auto-detect + selector)
     ├── FAQ_CONTENT: objet trilingue 6 Q&A, openFaqModal() avec accordéon
@@ -110,8 +116,9 @@ index.html (single-file app)
     ├── WakeLock: screen-on durante conversación
     ├── Reconnect: auto-retry 3x si WS cierra inesperadamente
     ├── PIN lock: 4 dígitos, stored en Keystore
-    ├── Mémoire épisodique: résumés post-session (buddy_memories, max 10)
-    ├── Profil utilisateur: JSON cumulatif mis à jour post-session (buddy_userProfile)
+    ├── Mémoire v3 — 7 couches (voir section Mémoire v3)
+    ├── checkMemoryCommand(): 14 patterns FR/EN/ES → saveMemoryFact() → toast 🧠
+    ├── showPostSessionSummary(): carte durée+coût+3 lignes async dans transcript
     └── Export/Import: exportJsonFile() + showImportSheet() + showZovaFiles()
 ```
 
@@ -129,17 +136,48 @@ index.html (single-file app)
   - "Autre source" → sélecteur de fichiers natif Android
 - `processBackupJson(jsonStr)` + `processPersonaJson(jsonStr)` : import depuis string
 
-## Mémoire (v2-beta)
+## Mémoire (v3)
 
-| Couche | Clé | Description |
-|--------|-----|-------------|
-| Épisodique | `buddy_memories` | Résumés de sessions (max 10), injectés dans prompt |
-| Profil cumulatif | `buddy_userProfile` | JSON évolutif (nom, style, sujets, faits, objectifs) |
+| Couche | Clé localStorage | Description |
+|--------|-----------------|-------------|
+| Épisodique globale | `buddy_memories` | Résumés de sessions (max 10), sélection intelligente |
+| Épisodique par persona | `buddy_pmem_{id}` | Résumés propres à chaque persona (max 10) |
+| Profil utilisateur global | `buddy_userProfile` | JSON cumulatif commun à toutes personas |
+| Profil utilisateur par persona | `buddy_pprofile_{id}` | Profil adapté au domaine de la persona |
+| Follow-ups | `buddy_followups_{id}` | Engagements user détectés post-session (max 5) |
+| Bridge proactif | `buddy_bridge_{id}` | Phrase d'accroche naturelle générée post-session |
+| Objectifs long terme | `buddy_goals_{id}` | Objectifs + progression cross-session (max 10) |
 
-- `generateMemory(persona, transcript)` — résumé épisodique post-session (Groq)
-- `updateUserProfile(transcript)` — mise à jour profil post-session (Groq)
-- `buildFullInstructions(persona)` — injecte les deux dans le système prompt
-- UI Config : "Mémoire épisodique" + "Profil utilisateur" (voir/effacer)
+### Fonctions post-session (toutes async, déclenchées dans `stopConversation()`)
+- `generateMemory(persona, transcript)` — résumé épisodique
+- `updateUserProfile(transcript)` — profil global
+- `updatePersonaProfile(persona, transcript)` — profil par persona
+- `generateChapters(persona, transcript)` — chapitrage si >20min
+- `extractFollowUpsAndBridge(persona, transcript)` — 1 appel LLM → followups + bridge
+- `extractAndUpdateGoals(persona, transcript)` — objectifs + progression
+- `consolidatePersonaMemories(persona)` — fusion si ≥6 souvenirs
+
+### Sélection mémoire intelligente
+- `selectRelevantMemories(memories, persona, n)` — score = 60% pertinence (keyword overlap) + 40% récence
+- Toujours garde le souvenir le plus récent, retrie chronologiquement
+
+### Commande temps réel
+- `checkMemoryCommand(text, persona)` — 14 patterns ("souviens-toi que", "remember that", "recuerda que"…)
+- → `saveMemoryFact(fact, persona)` → `showMemoryToast(fact)` — toast 🧠 2.8s
+
+### buildFullInstructions(persona) — ordre d'injection
+1. Bridge proactif (si dispo) ou accroche statique
+2. Follow-ups — "Engagements de l'utilisateur"
+3. Objectifs actifs avec % progression
+4. Mémoires pertinentes sélectionnées (max `MEMORIES_IN_PROMPT=4`)
+5. Profil par persona + profil global
+6. `recentTranscriptContext` (si reconnexion)
+
+### UI Config
+- Section "Suivis" — compteur + voir/effacer follow-ups
+- Section "Objectifs" — compteur + voir/effacer objectifs
+- Section "Profil [nom]" — voir/effacer profil par persona
+- Lien "Voir le profil général" — profil global commun
 
 ## Bugs Android ya resueltos
 
@@ -166,6 +204,9 @@ index.html (single-file app)
 | Duplication empile "(copie) (copie)" | Double-tap + copie devient active puis re-dupliquée | Verrou 1s + nommage "X (copie N)" (suffixes nettoyés) |
 | Conversation s'arrête après quelques échanges (OpenAI) | API ferme session (rate limit / context overflow) avec code 1000 → reconnexion sans mémoire + re-greeting | `isReconnecting` flag + `recentTranscriptContext` (12 derniers tours) injecté dans `buildFullInstructions()` au reconnect ; `session.updated` ne re-greet pas si `isReconnecting` |
 | Transcript désordonné (user après IA) | `transcription.completed` arrive après que l'IA a déjà streamé → insert hors ordre | Placeholder `Moi: ...` créé à `speech_started` (avant réponse IA), rempli à `transcription.completed` |
+| Header carte PSS invisible | `pss-header` utilisait `--text-muted` (#4a4060) quasi invisible sur fond sombre | → `--text-secondary` (#9a8cb0) |
+| Carte PSS — ligne 🎯 reste en "Analyse..." 16s | `extractAndUpdateGoals` faisait `return` sans appeler `updatePssLine` si session trop courte | Appel `updatePssLine('pssGoals','🎯 —')` dans chaque early-return |
+| Insights — coût $0 pour OpenAI/Ultravox | `openPersonaInsightsModal()` utilisait `s.costDollars \|\| 0` au lieu de `statCost(s)` | → `statCost(s)` (calcule depuis tokens si `costDollars` absent) |
 
 ## Notas importantes
 
