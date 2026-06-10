@@ -55,7 +55,15 @@ Pas de serveur intermédiaire. Pas d'abonnement. Ton téléphone parle directeme
 ### 🎭 Personas personnalisées
 - Crée des assistants sur mesure : nom, personnalité, voix, avatar (IA ou photo)
 - Prompt système libre — le comportement de l'assistant n'a pas de limite
-- **Persona "Zova"** pré-installée : guide de bienvenue chaleureux
+- **Persona "Zova"** pré-installée : connaît l'app, apprend à connaître l'utilisateur
+
+### 🔄 Reconnexion transparente (v2.1)
+- Si la connexion coupe en pleine session, Zova reprend sans se réintroduire
+- Les 12 derniers échanges sont injectés dans la nouvelle session
+
+### 📑 Chapitrage automatique (v2.1)
+- Sessions longues (> 20 min) découpées en chapitres thématiques après Stop
+- Titres + résumés consultables via 📑, inclus dans l'export transcript
 
 ### 💰 Contrôle du budget
 - Plafond mensuel configurable (ex : $5/mois)
@@ -125,7 +133,7 @@ Pas de serveur intermédiaire. Pas d'abonnement. Ton téléphone parle directeme
 | Plateforme | Android (Capacitor WebView) |
 | App ID | `com.zova.voiceapp` |
 | Distribution | APK direct (hors Google Play) |
-| Fichier principal | `buddy/www/index.html` (~6900 lignes) |
+| Fichier principal | `buddy/www/index.html` (~8600 lignes) |
 | Backend | Aucun |
 | Stockage sensible | Android Keystore |
 | Stockage données | localStorage (buddy_*) |
@@ -140,9 +148,10 @@ Pas de serveur intermédiaire. Pas d'abonnement. Ton téléphone parle directeme
 |---|---|---|
 | Tasks 1–10 | App fonctionnelle, 4 providers, personas, PIN, backup | ✅ Livré |
 | FAQ + Zova | FAQ trilingue, persona guide pré-installée, touch sensitivity | ✅ Livré (2026-06-07) |
-| Task 11 | APK release signé (keystore de production) | ⏳ |
-| Task 12 | GitHub Releases + QR de téléchargement | ⏳ |
-| Task 13 | Landing page publique (GitHub Pages) — présentation + téléchargement APK + QR | ⏳ |
+| v2.0 | Mémoire évolutive, profil adaptatif par persona, export transcript | ✅ Livré (2026-06-09) |
+| v2.1 | Reconnexion transparente, chapitrage auto, Zova guide app, transcript ordonné | ✅ Livré (2026-06-10) |
+| Task 11 | APK release signé (v2.1) | ✅ Livré |
+| Task 12 | GitHub Releases + QR + landing page | ✅ Livré |
 | Futur | Biométrie (empreinte), mode traducteur live, bibliothèque de personas | 💡 |
 
 ---
@@ -158,4 +167,4 @@ Pas de serveur intermédiaire. Pas d'abonnement. Ton téléphone parle directeme
 
 ---
 
-*Document généré le 2026-06-07 — Projet Zova par Xavier Bourdet*
+*Dernière mise à jour : 2026-06-10 — Projet Zova par Xavier Bourdet*

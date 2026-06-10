@@ -1,8 +1,32 @@
-# Zova v2.0 — Changelog
-
-> Branche : `main` · Basé sur v1.1 · Publié : 2026-06-09
+# Zova — Changelog
 
 ---
+
+# v2.1 — 2026-06-10
+
+## Nouvelles fonctionnalités
+
+### Reconnexion transparente avec contexte
+Quand OpenAI Realtime ferme la session (rate limit, overflow contexte — code WS 1000), l'app reconnaît la coupure et rouvre une session sans interruption perceptible. Variable `isReconnecting` : les 12 derniers échanges (`recentTranscriptContext`) sont injectés dans le prompt système de la nouvelle session. La persona ne se réintroduit pas et fait référence à la conversation en cours.
+
+### Chapitrage automatique des sessions longues
+Après `stopConversation()`, si la transcription dépasse `MIN_LINES_FOR_CHAPTERS = 40` lignes (~20 min), un LLM (Groq) analyse la session et génère des chapitres thématiques avec titres + résumés. Stockés dans `buddy_chapters_{personaId}`. Consultables via le bouton 📑 dans le header de la persona. Inclus dans l'export de transcription comme table des matières.
+
+### Zova connaît l'application
+Le prompt de la persona Zova inclut désormais une section technique (~500 tokens) couvrant : providers et coûts, personas et mémoire, export/import, PIN, widget, budget, FAQ. Migration automatique au démarrage si la version installée ne contient pas cette section.
+
+### Transcript ordonné
+Les messages utilisateur apparaissent dans l'ordre chronologique correct. À l'événement `speech_started`, un placeholder "..." est créé immédiatement. Il est rempli à `transcription.completed` au lieu d'insérer un nouveau message.
+
+## Corrections
+
+| Bug | Cause | Fix |
+|---|---|---|
+| `unknown parameter: session max_response_output_tokens` | Paramètre non supporté par l'API Realtime | Supprimé de la config session |
+
+---
+
+# v2.0 — 2026-06-09
 
 ## Vue d'ensemble
 
