@@ -736,6 +736,15 @@
             50%       { opacity: 0.3; }
         }
 
+        @keyframes toastIn {
+            from { opacity:0; transform:translateX(-50%) translateY(12px); }
+            to   { opacity:1; transform:translateX(-50%) translateY(0); }
+        }
+        @keyframes toastOut {
+            from { opacity:1; transform:translateX(-50%) translateY(0); }
+            to   { opacity:0; transform:translateX(-50%) translateY(12px); }
+        }
+
         .btn-mute {
             width: 44px;
             height: 44px;
@@ -5883,6 +5892,84 @@ Règles IMPÉRATIVES :
         else localStorage.removeItem(BRIDGE_KEY_PREFIX + personaId);
     }
 
+    // ── "Souviens-toi que…" — real-time memory command ──────────────────────
+    const MEMORY_CMD_PATTERNS = [
+        // FR
+        /souviens?-?toi que[,\s]+(.+)/i,
+        /n['']oublie pas que[,\s]+(.+)/i,
+        /retiens? que[,\s]+(.+)/i,
+        /m[ée]morise[,\s]+(.+)/i,
+        // EN
+        /remember that[,\s]+(.+)/i,
+        /remember[:\s]+(.+)/i,
+        /don['']t forget that[,\s]+(.+)/i,
+        /keep in mind that[,\s]+(.+)/i,
+        /note that[,\s]+(.+)/i,
+        // ES
+        /recuerda que[,\s]+(.+)/i,
+        /no olvides que[,\s]+(.+)/i,
+        /memoriza[,\s]+(.+)/i,
+        /anota que[,\s]+(.+)/i,
+    ];
+
+    function checkMemoryCommand(text, persona) {
+        const txt = (text || '').trim();
+        for (const pat of MEMORY_CMD_PATTERNS) {
+            const m = txt.match(pat);
+            if (m && m[1] && m[1].trim().length > 3) {
+                const fact = m[1].trim().replace(/[.!?،]+$/, '');
+                saveMemoryFact(fact, persona);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function saveMemoryFact(fact, persona) {
+        const today = new Date().toISOString().slice(0, 10);
+        // Global user profile
+        const profile = getUserProfile() || {};
+        if (!Array.isArray(profile.facts)) profile.facts = [];
+        if (!profile.facts.includes(fact)) {
+            profile.facts.push(fact);
+            if (profile.facts.length > 30) profile.facts.shift();
+            profile.lastUpdated = today;
+            setUserProfile(profile);
+        }
+        // Per-persona profile
+        if (persona?.id) {
+            const pp = getPersonaProfile(persona.id) || {};
+            if (!Array.isArray(pp.facts)) pp.facts = [];
+            if (!pp.facts.includes(fact)) {
+                pp.facts.push(fact);
+                if (pp.facts.length > 30) pp.facts.shift();
+                pp.lastUpdated = today;
+                setPersonaProfile(pp, persona.id);
+            }
+        }
+        showMemoryToast(fact);
+        console.log('[Zova Memory] Real-time fact saved:', fact);
+    }
+
+    function showMemoryToast(fact) {
+        const existing = document.getElementById('memToast');
+        if (existing) existing.remove();
+        const label = LANG === 'es' ? 'Recordado' : LANG === 'en' ? 'Remembered' : 'Mémorisé';
+        const short = fact.length > 55 ? fact.slice(0, 55) + '…' : fact;
+        const el = document.createElement('div');
+        el.id = 'memToast';
+        el.innerHTML = `🧠 <strong>${label}</strong> · ${esc(short)}`;
+        el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);' +
+            'background:var(--accent);color:#fff;padding:10px 18px;border-radius:20px;' +
+            'font-size:0.82rem;max-width:88vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' +
+            'z-index:9999;box-shadow:0 4px 20px rgba(139,92,246,0.5);animation:toastIn 0.25s ease;pointer-events:none;';
+        document.body.appendChild(el);
+        setTimeout(() => {
+            el.style.animation = 'toastOut 0.3s ease forwards';
+            setTimeout(() => el.remove(), 320);
+        }, 2800);
+    }
+
     // Returns all persona memory keys currently in localStorage
     function getAllPersonaMemoryMap() {
         const map = {};
@@ -6999,6 +7086,7 @@ Règles STRICTES :
         if (data.type === 'transcript' && data.role === 'user' && data.final) {
             const txt = (data.text || '').trim();
             if (txt) {
+                checkMemoryCommand(txt, persona);
                 const el = document.getElementById('transcript');
                 const placeholder = el.querySelector('.transcript-empty');
                 if (placeholder) placeholder.remove();
@@ -7172,6 +7260,7 @@ Règles STRICTES :
 
             addTranscriptMessage('Yo', userText, 'user');
             scrollTranscript();
+            checkMemoryCommand(userText, persona);
 
             // 2. LLM: Groq Chat
             groqConversationHistory.push({ role: 'user', content: userText });
@@ -7508,6 +7597,7 @@ Règles STRICTES :
                 if (data.transcript && data.transcript.trim()) {
                     recentTranscriptContext.push({ role: 'user', text: data.transcript.trim() });
                     if (recentTranscriptContext.length > 12) recentTranscriptContext.shift();
+                    checkMemoryCommand(data.transcript.trim(), persona);
                     if (currentTranscriptUserPlaceholder) {
                         // Fill the placeholder created at speech_started — preserves correct order
                         currentTranscriptUserPlaceholder.querySelector('.text').textContent = data.transcript.trim();
