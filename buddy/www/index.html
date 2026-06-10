@@ -2823,6 +2823,7 @@ Minimum version required to store current data is: `+i+`.
         <div class="modal" style="width:680px;position:relative">
             <button class="modal-close" id="closePersonaBtn">&times;</button>
             <h2 id="personaModalTitle">Nouveau persona</h2>
+            <div id="wizardBanner" style="display:none;background:rgba(139,92,246,0.15);border:1px solid var(--accent);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:0.85rem"></div>
 
             <label for="pName" data-i18n="modal_persona_name">Nom</label>
             <input type="text" id="pName" placeholder="Ex: Gérard">
@@ -5339,8 +5340,94 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         document.getElementById('wizSuggestName').textContent = '✓ ' + t('wiz_q4_suggest');
     });
 
+    function wizParseJson(raw) {
+        try { return JSON.parse(raw); } catch (e) {}
+        const m = raw && raw.match(/\{[\s\S]*\}/);
+        if (m) { try { return JSON.parse(m[0]); } catch (e) {} }
+        return null;
+    }
+
+    async function generatePersonaFromWizard() {
+        const langName = LANG === 'es' ? 'español' : LANG === 'en' ? 'english' : 'français';
+        const d = wizardData;
+        const nextBtn = document.getElementById('wizNextBtn');
+        const errEl = document.getElementById('wizError');
+        nextBtn.disabled = true; nextBtn.style.opacity = '0.5';
+        nextBtn.textContent = t('wiz_generating');
+        errEl.textContent = '';
+
+        const toneLabel = t('tone_' + d.tone);
+        const nameRule = d.name
+            ? `utilise impérativement le nom "${d.name}"`
+            : `invente un nom court, mémorable et adapté au rôle`;
+        const addressRule = d.formal ? 'vouvoie l\'utilisateur' : 'tutoie l\'utilisateur';
+
+        const systemPrompt = `Tu es un expert en conception de personas pour un assistant vocal IA temps réel.
+À partir des informations fournies, génère un persona complet.
+Réponds UNIQUEMENT avec un JSON valide, sans aucun texte avant ou après, au format EXACT :
+{"name":"<nom>","description":"<une phrase>","prompt":"<system prompt markdown>"}
+
+Pour "prompt" : structure markdown avec titres # — Identité, Personnalité (ton, humour, énergie, expressivité vocale), Langue, Règles de conversation orale, Outils disponibles. Conversation VOCALE : phrases courtes, pas de listes ni markdown dans les réponses parlées, langage naturel. Le persona ${addressRule}. Section Outils : recherche web si utile, météo, date/heure. Rédige le prompt en ${langName}.
+Pour "name" : ${nameRule}.
+Pour "description" : une seule phrase en ${langName}.`;
+
+        const userPrompt = `Sujet / rôle : ${d.topic}
+Ton souhaité : ${toneLabel}
+Adresse : ${d.formal ? 'vouvoiement' : 'tutoiement'}
+Qui commence : ${d.who === 'persona' ? 'le persona salue en premier' : 'l\'utilisateur commence'}
+${d.name ? 'Nom imposé : ' + d.name : 'Nom : à proposer'}`;
+
+        try {
+            const raw = await chatCompletion({ systemPrompt, userPrompt, temperature: 0.7, maxTokens: 1500 });
+            let parsed = wizParseJson(raw);
+            if (!parsed || !parsed.prompt) {
+                parsed = {
+                    name: d.name || (d.topic.split(/[ ,]/)[0] || 'Assistant'),
+                    description: d.topic.slice(0, 80),
+                    prompt: (raw || '').trim()
+                };
+            }
+            if (d.name) parsed.name = d.name;
+            applyWizardResult(parsed);
+        } catch (err) {
+            errEl.innerHTML = t('wiz_err') +
+                `<div style="margin-top:8px;display:flex;gap:8px">
+                    <button class="btn-small" id="wizRetryBtn">${t('wiz_retry')}</button>
+                    <button class="btn-small" id="wizManualBtn">${t('wiz_manual_continue')}</button>
+                 </div>`;
+            document.getElementById('wizRetryBtn').addEventListener('click', generatePersonaFromWizard);
+            document.getElementById('wizManualBtn').addEventListener('click', () => {
+                closePersonaWizard();
+                openPersonaModal();
+                document.getElementById('pDescription').value = wizardData.topic;
+                document.getElementById('pCreativity').value = wizardData.creativity;
+                document.getElementById('pGreeting').value = wizardData.who;
+                updatePersonaVoiceList(wizardToneToVoice(wizardData.tone));
+            });
+        } finally {
+            nextBtn.disabled = false; nextBtn.style.opacity = '1';
+            nextBtn.textContent = t('wiz_create');
+        }
+    }
+
+    function applyWizardResult(p) {
+        closePersonaWizard();
+        openPersonaModal();
+        document.getElementById('pName').value = p.name || '';
+        document.getElementById('pDescription').value = p.description || '';
+        document.getElementById('pPrompt').value = p.prompt || '';
+        document.getElementById('pCreativity').value = wizardData.creativity;
+        document.getElementById('pReactivity').value = 'balanced';
+        document.getElementById('pGreeting').value = wizardData.who;
+        updatePersonaVoiceList(wizardToneToVoice(wizardData.tone));
+        const banner = document.getElementById('wizardBanner');
+        banner.textContent = t('wiz_banner');
+        banner.style.display = '';
+    }
+
     function openPersonaModal(persona = null) {
         editingPersonaId = persona ? persona.id : null;
+        var _wb = document.getElementById('wizardBanner'); if (_wb) _wb.style.display = 'none';
         document.getElementById('personaModalTitle').textContent =
             persona ? 'Modifier le persona' : 'Nouveau persona';
 
