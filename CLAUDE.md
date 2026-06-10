@@ -20,6 +20,14 @@
 
 ## Estado (2026-06-10)
 
+### v3.1 — 🔐 Sécurité renforcée (main) — testé sur Xiaomi 14T (CDP)
+✅ Biométrie native — `@aparajita/capacitor-biometric-auth` (BiometricPrompt Android), remplace l'ancien `navigator.credentials` factice ; auto-prompt à l'ouverture, bouton 🤙 masqué si pas d'empreinte enrôlée  
+✅ Lockout PIN — 5 essais tolérés puis délai exponentiel (30 s → 15 min max), persistant via localStorage (`buddy_pin_fails` / `buddy_pin_lockuntil`), clavier gelé + compte à rebours ; biométrie reste autorisée pendant le verrou  
+✅ `allowBackup=false` + `dataExtractionRules` (Android 12+) — empêche l'extraction des données (mémoires, transcripts, profil) via ADB backup / transfert d'appareil  
+✅ Confirmation deep link — `zova://import` ne s'importe plus en silence : `confirmPersonaImport()` affiche un aperçu + avertit si le persona embarque un prompt système custom  
+✅ Export sélectif — `buildBackupData(includePersonal)` : choix d'inclure ou non souvenirs+profils, indépendamment des clés API  
+✅ Backup chiffré — `encryptBackup()`/`decryptBackup()` WebCrypto AES-256-GCM + PBKDF2-SHA256 (250k itér.), enveloppe `{type:'zova-backup-encrypted', salt, iv, ciphertext}`, fichier `*.enc.json` ; `customPrompt()` ajouté pour la saisie mot de passe  
+
 ### v3 — ✅ Testé et approuvé (main)
 ✅ Widget 2×2 — avatar photo, nom persona, dernière session, AUTO_START  
 ✅ Widget AUTO_START — PIN-aware (MutationObserver sur #pinScreen)  
@@ -115,11 +123,13 @@ index.html (single-file app)
     ├── Providers: OpenAI Realtime, Gemini Live, Ultravox, Groq pipeline
     ├── WakeLock: screen-on durante conversación
     ├── Reconnect: auto-retry 3x si WS cierra inesperadamente
-    ├── PIN lock: 4 dígitos, stored en Keystore
+    ├── PIN lock: 4 dígitos (Keystore) + lockout exponentiel + biométrie native (BiometricAuthNative)
+    ├── Backup crypto: encryptBackup()/decryptBackup() — WebCrypto AES-256-GCM + PBKDF2
+    ├── customPrompt(): dialogue avec champ saisie (mot de passe)
     ├── Mémoire v3 — 7 couches (voir section Mémoire v3)
     ├── checkMemoryCommand(): 14 patterns FR/EN/ES → saveMemoryFact() → toast 🧠
     ├── showPostSessionSummary(): carte durée+coût+3 lignes async dans transcript
-    └── Export/Import: exportJsonFile() + showImportSheet() + showZovaFiles()
+    └── Export/Import: exportJsonFile() + showImportSheet() + showZovaFiles() (backup chiffré détecté à l'import)
 ```
 
 ## Export/Import (v2-beta)
@@ -221,6 +231,10 @@ index.html (single-file app)
 - **FGS + RECORD_AUDIO (Android 14+):** `startForeground(type=microphone)` lanza SecurityException si el permiso no está concedido en runtime. El try/catch en `ZovaForegroundService.onStartCommand()` evita el crash en fresh install
 - **appId mismatch:** `capacitor.config.json` dice `com.zova.voiceapp` pero el package nativo es `com.buddy.voiceapp` — no cambiar, es histórico y funciona
 - **Debug vs Release APK:** Signatures diferentes → hay que `adb uninstall` antes de instalar debug si hay release instalado (se pierden los datos de la app)
+- **Biometría (v3.1):** Plugin `@aparajita/capacitor-biometric-auth`. El JS nativo se registra como `BiometricAuthNative` (no `BiometricAuth`) → acceder vía `window.Capacitor.Plugins.BiometricAuthNative.internalAuthenticate()`/`.checkBiometry()` (sin bundler, mismo patrón que `SecureStoragePlugin`). Requiere `USE_BIOMETRIC` en el manifest
+- **allowBackup (v3.1):** `android:allowBackup="false"` + `@xml/data_extraction_rules` (excluye todo de cloud-backup y device-transfer, Android 12+)
+- **Backup chiffré (v3.1):** WebCrypto AES-256-GCM + PBKDF2-SHA256 (250k iter). Sin contraseña el `.enc.json` es irrecuperable. Detección a l'import por `data.type === 'zova-backup-encrypted'`
+- **Verificación en dispositivo:** WebView debug vía CDP (ver Comandos). Confirmar que las funciones nuevas existen (`typeof fn === 'function'`) prueba que el script parseó sin error de sintaxis
 
 ## Providers y costes
 

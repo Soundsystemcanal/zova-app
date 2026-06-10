@@ -9,6 +9,7 @@
     "postinstall": "patch-package && node scripts/fix-proguard.js"
   },
   "dependencies": {
+    "@aparajita/capacitor-biometric-auth": "^10.0.0",
     "@capacitor-community/text-to-speech": "^8.0.0",
     "@capacitor/android": "^8.0.0",
     "@capacitor/app": "^8.1.0",

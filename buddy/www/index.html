@@ -3194,6 +3194,9 @@ Minimum version required to store current data is: `+i+`.
             pin_mismatch: 'Los códigos no coinciden',
             pin_activated: 'Código PIN activado ✅',
             pin_removed: 'Código PIN eliminado',
+            pin_locked: 'Demasiados intentos. Espera {s}s',
+            pin_bio_reason: 'Desbloquea Zova',
+            pin_bio_cancel: 'Usar PIN',
             pin_security: 'Seguridad',
             // Nav confirm
             nav_leave_msg: '¿Terminar la conversación para navegar?',
@@ -3294,6 +3297,9 @@ Minimum version required to store current data is: `+i+`.
             pin_mismatch: 'Codes do not match',
             pin_activated: 'PIN code activated ✅',
             pin_removed: 'PIN code removed',
+            pin_locked: 'Too many attempts. Wait {s}s',
+            pin_bio_reason: 'Unlock Zova',
+            pin_bio_cancel: 'Use PIN',
             pin_security: 'Security',
             // Nav confirm
             nav_leave_msg: 'End conversation to navigate?',
@@ -3394,6 +3400,9 @@ Minimum version required to store current data is: `+i+`.
             pin_mismatch: 'Les codes ne correspondent pas',
             pin_activated: 'Code PIN activé ✅',
             pin_removed: 'Code PIN supprimé',
+            pin_locked: 'Trop de tentatives. Attends {s}s',
+            pin_bio_reason: 'Déverrouiller Zova',
+            pin_bio_cancel: 'Utiliser le PIN',
             pin_security: 'Sécurité',
             // Nav confirm
             nav_leave_msg: 'Terminer la conversation pour naviguer ?',
@@ -3432,7 +3441,7 @@ Minimum version required to store current data is: `+i+`.
             },
             {
                 q: 'Comment sécuriser l\'app ?',
-                a: 'Va dans Configuration et appuie sur Activer le code PIN. Choisis un code à 4 chiffres : il te sera demandé à chaque ouverture de l\'app. Le PIN est stocké dans l\'Android Keystore au même titre que tes clés API. Tes données sont uniquement sur ton téléphone, jamais envoyées à Zova.'
+                a: 'Va dans Configuration → Sécurité et appuie sur Activer le code PIN (4 chiffres) : il te sera demandé à chaque ouverture. Si ton téléphone a une empreinte enregistrée, tu peux aussi déverrouiller par empreinte (bouton 🤙). Après plusieurs codes erronés, le clavier se verrouille temporairement pour bloquer les tentatives à répétition. Le PIN est stocké dans l\'Android Keystore au même titre que tes clés API. Enfin, à l\'export tu peux chiffrer ta sauvegarde par mot de passe (AES-256). Tes données restent uniquement sur ton téléphone, jamais envoyées à Zova.'
             }
         ],
         en: [
@@ -3458,7 +3467,7 @@ Minimum version required to store current data is: `+i+`.
             },
             {
                 q: 'How do I secure the app?',
-                a: 'Go to Settings and tap Activate PIN code. Choose a 4-digit code: it will be required each time you open the app. The PIN is stored in the Android Keystore alongside your API keys. Your data stays only on your phone, never sent to Zova.'
+                a: 'Go to Settings → Security and tap Activate PIN code (4 digits): it will be required each time you open the app. If your phone has a fingerprint enrolled, you can also unlock with biometrics (🤙 button). After several wrong codes, the keypad locks temporarily to block repeated guessing. The PIN is stored in the Android Keystore alongside your API keys. Finally, when exporting you can encrypt your backup with a password (AES-256). Your data stays only on your phone, never sent to Zova.'
             }
         ],
         es: [
@@ -3484,7 +3493,7 @@ Minimum version required to store current data is: `+i+`.
             },
             {
                 q: '¿Cómo protejo la app?',
-                a: 'Ve a Configuración y pulsa Activar código PIN. Elige un código de 4 dígitos: se te pedirá cada vez que abras la app. El PIN se almacena en el Android Keystore junto a tus claves API. Tus datos permanecen únicamente en tu teléfono, nunca se envían a Zova.'
+                a: 'Ve a Configuración → Seguridad y pulsa Activar código PIN (4 dígitos): se te pedirá cada vez que abras la app. Si tu teléfono tiene una huella registrada, también puedes desbloquear con biometría (botón 🤙). Tras varios códigos incorrectos, el teclado se bloquea temporalmente para impedir intentos repetidos. El PIN se almacena en el Android Keystore junto a tus claves API. Por último, al exportar puedes cifrar tu copia con una contraseña (AES-256). Tus datos permanecen únicamente en tu teléfono, nunca se envían a Zova.'
             }
         ]
     };
@@ -3838,6 +3847,36 @@ Minimum version required to store current data is: `+i+`.
         });
     }
 
+    // Dialogue avec saisie texte (ex. mot de passe). Résout avec la valeur saisie,
+    // ou null si l'utilisateur annule. type='password' par défaut.
+    function customPrompt(message, { title = '', icon = '&#128273;', confirmLabel = null, cancelLabel = null, placeholder = '', type = 'password' } = {}) {
+        confirmLabel = confirmLabel ?? t('btn_confirm');
+        cancelLabel  = cancelLabel  ?? t('btn_cancel');
+        return new Promise(resolve => {
+            const overlay = document.createElement('div');
+            overlay.className = 'dialog-overlay';
+            overlay.innerHTML = `<div class="dialog-box">
+                <div class="dialog-icon">${icon}</div>
+                ${title ? `<div class="dialog-title">${title}</div>` : ''}
+                <div class="dialog-message">${message}</div>
+                <input type="${type}" class="dialog-input" placeholder="${placeholder}" autocomplete="off" autocapitalize="off" spellcheck="false"
+                    style="width:100%;box-sizing:border-box;margin-top:14px;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-primary);color:var(--text-primary);font-size:1rem;">
+                <div class="dialog-buttons">
+                    <button class="dialog-btn" data-action="cancel">${cancelLabel}</button>
+                    <button class="dialog-btn dialog-btn-primary" data-action="confirm">${confirmLabel}</button>
+                </div>
+            </div>`;
+            document.body.appendChild(overlay);
+            const input = overlay.querySelector('.dialog-input');
+            const close = (result) => { overlay.remove(); resolve(result); };
+            overlay.querySelector('[data-action="cancel"]').addEventListener('click', () => close(null));
+            overlay.querySelector('[data-action="confirm"]').addEventListener('click', () => close(input.value));
+            input.addEventListener('keydown', (e) => { if (e.key === 'Enter') close(input.value); });
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) close(null); });
+            setTimeout(() => input.focus(), 50);
+        });
+    }
+
     // ════════════════════════════════════════════════
     //  CONSTANTES
     // ════════════════════════════════════════════════
@@ -3898,11 +3937,11 @@ Chaque persona a son propre prompt, voix, style et profil adaptatif. Actions : �
 Deux couches : résumés de sessions (max 10) et profil cumulatif de l'utilisateur. Consultables et effaçables dans Config → Mémoire.
 
 ## Export / Import
-Backup complet (personas + mémoire + clés optionnelles) via Config → onglet Partager. Import depuis un fichier ou les sauvegardes Zova.
+Backup via Config → onglet Partager. À l'export, l'utilisateur choisit d'inclure ou non ses données personnelles (souvenirs + profils) et ses clés API, et peut chiffrer le fichier par mot de passe (AES-256-GCM). Import depuis un fichier ou les sauvegardes Zova ; un fichier chiffré demande son mot de passe.
 
 ## Autres fonctionnalités
 - Widget 2×1 : raccourci sur l'écran d'accueil
-- PIN 4 chiffres : verrouillage de l'app (Config)
+- Verrouillage : PIN 4 chiffres + déverrouillage par empreinte si disponible ; le clavier se bloque temporairement après plusieurs échecs (Config → Sécurité)
 - Transcripteur : mode transcription vocale sans IA
 - Budget mensuel : plafond de dépenses (Config → Budget)
 - Chapitrage auto : sessions longues (>20 min) analysées automatiquement après Stop
@@ -4328,14 +4367,54 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     //  PIN LOCK
     // ════════════════════════════════════════════════
     const PIN_KEY = 'buddy_pin';
+    const PIN_FAIL_KEY = 'buddy_pin_fails';     // nombre d'échecs consécutifs
+    const PIN_LOCK_KEY = 'buddy_pin_lockuntil'; // timestamp ms de fin de verrou
+    const PIN_FAIL_THRESHOLD = 5;               // échecs tolérés avant le 1er verrou
+    const PIN_LOCK_BASE_MS = 30000;             // 30 s, double à chaque échec au-delà
+    const PIN_LOCK_MAX_MS = 15 * 60000;         // plafond 15 min
     let pinBuffer = '';
     let pinMode = 'unlock'; // 'unlock' | 'set' | 'confirm'
     let pinTemp = '';
+    let pinLockTimer = null;
+
+    // Secondes restantes avant déverrouillage du clavier (0 = non verrouillé)
+    function pinLockRemaining() {
+        const until = parseInt(localStorage.getItem(PIN_LOCK_KEY) || '0', 10);
+        if (!until) return 0;
+        const rem = Math.ceil((until - Date.now()) / 1000);
+        return rem > 0 ? rem : 0;
+    }
+
+    // Affiche le compte à rebours et désactive le clavier tant que le verrou tient
+    function refreshPinLockUI() {
+        const rem = pinLockRemaining();
+        const err = document.getElementById('pinError');
+        // Le bouton biométrique reste actif même en cas de verrou
+        const keys = document.querySelectorAll('#pinScreen .pin-key:not(#pinBioBtn)');
+        if (rem > 0) {
+            if (err) err.textContent = t('pin_locked').replace('{s}', rem);
+            keys.forEach(k => { k.style.opacity = '0.35'; k.style.pointerEvents = 'none'; });
+            if (!pinLockTimer) pinLockTimer = setInterval(refreshPinLockUI, 1000);
+        } else {
+            if (pinLockTimer) {
+                clearInterval(pinLockTimer);
+                pinLockTimer = null;
+                if (err) err.textContent = ''; // le verrou vient d'expirer
+            }
+            keys.forEach(k => { k.style.opacity = ''; k.style.pointerEvents = ''; });
+        }
+    }
 
     async function initPinScreen() {
         const savedPin = await SecureStore.get(PIN_KEY);
         if (!savedPin) return; // no PIN set, open normally
         showPinScreen('unlock');
+        // Masque le bouton 🤙 si aucune empreinte n'est disponible, sinon
+        // propose directement l'empreinte (sauf pendant un verrou PIN).
+        const bioBtn = document.getElementById('pinBioBtn');
+        const available = await biometricAvailable();
+        if (bioBtn) bioBtn.style.display = available ? '' : 'none';
+        if (available && pinLockRemaining() === 0) tryBiometric();
     }
 
     function showPinScreen(mode) {
@@ -4350,6 +4429,8 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         else if (mode === 'confirm') title.textContent = t('pin_confirm_msg');
         updatePinDots();
         document.getElementById('pinError').textContent = '';
+        // En mode déverrouillage, réafficher l'état du verrou éventuel
+        if (mode === 'unlock') refreshPinLockUI();
     }
 
     function hidePinScreen() {
@@ -4363,6 +4444,12 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     }
 
     async function handlePinInput(val) {
+        // Clavier gelé tant que le verrou anti-brute-force n'a pas expiré.
+        // La biométrie reste autorisée : l'OS applique sa propre protection.
+        if (pinMode === 'unlock' && val !== 'bio' && pinLockRemaining() > 0) {
+            refreshPinLockUI();
+            return;
+        }
         if (val === 'del') {
             pinBuffer = pinBuffer.slice(0, -1);
             updatePinDots();
@@ -4382,11 +4469,25 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         const savedPin = await SecureStore.get(PIN_KEY);
         if (pinMode === 'unlock') {
             if (pinBuffer === savedPin) {
+                // Succès → on remet les compteurs anti-brute-force à zéro
+                localStorage.removeItem(PIN_FAIL_KEY);
+                localStorage.removeItem(PIN_LOCK_KEY);
+                if (pinLockTimer) { clearInterval(pinLockTimer); pinLockTimer = null; }
                 hidePinScreen();
             } else {
-                document.getElementById('pinError').textContent = t('pin_wrong');
+                const fails = parseInt(localStorage.getItem(PIN_FAIL_KEY) || '0', 10) + 1;
+                localStorage.setItem(PIN_FAIL_KEY, String(fails));
                 pinBuffer = '';
                 updatePinDots();
+                if (fails >= PIN_FAIL_THRESHOLD) {
+                    // Délai exponentiel à partir du seuil, plafonné
+                    const over = fails - PIN_FAIL_THRESHOLD;
+                    const delay = Math.min(PIN_LOCK_BASE_MS * Math.pow(2, over), PIN_LOCK_MAX_MS);
+                    localStorage.setItem(PIN_LOCK_KEY, String(Date.now() + delay));
+                    refreshPinLockUI();
+                } else {
+                    document.getElementById('pinError').textContent = t('pin_wrong');
+                }
             }
         } else if (pinMode === 'set') {
             pinTemp = pinBuffer;
@@ -4411,15 +4512,45 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         }
     }
 
+    // Plugin natif (BiometricPrompt Android) exposé via le bridge Capacitor.
+    // Enregistré côté natif sous le nom "BiometricAuthNative" ; on appelle
+    // directement internalAuthenticate()/checkBiometry() — le wrapper JS du
+    // package ne fait qu'envelopper ces méthodes (pas de bundler ici).
+    function getBiometricPlugin() {
+        return (IS_CAPACITOR && window.Capacitor?.Plugins?.BiometricAuthNative) || null;
+    }
+
+    async function biometricAvailable() {
+        const bio = getBiometricPlugin();
+        if (!bio) return false;
+        try {
+            const r = await bio.checkBiometry();
+            return !!(r && r.isAvailable);
+        } catch { return false; }
+    }
+
     async function tryBiometric() {
-        // Web Authentication API (platform authenticator = fingerprint on Android)
+        const bio = getBiometricPlugin();
+        if (!bio) return;
         try {
             const savedPin = await SecureStore.get(PIN_KEY);
             if (!savedPin) return;
-            await navigator.credentials.get({ publicKey: undefined, mediation: 'optional' });
+            if (!await biometricAvailable()) return; // pas d'empreinte enrôlée → reste sur le PIN
+            // internalAuthenticate() résout en cas de succès, rejette sinon (échec/annulation)
+            await bio.internalAuthenticate({
+                reason: t('pin_bio_reason'),
+                androidTitle: 'Zova',
+                androidSubtitle: t('pin_bio_reason'),
+                cancelTitle: t('pin_bio_cancel'),
+                allowDeviceCredential: false
+            });
+            // Succès → reset des compteurs anti-brute-force et ouverture
+            localStorage.removeItem(PIN_FAIL_KEY);
+            localStorage.removeItem(PIN_LOCK_KEY);
+            if (pinLockTimer) { clearInterval(pinLockTimer); pinLockTimer = null; }
             hidePinScreen();
         } catch(e) {
-            document.getElementById('pinError').textContent = t('pin_wrong');
+            // Annulation ou échec biométrique → l'utilisateur retombe sur le clavier PIN, sans message d'erreur agressif
         }
     }
 
@@ -4471,20 +4602,78 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     });
 
     // Helpers communs pour la génération du backup
-    function buildBackupData() {
-        return {
+    // ════════════════════════════════════════════════
+    //  CHIFFREMENT DE SAUVEGARDE (WebCrypto AES-GCM + PBKDF2)
+    //  Protège le fichier exporté s'il fuite via le partage cloud.
+    // ════════════════════════════════════════════════
+    const ENC_TYPE = 'zova-backup-encrypted';
+    const PBKDF2_ITER = 250000;
+
+    // base64 sûr pour gros buffers (évite le dépassement de pile du spread)
+    function _bufToB64(buf) {
+        const bytes = new Uint8Array(buf);
+        let bin = '';
+        const CHUNK = 0x8000;
+        for (let i = 0; i < bytes.length; i += CHUNK) {
+            bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
+        }
+        return btoa(bin);
+    }
+    function _b64ToBuf(str) {
+        return Uint8Array.from(atob(str), c => c.charCodeAt(0));
+    }
+    async function _deriveBackupKey(password, salt) {
+        const baseKey = await crypto.subtle.importKey(
+            'raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']
+        );
+        return crypto.subtle.deriveKey(
+            { name: 'PBKDF2', salt, iterations: PBKDF2_ITER, hash: 'SHA-256' },
+            baseKey,
+            { name: 'AES-GCM', length: 256 },
+            false,
+            ['encrypt', 'decrypt']
+        );
+    }
+    async function encryptBackup(plaintext, password) {
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const key = await _deriveBackupKey(password, salt);
+        const ct = await crypto.subtle.encrypt(
+            { name: 'AES-GCM', iv }, key, new TextEncoder().encode(plaintext)
+        );
+        return JSON.stringify({
+            type: ENC_TYPE, v: 1, kdf: 'PBKDF2', hash: 'SHA-256', iterations: PBKDF2_ITER,
+            salt: _bufToB64(salt), iv: _bufToB64(iv), ciphertext: _bufToB64(ct)
+        }, null, 2);
+    }
+    async function decryptBackup(envelope, password) {
+        const key = await _deriveBackupKey(password, _b64ToBuf(envelope.salt));
+        const pt = await crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv: _b64ToBuf(envelope.iv) }, key, _b64ToBuf(envelope.ciphertext)
+        );
+        return new TextDecoder().decode(pt);
+    }
+
+    // includePersonal=false → sauvegarde "config seule" : personas, thème, infos,
+    // stats d'usage. Exclut tout ce que l'IA a appris de l'utilisateur (souvenirs,
+    // profils global + par persona).
+    function buildBackupData(includePersonal = true) {
+        const data = {
             version: 2,
             exportDate: new Date().toISOString(),
             theme: getTheme(),
             personas: getPersonas(),
             activePersonaId: getActiveId(),
             userInfo: getUserInfo(),
-            stats: getStats(),
-            memories: getMemories(),
-            personaMemories: getAllPersonaMemoryMap(),   // per-persona memories map
-            personaProfiles: getAllPersonaProfileMap(),  // per-persona profile map
-            userProfile: getUserProfile()
+            stats: getStats()
         };
+        if (includePersonal) {
+            data.memories = getMemories();
+            data.personaMemories = getAllPersonaMemoryMap();   // per-persona memories map
+            data.personaProfiles = getAllPersonaProfileMap();  // per-persona profile map
+            data.userProfile = getUserProfile();
+        }
+        return data;
     }
     function buildBackupFilename() {
         return `zova-backup-${new Date().toISOString().slice(0,10)}.json`;
@@ -4492,11 +4681,17 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
 
     // Bouton "Exporter" — demande si inclure les clés API, puis action sheet
     document.getElementById('backupExportBtn').addEventListener('click', async () => {
+        // 1) Données personnelles (souvenirs + profils) — sensibles
+        const includePersonal = await customConfirm(
+            '&#129504; Tes <b>souvenirs et profils</b> (ce que l\'IA a appris de toi) peuvent &#234;tre inclus.<br><small style="opacity:0.75">Refuse pour ne sauvegarder que tes personas, ton th&#232;me et tes r&#233;glages.</small>',
+            { title: 'Inclure tes donn&#233;es personnelles&#160;?', icon: '&#129504;', confirmLabel: 'Oui, tout inclure', cancelLabel: 'Non, config seule' }
+        );
+        // 2) Clés API
         const includeKeys = await customConfirm(
             '&#128274; Les cl&#233;s API seront incluses dans le fichier.<br><small style="opacity:0.75">&#9888; Ne partagez ce fichier qu\'avec vous-m&#234;me.</small>',
             { title: 'Inclure les cl&#233;s API&#160;?', icon: '&#128274;', confirmLabel: 'Oui, inclure', cancelLabel: 'Non merci' }
         );
-        const data = buildBackupData();
+        const data = buildBackupData(includePersonal);
         if (includeKeys) {
             const [openai, gemini, ultravox, groq] = await Promise.all([
                 getApiKey(), getGeminiApiKey(), getUltravoxApiKey(), getGroqApiKey()
@@ -4508,8 +4703,34 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
                 groq: groq || ''
             };
         }
-        const content = JSON.stringify(data, null, 2);
-        const filename = buildBackupFilename();
+        let content = JSON.stringify(data, null, 2);
+        let filename = buildBackupFilename();
+
+        // 3) Chiffrement optionnel — uniquement si le fichier contient des données sensibles
+        if (includePersonal || includeKeys) {
+            const wantEncrypt = await customConfirm(
+                '&#128274; Prot&#233;ger ce fichier par un <b>mot de passe</b>&#160;? Il sera illisible sans lui, m&#234;me s\'il fuite via un partage cloud.<br><small style="opacity:0.75">&#9888; Sans le mot de passe, la sauvegarde est <b>irr&#233;cup&#233;rable</b>.</small>',
+                { title: 'Chiffrer la sauvegarde&#160;?', icon: '&#128274;', confirmLabel: 'Oui, chiffrer', cancelLabel: 'Non, fichier clair' }
+            );
+            if (wantEncrypt) {
+                const pw = await customPrompt('Choisis un mot de passe (6 caract&#232;res minimum).', {
+                    title: 'Mot de passe', icon: '&#128273;', placeholder: 'Mot de passe', confirmLabel: 'Suivant'
+                });
+                if (pw === null) return; // annulé → pas d'export
+                if (pw.length < 6) { customAlert('Mot de passe trop court (6 caract&#232;res minimum).', { title: 'Erreur', icon: '&#10060;' }); return; }
+                const pw2 = await customPrompt('Confirme le mot de passe.', {
+                    title: 'Confirmation', icon: '&#128273;', placeholder: 'R&#233;p&#233;ter le mot de passe', confirmLabel: 'Chiffrer'
+                });
+                if (pw2 === null) return;
+                if (pw !== pw2) { customAlert('Les mots de passe ne correspondent pas.', { title: 'Erreur', icon: '&#10060;' }); return; }
+                try {
+                    content = await encryptBackup(content, pw);
+                    filename = filename.replace(/\.json$/, '.enc.json');
+                } catch (e) {
+                    customAlert('Erreur de chiffrement : ' + e.message, { title: 'Erreur', icon: '&#10060;' }); return;
+                }
+            }
+        }
         exportJsonFile(content, filename);
     });
 
@@ -6396,11 +6617,43 @@ Règles: seulement si l'utilisateur mentionne EXPLICITEMENT un objectif, une pro
                 const p = parsed.searchParams.get('p');
                 if (!p) return;
                 const json = decodeURIComponent(escape(atob(p)));
-                processPersonaJson(json);
+                confirmPersonaImport(json);
             }
         } catch(e) {
             console.error('[Zova] Deep link parse error', e);
         }
+    }
+
+    // Un persona reçu par lien externe (zova://) embarque un prompt système qui
+    // pilotera l'IA : on n'importe JAMAIS sans confirmation explicite + aperçu.
+    async function confirmPersonaImport(jsonStr) {
+        let p;
+        try {
+            const data = JSON.parse(jsonStr);
+            if (!data || data.type !== 'zova-persona' || !data.persona) throw new Error('invalid');
+            p = data.persona;
+        } catch {
+            customAlert('Ce lien ne contient pas un persona Zova valide.', { title: 'Import refusé', icon: '&#10060;' });
+            return;
+        }
+        const name = esc(p.name || 'Persona importé');
+        const desc = p.description ? esc(String(p.description).slice(0, 160)) : '';
+        const promptLen = p.prompt ? String(p.prompt).length : 0;
+        const promptNote = promptLen
+            ? `<div style="margin-top:10px;padding:10px;border-radius:10px;background:var(--bg-hover);font-size:0.82rem;line-height:1.4;">&#9888;&#65039; Ce persona contient une <b>instruction IA personnalisée</b> (${promptLen} caractères) qui guidera ses réponses. N'importe que des personas dont tu connais la provenance.</div>`
+            : '';
+        const body = `<div style="text-align:left;font-size:0.9rem;">
+                <div><b>Nom :</b> ${name}</div>
+                ${desc ? `<div style="margin-top:4px;opacity:0.8;">${desc}</div>` : ''}
+                ${promptNote}
+            </div>`;
+        const ok = await customConfirm(body, {
+            title: '&#128229; Importer ce persona&#160;?',
+            icon: '&#129489;',
+            confirmLabel: 'Importer',
+            cancelLabel: 'Annuler'
+        });
+        if (ok) processPersonaJson(jsonStr);
     }
 
     // Écouter les deep links Capacitor (app déjà ouverte ou lancée via URL)
@@ -8881,7 +9134,19 @@ Langue : ${lang}`;
     // Applique un JSON de sauvegarde depuis une string (utilisé par showZovaFiles)
     async function processBackupJson(jsonStr) {
         try {
-            const data = JSON.parse(jsonStr);
+            let data = JSON.parse(jsonStr);
+            // Sauvegarde chiffrée → demander le mot de passe et déchiffrer
+            if (data && data.type === ENC_TYPE) {
+                const pw = await customPrompt('Cette sauvegarde est <b>chiffr&#233;e</b>. Entre le mot de passe pour la restaurer.', {
+                    title: 'Sauvegarde prot&#233;g&#233;e', icon: '&#128274;', placeholder: 'Mot de passe', confirmLabel: 'D&#233;chiffrer'
+                });
+                if (pw === null) return; // annulé
+                try {
+                    data = JSON.parse(await decryptBackup(data, pw));
+                } catch (e) {
+                    customAlert('Mot de passe incorrect ou fichier corrompu.', { title: 'D&#233;chiffrement &#233;chou&#233;', icon: '&#10060;' }); return;
+                }
+            }
             if (!data.version || !data.personas) {
                 customAlert('Fichier de sauvegarde invalide.', { title: 'Erreur', icon: '&#10060;' }); return;
             }
