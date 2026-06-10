@@ -2500,6 +2500,14 @@ Minimum version required to store current data is: `+i+`.
         <button id="viewGlobalProfileBtn" style="background:none;border:none;color:var(--text-muted);font-size:0.78rem;cursor:pointer;padding:4px 0;text-align:left;width:100%;">↓ <span id="viewGlobalProfileLabel">Voir / effacer le profil général</span></button>
       </div>
 
+      <!-- Follow-ups / Engagements -->
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">✅ <span data-i18n="config_section_followups">Suivis</span></div>
+        <div id="followupsCount" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px"></div>
+        <button class="config-screen-btn" id="viewFollowupsBtn">📋 <span data-i18n="config_view_followups">Voir les suivis</span></button>
+        <button class="config-screen-btn" id="clearFollowupsBtn" style="color:var(--danger)">🗑️ <span data-i18n="config_clear_followups">Effacer les suivis</span></button>
+      </div>
+
       <!-- TTS Voice settings -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
         <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🎙️ <span data-i18n="config_section_tts">Voix TTS (Groq)</span></div>
@@ -3097,6 +3105,12 @@ Minimum version required to store current data is: `+i+`.
             import_persona_card: 'Importar',
             // Config sections
             config_section_memory: 'Memoria episódica',
+            config_section_followups: 'Seguimientos',
+            config_view_followups: 'Ver seguimientos',
+            config_clear_followups: 'Borrar seguimientos',
+            followups_none: 'Sin seguimientos guardados',
+            followups_one: '1 seguimiento pendiente',
+            followups_many: '{n} seguimientos pendientes',
             config_section_profile: 'Perfil de usuario',
             config_section_tts: 'Voz TTS (Groq)',
             config_section_security: 'Seguridad',
@@ -3185,6 +3199,12 @@ Minimum version required to store current data is: `+i+`.
             import_persona_card: 'Import',
             // Config sections
             config_section_memory: 'Episodic memory',
+            config_section_followups: 'Follow-ups',
+            config_view_followups: 'View follow-ups',
+            config_clear_followups: 'Clear follow-ups',
+            followups_none: 'No follow-ups saved',
+            followups_one: '1 pending follow-up',
+            followups_many: '{n} pending follow-ups',
             config_section_profile: 'User profile',
             config_section_tts: 'TTS Voice (Groq)',
             config_section_security: 'Security',
@@ -3273,6 +3293,12 @@ Minimum version required to store current data is: `+i+`.
             import_persona_card: 'Importer',
             // Config sections
             config_section_memory: 'Mémoire épisodique',
+            config_section_followups: 'Suivis',
+            config_view_followups: 'Voir les suivis',
+            config_clear_followups: 'Effacer les suivis',
+            followups_none: 'Aucun suivi enregistré',
+            followups_one: '1 suivi en attente',
+            followups_many: '{n} suivis en attente',
             config_section_profile: 'Profil utilisateur',
             config_section_tts: 'Voix TTS (Groq)',
             config_section_security: 'Sécurité',
@@ -3461,6 +3487,7 @@ Minimum version required to store current data is: `+i+`.
         applyTheme(getTheme());
         if (typeof updateMemoryCount === 'function') updateMemoryCount();
         if (typeof updateProfileCount === 'function') updateProfileCount();
+        if (typeof updateFollowupsCount === 'function') updateFollowupsCount();
     }
 
     // ════════════════════════════════════════════════
@@ -5829,6 +5856,33 @@ Règles IMPÉRATIVES :
         localStorage.removeItem(PERSONA_MEMORY_PREFIX + personaId);
     }
 
+    // ── Follow-ups & bridge ──────────────────────────────────────────────────
+    const FOLLOWUPS_KEY_PREFIX = 'buddy_followups_';
+    const BRIDGE_KEY_PREFIX    = 'buddy_bridge_';
+    const MAX_FOLLOWUPS        = 5;
+
+    function getFollowUps(personaId) {
+        try { return JSON.parse(localStorage.getItem(FOLLOWUPS_KEY_PREFIX + personaId)) || []; }
+        catch { return []; }
+    }
+    function saveFollowUps(arr, personaId) {
+        if (!personaId) return;
+        localStorage.setItem(FOLLOWUPS_KEY_PREFIX + personaId, JSON.stringify(arr.slice(0, MAX_FOLLOWUPS)));
+    }
+    function clearFollowUps(personaId) {
+        if (!personaId) return;
+        localStorage.removeItem(FOLLOWUPS_KEY_PREFIX + personaId);
+        localStorage.removeItem(BRIDGE_KEY_PREFIX + personaId);
+    }
+    function getBridge(personaId) {
+        return localStorage.getItem(BRIDGE_KEY_PREFIX + personaId) || '';
+    }
+    function saveBridge(text, personaId) {
+        if (!personaId) return;
+        if (text) localStorage.setItem(BRIDGE_KEY_PREFIX + personaId, text);
+        else localStorage.removeItem(BRIDGE_KEY_PREFIX + personaId);
+    }
+
     // Returns all persona memory keys currently in localStorage
     function getAllPersonaMemoryMap() {
         const map = {};
@@ -5900,6 +5954,72 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
             }
         } catch(e) {
             console.warn('[Zova Memory] Failed to generate:', e.message);
+        }
+    }
+
+    async function extractFollowUpsAndBridge(persona, transcriptText) {
+        if (!transcriptText.trim() || !persona?.id) return;
+        const lineCount = transcriptText.split('\n').filter(l => l.trim()).length;
+        if (lineCount < MIN_MSGS_FOR_MEMORY) return;
+
+        const personaName = persona.name || 'Zova';
+        const langName = LANG === 'fr' ? 'français' : LANG === 'es' ? 'español' : 'english';
+        const systemPrompt = `Tu es un assistant d'analyse de conversation. Analyse cette conversation entre l'utilisateur et ${personaName}.
+
+Retourne UNIQUEMENT un JSON valide avec ce format exact:
+{
+  "followups": ["engagement 1", "engagement 2"],
+  "bridge": "phrase d'accroche naturelle pour la prochaine session"
+}
+
+"followups": liste des engagements ou intentions exprimés par l'UTILISATEUR (max ${MAX_FOLLOWUPS}). Ex: "Essayer le jeûne intermittent", "Lire le chapitre 3". Tableau vide [] si aucun.
+"bridge": une phrase courte et naturelle que ${personaName} pourrait dire pour ouvrir la prochaine session en référençant ce qui s'est passé. Ex: "La dernière fois tu voulais essayer le jeûne — comment ça s'est passé ?". Chaîne vide "" si la session était trop courte.
+Langue: ${langName}. Réponds UNIQUEMENT avec le JSON.`;
+
+        try {
+            let raw = '';
+            const groqKey = await getGroqApiKey();
+            if (groqKey) {
+                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: getModelMemory(),
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: transcriptText.slice(0, 4000) }
+                        ],
+                        max_tokens: 300,
+                        temperature: 0.2
+                    })
+                });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    raw = (data.choices?.[0]?.message?.content || '').trim();
+                }
+            }
+            if (!raw) {
+                raw = await chatCompletion({
+                    systemPrompt,
+                    userPrompt: transcriptText.slice(0, 4000),
+                    temperature: 0.2,
+                    maxTokens: 300
+                });
+            }
+            // Parse JSON — strip markdown fences if present
+            const jsonStr = raw.replace(/^```[a-z]*\n?/i, '').replace(/```$/, '').trim();
+            const result = JSON.parse(jsonStr);
+            if (Array.isArray(result.followups) && result.followups.length > 0) {
+                saveFollowUps(result.followups, persona.id);
+                console.log('[Zova Follow-ups] Saved:', result.followups);
+            }
+            if (typeof result.bridge === 'string' && result.bridge.length > 5) {
+                saveBridge(result.bridge, persona.id);
+                console.log('[Zova Bridge] Saved:', result.bridge);
+            }
+            updateFollowupsCount();
+        } catch(e) {
+            console.warn('[Zova Follow-ups] Failed:', e.message);
         }
     }
 
@@ -6357,10 +6477,20 @@ Règles STRICTES :
             fullInstructions += `\n\n# Mémoire des sessions précédentes\nVoici un résumé de tes conversations récentes avec cet utilisateur. Utilise ces infos naturellement pour assurer la continuité :\n${memBlock}`;
         }
 
-        // Continuity hook — only when we have persona-specific memories (i.e. we've spoken before as THIS persona)
-        if (personaMems.length > 0) {
-            const last = personaMems[0]; // most recent session
+        // Continuity hook — bridge (LLM-generated) takes priority, else fallback to last memory
+        const bridge = persona?.id ? getBridge(persona.id) : '';
+        if (bridge) {
+            fullInstructions += `\n\n# Accroche de reprise\n→ Pour ouvrir cette conversation, utilise exactement cette phrase d'accroche (ou une variante très proche) : "${bridge}"\nSi l'utilisateur lance directement un nouveau sujet, adapte-toi sans forcer le rappel.`;
+        } else if (personaMems.length > 0) {
+            const last = personaMems[0];
             fullInstructions += `\n\n# Accroche de reprise\nLa dernière conversation a eu lieu le ${last.date}. Résumé : ${last.summary}\n→ Pour ouvrir cette conversation, fais une référence naturelle et courte à ce sujet (1 phrase max, ex. "La dernière fois tu travaillais sur X, comment ça avance ?"). Si l'utilisateur lance directement un nouveau sujet, adapte-toi sans forcer le rappel.`;
+        }
+
+        // Follow-ups — commitments the user expressed last session
+        const followups = persona?.id ? getFollowUps(persona.id) : [];
+        if (followups.length > 0) {
+            const fuBlock = followups.map(f => `- ${f}`).join('\n');
+            fullInstructions += `\n\n# Engagements de l'utilisateur (session précédente)\nL'utilisateur avait exprimé ces intentions ou engagements lors de la dernière session :\n${fuBlock}\n→ Si l'occasion se présente naturellement, demande comment ça s'est passé. Ne force pas si le sujet a changé.`;
         }
 
         const toolSection = activeProvider === 'gemini'
@@ -8688,10 +8818,11 @@ Langue : ${lang}`;
         if (hadConversation && !isTranscripteurMode && activeModelId !== 'gpt-realtime-translate') {
             const persona = getPersonas().find(p => p.id === getActiveId());
             const transcriptText = getTranscriptText(false);
-            generateMemory(persona, transcriptText);         // async, non-bloquant
-            updateUserProfile(transcriptText);               // async, non-bloquant
-            updatePersonaProfile(persona, transcriptText);   // async, non-bloquant — persona profile
-            generateChapters(persona, transcriptText);       // async, non-bloquant — session longue >40 échanges
+            generateMemory(persona, transcriptText);                    // async, non-bloquant
+            updateUserProfile(transcriptText);                          // async, non-bloquant
+            updatePersonaProfile(persona, transcriptText);              // async, non-bloquant
+            generateChapters(persona, transcriptText);                  // async, non-bloquant
+            extractFollowUpsAndBridge(persona, transcriptText);         // async, non-bloquant
         }
     }
 
@@ -9360,6 +9491,47 @@ Règles de format :
         customAlert(
             LANG === 'es' ? 'Memoria borrada.' : LANG === 'en' ? 'Memory cleared.' : 'Mémoire effacée.',
             { title: '🧠', icon: '✅' }
+        );
+    });
+
+    function updateFollowupsCount() {
+        const activeId = getActiveId();
+        const fus = activeId ? getFollowUps(activeId) : [];
+        const el = document.getElementById('followupsCount');
+        if (!el) return;
+        if (fus.length === 0) {
+            el.textContent = t('followups_none');
+        } else if (fus.length === 1) {
+            el.textContent = t('followups_one');
+        } else {
+            el.textContent = t('followups_many').replace('{n}', fus.length);
+        }
+    }
+    updateFollowupsCount();
+
+    document.getElementById('viewFollowupsBtn').addEventListener('click', () => {
+        const activeId = getActiveId();
+        const fus = activeId ? getFollowUps(activeId) : [];
+        if (!fus.length) { customAlert(t('followups_none'), { title: '📌 ' + t('config_section_followups'), icon: '📌' }); return; }
+        const bridge = activeId ? getBridge(activeId) : '';
+        let content = fus.map((f, i) => `${i+1}. ${f}`).join('\n');
+        if (bridge) content += `\n\n💬 Accroche : ${bridge}`;
+        customAlert(content, { title: '📌 ' + t('config_section_followups'), icon: '📌' });
+    });
+
+    document.getElementById('clearFollowupsBtn').addEventListener('click', async () => {
+        const activeId = getActiveId();
+        if (!await customConfirm(
+            LANG === 'es' ? '¿Borrar los seguimientos de esta sesión?' :
+            LANG === 'en' ? 'Clear follow-ups for this persona?' :
+            'Effacer les suivis de ce persona ?',
+            { title: '🗑️ ' + t('config_clear_followups'), confirmLabel: LANG === 'es' ? 'Borrar' : LANG === 'en' ? 'Clear' : 'Effacer', danger: true }
+        )) return;
+        if (activeId) clearFollowUps(activeId);
+        updateFollowupsCount();
+        customAlert(
+            LANG === 'es' ? 'Seguimientos borrados.' : LANG === 'en' ? 'Follow-ups cleared.' : 'Suivis effacés.',
+            { title: '📌', icon: '✅' }
         );
     });
 
