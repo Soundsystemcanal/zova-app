@@ -5165,6 +5165,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
 
     // État courant du wizard (réponses + index d'étape)
     let wizardStep = 0;
+    let wizGenerating = false;
     let wizardData = { topic:'', tone:'chaleureux', formal:false, who:'persona', name:'', creativity:'balanced' };
 
     function resetWizardData() {
@@ -5348,6 +5349,8 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     }
 
     async function generatePersonaFromWizard() {
+        if (wizGenerating) return;
+        wizGenerating = true;
         const langName = LANG === 'es' ? 'español' : LANG === 'en' ? 'english' : 'français';
         const d = wizardData;
         const nextBtn = document.getElementById('wizNextBtn');
@@ -5405,6 +5408,7 @@ ${d.name ? 'Nom imposé : ' + d.name : 'Nom : à proposer'}`;
                 updatePersonaVoiceList(wizardToneToVoice(wizardData.tone));
             });
         } finally {
+            wizGenerating = false;
             nextBtn.disabled = false; nextBtn.style.opacity = '1';
             nextBtn.textContent = t('wiz_create');
         }
