@@ -86,5 +86,33 @@ public class MainActivity extends BridgeActivity {
                 .edit().putString(ZovaWidget.KEY_SESSION, info).apply();
             ZovaWidget.updateAllWidgets(activity);
         }
+
+        @JavascriptInterface
+        public void setPersonaAvatar(String dataUrl) {
+            android.content.SharedPreferences.Editor ed =
+                activity.getSharedPreferences(ZovaWidget.PREFS_NAME, MODE_PRIVATE).edit();
+            if (dataUrl == null || dataUrl.isEmpty()) {
+                ed.putBoolean(ZovaWidget.KEY_HAS_AVATAR, false).apply();
+                new java.io.File(activity.getFilesDir(), ZovaWidget.AVATAR_FILE).delete();
+            } else {
+                try {
+                    String b64 = dataUrl.contains(",") ? dataUrl.substring(dataUrl.indexOf(',') + 1) : dataUrl;
+                    byte[] bytes = android.util.Base64.decode(b64, android.util.Base64.DEFAULT);
+                    android.graphics.Bitmap bmp = android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    if (bmp != null) {
+                        android.graphics.Bitmap scaled = android.graphics.Bitmap.createScaledBitmap(bmp, 96, 96, true);
+                        java.io.FileOutputStream fos = activity.openFileOutput(ZovaWidget.AVATAR_FILE, MODE_PRIVATE);
+                        scaled.compress(android.graphics.Bitmap.CompressFormat.PNG, 90, fos);
+                        fos.close();
+                        ed.putBoolean(ZovaWidget.KEY_HAS_AVATAR, true).apply();
+                    } else {
+                        ed.putBoolean(ZovaWidget.KEY_HAS_AVATAR, false).apply();
+                    }
+                } catch (Exception e) {
+                    ed.putBoolean(ZovaWidget.KEY_HAS_AVATAR, false).apply();
+                }
+            }
+            ZovaWidget.updateAllWidgets(activity);
+        }
     }
 }

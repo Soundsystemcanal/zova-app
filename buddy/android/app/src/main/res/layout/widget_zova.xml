@@ -9,18 +9,33 @@
     android:background="@drawable/widget_bg"
     android:padding="12dp">
 
-    <!-- Avatar lettre de la persona (couleur inline — drawable custom non supporté par RemoteViews MIUI) -->
-    <TextView
-        android:id="@+id/widget_avatar"
+    <!-- Avatar : photo si disponible, lettre sinon -->
+    <FrameLayout
         android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:text="Z"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        android:textColor="#f0e6ff"
-        android:gravity="center"
-        android:background="#3b1d6e"
-        android:padding="4dp" />
+        android:layout_height="56dp">
+
+        <!-- Photo de la persona (chargée via Bitmap) -->
+        <ImageView
+            android:id="@+id/widget_avatar_img"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+
+        <!-- Fallback : première lettre du nom -->
+        <TextView
+            android:id="@+id/widget_avatar"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:text="Z"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="#f0e6ff"
+            android:gravity="center"
+            android:background="#3b1d6e"
+            android:padding="4dp" />
+
+    </FrameLayout>
 
     <!-- Nom de la persona -->
     <TextView
@@ -43,7 +58,7 @@
         android:textSize="9sp"
         android:layout_marginTop="2dp" />
 
-    <!-- Bouton Démarrer -->
+    <!-- Démarrer -->
     <TextView
         android:id="@+id/widget_subtitle"
         android:layout_width="wrap_content"

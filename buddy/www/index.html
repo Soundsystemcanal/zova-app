@@ -3998,7 +3998,9 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     function notifyWidget(id) {
         if (!window.ZovaBridge) return;
         const p = getPersonas().find(x => x.id === (id || getActiveId()));
-        if (p) try { window.ZovaBridge.setPersonaName(p.name); } catch(e) {}
+        if (!p) return;
+        try { window.ZovaBridge.setPersonaName(p.name); } catch(e) {}
+        try { window.ZovaBridge.setPersonaAvatar(p.image || ''); } catch(e) {}
     }
 
     function notifyWidgetSession(durationSeconds) {
