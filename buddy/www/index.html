@@ -5310,7 +5310,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         } else {
             nextBtn.textContent = t('wiz_next');
         }
-        nextBtn.disabled = (wizardStep === 0 && !document.getElementById('wizTopic').value.trim());
+        nextBtn.disabled = (wizardStep === 0 && !wizardData.topic.trim());
         nextBtn.style.opacity = nextBtn.disabled ? '0.5' : '1';
     }
 
@@ -7022,6 +7022,11 @@ Règles: seulement si l'utilisateur mentionne EXPLICITEMENT un objectif, une pro
             // 1. Dialog dynamique ouvert (customAlert/customConfirm/action sheets) ?
             const dialogs = document.querySelectorAll('.dialog-overlay');
             if (dialogs.length) { dialogs[dialogs.length - 1].remove(); return; }
+            // 1b. Wizard ouvert et pas à la 1re étape → reculer d'une étape au lieu de tout fermer
+            const wizModal = document.getElementById('personaWizardModal');
+            if (wizModal && wizModal.classList.contains('active') && wizardStep > 0) {
+                wizardStep--; renderWizStep(); return;
+            }
             // 2. Modale statique active ?
             const modal = document.querySelector('.modal-overlay.active');
             if (modal) { modal.classList.remove('active'); return; }
