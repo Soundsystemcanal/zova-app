@@ -44,8 +44,21 @@ public class MainActivity extends BridgeActivity {
     private void triggerAutoStart(long delayMs) {
         getBridge().getWebView().postDelayed(() ->
             getBridge().getWebView().evaluateJavascript(
-                "(function(){ var btn = document.getElementById('startBtn');" +
-                " if (btn && !btn.disabled) btn.click(); })();",
+                "(function(){" +
+                "  var pin = document.getElementById('pinScreen');" +
+                "  function doStart(){" +
+                "    var btn = document.getElementById('startBtn');" +
+                "    if (btn && !btn.disabled) btn.click();" +
+                "  }" +
+                "  if (pin && pin.classList.contains('active')) {" +
+                "    var obs = new MutationObserver(function(){" +
+                "      if (!pin.classList.contains('active')) {" +
+                "        obs.disconnect(); setTimeout(doStart, 400);" +
+                "      }" +
+                "    });" +
+                "    obs.observe(pin, { attributes:true, attributeFilter:['class'] });" +
+                "  } else { doStart(); }" +
+                "})();",
                 null
             ), delayMs
         );
