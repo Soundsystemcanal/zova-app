@@ -8903,7 +8903,7 @@ Langue : ${lang}`;
         const allStats = getStats().filter(s => s.personaId === activeId);
         const totalSessions = allStats.length;
         const totalSeconds = allStats.reduce((acc, s) => acc + (s.durationSeconds || 0), 0);
-        const totalCost = allStats.reduce((acc, s) => acc + (s.costDollars || 0), 0);
+        const totalCost = allStats.reduce((acc, s) => acc + statCost(s), 0);
         const avgSeconds = totalSessions > 0 ? Math.round(totalSeconds / totalSessions) : 0;
         const lastStat = allStats.length > 0 ? allStats[allStats.length - 1] : null;
 
