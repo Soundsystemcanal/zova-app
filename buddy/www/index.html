@@ -5087,7 +5087,8 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     //  WIZARD DE CRÉATION DE PERSONA
     // ════════════════════════════════════════════════
 
-    // Mapping ton → voix, par fournisseur. Repli géré par updatePersonaVoiceList.
+    // Mapping ton → voix, par fournisseur. Groq omis (pas de voix dédiées) → repli
+    // sur les voix OpenAI, géré par updatePersonaVoiceList (même comportement).
     const WIZARD_VOICE_MAP = {
         openai:   { chaleureux:'coral', pro:'alloy', fun:'shimmer', calme:'sage',  expert:'echo' },
         gemini:   { chaleureux:'Fenrir', pro:'Kore', fun:'Zephyr',  calme:'Leda',  expert:'Charon' },
