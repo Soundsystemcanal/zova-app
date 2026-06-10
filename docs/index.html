@@ -811,7 +811,7 @@
     <h2 data-i18n="help_title">Besoin d'aide&nbsp;?</h2>
     <div class="divider" style="margin-left:auto;margin-right:auto;"></div>
     <p data-i18n="help_sub" style="color:var(--muted);max-width:520px;margin:0 auto 28px;">Manuel complet, questions fréquentes et dépannage installation.</p>
-    <a class="btn-dl" href="support.html" data-i18n="help_btn">📖&nbsp; Ouvrir le guide complet</a>
+    <a class="btn-dl" href="support.html" data-i18n="help_btn">📖&nbsp; Consulter le manuel</a>
 </div>
 
 <!-- CTA BAS -->
@@ -948,7 +948,7 @@
       cta_p: 'Tes pensées, ta voix, ton IA. Personne d\'autre.',
       cta_dl: '⬇  Télécharger Zova v3.1',
       footer: 'Zova v3.1  ·  par Xavier Bourdet  ·  <em>"Ton IA. Ton téléphone. Tes règles."</em>',
-      help_title: 'Besoin d\'aide&nbsp;?', help_sub: 'Manuel complet, questions fréquentes et dépannage installation.', help_btn: '📖&nbsp; Ouvrir le guide complet', nav_guide: '📖 Guide',
+      help_title: 'Besoin d\'aide&nbsp;?', help_sub: 'Manuel complet, questions fréquentes et dépannage installation.', help_btn: '📖&nbsp; Consulter le manuel', nav_guide: '📖 Guide',
       lang_label: '🌐 Langue'
     },
     en: {
@@ -1021,7 +1021,7 @@
       cta_p: 'Your thoughts, your voice, your AI. Nobody else.',
       cta_dl: '⬇  Download Zova v3.1',
       footer: 'Zova v3.1  ·  by Xavier Bourdet  ·  <em>"Your AI. Your phone. Your rules."</em>',
-      help_title: 'Need help?', help_sub: 'Full manual, FAQ and installation troubleshooting.', help_btn: '📖&nbsp; Open the full guide', nav_guide: '📖 Guide',
+      help_title: 'Need help?', help_sub: 'Full manual, FAQ and installation troubleshooting.', help_btn: '📖&nbsp; Open the manual', nav_guide: '📖 Guide',
       lang_label: '🌐 Language'
     },
     es: {
@@ -1094,7 +1094,7 @@
       cta_p: 'Tus pensamientos, tu voz, tu IA. Nadie más.',
       cta_dl: '⬇  Descargar Zova v3.1',
       footer: 'Zova v3.1  ·  por Xavier Bourdet  ·  <em>"Tu IA. Tu teléfono. Tus reglas."</em>',
-      help_title: '¿Necesitas ayuda?', help_sub: 'Manual completo, preguntas frecuentes y solución de problemas de instalación.', help_btn: '📖&nbsp; Abrir la guía completa', nav_guide: '📖 Guía',
+      help_title: '¿Necesitas ayuda?', help_sub: 'Manual completo, preguntas frecuentes y solución de problemas de instalación.', help_btn: '📖&nbsp; Ver el manual', nav_guide: '📖 Guía',
       lang_label: '🌐 Idioma'
     }
   };
@@ -1172,7 +1172,7 @@
     // CTA
     var ctah = q('.cta h2'); if(ctah) ctah.textContent = t.cta_h;
     var ctap = q('.cta p'); if(ctap) ctap.textContent = t.cta_p;
-    if(btns[1]) btns[1].innerHTML = t.cta_dl;
+    var ctaBtn = q('.cta .btn-dl'); if(ctaBtn) ctaBtn.innerHTML = t.cta_dl;
 
     // Footer
     var footerDiv = q('footer > div:last-child'); if(footerDiv) footerDiv.innerHTML = t.footer;
