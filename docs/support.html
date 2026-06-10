@@ -1,0 +1,452 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zova — Guide & Support</title>
+    <meta name="description" content="Guide d'utilisation, FAQ et dépannage installation de Zova, l'assistant vocal IA pour Android.">
+    <meta property="og:title" content="Zova — Guide & Support">
+    <meta property="og:description" content="Manuel complet, questions fréquentes et dépannage installation.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/Soundsystemcanal/zova-app/main/buddy/assets/icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:       #0a0a1f;
+            --bg2:      #0f0f2e;
+            --accent:   #8b5cf6;
+            --accent2:  #ec4899;
+            --text:     #e2d9f3;
+            --muted:    #c4b8e0;
+            --border:   rgba(139,92,246,0.20);
+            --card:     rgba(15,15,46,0.85);
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background:
+                radial-gradient(ellipse at 15% 15%, rgba(139,92,246,0.13) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 85%, rgba(236,72,153,0.09) 0%, transparent 55%),
+                var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', system-ui, sans-serif;
+            line-height: 1.65;
+            overflow-x: hidden;
+        }
+        h1, h2, h3 { font-family: 'Syne', system-ui, sans-serif; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* TOPNAV */
+        .topnav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 28px;
+            background: rgba(10,10,31,0.72);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(139,92,246,0.14);
+        }
+        .topnav-logo {
+            font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.05rem;
+            letter-spacing: 0.1em;
+            background: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 50%, #ec4899 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            text-decoration: none;
+        }
+        .topnav-right { display: flex; align-items: center; gap: 16px; }
+        .nav-back { color: var(--muted); font-size: 0.8rem; font-weight: 500; }
+        .nav-back:hover { color: var(--text); text-decoration: none; }
+        .lang-switcher {
+            display: flex; gap: 2px;
+            background: rgba(139,92,246,0.08);
+            border: 1px solid rgba(139,92,246,0.22);
+            border-radius: 30px; padding: 3px;
+        }
+        .lang-btn {
+            background: none; border: none; color: var(--muted); cursor: pointer;
+            font-family: 'DM Sans', sans-serif; font-size: 0.73rem; font-weight: 500;
+            padding: 5px 14px; border-radius: 20px;
+            transition: background 0.2s, color 0.2s; letter-spacing: 0.05em;
+        }
+        .lang-btn:hover { color: var(--text); background: rgba(139,92,246,0.15); }
+        .lang-btn.lang-active {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff; font-weight: 700; box-shadow: 0 2px 12px rgba(139,92,246,0.35);
+        }
+
+        /* PAGE HEAD */
+        .page-head { padding: 120px 24px 24px; text-align: center; max-width: 760px; margin: 0 auto; }
+        .page-head h1 {
+            font-size: clamp(2.2rem, 6vw, 3rem); font-weight: 800; letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 45%, #ec4899 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            margin-bottom: 12px;
+        }
+        .page-head p { color: var(--muted); font-size: 1rem; }
+
+        /* SECTIONS */
+        .sep { border: none; border-top: 1px solid var(--border); margin: 0 24px; }
+        .section { max-width: 900px; margin: 0 auto; padding: 56px 24px; }
+        .section h2 { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800; margin-bottom: 10px; }
+        .divider {
+            width: 48px; height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            border-radius: 2px; margin-bottom: 36px;
+        }
+
+        /* CARDS GRID (manual + troubleshooting) */
+        .card-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;
+        }
+        .info-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px;
+        }
+        .info-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 14px; color: var(--text); }
+        .info-card ul { list-style: none; padding: 0; }
+        .info-card ul li {
+            font-size: 0.875rem; color: var(--muted); padding: 5px 0;
+            border-bottom: 1px solid rgba(139,92,246,0.08);
+            display: flex; align-items: flex-start; gap: 8px; line-height: 1.5;
+        }
+        .info-card ul li:last-child { border-bottom: none; }
+        .info-card ul li::before { content: "›"; color: var(--accent); flex-shrink: 0; font-weight: 700; }
+
+        /* FAQ ACCORDION */
+        .faq-list { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+        .faq-item {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 14px; overflow: hidden;
+        }
+        .faq-item summary {
+            cursor: pointer; padding: 18px 20px; font-weight: 700; font-size: 0.95rem;
+            color: var(--text); list-style: none;
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+        }
+        .faq-item summary::-webkit-details-marker { display: none; }
+        .faq-item summary::after {
+            content: "+"; color: var(--accent); font-size: 1.35rem; font-weight: 700;
+            flex-shrink: 0; transition: transform 0.2s;
+        }
+        .faq-item[open] summary::after { transform: rotate(45deg); }
+        .faq-answer { padding: 0 20px 18px; font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
+
+        /* CTA */
+        .cta {
+            text-align: center; padding: 80px 24px;
+            background: radial-gradient(ellipse at center, rgba(139,92,246,0.12) 0%, transparent 65%);
+        }
+        .cta h2 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); font-weight: 800; margin-bottom: 14px; }
+        .cta p { color: var(--muted); font-size: 1rem; margin-bottom: 32px; max-width: 540px; margin-left: auto; margin-right: auto; }
+        .btn-dl {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem;
+            padding: 16px 36px; border-radius: 50px; text-decoration: none;
+            box-shadow: 0 6px 30px rgba(139,92,246,0.45);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-dl:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(139,92,246,0.6); text-decoration: none; }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--border); padding: 36px 24px; text-align: center;
+            font-size: 0.8rem; color: var(--muted);
+            display: flex; flex-direction: column; align-items: center; gap: 14px;
+        }
+        .footer-links { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
+
+        @media (max-width: 560px) {
+            .topnav { padding: 10px 16px; }
+            .topnav-right { gap: 10px; }
+            .page-head { padding-top: 100px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a href="index.html" class="topnav-logo">ZOVA</a>
+    <div class="topnav-right">
+        <a href="index.html" class="nav-back" data-i18n="nav_home">← Accueil</a>
+        <div class="lang-switcher">
+            <button class="lang-btn" data-lang="fr">FR</button>
+            <button class="lang-btn" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="es">ES</button>
+        </div>
+    </div>
+</nav>
+
+<header class="page-head">
+    <h1 data-i18n="page_title">Guide &amp; Support</h1>
+    <p data-i18n="page_sub">Manuel d'utilisation, questions fréquentes et dépannage installation.</p>
+</header>
+
+<!-- ============ MANUEL ============ -->
+<div class="section">
+    <h2 data-i18n="manual_title">Manuel d'utilisation</h2>
+    <div class="divider"></div>
+    <div class="card-grid" id="manual-grid">
+        <div class="info-card"><h3>🎤 Démarrer une conversation</h3><ul><li></li><li></li><li></li><li></li></ul></div>
+        <div class="info-card"><h3>🎭 Personas</h3><ul><li></li><li></li><li></li><li></li></ul></div>
+        <div class="info-card"><h3>🧠 Mémoire et profil adaptatif</h3><ul><li></li><li></li><li></li><li></li><li></li><li></li></ul></div>
+        <div class="info-card"><h3>📝 Transcription et export</h3><ul><li></li><li></li><li></li><li></li></ul></div>
+        <div class="info-card"><h3>💾 Backup et restore</h3><ul><li></li><li></li><li></li><li></li></ul></div>
+        <div class="info-card"><h3>🔐 Sécurité et verrouillage</h3><ul><li></li><li></li><li></li><li></li><li></li></ul></div>
+        <div class="info-card"><h3>⚙️ Providers et clés API</h3><ul><li></li><li></li><li></li><li></li></ul></div>
+        <div class="info-card"><h3>❓ Dépannage rapide</h3><ul><li></li><li></li><li></li><li></li></ul></div>
+    </div>
+</div>
+
+<hr class="sep">
+
+<!-- ============ FAQ ============ -->
+<div class="section">
+    <h2 data-i18n="faq_title">Questions fréquentes</h2>
+    <div class="divider"></div>
+    <div class="faq-list">
+        <details class="faq-item"><summary data-i18n="q1">Par où commencer ?</summary><div class="faq-answer" data-i18n="a1"></div></details>
+        <details class="faq-item"><summary data-i18n="q2">Quel provider choisir ?</summary><div class="faq-answer" data-i18n="a2"></div></details>
+        <details class="faq-item"><summary data-i18n="q3">Comment entrer ma clé API ?</summary><div class="faq-answer" data-i18n="a3"></div></details>
+        <details class="faq-item"><summary data-i18n="q4">Comment maîtriser mes dépenses ?</summary><div class="faq-answer" data-i18n="a4"></div></details>
+        <details class="faq-item"><summary data-i18n="q5">Comment créer un assistant personnalisé ?</summary><div class="faq-answer" data-i18n="a5"></div></details>
+        <details class="faq-item"><summary data-i18n="q6">Comment sécuriser l'app ?</summary><div class="faq-answer" data-i18n="a6"></div></details>
+    </div>
+</div>
+
+<hr class="sep">
+
+<!-- ============ DÉPANNAGE INSTALLATION ============ -->
+<div class="section">
+    <h2 data-i18n="ts_title">Dépannage installation</h2>
+    <div class="divider"></div>
+    <div class="card-grid" id="ts-grid">
+        <div class="info-card"><h3>📥 L'installation est bloquée</h3><ul><li></li><li></li><li></li><li></li></ul></div>
+        <div class="info-card"><h3>📱 Xiaomi / MIUI</h3><ul><li></li><li></li><li></li><li></li></ul></div>
+        <div class="info-card"><h3>🔄 Mettre à jour Zova</h3><ul><li></li><li></li><li></li><li></li></ul></div>
+        <div class="info-card"><h3>🎤 Micro ou voix muette</h3><ul><li></li><li></li><li></li><li></li></ul></div>
+    </div>
+</div>
+
+<!-- ============ CTA ============ -->
+<div class="cta">
+    <h2 data-i18n="cta_h">Prêt à essayer Zova ?</h2>
+    <p data-i18n="cta_p">Télécharge la dernière version et configure ta première clé en 3 minutes.</p>
+    <a class="btn-dl" href="https://github.com/Soundsystemcanal/zova-app/releases/download/v3.1/Zova-v3.1.apk" data-i18n="cta_dl">⬇&nbsp; Télécharger Zova v3.1</a>
+</div>
+
+<footer>
+    <div class="footer-links">
+        <a href="index.html" data-i18n="nav_home">← Accueil</a>
+        <a href="https://github.com/Soundsystemcanal/zova-app" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/Soundsystemcanal/zova-app/releases" target="_blank" rel="noopener">Releases</a>
+    </div>
+    <div data-i18n="footer">Zova v3.1 &nbsp;·&nbsp; par Xavier Bourdet &nbsp;·&nbsp; <em>"Ton IA. Ton téléphone. Tes règles."</em></div>
+</footer>
+
+<script>
+(function(){
+  var q  = function(s){ return document.querySelector(s); };
+  var qa = function(s){ return document.querySelectorAll(s); };
+
+  var T = {
+    fr: {
+      title: 'Zova — Guide & Support',
+      meta_desc: "Guide d'utilisation, FAQ et dépannage installation de Zova, l'assistant vocal IA pour Android.",
+      nav_home: '← Accueil',
+      page_title: 'Guide &amp; Support',
+      page_sub: "Manuel d'utilisation, questions fréquentes et dépannage installation.",
+      manual_title: "Manuel d'utilisation",
+      m1_h: '🎤 Démarrer une conversation',
+      m1: ['Appuie sur le bouton central pour parler','L\'écran reste allumé pendant la conversation (WakeLock)','Si la connexion se coupe, Zova reconnecte automatiquement (3 tentatives)','Appuie à nouveau pour terminer la session'],
+      m2_h: '🎭 Personas',
+      m2: ['Appuie sur le nom de la persona dans l\'écran d\'accueil pour changer','Config → Personas → "+" pour créer un assistant sur mesure','Chaque persona a son propre prompt, voix, mémoire et profil','La persona Zova apprend à te connaître au fil des conversations'],
+      m3_h: '🧠 Mémoire et profil adaptatif',
+      m3: ['Après chaque session, Zova génère un résumé, met à jour le profil, détecte les engagements et les objectifs — en arrière-plan','Chaque persona a sa propre mémoire, profil, suivis et objectifs — indépendants','Dis "souviens-toi que…" pendant la conversation : Zova mémorise instantanément','Config → section "Profil [nom persona]" pour voir ou effacer le profil actif','Config → "Suivis" : engagements détectés post-session','Config → "Objectifs" : objectifs long terme et leur progression'],
+      m4_h: '📝 Transcription et export',
+      m4: ['La conversation s\'affiche en temps réel dans l\'onglet Transcription','Après la session : bouton "Exporter" pour partager le texte brut','Option "Nettoyer" : l\'IA corrige les erreurs STT et ajoute la ponctuation','Partage via n\'importe quelle app : email, WhatsApp, Notes, Drive…'],
+      m5_h: '💾 Backup et restore',
+      m5: ['Config → Exporter : choisis d\'inclure ou non tes données personnelles (souvenirs + profils) et tes clés API','Option de chiffrement par mot de passe (AES-256) pour protéger le fichier','Config → Importer → "Sauvegardes Zova" pour restaurer sans chercher le fichier','Compatible Android 11+ (contourne les restrictions scoped storage)'],
+      m6_h: '🔐 Sécurité et verrouillage',
+      m6: ['Clés API chiffrées dans l\'Android Keystore matériel (jamais en clair)','PIN 4 chiffres + déverrouillage par empreinte si disponible','Le clavier se verrouille temporairement après plusieurs codes erronés','Aucune donnée envoyée à des serveurs Zova — connexion directe au provider','Sauvegardes exportées chiffrables par mot de passe'],
+      m7_h: '⚙️ Providers et clés API',
+      m7: ['<strong>Groq</strong> (pour débuter) : <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com</a> — quota gratuit','<strong>OpenAI</strong> : <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a>','<strong>Gemini</strong> : <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com</a>','<strong>Ultravox</strong> : <a href="https://app.ultravox.ai" target="_blank" rel="noopener">app.ultravox.ai</a>'],
+      m8_h: '❓ Dépannage rapide',
+      m8: ['Bouton "?" dans Config → FAQ complète FR/EN/ES intégrée dans l\'app','Pas de micro : Paramètres → Apps → Zova → Permissions → Micro → Autoriser','Voix muette : normal sur Android WebView — le texte s\'affiche quand même','Xiaomi : active "Débogage USB" + "Installer via USB" dans Options développeur'],
+      faq_title: 'Questions fréquentes',
+      q1: 'Par où commencer ?',
+      a1: "Zova fonctionne sans serveur intermédiaire : tu parles directement aux IA via leur API officielle. Choisis d'abord un fournisseur (OpenAI, Gemini, Ultravox ou Groq), crée un compte sur leur site, obtiens une clé API, puis colle-la dans l'onglet Clé API de la Configuration. C'est tout — tu peux lancer ta première conversation.",
+      q2: 'Quel provider choisir ?',
+      a2: "Tout dépend de tes priorités. OpenAI Realtime offre la meilleure qualité et la latence la plus faible. Gemini Live est excellent et très abordable. Ultravox est économique avec une bonne qualité. Groq est le moins cher avec une latence un peu plus élevée. Tu peux changer de provider à tout moment sans perdre tes conversations.",
+      q3: 'Comment entrer ma clé API ?',
+      a3: "Clique sur le lien de ton provider dans l'onglet Clé API pour créer ton compte et récupérer ta clé. Reviens dans l'app, colle la clé et appuie sur Sauvegarder. La clé est stockée exclusivement dans l'Android Keystore de ton téléphone — elle ne transite jamais par un serveur externe.",
+      q4: 'Comment maîtriser mes dépenses ?',
+      a4: "Va dans Configuration → Budget et entre un montant mensuel maximum. Zova t'avertit à 90 % de la limite et bloque les nouvelles conversations une fois le plafond dépassé. Le compteur se remet à zéro le 1er de chaque mois. Laisse le champ vide pour désactiver le plafond.",
+      q5: 'Comment créer un assistant personnalisé ?',
+      a5: "Va dans l'onglet Personas et appuie sur + Nouveau persona. Donne-lui un nom, une description, choisis une voix et un modèle. Le champ Prompt système définit sa personnalité : plus tu le détailles, plus il sera unique. Tu peux générer une image avec l'IA ou en importer une.",
+      q6: "Comment sécuriser l'app ?",
+      a6: "Va dans Configuration → Sécurité et active le code PIN (4 chiffres), demandé à chaque ouverture. Si ton téléphone a une empreinte enregistrée, tu peux aussi déverrouiller par empreinte. Après plusieurs codes erronés, le clavier se verrouille temporairement. Le PIN est stocké dans l'Android Keystore comme tes clés API. Enfin, à l'export tu peux chiffrer ta sauvegarde par mot de passe (AES-256). Tes données restent uniquement sur ton téléphone, jamais envoyées à Zova.",
+      ts_title: 'Dépannage installation',
+      ts1_h: "📥 L'installation est bloquée",
+      ts1: ['Android demande d\'autoriser les sources inconnues : c\'est normal pour une app hors Play Store','Paramètres → Apps → ton navigateur (ou Gestionnaire de fichiers) → "Installer des applis inconnues" → Autoriser','Rouvre ensuite le fichier Zova-v3.1.apk depuis tes Téléchargements','Play Protect peut afficher un avertissement : appuie sur "Installer quand même"'],
+      ts2_h: '📱 Xiaomi / MIUI',
+      ts2: ['Active les Options développeur (Paramètres → À propos → tape 7× sur la version MIUI)','Active "Débogage USB" et "Installer via USB"','MIUI peut demander une confirmation supplémentaire pendant l\'install — accepte','Désactive "Optimisation MIUI" si l\'install échoue toujours'],
+      ts3_h: '🔄 Mettre à jour Zova',
+      ts3: ['Télécharge le nouvel APK et installe-le par-dessus : tes données sont conservées','Toutes les versions sont signées avec la même clé → mise à jour directe possible','Si Android refuse ("application non installée") : fais d\'abord un backup, puis désinstalle l\'ancienne','Conseil : exporte un backup chiffré (Config → Exporter) avant toute désinstallation'],
+      ts4_h: '🎤 Micro ou voix muette',
+      ts4: ['Pas de micro : Paramètres → Apps → Zova → Permissions → Microphone → Autoriser','Voix de l\'IA muette : normal sur Android WebView, le texte s\'affiche quand même','En mode texte, Groq TTS fonctionne pour la synthèse vocale','Coupures fréquentes : Zova reconnecte automatiquement (3 tentatives)'],
+      cta_h: 'Prêt à essayer Zova ?',
+      cta_p: 'Télécharge la dernière version et configure ta première clé en 3 minutes.',
+      cta_dl: '⬇  Télécharger Zova v3.1',
+      footer: 'Zova v3.1  ·  par Xavier Bourdet  ·  <em>"Ton IA. Ton téléphone. Tes règles."</em>'
+    },
+    en: {
+      title: 'Zova — Guide & Support',
+      meta_desc: 'User manual, FAQ and installation troubleshooting for Zova, the AI voice assistant for Android.',
+      nav_home: '← Home',
+      page_title: 'Guide &amp; Support',
+      page_sub: 'User manual, frequently asked questions and installation troubleshooting.',
+      manual_title: 'User Manual',
+      m1_h: '🎤 Start a conversation',
+      m1: ['Tap the central button to speak','Screen stays on during conversation (WakeLock)','If the connection drops, Zova reconnects automatically (3 attempts)','Tap again to end the session'],
+      m2_h: '🎭 Personas',
+      m2: ['Tap the persona name on the home screen to switch','Config → Personas → "+" to create a custom assistant','Each persona has its own prompt, voice, memory and profile','The Zova persona learns about you through conversations'],
+      m3_h: '🧠 Memory & adaptive profile',
+      m3: ['After each session, Zova generates a summary, updates the profile, detects commitments and goals — in the background','Each persona has its own memory, profile, follow-ups and goals — independent','Say "remember that…" during the conversation: Zova memorizes instantly','Config → "Profile [persona name]" to view or clear the active profile','Config → "Follow-ups": post-session commitments','Config → "Goals": long-term goals and their progress'],
+      m4_h: '📝 Transcription & export',
+      m4: ['Conversation displays in real time in the Transcription tab','After session: "Export" button to share raw text','Option "Clean": AI corrects STT errors and adds punctuation','Share via any app: email, WhatsApp, Notes, Drive…'],
+      m5_h: '💾 Backup & restore',
+      m5: ['Config → Export: choose whether to include your personal data (memories + profiles) and API keys','Optional password encryption (AES-256) to protect the file','Config → Import → "Zova Backups" to restore without searching for the file','Compatible with Android 11+ (bypasses scoped storage restrictions)'],
+      m6_h: '🔐 Security & lock',
+      m6: ['API keys encrypted in hardware Android Keystore (never in plaintext)','4-digit PIN + fingerprint unlock when available','The keypad locks temporarily after several wrong codes','No data sent to Zova servers — direct connection to provider','Exported backups can be password-encrypted'],
+      m7_h: '⚙️ Providers & API keys',
+      m7: ['<strong>Groq</strong> (to start): <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com</a> — free quota','<strong>OpenAI</strong>: <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a>','<strong>Gemini</strong>: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com</a>','<strong>Ultravox</strong>: <a href="https://app.ultravox.ai" target="_blank" rel="noopener">app.ultravox.ai</a>'],
+      m8_h: '❓ Quick troubleshooting',
+      m8: ['"?" button in Config → full FR/EN/ES FAQ built into the app','No mic: Settings → Apps → Zova → Permissions → Microphone → Allow','Silent voice: normal on Android WebView — text still displays','Xiaomi: enable "USB debugging" + "Install via USB" in Developer options'],
+      faq_title: 'Frequently asked questions',
+      q1: 'Where do I start?',
+      a1: "Zova works without any middleman server: you talk directly to AI providers via their official API. First pick a provider (OpenAI, Gemini, Ultravox or Groq), create an account on their website, get an API key, then paste it in the API Key tab of Settings. That's it — you can start your first conversation.",
+      q2: 'Which provider should I choose?',
+      a2: "It depends on your priorities. OpenAI Realtime delivers the best quality and lowest latency. Gemini Live is excellent and very affordable. Ultravox is budget-friendly with good quality. Groq is the cheapest with slightly higher latency. You can switch providers anytime without losing your conversations.",
+      q3: 'How do I enter my API key?',
+      a3: "Click the link for your provider in the API Key tab to create your account and retrieve your key. Then come back to the app, paste the key and tap Save. The key is stored exclusively in your phone's Android Keystore — it never passes through any external server.",
+      q4: 'How do I control my spending?',
+      a4: "Go to Settings → Budget and enter a monthly maximum. Zova warns you at 90% of the limit and blocks new conversations once the cap is exceeded. The counter resets on the 1st of each month. Leave the field empty to disable the cap.",
+      q5: 'How do I create a custom assistant?',
+      a5: "Go to the Personas tab and tap + New persona. Give it a name, a description, choose a voice and a model. The System prompt field defines its personality: the more detailed it is, the more unique it will be. You can generate an image with AI or import one.",
+      q6: 'How do I secure the app?',
+      a6: "Go to Settings → Security and activate the PIN code (4 digits), required each time you open the app. If your phone has a fingerprint enrolled, you can also unlock with biometrics. After several wrong codes, the keypad locks temporarily. The PIN is stored in the Android Keystore like your API keys. Finally, when exporting you can encrypt your backup with a password (AES-256). Your data stays only on your phone, never sent to Zova.",
+      ts_title: 'Installation troubleshooting',
+      ts1_h: '📥 Installation is blocked',
+      ts1: ['Android asks to allow unknown sources: normal for an app outside the Play Store','Settings → Apps → your browser (or File manager) → "Install unknown apps" → Allow','Then reopen the Zova-v3.1.apk file from your Downloads','Play Protect may show a warning: tap "Install anyway"'],
+      ts2_h: '📱 Xiaomi / MIUI',
+      ts2: ['Enable Developer options (Settings → About → tap MIUI version 7×)','Enable "USB debugging" and "Install via USB"','MIUI may ask for extra confirmation during install — accept it','Disable "MIUI optimization" if install still fails'],
+      ts3_h: '🔄 Update Zova',
+      ts3: ['Download the new APK and install over the old one: your data is kept','All versions are signed with the same key → direct update works','If Android refuses ("app not installed"): back up first, then uninstall the old one','Tip: export an encrypted backup (Config → Export) before any uninstall'],
+      ts4_h: '🎤 Microphone or silent voice',
+      ts4: ['No mic: Settings → Apps → Zova → Permissions → Microphone → Allow','AI voice silent: normal on Android WebView, text still displays','In text mode, Groq TTS works for voice synthesis','Frequent drops: Zova reconnects automatically (3 attempts)'],
+      cta_h: 'Ready to try Zova?',
+      cta_p: 'Download the latest version and set up your first key in 3 minutes.',
+      cta_dl: '⬇  Download Zova v3.1',
+      footer: 'Zova v3.1  ·  by Xavier Bourdet  ·  <em>"Your AI. Your phone. Your rules."</em>'
+    },
+    es: {
+      title: 'Zova — Guía y Soporte',
+      meta_desc: 'Manual de uso, FAQ y solución de problemas de instalación de Zova, el asistente de voz IA para Android.',
+      nav_home: '← Inicio',
+      page_title: 'Guía y Soporte',
+      page_sub: 'Manual de uso, preguntas frecuentes y solución de problemas de instalación.',
+      manual_title: 'Manual de uso',
+      m1_h: '🎤 Iniciar una conversación',
+      m1: ['Pulsa el botón central para hablar','La pantalla permanece encendida durante la conversación (WakeLock)','Si la conexión se corta, Zova reconecta automáticamente (3 intentos)','Pulsa de nuevo para terminar la sesión'],
+      m2_h: '🎭 Personas',
+      m2: ['Pulsa el nombre de la persona en la pantalla de inicio para cambiar','Config → Personas → "+" para crear un asistente personalizado','Cada persona tiene su propio prompt, voz, memoria y perfil','La persona Zova aprende a conocerte a lo largo de las conversaciones'],
+      m3_h: '🧠 Memoria y perfil adaptativo',
+      m3: ['Después de cada sesión, Zova genera un resumen, actualiza el perfil, detecta compromisos y objetivos — en segundo plano','Cada persona tiene su propia memoria, perfil, seguimientos y objetivos — independientes','Di "recuerda que…" durante la conversación: Zova memoriza instantáneamente','Config → sección "Perfil [nombre persona]" para ver o borrar el perfil activo','Config → "Seguimientos": compromisos detectados post-sesión','Config → "Objetivos": objetivos a largo plazo y su progreso'],
+      m4_h: '📝 Transcripción y exportación',
+      m4: ['La conversación se muestra en tiempo real en la pestaña Transcripción','Tras la sesión: botón "Exportar" para compartir el texto','Opción "Limpiar": la IA corrige errores de STT y añade puntuación','Comparte via cualquier app: email, WhatsApp, Notas, Drive…'],
+      m5_h: '💾 Backup y restauración',
+      m5: ['Config → Exportar: elige si incluir tus datos personales (memorias + perfiles) y tus claves API','Opción de cifrado por contraseña (AES-256) para proteger el archivo','Config → Importar → "Copias Zova" para restaurar sin buscar el archivo','Compatible con Android 11+ (evita las restricciones de scoped storage)'],
+      m6_h: '🔐 Seguridad y bloqueo',
+      m6: ['Claves API cifradas en Android Keystore de hardware (nunca en texto claro)','PIN de 4 dígitos + desbloqueo por huella si está disponible','El teclado se bloquea temporalmente tras varios códigos incorrectos','Ningún dato enviado a servidores Zova — conexión directa al proveedor','Las copias exportadas se pueden cifrar por contraseña'],
+      m7_h: '⚙️ Proveedores y claves API',
+      m7: ['<strong>Groq</strong> (para empezar): <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com</a> — cuota gratuita','<strong>OpenAI</strong>: <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a>','<strong>Gemini</strong>: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com</a>','<strong>Ultravox</strong>: <a href="https://app.ultravox.ai" target="_blank" rel="noopener">app.ultravox.ai</a>'],
+      m8_h: '❓ Solución rápida de problemas',
+      m8: ['Botón "?" en Config → FAQ completa FR/EN/ES integrada en la app','Sin micrófono: Ajustes → Apps → Zova → Permisos → Micrófono → Permitir','Voz silenciosa: normal en Android WebView — el texto se muestra igual','Xiaomi: activa "Depuración USB" + "Instalar via USB" en Opciones de desarrollador'],
+      faq_title: 'Preguntas frecuentes',
+      q1: '¿Por dónde empezar?',
+      a1: "Zova funciona sin servidor intermediario: hablas directamente con las IAs a través de su API oficial. Primero elige un proveedor (OpenAI, Gemini, Ultravox o Groq), crea una cuenta en su web, obtén una clave API y pégala en la pestaña Clave API de Configuración. Eso es todo — ya puedes iniciar tu primera conversación.",
+      q2: '¿Qué proveedor elegir?',
+      a2: "Depende de tus prioridades. OpenAI Realtime ofrece la mejor calidad y la latencia más baja. Gemini Live es excelente y muy asequible. Ultravox es económico con buena calidad. Groq es el más barato con una latencia algo mayor. Puedes cambiar de proveedor en cualquier momento sin perder tus conversaciones.",
+      q3: '¿Cómo introduzco mi clave API?',
+      a3: "Haz clic en el enlace de tu proveedor en la pestaña Clave API para crear tu cuenta y obtener tu clave. Vuelve a la app, pega la clave y pulsa Guardar. La clave se almacena exclusivamente en el Android Keystore de tu teléfono — nunca pasa por un servidor externo.",
+      q4: '¿Cómo controlo mis gastos?',
+      a4: "Ve a Configuración → Presupuesto e introduce un importe máximo mensual. Zova te avisa al 90 % del límite y bloquea nuevas conversaciones una vez superado el tope. El contador se reinicia el 1 de cada mes. Deja el campo vacío para desactivar el tope.",
+      q5: '¿Cómo creo un asistente personalizado?',
+      a5: "Ve a la pestaña Personas y pulsa + Nueva persona. Dale un nombre, una descripción, elige una voz y un modelo. El campo Prompt del sistema define su personalidad: cuanto más detallado sea, más único será. Puedes generar una imagen con IA o importar una.",
+      q6: '¿Cómo protejo la app?',
+      a6: "Ve a Configuración → Seguridad y activa el código PIN (4 dígitos), requerido cada vez que abras la app. Si tu teléfono tiene una huella registrada, también puedes desbloquear con biometría. Tras varios códigos incorrectos, el teclado se bloquea temporalmente. El PIN se almacena en el Android Keystore como tus claves API. Por último, al exportar puedes cifrar tu copia con una contraseña (AES-256). Tus datos permanecen solo en tu teléfono, nunca se envían a Zova.",
+      ts_title: 'Solución de problemas de instalación',
+      ts1_h: '📥 La instalación está bloqueada',
+      ts1: ['Android pide permitir fuentes desconocidas: es normal para una app fuera de Play Store','Ajustes → Apps → tu navegador (o Gestor de archivos) → "Instalar apps desconocidas" → Permitir','Luego vuelve a abrir el archivo Zova-v3.1.apk desde tus Descargas','Play Protect puede mostrar un aviso: pulsa "Instalar de todos modos"'],
+      ts2_h: '📱 Xiaomi / MIUI',
+      ts2: ['Activa las Opciones de desarrollador (Ajustes → Acerca de → toca 7× la versión MIUI)','Activa "Depuración USB" e "Instalar via USB"','MIUI puede pedir una confirmación extra durante la instalación — acéptala','Desactiva "Optimización MIUI" si la instalación sigue fallando'],
+      ts3_h: '🔄 Actualizar Zova',
+      ts3: ['Descarga el nuevo APK e instálalo encima: tus datos se conservan','Todas las versiones están firmadas con la misma clave → actualización directa posible','Si Android se niega ("app no instalada"): haz una copia primero, luego desinstala la antigua','Consejo: exporta una copia cifrada (Config → Exportar) antes de cualquier desinstalación'],
+      ts4_h: '🎤 Micrófono o voz muda',
+      ts4: ['Sin micrófono: Ajustes → Apps → Zova → Permisos → Micrófono → Permitir','Voz de la IA muda: normal en Android WebView, el texto se muestra igual','En modo texto, Groq TTS funciona para la síntesis de voz','Cortes frecuentes: Zova reconecta automáticamente (3 intentos)'],
+      cta_h: '¿Listo para probar Zova?',
+      cta_p: 'Descarga la última versión y configura tu primera clave en 3 minutos.',
+      cta_dl: '⬇  Descargar Zova v3.1',
+      footer: 'Zova v3.1  ·  por Xavier Bourdet  ·  <em>"Tu IA. Tu teléfono. Tus reglas."</em>'
+    }
+  };
+
+  function fillCards(container, data) {
+    var cards = qa(container + ' .info-card');
+    data.forEach(function(d, i){
+      if (!cards[i]) return;
+      var h3 = cards[i].querySelector('h3'); if (h3) h3.textContent = d[0];
+      var lis = cards[i].querySelectorAll('li');
+      d[1].forEach(function(txt, j){ if (lis[j]) lis[j].innerHTML = txt; });
+    });
+  }
+
+  function applyLang(l) {
+    var t = T[l] || T.fr;
+    document.title = t.title;
+    document.documentElement.lang = l;
+    var m = q('meta[name="description"]'); if (m) m.content = t.meta_desc;
+
+    qa('[data-i18n]').forEach(function(el){
+      var k = el.getAttribute('data-i18n');
+      if (t[k] !== undefined) el.innerHTML = t[k];
+    });
+
+    fillCards('#manual-grid', [
+      [t.m1_h,t.m1],[t.m2_h,t.m2],[t.m3_h,t.m3],[t.m4_h,t.m4],
+      [t.m5_h,t.m5],[t.m6_h,t.m6],[t.m7_h,t.m7],[t.m8_h,t.m8]
+    ]);
+    fillCards('#ts-grid', [
+      [t.ts1_h,t.ts1],[t.ts2_h,t.ts2],[t.ts3_h,t.ts3],[t.ts4_h,t.ts4]
+    ]);
+
+    qa('.lang-btn').forEach(function(b){ b.classList.toggle('lang-active', b.dataset.lang === l); });
+  }
+
+  var stored = localStorage.getItem('zova_lang');
+  var raw = stored || navigator.language || navigator.userLanguage || 'fr';
+  var lang = raw.toLowerCase().indexOf('es') === 0 ? 'es' : raw.toLowerCase().indexOf('en') === 0 ? 'en' : 'fr';
+
+  document.addEventListener('DOMContentLoaded', function(){
+    qa('.lang-btn').forEach(function(b){
+      b.addEventListener('click', function(){ localStorage.setItem('zova_lang', b.dataset.lang); applyLang(b.dataset.lang); });
+    });
+    applyLang(lang);
+  });
+})();
+</script>
+</body>
+</html>

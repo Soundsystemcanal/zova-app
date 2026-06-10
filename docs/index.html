@@ -397,10 +397,10 @@
     <p class="hero-slogan">Ton IA. Ton téléphone. Tes règles.</p>
     <p class="hero-sub">Assistant vocal IA pour Android — sans serveur intermédiaire, sans abonnement mensuel, sans surveillance. Tes clés API restent sur ton téléphone.</p>
 
-    <span class="version-badge">✦ v3.0 — Maintenant disponible</span>
+    <span class="version-badge">✦ v3.1 — Maintenant disponible</span>
 
-    <a class="btn-dl" href="https://github.com/Soundsystemcanal/zova-app/releases/download/v3.0/Zova-v3.0.apk">
-        ⬇&nbsp; Télécharger Zova v3.0 · 4 Mo
+    <a class="btn-dl" href="https://github.com/Soundsystemcanal/zova-app/releases/download/v3.1/Zova-v3.1.apk">
+        ⬇&nbsp; Télécharger Zova v3.1 · 6 Mo
     </a>
 
     <div class="qr-block">
@@ -789,7 +789,7 @@
         <div class="step">
             <div class="step-num">1</div>
             <h3>Télécharger</h3>
-            <p>Clique le bouton ou scanne le QR. Le fichier <strong>Zova-v3.0.apk</strong> (~4 Mo) se télécharge sur ton Android.</p>
+            <p>Clique le bouton ou scanne le QR. Le fichier <strong>Zova-v3.1.apk</strong> (~6 Mo) se télécharge sur ton Android.</p>
         </div>
         <div class="step">
             <div class="step-num">2</div>
@@ -806,114 +806,32 @@
 
 <hr class="sep">
 
-<!-- MANUEL D'UTILISATION -->
-<div class="section">
-    <h2>Manuel d'utilisation</h2>
-    <div class="divider"></div>
-    <div class="manual-grid">
-
-        <div class="manual-card">
-            <h3>🎤 Démarrer une conversation</h3>
-            <ul>
-                <li>Appuie sur le bouton central pour parler</li>
-                <li>L'écran reste allumé pendant la conversation (WakeLock)</li>
-                <li>Si la connexion se coupe, Zova reconnecte automatiquement (3 tentatives)</li>
-                <li>Appuie à nouveau pour terminer la session</li>
-            </ul>
-        </div>
-
-        <div class="manual-card">
-            <h3>🎭 Personas</h3>
-            <ul>
-                <li>Appuie sur le nom de la persona dans l'écran d'accueil pour changer</li>
-                <li>Config → Personas → "+" pour créer un assistant sur mesure</li>
-                <li>Chaque persona a son propre prompt, voix, mémoire et profil</li>
-                <li>La persona Zova apprend à te connaître au fil des conversations</li>
-            </ul>
-        </div>
-
-        <div class="manual-card">
-            <h3>🧠 Mémoire et profil adaptatif</h3>
-            <ul>
-                <li>Après chaque session, Zova génère un résumé, met à jour le profil, détecte les engagements et les objectifs — en arrière-plan</li>
-                <li>Chaque persona a sa propre mémoire, profil, suivis et objectifs — indépendants</li>
-                <li>Dis <em>"souviens-toi que…"</em> pendant la conversation : Zova mémorise instantanément</li>
-                <li>Config → section "Profil [nom persona]" pour voir ou effacer le profil actif</li>
-                <li>Config → "Suivis" : engagements détectés post-session</li>
-                <li>Config → "Objectifs" : objectifs long terme et leur progression</li>
-            </ul>
-        </div>
-
-        <div class="manual-card">
-            <h3>📝 Transcription et export</h3>
-            <ul>
-                <li>La conversation s'affiche en temps réel dans l'onglet Transcription</li>
-                <li>Après la session : bouton "Exporter" pour partager le texte brut</li>
-                <li>Option "Nettoyer" : l'IA corrige les erreurs STT et ajoute la ponctuation</li>
-                <li>Partage via n'importe quelle app : email, WhatsApp, Notes, Drive…</li>
-            </ul>
-        </div>
-
-        <div class="manual-card">
-            <h3>💾 Backup et restore</h3>
-            <ul>
-                <li>Config → Exporter : partage via Drive/WhatsApp ou sauvegarde locale dans Zova</li>
-                <li>Inclut personas, mémoires, profils — option clés API en bonus</li>
-                <li>Config → Importer → "Sauvegardes Zova" pour restaurer sans chercher le fichier</li>
-                <li>Compatible Android 11+ (contourne les restrictions scoped storage)</li>
-            </ul>
-        </div>
-
-        <div class="manual-card">
-            <h3>🔐 Sécurité et PIN</h3>
-            <ul>
-                <li>Clés API chiffrées dans l'Android Keystore matériel (jamais en clair)</li>
-                <li>Option PIN 4 chiffres pour verrouiller l'accès à l'app</li>
-                <li>Aucune donnée envoyée à des serveurs Zova — connexion directe au provider</li>
-                <li>Les clés ne quittent ton téléphone qu'à l'export si tu le demandes explicitement</li>
-            </ul>
-        </div>
-
-        <div class="manual-card">
-            <h3>⚙️ Providers et clés API</h3>
-            <ul>
-                <li><strong>Groq</strong> (pour débuter) : <a href="https://console.groq.com/keys" target="_blank">console.groq.com</a> — quota gratuit</li>
-                <li><strong>OpenAI</strong> : <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a></li>
-                <li><strong>Gemini</strong> : <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com</a></li>
-                <li><strong>Ultravox</strong> : <a href="https://app.ultravox.ai" target="_blank">app.ultravox.ai</a></li>
-            </ul>
-        </div>
-
-        <div class="manual-card">
-            <h3>❓ Dépannage rapide</h3>
-            <ul>
-                <li>Bouton "?" dans Config → FAQ complète FR/EN/ES intégrée dans l'app</li>
-                <li>Pas de micro : Paramètres → Apps → Zova → Permissions → Micro → Autoriser</li>
-                <li>Voix muette : normal sur Android WebView — le texte s'affiche quand même</li>
-                <li>Xiaomi : active "Débogage USB" + "Installer via USB" dans Options développeur</li>
-            </ul>
-        </div>
-
-    </div>
+<!-- BESOIN D'AIDE -> page Guide & Support -->
+<div class="section" style="text-align:center;">
+    <h2 data-i18n="help_title">Besoin d'aide&nbsp;?</h2>
+    <div class="divider" style="margin-left:auto;margin-right:auto;"></div>
+    <p data-i18n="help_sub" style="color:var(--muted);max-width:520px;margin:0 auto 28px;">Manuel complet, questions fréquentes et dépannage installation.</p>
+    <a class="btn-dl" href="support.html" data-i18n="help_btn">📖&nbsp; Ouvrir le guide complet</a>
 </div>
 
 <!-- CTA BAS -->
 <div class="cta">
     <h2>Prêt à reprendre le contrôle ?</h2>
     <p>Tes pensées, ta voix, ton IA. Personne d'autre.</p>
-    <a class="btn-dl" href="https://github.com/Soundsystemcanal/zova-app/releases/download/v3.0/Zova-v3.0.apk">
-        ⬇&nbsp; Télécharger Zova v3.0
+    <a class="btn-dl" href="https://github.com/Soundsystemcanal/zova-app/releases/download/v3.1/Zova-v3.1.apk">
+        ⬇&nbsp; Télécharger Zova v3.1
     </a>
 </div>
 
 <!-- FOOTER -->
 <footer>
     <div class="footer-links">
+        <a href="support.html" data-i18n="nav_guide">📖 Guide</a>
         <a href="https://github.com/Soundsystemcanal/zova-app" target="_blank" rel="noopener">GitHub</a>
         <a href="https://github.com/Soundsystemcanal/zova-app/releases" target="_blank" rel="noopener">Releases</a>
         <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Clé Groq gratuite</a>
     </div>
-    <div>Zova v3.0 &nbsp;·&nbsp; par Xavier Bourdet &nbsp;·&nbsp; <em>"Ton IA. Ton téléphone. Tes règles."</em></div>
+    <div>Zova v3.1 &nbsp;·&nbsp; par Xavier Bourdet &nbsp;·&nbsp; <em>"Ton IA. Ton téléphone. Tes règles."</em></div>
 </footer>
 
 
@@ -965,8 +883,8 @@
       meta_desc: 'Zova est un assistant vocal IA pour Android. Sans serveur, sans abonnement. Tes clés API restent sur ton téléphone.',
       hero_slogan: 'Ton IA. Ton téléphone. Tes règles.',
       hero_sub: 'Assistant vocal IA pour Android — sans serveur intermédiaire, sans abonnement mensuel, sans surveillance. Tes clés API restent sur ton téléphone.',
-      hero_badge: '✦ v3.0 — Maintenant disponible',
-      hero_dl: '⬇  Télécharger Zova v3.0 · 4 Mo',
+      hero_badge: '✦ v3.1 — Maintenant disponible',
+      hero_dl: '⬇  Télécharger Zova v3.1 · 6 Mo',
       hero_qr: 'Scanner pour télécharger',
       why_title: 'Pourquoi Zova ?',
       w_label: 'Comment ça marche',
@@ -1006,7 +924,7 @@
       p1_best: 'Qualité maximale', p2_best: 'Rapport qualité/prix', p3_best: 'Usage intensif', p4_best: 'Débuter sans CB',
       prov_note: 'Groq offre un quota gratuit généreux — parfait pour découvrir Zova sans frais.',
       install_title: 'Installer en 3 minutes',
-      s1_h: 'Télécharger', s1_p: 'Clique le bouton ou scanne le QR. Le fichier <strong>Zova-v3.0.apk</strong> (~4 Mo) se télécharge sur ton Android.',
+      s1_h: 'Télécharger', s1_p: 'Clique le bouton ou scanne le QR. Le fichier <strong>Zova-v3.1.apk</strong> (~6 Mo) se télécharge sur ton Android.',
       s2_h: 'Autoriser', s2_p: 'Paramètres → Apps → ton navigateur → <em>"Installer des applis inconnues"</em> → Autoriser. Puis ouvre le fichier APK.',
       s3_h: 'Configurer', s3_p: 'Ouvre Zova → Config → Clé API → colle ta clé <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> (gratuite). C\'est prêt !',
       manual_title: 'Manuel d\'utilisation',
@@ -1028,8 +946,9 @@
       m8: ['Bouton "?" dans Config → FAQ complète FR/EN/ES intégrée dans l\'app','Pas de micro : Paramètres → Apps → Zova → Permissions → Micro → Autoriser','Voix muette : normal sur Android WebView — le texte s\'affiche quand même','Xiaomi : active "Débogage USB" + "Installer via USB" dans Options développeur'],
       cta_h: 'Prêt à reprendre le contrôle ?',
       cta_p: 'Tes pensées, ta voix, ton IA. Personne d\'autre.',
-      cta_dl: '⬇  Télécharger Zova v3.0',
-      footer: 'Zova v3.0  ·  par Xavier Bourdet  ·  <em>"Ton IA. Ton téléphone. Tes règles."</em>',
+      cta_dl: '⬇  Télécharger Zova v3.1',
+      footer: 'Zova v3.1  ·  par Xavier Bourdet  ·  <em>"Ton IA. Ton téléphone. Tes règles."</em>',
+      help_title: 'Besoin d\'aide&nbsp;?', help_sub: 'Manuel complet, questions fréquentes et dépannage installation.', help_btn: '📖&nbsp; Ouvrir le guide complet', nav_guide: '📖 Guide',
       lang_label: '🌐 Langue'
     },
     en: {
@@ -1037,8 +956,8 @@
       meta_desc: 'Zova is an AI voice assistant for Android. No server, no subscription. Your API keys stay on your phone.',
       hero_slogan: 'Your AI. Your phone. Your rules.',
       hero_sub: 'AI voice assistant for Android — no middleman server, no monthly subscription, no tracking. Your API keys stay on your phone.',
-      hero_badge: '✦ v3.0 — Now available',
-      hero_dl: '⬇  Download Zova v3.0 · 4 MB',
+      hero_badge: '✦ v3.1 — Now available',
+      hero_dl: '⬇  Download Zova v3.1 · 6 MB',
       hero_qr: 'Scan to download',
       why_title: 'Why Zova?',
       w_label: 'How it works',
@@ -1078,7 +997,7 @@
       p1_best: 'Maximum quality', p2_best: 'Best value', p3_best: 'Heavy use', p4_best: 'Start free',
       prov_note: 'Groq offers a generous free quota — perfect for discovering Zova at no cost.',
       install_title: 'Install in 3 minutes',
-      s1_h: 'Download', s1_p: 'Click the button or scan the QR. The <strong>Zova-v3.0.apk</strong> file (~4 MB) downloads to your Android.',
+      s1_h: 'Download', s1_p: 'Click the button or scan the QR. The <strong>Zova-v3.1.apk</strong> file (~6 MB) downloads to your Android.',
       s2_h: 'Allow', s2_p: 'Settings → Apps → your browser → <em>"Install unknown apps"</em> → Allow. Then open the APK file.',
       s3_h: 'Configure', s3_p: 'Open Zova → Config → API Key → paste your <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> key (free). Done!',
       manual_title: 'User Manual',
@@ -1100,8 +1019,9 @@
       m8: ['"?" button in Config → full FR/EN/ES FAQ built into the app','No mic: Settings → Apps → Zova → Permissions → Microphone → Allow','Silent voice: normal on Android WebView — text still displays','Xiaomi: enable "USB debugging" + "Install via USB" in Developer options'],
       cta_h: 'Ready to take back control?',
       cta_p: 'Your thoughts, your voice, your AI. Nobody else.',
-      cta_dl: '⬇  Download Zova v3.0',
-      footer: 'Zova v3.0  ·  by Xavier Bourdet  ·  <em>"Your AI. Your phone. Your rules."</em>',
+      cta_dl: '⬇  Download Zova v3.1',
+      footer: 'Zova v3.1  ·  by Xavier Bourdet  ·  <em>"Your AI. Your phone. Your rules."</em>',
+      help_title: 'Need help?', help_sub: 'Full manual, FAQ and installation troubleshooting.', help_btn: '📖&nbsp; Open the full guide', nav_guide: '📖 Guide',
       lang_label: '🌐 Language'
     },
     es: {
@@ -1109,8 +1029,8 @@
       meta_desc: 'Zova es un asistente de voz IA para Android. Sin servidor, sin suscripción. Tus claves API se quedan en tu teléfono.',
       hero_slogan: 'Tu IA. Tu teléfono. Tus reglas.',
       hero_sub: 'Asistente de voz IA para Android — sin servidor intermediario, sin suscripción mensual, sin vigilancia. Tus claves API se quedan en tu teléfono.',
-      hero_badge: '✦ v3.0 — Disponible ahora',
-      hero_dl: '⬇  Descargar Zova v3.0 · 4 MB',
+      hero_badge: '✦ v3.1 — Disponible ahora',
+      hero_dl: '⬇  Descargar Zova v3.1 · 6 MB',
       hero_qr: 'Escanear para descargar',
       why_title: '¿Por qué Zova?',
       w_label: 'Cómo funciona',
@@ -1150,7 +1070,7 @@
       p1_best: 'Calidad máxima', p2_best: 'Mejor relación calidad/precio', p3_best: 'Uso intensivo', p4_best: 'Empezar gratis',
       prov_note: 'Groq ofrece una cuota gratuita generosa — perfecta para descubrir Zova sin coste.',
       install_title: 'Instalar en 3 minutos',
-      s1_h: 'Descargar', s1_p: 'Haz clic en el botón o escanea el QR. El archivo <strong>Zova-v3.0.apk</strong> (~4 MB) se descarga en tu Android.',
+      s1_h: 'Descargar', s1_p: 'Haz clic en el botón o escanea el QR. El archivo <strong>Zova-v3.1.apk</strong> (~6 MB) se descarga en tu Android.',
       s2_h: 'Permitir', s2_p: 'Ajustes → Apps → tu navegador → <em>"Instalar apps desconocidas"</em> → Permitir. Luego abre el archivo APK.',
       s3_h: 'Configurar', s3_p: 'Abre Zova → Config → Clave API → pega tu clave <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> (gratis). ¡Listo!',
       manual_title: 'Manual de uso',
@@ -1172,8 +1092,9 @@
       m8: ['Botón "?" en Config → FAQ completa FR/EN/ES integrada en la app','Sin micrófono: Ajustes → Apps → Zova → Permisos → Micrófono → Permitir','Voz silenciosa: normal en Android WebView — el texto se muestra igual','Xiaomi: activa "Depuración USB" + "Instalar via USB" en Opciones de desarrollador'],
       cta_h: '¿Listo para recuperar el control?',
       cta_p: 'Tus pensamientos, tu voz, tu IA. Nadie más.',
-      cta_dl: '⬇  Descargar Zova v3.0',
-      footer: 'Zova v3.0  ·  por Xavier Bourdet  ·  <em>"Tu IA. Tu teléfono. Tus reglas."</em>',
+      cta_dl: '⬇  Descargar Zova v3.1',
+      footer: 'Zova v3.1  ·  por Xavier Bourdet  ·  <em>"Tu IA. Tu teléfono. Tus reglas."</em>',
+      help_title: '¿Necesitas ayuda?', help_sub: 'Manual completo, preguntas frecuentes y solución de problemas de instalación.', help_btn: '📖&nbsp; Abrir la guía completa', nav_guide: '📖 Guía',
       lang_label: '🌐 Idioma'
     }
   };
@@ -1200,7 +1121,7 @@
 
     // Section titles (h2) — feat, prov, install, manual
     var h2s = qa('.section h2');
-    var titles = [t.feat_title, t.prov_title, t.install_title, t.manual_title];
+    var titles = [t.feat_title, t.prov_title, t.install_title];
     titles.forEach(function(tx, i){ if(h2s[i]) h2s[i].textContent = tx; });
 
     // Feature cards
