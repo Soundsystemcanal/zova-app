@@ -6,7 +6,7 @@
 
 **Zova** es una app Android de voz IA con personas configurables. Single-file HTML + Capacitor. Sin backend. Usa OpenAI Realtime API / Ultravox / Groq. API keys en Android Keystore.
 
-- **App:** `buddy/www/index.html` (~7500 líneas)  
+- **App:** `buddy/www/index.html` (~8600 líneas)  
 - **Android:** `buddy/android/`  
 - **Icono fuente:** `buddy/assets/icon.svg` (micrófono Dark Cosmos) → compilado a `icon.png`
 - **ID:** `com.zova.voiceapp`
@@ -18,7 +18,7 @@
 | `main` | ✅ Estable v1.1 | Versión pública, APK release firmado |
 | `v2-beta` | 🚧 Activa | Nuevas features (export/import, memoria, perfil) |
 
-## Estado (2026-06-09)
+## Estado (2026-06-10)
 
 ### v1.1 (main)
 ✅ App funcional en Xiaomi 14T (Android 16 "Baklava")  
@@ -29,7 +29,18 @@
 ✅ FAQ trilingue (6 Q&A FR/EN/ES) — modal accordéon via bouton `?` dans Config  
 ✅ Persona "Zova" pré-chargée (guide de bienvenue, voix shimmer)  
 ✅ Touch sensitivity — 300ms delay éliminé, min-height 44px  
-⏳ Task 11 — APK release firmado  
+✅ QR offline — lib bundlée `window.ZovaQR`, SVG, payload allégé (sans image, prompt≤1200)  
+✅ Partage persona — `exportJsonFile()` (JSON complet) au lieu de `Share.share({url})`  
+✅ Avatar persona cliquable → ouvre modal édition (bouton ✎ supprimé)  
+✅ Bouton insights visible — couleur accent  
+✅ Bouton copie — flag `_copyBtnLocked`, feedback visuel avant `await clipboard`  
+✅ Pill LOCAL — discret, inline sous le nom persona (plus fixe/superposé)  
+✅ Widget 2×1 — fonctionnel sur MIUI (fix `<View>`→`<TextView>`, fix crash FGS)  
+✅ Reconnexion transparente — contexte restauré, pas de re-greeting (`isReconnecting` + `recentTranscriptContext`)  
+✅ Transcript ordonné — placeholder créé à `speech_started`, rempli à `transcription.completed`  
+✅ Persona Zova v3 — section doc app intégrée dans le prompt (providers, personas, mémoire, export, widget, chapitrage)  
+✅ Export transcript — chapitres inclus comme table des matières si disponibles  
+✅ Task 11 — APK release firmado (`buddy/Zova-v2.1.apk`, signé v2 scheme, versionCode 3)  
 ⏳ Task 12 — GitHub Releases + QR  
 
 ### v2-beta (v2-beta)
@@ -58,6 +69,12 @@ adb install app\build\outputs\apk\debug\app-debug.apk
 
 # Verificar dispositivo conectado
 adb devices
+
+# Debug WebView en vivo (inspeccionar DOM de la app instalada — APK debug)
+# 1. $pid = adb shell pidof com.buddy.voiceapp
+# 2. adb forward tcp:9222 localabstract:webview_devtools_remote_$pid
+# 3. Invoke-WebRequest http://localhost:9222/json  → webSocketDebuggerUrl
+# 4. node %TEMP%\zova-cdp\eval.js "<wsUrl>" "<expresión JS>"  (script CDP con paquete ws)
 
 # Regenerar todos los iconos (Dark Cosmos bg)
 node -e "require('sharp')('assets/icon.svg').resize(1024,1024).png().toFile('assets/icon.png').then(()=>console.log('OK'))"
@@ -124,6 +141,19 @@ index.html (single-file app)
 | Export tronqué à 20 000 chars | clipboard.writeText() limite Android | Filesystem.writeFile() + Share |
 | Fichier export introuvable à l'import | Directory.EXTERNAL inaccessible au sélecteur (Android 11+) | showZovaFiles() lit directement le dossier |
 | Emojis/HTML affichés en brut dans alerts | customAlert utilisait textContent | → innerHTML |
+| QR "indisponible" | api.qrserver.com bloqué hors réseau | Lib `qrcode` bundlée (24KB, `window.ZovaQR`), SVG via `toString()` — 100% offline |
+| "amount of data too big" pour QR | Champ `image` (data URL = milliers de bytes) dépassait capacité QR v40 | Exclure `image:null`, tronquer `prompt` à 1200 chars, `errorCorrectionLevel:'L'` |
+| Widget non visible dans liste | `android:previewLayout` manquant (requis Android 12+) | Ajouté `previewLayout="@layout/widget_zova"` dans `widget_info.xml` |
+| Widget crash à l'ajout ("No se ha podido añadir") | `<View>` plain non supporté par RemoteViews → inflation silencieuse échouée | Remplacé `<View>` séparateur par `<TextView>` vide dans `widget_zova.xml` |
+| App crash au démarrage écran noir | `ZovaForegroundService.startForeground(type=microphone)` lance SecurityException sur Android 14+ si RECORD_AUDIO pas encore accordé au runtime | try/catch autour de `startForeground()` → `stopSelf()` si permission absente |
+| APK debug refusé à l'install | Signature release déjà installée ≠ signature debug | `adb uninstall` puis `adb install` (données perdues — reconfigurer l'app) |
+| Option "Supprimer" invisible dans menu "..." | Le menu (z-index:10 dans la carte) passait DERRIÈRE les cartes suivantes de la grille | `.welcome-card:has(.welcome-card-menu.open) { z-index: 50 }` |
+| Bouton "..." invisible sur tactile | `opacity:0` + visible uniquement au `:hover` (inexistant sur mobile) | `@media (hover: none) { opacity: 1 }` |
+| Dialog OK hors écran (contenu long) | `.dialog-box` sans max-height | `max-height:80vh` + `.dialog-message` scrollable |
+| Bouton retour Android sans effet | Aucun listener `backButton` Capacitor | Listener : ferme dialogs → modales → retour Home → minimize |
+| Duplication empile "(copie) (copie)" | Double-tap + copie devient active puis re-dupliquée | Verrou 1s + nommage "X (copie N)" (suffixes nettoyés) |
+| Conversation s'arrête après quelques échanges (OpenAI) | API ferme session (rate limit / context overflow) avec code 1000 → reconnexion sans mémoire + re-greeting | `isReconnecting` flag + `recentTranscriptContext` (12 derniers tours) injecté dans `buildFullInstructions()` au reconnect ; `session.updated` ne re-greet pas si `isReconnecting` |
+| Transcript désordonné (user après IA) | `transcription.completed` arrive après que l'IA a déjà streamé → insert hors ordre | Placeholder `Moi: ...` créé à `speech_started` (avant réponse IA), rempli à `transcription.completed` |
 
 ## Notas importantes
 
@@ -134,6 +164,10 @@ index.html (single-file app)
 - **Import v2:** `showImportSheet()` → Sauvegardes Zova (lit EXTERNAL) ou sélecteur
 - **Xiaomi:** Requiere "Instalar via USB" + "Depuración USB" en Opciones de desarrollador
 - **Keystore:** `buddy/android/app/keystore.properties` + `buddy/zova-release-keystore.jks` — JAMAIS committer
+- **RemoteViews (widget):** Soporta FrameLayout, LinearLayout, RelativeLayout, TextView, Button, ImageView, ProgressBar — NO `<View>` plain (inflation silenciosa falla en MIUI)
+- **FGS + RECORD_AUDIO (Android 14+):** `startForeground(type=microphone)` lanza SecurityException si el permiso no está concedido en runtime. El try/catch en `ZovaForegroundService.onStartCommand()` evita el crash en fresh install
+- **appId mismatch:** `capacitor.config.json` dice `com.zova.voiceapp` pero el package nativo es `com.buddy.voiceapp` — no cambiar, es histórico y funciona
+- **Debug vs Release APK:** Signatures diferentes → hay que `adb uninstall` antes de instalar debug si hay release instalado (se pierden los datos de la app)
 
 ## Providers y costes
 

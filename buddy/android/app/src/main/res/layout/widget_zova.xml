@@ -22,13 +22,14 @@
         android:background="#553b1d6e"
         android:padding="4dp" />
 
-    <!-- Séparateur vertical -->
-    <View
+    <!-- Séparateur vertical (TextView vide — View plain non supporté par RemoteViews) -->
+    <TextView
         android:layout_width="1dp"
         android:layout_height="26dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:background="#3b1d6e" />
+        android:background="#3b1d6e"
+        android:text="" />
 
     <!-- Textes -->
     <LinearLayout

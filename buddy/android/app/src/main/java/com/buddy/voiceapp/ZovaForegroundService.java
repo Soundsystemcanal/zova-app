@@ -28,7 +28,13 @@ public class ZovaForegroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startForeground(NOTIF_ID, buildNotification());
+        try {
+            startForeground(NOTIF_ID, buildNotification());
+        } catch (SecurityException e) {
+            // RECORD_AUDIO not yet granted (fresh install on Android 14+) — stop gracefully
+            stopSelf();
+            return START_NOT_STICKY;
+        }
         return START_STICKY;
     }
 

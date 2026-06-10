@@ -362,6 +362,11 @@
             opacity: 1;
         }
 
+        /* Tactile (pas de hover) : bouton "..." toujours visible */
+        @media (hover: none) {
+            .welcome-card-menu-btn { opacity: 1; }
+        }
+
         .welcome-card-menu-btn:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
@@ -383,6 +388,17 @@
 
         .welcome-card-menu.open {
             display: block;
+        }
+
+        /* La carte avec menu ouvert passe au-dessus des cartes voisines */
+        .welcome-card:has(.welcome-card-menu.open) {
+            z-index: 50;
+        }
+
+        /* Ouverture vers le haut si pas de place en bas */
+        .welcome-card-menu.open-up {
+            top: auto;
+            bottom: 38px;
         }
 
         .welcome-card-menu button {
@@ -1456,6 +1472,9 @@
             padding: 28px 30px 22px;
             width: 400px;
             max-width: 92vw;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
             box-shadow: 0 16px 48px var(--shadow);
             text-align: center;
             animation: dialogSlideIn 0.2s ease;
@@ -1481,6 +1500,10 @@
             color: var(--text-secondary);
             line-height: 1.55;
             margin-bottom: 20px;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
+            -webkit-overflow-scrolling: touch;
         }
         .dialog-buttons {
             display: flex;
@@ -2220,28 +2243,25 @@
             color: #E8DFD0;
         }
 
-        /* Pill LOCAL en la barra de sesión */
+        /* Pill LOCAL — inline sous le nom de persona */
         #v2LocalPill {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 3px 10px;
+            gap: 4px;
+            padding: 1px 7px;
             border-radius: 999px;
-            background: rgba(52, 211, 153, 0.1);
-            border: 1px solid rgba(52, 211, 153, 0.25);
-            color: #34d399;
-            font-size: 0.72rem;
+            background: rgba(52, 211, 153, 0.08);
+            border: 1px solid rgba(52, 211, 153, 0.18);
+            color: rgba(52, 211, 153, 0.7);
+            font-size: 0.62rem;
             font-weight: 600;
             letter-spacing: 0.06em;
-            position: fixed;
-            top: 10px;
-            right: 12px;
-            z-index: 50;
+            margin-top: 2px;
         }
         #v2LocalPill .dot {
-            width: 6px; height: 6px;
+            width: 5px; height: 5px;
             border-radius: 50%;
-            background: #34d399;
+            background: rgba(52, 211, 153, 0.7);
             animation: dotPulse 1.5s infinite;
         }
 
@@ -2335,12 +2355,6 @@ Minimum version required to store current data is: `+i+`.
     <div class="blob" style="bottom:-15%;right:-15%;width:65%;height:65%;background:rgba(139,50,200,0.10);"></div>
   </div>
 
-  <!-- ═══ v2: Pill LOCAL (arriba derecha) ═══ -->
-  <div id="v2LocalPill" aria-hidden="true">
-    <span class="dot"></span>
-    <span>LOCAL</span>
-  </div>
-
   <!-- Hidden persona list for legacy JS compatibility -->
   <div id="personaList" style="display:none"></div>
 
@@ -2381,6 +2395,7 @@ Minimum version required to store current data is: `+i+`.
                   <div class="persona-header-info">
                       <div id="personaHeaderName"></div>
                       <div id="personaHeaderDesc"></div>
+                      <div id="v2LocalPill" aria-hidden="true"><span class="dot"></span><span>LOCAL</span></div>
                   </div>
                   <button class="btn-edit-persona" id="chaptersPersonaBtn" title="Chapitres" style="display:none"><span class="icon">📑</span></button>
                   <button class="btn-edit-persona" id="insightsPersonaBtn" title="Insights"><span class="icon">📊</span></button>
@@ -2867,6 +2882,7 @@ Minimum version required to store current data is: `+i+`.
 
             <div class="persona-share-row">
                 <button class="btn-small" id="exportPersonaBtn" title="Exporter ce persona"><span class="icon">&#128190;</span> Exporter ce persona</button>
+                <button class="btn-small" id="deletePersonaBtn" title="Supprimer ce persona" style="color:var(--danger);border-color:var(--danger);display:none"><span class="icon">&#128465;</span> Supprimer</button>
             </div>
 
             <div class="modal-buttons">
@@ -3521,11 +3537,19 @@ Minimum version required to store current data is: `+i+`.
             }
             try {
                 const personas = JSON.parse(raw);
-                // Migration : mettre à jour Zova si c'est encore l'ancienne version (hôtesse d'onboarding)
+                // Migration : mettre à jour Zova si ancienne version
                 const idx = personas.findIndex(p => p.id === 'zova-default-v1');
-                if (idx !== -1 && personas[idx].prompt && personas[idx].prompt.includes('hôtesse')) {
-                    personas[idx] = { ...personas[idx], ...DEFAULT_PERSONA_ZOVA };
-                    console.log('[Zova] Persona mise à jour vers Profile Builder v2');
+                if (idx !== -1 && personas[idx].prompt) {
+                    const p = personas[idx].prompt;
+                    if (p.includes('hôtesse')) {
+                        // v1 → v2 (Profile Builder)
+                        personas[idx] = { ...personas[idx], ...DEFAULT_PERSONA_ZOVA };
+                        console.log('[Zova] Persona mise à jour vers Profile Builder v2');
+                    } else if (!p.includes('L\'application Zova')) {
+                        // v2 → v3 (+ doc app)
+                        personas[idx] = { ...personas[idx], prompt: DEFAULT_PERSONA_ZOVA.prompt };
+                        console.log('[Zova] Persona mise à jour vers v3 (doc app)');
+                    }
                 }
                 // Injecter Gaïa si absente (migration users existants v2.1)
                 if (!personas.find(p => p.id === 'gaia-default-v1')) {
@@ -3582,8 +3606,13 @@ Minimum version required to store current data is: `+i+`.
             const menu = card.querySelector('.welcome-card-menu');
             menuBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                grid.querySelectorAll('.welcome-card-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
+                grid.querySelectorAll('.welcome-card-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open', 'open-up'); });
                 menu.classList.toggle('open');
+                // Si le menu déborde en bas de l'écran → ouvrir vers le haut
+                if (menu.classList.contains('open')) {
+                    menu.classList.remove('open-up');
+                    if (menu.getBoundingClientRect().bottom > window.innerHeight - 10) menu.classList.add('open-up');
+                }
             });
             menu.querySelector('[data-action="edit"]').addEventListener('click', (e) => {
                 e.stopPropagation(); menu.classList.remove('open'); openPersonaModal(p);
@@ -3760,7 +3789,37 @@ Commence toujours par une salutation chaleureuse + UNE seule question ciblée su
 # Format de réponse (voix)
 - Maximum 2 à 3 phrases par réponse
 - Texte pur uniquement — pas de listes, pas de tirets, pas de markdown
-- Phrases courtes et naturelles, comme dans une vraie conversation`
+- Phrases courtes et naturelles, comme dans une vraie conversation
+
+# L'application Zova — ce que tu sais
+Tu connais parfaitement l'application. Quand l'utilisateur pose des questions sur Zova, réponds avec précision et simplicité, sans jargon technique.
+
+## Providers vocaux
+Zova supporte 4 providers, configurables dans Config → Modèles :
+- OpenAI Realtime (gpt-realtime-2, 1.5, mini) : meilleure qualité, ~$0.06/min
+- Gemini Live : excellente qualité, très économique ~$0.01/min
+- Ultravox : bonne qualité, économique ~$0.005/min
+- Groq : le moins cher ~$0.001/min, légèrement plus de latence
+
+## Clés API
+Stockées dans Android Keystore (chiffrement matériel). Config → onglet Clé API. Chaque provider a sa propre clé.
+
+## Personas
+Chaque persona a son propre prompt, voix, style et profil adaptatif. Actions : éditer (tap sur l'avatar), dupliquer, partager par QR, supprimer (menu "..."). Le bouton 📑 dans le header apparaît après une session longue pour voir les chapitres thématiques.
+
+## Mémoire
+Deux couches : résumés de sessions (max 10) et profil cumulatif de l'utilisateur. Consultables et effaçables dans Config → Mémoire.
+
+## Export / Import
+Backup complet (personas + mémoire + clés optionnelles) via Config → onglet Partager. Import depuis un fichier ou les sauvegardes Zova.
+
+## Autres fonctionnalités
+- Widget 2×1 : raccourci sur l'écran d'accueil
+- PIN 4 chiffres : verrouillage de l'app (Config)
+- Transcripteur : mode transcription vocale sans IA
+- Budget mensuel : plafond de dépenses (Config → Budget)
+- Chapitrage auto : sessions longues (>20 min) analysées automatiquement après Stop
+- QR code : chaque persona peut être partagée via QR ou fichier JSON`
     };
 
     const DEFAULT_PERSONA_GAIA = {
@@ -4088,12 +4147,15 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
 
     // ── Reconnexion auto ──────────────────────────────
     let shouldReconnect = false;
+    let isReconnecting = false;
+    let recentTranscriptContext = []; // { role: 'user'|'ai', text: '...' } — last 12 turns for reconnect context
     let reconnectTimer = null;
     let reconnectAttempts = 0;
     const MAX_RECONNECT_DELAY = 30000; // plafond backoff — 30s max entre tentatives
 
     function scheduleReconnect(startFn) {
         if (!shouldReconnect) return;
+        isReconnecting = true;
         reconnectAttempts++;
         // Backoff exponentiel : 2s → 4s → 8s → 16s → 30s → 30s → ...
         const delay = Math.min(2000 * Math.pow(2, reconnectAttempts - 1), MAX_RECONNECT_DELAY);
@@ -4112,6 +4174,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     }
     function cancelReconnect() {
         shouldReconnect = false;
+        isReconnecting = false;
         reconnectAttempts = 0;
         if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
         document.getElementById('cancelReconnectBtn').style.display = 'none';
@@ -4131,7 +4194,8 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     let totalInputTokens = 0;
     let totalOutputTokens = 0;
 
-    let currentTranscriptAi = null; // élément en cours de streaming
+    let currentTranscriptAi = null;           // élément IA en cours de streaming
+    let currentTranscriptUserPlaceholder = null; // placeholder user créé au speech_started
     let lastGeminiAiMsg = null;     // référence Gemini après turnComplete (late transcription packets)
     let hadAiTranscriptThisTurn = false; // flag pour récupération fallback OpenAI
     let activeProvider = 'openai'; // 'openai' ou 'gemini' pour la session en cours
@@ -4622,6 +4686,10 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         tempImage = persona ? persona.image : null;
         renderImagePreview();
 
+        // Bouton Supprimer : seulement en édition (pas en création)
+        const delBtn = document.getElementById('deletePersonaBtn');
+        if (delBtn) delBtn.style.display = persona ? '' : 'none';
+
         personaModal.classList.add('active');
     }
 
@@ -4689,15 +4757,28 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         document.getElementById('conversationSettingsGroup').style.display = isTranslate ? 'none' : '';
         document.getElementById('promptGroup').style.display = isTranslate ? 'none' : '';
     }
+    let _duplicateLocked = false;
     document.getElementById('duplicatePersonaBtn').addEventListener('click', () => {
+        if (_duplicateLocked) return;
+        _duplicateLocked = true;
+        setTimeout(() => { _duplicateLocked = false; }, 1000);
         const original = getPersonas().find(p => p.id === getActiveId());
         if (!original) return;
+        // Nom de base : retire les suffixes "(copie)" / "(copie N)" existants
+        const baseName = original.name.replace(/\s*\(copie(?:\s+\d+)?\)\s*/g, '').trim();
+        // Numérotation : "X (copie)", puis "X (copie 2)", "X (copie 3)"...
+        const list = getPersonas();
+        let copyName = baseName + ' (copie)';
+        let n = 2;
+        while (list.some(p => p.name === copyName)) {
+            copyName = baseName + ' (copie ' + n + ')';
+            n++;
+        }
         const duplicate = {
             ...JSON.parse(JSON.stringify(original)),
             id: 'p_' + Date.now(),
-            name: original.name + ' (copie)'
+            name: copyName
         };
-        const list = getPersonas();
         list.push(duplicate);
         savePersonas(list);
         renderPersonaList();
@@ -5000,6 +5081,29 @@ Règles IMPÉRATIVES :
 
         const filename = `zova-persona-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`;
         exportJsonFile(JSON.stringify(personaExport, null, 2), filename);
+    });
+
+    // Supprimer persona depuis le modal d'édition
+    document.getElementById('deletePersonaBtn').addEventListener('click', async () => {
+        if (!editingPersonaId) return;
+        const p = getPersonas().find(x => x.id === editingPersonaId);
+        if (!p) return;
+        if (!await customConfirm(
+            LANG === 'es' ? `¿Eliminar «${p.name}»? Esta acción es irreversible.` :
+            LANG === 'en' ? `Delete "${p.name}"? This cannot be undone.` :
+            `Supprimer « ${p.name} » ? Cette action est irréversible.`,
+            { title: LANG === 'es' ? 'Eliminar persona' : LANG === 'en' ? 'Delete persona' : 'Supprimer ce persona', icon: '&#128465;', confirmLabel: LANG === 'es' ? 'Eliminar' : LANG === 'en' ? 'Delete' : 'Supprimer', danger: true }
+        )) return;
+        const newList = getPersonas().filter(x => x.id !== editingPersonaId);
+        savePersonas(newList);
+        if (getActiveId() === editingPersonaId) {
+            setActiveId('');
+            showEmptyState();
+        }
+        personaModal.classList.remove('active');
+        renderPersonaList();
+        renderWelcomeGrid();
+        renderPersonasGrid();
     });
 
     // Import persona
@@ -5336,8 +5440,13 @@ Règles IMPÉRATIVES :
             menuBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 // Fermer les autres menus
-                grid.querySelectorAll('.welcome-card-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
+                grid.querySelectorAll('.welcome-card-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open', 'open-up'); });
                 menu.classList.toggle('open');
+                // Si le menu déborde en bas de l'écran → ouvrir vers le haut
+                if (menu.classList.contains('open')) {
+                    menu.classList.remove('open-up');
+                    if (menu.getBoundingClientRect().bottom > window.innerHeight - 10) menu.classList.add('open-up');
+                }
             });
 
             menu.querySelector('[data-action="edit"]').addEventListener('click', (e) => {
@@ -5859,6 +5968,20 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         window.Capacitor.Plugins.App.getLaunchUrl().then(result => {
             if (result && result.url) handleDeepLink(result.url);
         }).catch(() => {});
+
+        // Bouton retour Android : ferme dialogs/modales → retour Home → minimise l'app
+        window.Capacitor.Plugins.App.addListener('backButton', () => {
+            // 1. Dialog dynamique ouvert (customAlert/customConfirm/action sheets) ?
+            const dialogs = document.querySelectorAll('.dialog-overlay');
+            if (dialogs.length) { dialogs[dialogs.length - 1].remove(); return; }
+            // 2. Modale statique active ?
+            const modal = document.querySelector('.modal-overlay.active');
+            if (modal) { modal.classList.remove('active'); return; }
+            // 3. Pas sur Home → retour Home
+            if (currentTab !== 'home') { switchTab('home'); return; }
+            // 4. Sur Home → minimiser (pas exitApp : préserve une conversation en cours)
+            window.Capacitor.Plugins.App.minimizeApp();
+        });
     }
 
     // ════════════════════════════════════════════════
@@ -6260,6 +6383,13 @@ Règles STRICTES :
         const personaInfo = persona.personaInfo || '';
         if (personaInfo.trim()) {
             fullInstructions += `\n\n# Informations spécifiques que tu connais sur l'utilisateur\n${personaInfo}`;
+        }
+        // On reconnect: inject recent exchanges so the AI doesn't lose context
+        if (isReconnecting && recentTranscriptContext.length > 0) {
+            const lines = recentTranscriptContext.map(m =>
+                `${m.role === 'ai' ? (persona?.name || 'IA') : 'Utilisateur'}: ${m.text}`
+            ).join('\n');
+            fullInstructions += `\n\n# Conversation en cours — contexte à restaurer\nLa connexion a été interrompue brièvement. Reprends la conversation naturellement sans te réintroduire ni répéter ce qui a déjà été dit :\n${lines}`;
         }
         return fullInstructions;
     }
@@ -7139,11 +7269,12 @@ Règles STRICTES :
             case 'session.created':
                 break;
             case 'session.updated':
-                // Envoyer la salutation initiale si configuré
-                if (persona && persona.greeting !== 'user' && ws && ws.readyState === WebSocket.OPEN) {
+                // Envoyer la salutation initiale — seulement au premier démarrage, pas sur reconnexion
+                if (!isReconnecting && persona && persona.greeting !== 'user' && ws && ws.readyState === WebSocket.OPEN) {
                     waitingGreeting = true;
                     ws.send(JSON.stringify({ type: 'response.create' }));
                 } else {
+                    isReconnecting = false;
                     micReady = true;
                 }
                 break;
@@ -7176,28 +7307,35 @@ Règles STRICTES :
             // Transcription user
             case 'conversation.item.input_audio_transcription.completed':
                 if (data.transcript && data.transcript.trim()) {
-                    // Insert user message BEFORE the current AI response to maintain correct order
-                    const el = document.getElementById('transcript');
-                    const placeholder = el.querySelector('.transcript-empty');
-                    if (placeholder) placeholder.remove();
-
-                    const msg = document.createElement('div');
-                    msg.className = 'transcript-msg user';
-                    msg.innerHTML = `<div class="sender">${esc('Moi')}</div><div class="text">${esc(data.transcript.trim())}</div>`;
-
-                    // If there's a current AI message being streamed, insert before it
-                    if (currentTranscriptAi && currentTranscriptAi.parentNode === el) {
-                        el.insertBefore(msg, currentTranscriptAi);
+                    recentTranscriptContext.push({ role: 'user', text: data.transcript.trim() });
+                    if (recentTranscriptContext.length > 12) recentTranscriptContext.shift();
+                    if (currentTranscriptUserPlaceholder) {
+                        // Fill the placeholder created at speech_started — preserves correct order
+                        currentTranscriptUserPlaceholder.querySelector('.text').textContent = data.transcript.trim();
+                        currentTranscriptUserPlaceholder = null;
                     } else {
-                        el.appendChild(msg);
+                        // Fallback: no placeholder (shouldn't happen), insert as best we can
+                        const el = document.getElementById('transcript');
+                        el.querySelector('.transcript-empty')?.remove();
+                        const msg = document.createElement('div');
+                        msg.className = 'transcript-msg user';
+                        msg.innerHTML = `<div class="sender">${esc('Moi')}</div><div class="text">${esc(data.transcript.trim())}</div>`;
+                        if (currentTranscriptAi?.parentNode === el) el.insertBefore(msg, currentTranscriptAi);
+                        else el.appendChild(msg);
                     }
                     scrollTranscript();
+                } else if (currentTranscriptUserPlaceholder) {
+                    // Empty transcription — remove the placeholder silently
+                    currentTranscriptUserPlaceholder.remove();
+                    currentTranscriptUserPlaceholder = null;
                 }
                 break;
 
             case 'input_audio_buffer.speech_started':
                 stopPlayback();
                 setStatus(t('status_listening'), 'connected');
+                // Placeholder positionné ICI — avant que l'IA commence à répondre
+                currentTranscriptUserPlaceholder = addTranscriptMessage('Moi', '...', 'user');
                 break;
 
             case 'input_audio_buffer.speech_stopped':
@@ -7215,6 +7353,19 @@ Règles STRICTES :
                     totalInputTokens += data.response.usage.input_tokens || 0;
                     totalOutputTokens += data.response.usage.output_tokens || 0;
                     updateTokenCounter();
+                }
+                // Track final AI text for reconnect context
+                if (data.response?.output) {
+                    for (const item of data.response.output) {
+                        for (const part of (item.content || [])) {
+                            const ft = (part.transcript || part.text || '').trim();
+                            if (ft) {
+                                recentTranscriptContext.push({ role: 'ai', text: ft });
+                                if (recentTranscriptContext.length > 12) recentTranscriptContext.shift();
+                                break;
+                            }
+                        }
+                    }
                 }
                 // Fallback transcript: if no delta events arrived, recover from final output
                 if (!hadAiTranscriptThisTurn && data.response?.output) {
@@ -8333,15 +8484,17 @@ Langue : ${lang}`;
         overlay.querySelector('#_exportCloseBtn').addEventListener('click', () => overlay.remove());
     }
 
+    let _copyBtnLocked = false;
     document.getElementById('copyTranscriptBtn').addEventListener('click', async () => {
+        if (_copyBtnLocked) return;
+        _copyBtnLocked = true;
         const btn = document.getElementById('copyTranscriptBtn');
-        if (btn.classList.contains('copied')) return;
         const text = isTranscripteurMode ? getTranscripteurText() : getTranscriptText();
-        if (!text.trim()) { customAlert('Rien à copier.', { icon: '&#128203;' }); return; }
+        if (!text.trim()) { _copyBtnLocked = false; customAlert('Rien à copier.', { icon: '&#128203;' }); return; }
         const original = btn.innerHTML;
         btn.innerHTML = '<span class="icon">&#10003;</span> Copié !';
         btn.classList.add('copied');
-        setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 2000);
+        setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); _copyBtnLocked = false; }, 2000);
         try { await navigator.clipboard.writeText(text); } catch (err) {}
     });
 
@@ -8360,9 +8513,25 @@ Langue : ${lang}`;
             ? `zova-transcription-${new Date().toISOString().slice(0,10)}`
             : `zova-${personaName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${new Date().toISOString().slice(0,10)}`;
 
+        const buildChaptersSection = () => {
+            if (isTranscripteurMode) return '';
+            const personaId = persona?.id;
+            if (!personaId) return '';
+            const raw = localStorage.getItem('buddy_chapters_' + personaId);
+            if (!raw) return '';
+            try {
+                const chapters = JSON.parse(raw);
+                if (!Array.isArray(chapters) || chapters.length === 0) return '';
+                const lines = chapters.map((ch, i) =>
+                    `${i + 1}. ${ch.title}${ch.exchanges ? `  (${ch.exchanges})` : ''}\n   ${ch.summary || ''}`
+                ).join('\n');
+                return `CHAPITRES\n${lines}\n${'─'.repeat(40)}\n\n`;
+            } catch { return ''; }
+        };
+
         const buildHeader = () => isTranscripteurMode
             ? `Transcription Zova\n${date}\nDurée : ${timerText}\n${'─'.repeat(40)}\n\n`
-            : `Conversation avec ${personaName}\n${date}\nModèle : ${model}\nDurée : ${timerText}${costText ? `\nCoût estimé : ${costText}` : ''}\n${'─'.repeat(40)}\n\n`;
+            : `Conversation avec ${personaName}\n${date}\nModèle : ${model}\nDurée : ${timerText}${costText ? `\nCoût estimé : ${costText}` : ''}\n${'─'.repeat(40)}\n\n${buildChaptersSection()}`;
 
         const choice = await showTranscriptExportSheet(rawText, baseName + '.txt');
         if (choice === 'cancel') return;
@@ -8397,6 +8566,7 @@ Langue : ${lang}`;
     });
 
     function stopConversation(analyzeInsights = false) {
+        recentTranscriptContext = [];
         // Clean up Groq pipeline
         if (groqMediaRecorder && groqMediaRecorder.state !== 'inactive') {
             groqRecordingActive = false;
