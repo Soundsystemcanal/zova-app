@@ -2552,6 +2552,7 @@ Minimum version required to store current data is: `+i+`.
         <button class="config-screen-btn" id="viewProfileBtn">🪪 <span data-i18n="config_view_profile">Voir le profil</span></button>
         <button class="config-screen-btn" id="clearProfileBtn" style="color:var(--danger)">🗑️ <span data-i18n="config_clear_profile">Effacer le profil</span></button>
         <button id="viewGlobalProfileBtn" style="background:none;border:none;color:var(--text-muted);font-size:0.78rem;cursor:pointer;padding:4px 0;text-align:left;width:100%;">↓ <span id="viewGlobalProfileLabel">Voir / effacer le profil général</span></button>
+        <button class="config-screen-btn" id="exportProfileMdBtn">📄 <span data-i18n="config_export_profile_md">Exporter mon profil (.md)</span></button>
       </div>
 
       <!-- Follow-ups / Engagements -->
@@ -7444,6 +7445,34 @@ Format : [{"title":"...","summary":"...","exchanges":"..."}]`;
         localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
     }
 
+    function profileToMarkdown(p) {
+        const nameL = LANG === 'es' ? 'Nombre' : LANG === 'en' ? 'Name' : 'Nom';
+        const langL = LANG === 'es' ? 'Idiomas' : LANG === 'en' ? 'Languages' : 'Langues';
+        const styleL = LANG === 'es' ? 'Estilo' : LANG === 'en' ? 'Style' : 'Style';
+        const topicL = LANG === 'es' ? 'Temas' : LANG === 'en' ? 'Topics' : 'Sujets';
+        const factsL = LANG === 'es' ? 'Datos' : LANG === 'en' ? 'Facts' : 'Infos';
+        const goalsL = LANG === 'es' ? 'Objetivos' : LANG === 'en' ? 'Goals' : 'Objectifs';
+        const updL = LANG === 'es' ? 'Actualizado' : LANG === 'en' ? 'Updated' : 'Mis à jour';
+        const lines = ['# Zova — ' + (LANG === 'es' ? 'Mi perfil' : LANG === 'en' ? 'My profile' : 'Mon profil'), ''];
+        if (p.name) lines.push(`**${nameL}:** ${p.name}`, '');
+        if (p.languages?.length) lines.push(`**${langL}:** ${p.languages.join(', ')}`, '');
+        if (p.style) lines.push(`**${styleL}:** ${p.style}`, '');
+        if (p.topics?.length) lines.push(`**${topicL}:** ${p.topics.join(', ')}`, '');
+        if (p.facts?.length) lines.push(`## ${factsL}`, ...p.facts.map(f => `- ${f}`), '');
+        if (p.goals?.length) lines.push(`## ${goalsL}`, ...p.goals.map(g => `- ${g}`), '');
+        if (p.lastUpdated) lines.push('', `_${updL}: ${p.lastUpdated}_`);
+        return lines.join('\n');
+    }
+
+    async function exportUserProfileMd() {
+        const p = getUserProfile();
+        if (!profileHasContent(p)) {
+            customAlert(t('profile_none'), { title: '👤 ' + t('config_section_profile'), icon: '👤' });
+            return;
+        }
+        await exportJsonFile(profileToMarkdown(p), 'zova-profil.md');
+    }
+
     function profileHasContent(p) {
         if (!p) return false;
         return (p.name || (p.facts && p.facts.length) || (p.topics && p.topics.length) || p.style);
@@ -10913,6 +10942,8 @@ Règles de format :
             { title: '👤 ' + t('config_section_profile'), icon: '🌐' }
         );
     });
+
+    document.getElementById('exportProfileMdBtn').addEventListener('click', exportUserProfileMd);
 
     // PIN buttons in Config
     document.getElementById('setPinBtn').addEventListener('click', () => showPinScreen('set'));
