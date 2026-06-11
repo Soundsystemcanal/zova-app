@@ -253,38 +253,6 @@
         .step h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; color: var(--text); }
         .step p { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
 
-        /* MANUEL */
-        .manual-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-        .manual-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px;
-        }
-        .manual-card h3 {
-            font-size: 0.95rem;
-            font-weight: 700;
-            margin-bottom: 14px;
-            color: var(--text);
-        }
-        .manual-card ul { list-style: none; padding: 0; }
-        .manual-card ul li {
-            font-size: 0.875rem;
-            color: var(--muted);
-            padding: 5px 0;
-            border-bottom: 1px solid rgba(139,92,246,0.08);
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            line-height: 1.5;
-        }
-        .manual-card ul li:last-child { border-bottom: none; }
-        .manual-card ul li::before { content: "›"; color: var(--accent); flex-shrink: 0; font-weight: 700; }
-
         /* CTA */
         .cta {
             text-align: center;
@@ -368,6 +336,23 @@
             font-weight: 700;
             box-shadow: 0 2px 12px rgba(139,92,246,0.35);
         }
+        .topnav-guide {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #f3efff;
+            text-decoration: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+            padding: 5px 14px;
+            border: 1px solid rgba(139,92,246,0.55);
+            background: rgba(139,92,246,0.18);
+            border-radius: 30px;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+        }
+        .topnav-guide:hover { background: rgba(139,92,246,0.32); color: #fff; border-color: rgba(139,92,246,0.8); }
 
         @media (max-width: 560px) {
             .hero { padding: 80px 20px 80px; }
@@ -413,10 +398,13 @@
 <!-- TOPNAV -->
 <nav class="topnav">
     <a href="#" class="topnav-logo">ZOVA</a>
-    <div class="lang-switcher">
-        <button class="lang-btn" data-lang="fr">FR</button>
-        <button class="lang-btn" data-lang="en">EN</button>
-        <button class="lang-btn" data-lang="es">ES</button>
+    <div style="display:flex; align-items:center; gap:14px;">
+        <a href="support.html" class="topnav-guide" data-i18n="nav_guide">? Guide</a>
+        <div class="lang-switcher">
+            <button class="lang-btn" data-lang="fr">FR</button>
+            <button class="lang-btn" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="es">ES</button>
+        </div>
     </div>
 </nav>
 
@@ -473,78 +461,108 @@
   </div>
 
   <!-- FLUX COMPARATIF -->
-  <div style="display:grid; grid-template-columns:1fr 28px 1fr; gap:10px; align-items:start; margin-bottom:32px;">
+  <div style="max-width:440px; margin:0 auto 32px; background:rgba(139,92,246,.04); border:.5px solid rgba(139,92,246,.25); border-radius:16px; padding:18px 14px;">
 
-    <div style="background:rgba(255,80,80,.06); border:.5px solid rgba(255,80,80,.22); border-radius:14px; padding:16px 14px;">
-      <div style="text-align:center; margin-bottom:14px;">
-        <span data-i18n="w_others" style="background:rgba(255,80,80,.12); color:#f87171; font-size:11px; font-weight:600; padding:3px 12px; border-radius:20px;">Les autres apps</span>
-      </div>
-      <div style="display:flex; flex-direction:column; align-items:center;">
-        <div style="background:#12122e; border:.5px solid rgba(255,255,255,.1); border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:7px; width:100%; box-sizing:border-box;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9a8cb0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-          <span data-i18n="w_you" style="font-size:14px; color:#e2d9f3;">Toi</span>
-        </div>
-        <div style="width:1.5px; height:12px; background:rgba(255,255,255,.1);"></div>
-        <div style="background:rgba(251,146,60,.1); border:.5px solid rgba(251,146,60,.4); border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:7px; width:100%; box-sizing:border-box;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          <div>
-            <p data-i18n="w_srv1" style="font-size:13px; color:#fdba74; margin:0; font-weight:600;">Serveur tiers</p>
-            <p data-i18n="w_srv1s" style="font-size:12px; color:#b8946a; margin:0;">Stocke tes données</p>
-          </div>
-        </div>
-        <div style="width:1.5px; height:12px; background:rgba(255,255,255,.1);"></div>
-        <div style="background:#12122e; border:.5px solid rgba(255,255,255,.1); border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:7px; width:100%; box-sizing:border-box;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9a8cb0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
-          <span data-i18n="w_ai" style="font-size:14px; color:#e2d9f3;">IA</span>
-        </div>
-        <div style="width:1.5px; height:12px; background:rgba(255,255,255,.1);"></div>
-        <div style="background:rgba(251,146,60,.1); border:.5px solid rgba(251,146,60,.4); border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:7px; width:100%; box-sizing:border-box;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          <div>
-            <p data-i18n="w_srv2" style="font-size:13px; color:#fdba74; margin:0; font-weight:600;">Retour via serveur</p>
-            <p data-i18n="w_srv2s" style="font-size:12px; color:#b8946a; margin:0;">Analyse tes échanges</p>
-          </div>
-        </div>
-        <div style="width:1.5px; height:12px; background:rgba(255,255,255,.1);"></div>
-        <div style="background:#12122e; border:.5px solid rgba(255,255,255,.1); border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:7px; width:100%; box-sizing:border-box;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9a8cb0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-          <span data-i18n="w_you" style="font-size:14px; color:#e2d9f3;">Toi</span>
-        </div>
-      </div>
-      <p data-i18n="w_exposed" style="font-size:13px; color:#f87171; text-align:center; margin:10px 0 0;">Tes conversations exposées</p>
+    <div style="display:grid; grid-template-columns:1fr 78px 78px; align-items:center; gap:0 8px; margin-bottom:4px; padding:0 4px;">
+      <span></span>
+      <span data-i18n="w_col_a" style="text-align:center; font-size:11px; font-weight:600; color:#f87171; background:rgba(248,113,113,.1); border-radius:20px; padding:4px 0;">Les autres</span>
+      <span style="text-align:center; font-size:11px; font-weight:600; color:#a78bfa; background:rgba(139,92,246,.18); border-radius:20px; padding:4px 0;">Zova</span>
     </div>
 
-    <div style="display:flex; align-items:center; justify-content:center; padding-top:44px;">
-      <div style="width:24px; height:24px; background:rgba(139,92,246,.15); border-radius:50%; display:flex; align-items:center; justify-content:center;">
-        <span style="font-size:11px; font-weight:700; color:#8b5cf6;">VS</span>
-      </div>
+    <div style="display:grid; grid-template-columns:1fr 78px 78px; align-items:center; gap:0 8px; padding:13px 4px; border-bottom:.5px solid rgba(139,92,246,.13);">
+      <span style="display:flex; align-items:center; gap:9px; font-size:14px; color:#e2d9f3;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span data-i18n="w_r1_l">Tes données</span>
+      </span>
+      <span style="text-align:center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <span data-i18n="w_r1_a" style="display:block; margin-top:2px; font-size:11.5px; color:#9a8cb0;">Serveur tiers</span>
+      </span>
+      <span style="text-align:center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span data-i18n="w_r1_z" style="display:block; margin-top:2px; font-size:11.5px; color:#c4b8e0;">Sur ton tél.</span>
+      </span>
     </div>
 
-    <div style="background:rgba(139,92,246,.06); border:.5px solid rgba(139,92,246,.35); border-radius:14px; padding:16px 14px;">
-      <div style="text-align:center; margin-bottom:14px;">
-        <span style="background:rgba(139,92,246,.2); color:#a78bfa; font-size:11px; font-weight:600; padding:3px 12px; border-radius:20px;">Zova</span>
-      </div>
-      <div style="display:flex; flex-direction:column; align-items:center;">
-        <div style="background:rgba(139,92,246,.12); border:.5px solid rgba(139,92,246,.4); border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:7px; width:100%; box-sizing:border-box;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-          <span data-i18n="w_you" style="font-size:14px; color:#e2d9f3;">Toi</span>
-        </div>
-        <div style="width:1.5px; height:12px; background:rgba(139,92,246,.4);"></div>
-        <div style="background:rgba(139,92,246,.15); border:1px solid rgba(139,92,246,.6); border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:7px; width:100%; box-sizing:border-box;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
-          <div>
-            <p data-i18n="w_direct" style="font-size:13px; color:#e2d9f3; margin:0; font-weight:600;">IA — directement</p>
-            <p style="font-size:14px; color:#e2d9f3; margin:0;">OpenAI · Gemini · Groq…</p>
-          </div>
-        </div>
-        <div style="width:1.5px; height:12px; background:rgba(139,92,246,.4);"></div>
-        <div style="background:rgba(139,92,246,.12); border:.5px solid rgba(139,92,246,.4); border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:7px; width:100%; box-sizing:border-box;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-          <span data-i18n="w_you" style="font-size:14px; color:#e2d9f3;">Toi</span>
-        </div>
-      </div>
-      <p data-i18n="w_private" style="font-size:13px; color:#a78bfa; text-align:center; margin:10px 0 0;">Personne d'autre n'écoute</p>
+    <div style="display:grid; grid-template-columns:1fr 78px 78px; align-items:center; gap:0 8px; padding:13px 4px; border-bottom:.5px solid rgba(139,92,246,.13);">
+      <span style="display:flex; align-items:center; gap:9px; font-size:14px; color:#e2d9f3;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        <span data-i18n="w_r2_l">Choix de l'IA</span>
+      </span>
+      <span style="text-align:center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <span data-i18n="w_r2_a" style="display:block; margin-top:2px; font-size:11.5px; color:#9a8cb0;">Imposée</span>
+      </span>
+      <span style="text-align:center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span data-i18n="w_r2_z" style="display:block; margin-top:2px; font-size:11.5px; color:#c4b8e0;">OpenAI·Gemini…</span>
+      </span>
     </div>
+
+    <div style="display:grid; grid-template-columns:1fr 78px 78px; align-items:center; gap:0 8px; padding:13px 4px; border-bottom:.5px solid rgba(139,92,246,.13);">
+      <span style="display:flex; align-items:center; gap:9px; font-size:14px; color:#e2d9f3;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span data-i18n="w_r3_l">Coût</span>
+      </span>
+      <span style="text-align:center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.4" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span data-i18n="w_r3_a" style="display:block; margin-top:2px; font-size:11.5px; color:#9a8cb0;">Abonnement</span>
+      </span>
+      <span style="text-align:center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span data-i18n="w_r3_z" style="display:block; margin-top:2px; font-size:11.5px; color:#c4b8e0;">~1$/mois</span>
+      </span>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 78px 78px; align-items:center; gap:0 8px; padding:13px 4px; border-bottom:.5px solid rgba(139,92,246,.13);">
+      <span style="display:flex; align-items:center; gap:9px; font-size:14px; color:#e2d9f3;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span data-i18n="w_r4_l">Personas</span>
+      </span>
+      <span style="text-align:center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.4" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span data-i18n="w_r4_a" style="display:block; margin-top:2px; font-size:11.5px; color:#9a8cb0;">Limité</span>
+      </span>
+      <span style="text-align:center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span data-i18n="w_r4_z" style="display:block; margin-top:2px; font-size:11.5px; color:#c4b8e0;">Illimités</span>
+      </span>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 78px 78px; align-items:center; gap:0 8px; padding:13px 4px; border-bottom:.5px solid rgba(139,92,246,.13);">
+      <span style="display:flex; align-items:center; gap:9px; font-size:14px; color:#e2d9f3;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        <span data-i18n="w_r5_l">Mémoire</span>
+      </span>
+      <span style="text-align:center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <span data-i18n="w_r5_a" style="display:block; margin-top:2px; font-size:11.5px; color:#9a8cb0;">Aucune</span>
+      </span>
+      <span style="text-align:center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span data-i18n="w_r5_z" style="display:block; margin-top:2px; font-size:11.5px; color:#c4b8e0;">Évolutive</span>
+      </span>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 78px 78px; align-items:center; gap:0 8px; padding:13px 4px;">
+      <span style="display:flex; align-items:center; gap:9px; font-size:14px; color:#e2d9f3;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span data-i18n="w_r6_l">Compte</span>
+      </span>
+      <span style="text-align:center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <span data-i18n="w_r6_a" style="display:block; margin-top:2px; font-size:11.5px; color:#9a8cb0;">Obligatoire</span>
+      </span>
+      <span style="text-align:center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span data-i18n="w_r6_z" style="display:block; margin-top:2px; font-size:11.5px; color:#c4b8e0;">Aucun</span>
+      </span>
+    </div>
+
+    <p style="font-size:12.5px; color:#9a8cb0; text-align:center; margin:16px 4px 0; line-height:1.5;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px; margin-right:4px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span data-i18n="w_foot">Tes clés, tes données, ton téléphone. Personne d'autre n'écoute.</span>
+    </p>
   </div>
 
   <!-- SÉPARATEUR -->
@@ -680,52 +698,6 @@
     </div>
   </div>
 
-  <!-- SÉPARATEUR -->
-  <div style="height:.5px; background:rgba(139,92,246,.2); margin:0 0 32px;"></div>
-
-  <!-- TROIS PILIERS -->
-  <div>
-    <div style="text-align:center; margin-bottom:20px;">
-      <p data-i18n="why_title" style="font-size:13px; font-weight:600; letter-spacing:.12em; color:#8b5cf6; margin:0 0 8px; text-transform:uppercase;">Pourquoi Zova ?</p>
-      <p data-i18n="w_why_title" style="font-size:22px; font-weight:800; font-family:'Syne',sans-serif; color:#e2d9f3; margin:0;">Ton IA. Ton téléphone. Tes règles.</p>
-    </div>
-    <div id="zova-pillars" style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px;">
-      <div style="background:#12122e; border:.5px solid rgba(139,92,246,.3); border-radius:14px; padding:16px 12px;">
-        <div style="width:38px; height:38px; background:rgba(139,92,246,.15); border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:12px;">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        </div>
-        <p style="font-size:26px; font-weight:700; color:#e2d9f3; margin:0 0 2px; line-height:1;">0</p>
-        <p data-i18n="p1_l" style="font-size:12px; font-weight:600; color:#c4b8e0; margin:0 0 6px;">serveur inter&shy;médiaire</p>
-        <p data-i18n="p1_d" style="font-size:11px; color:#9a8cb0; margin:0; line-height:1.5;">Clés API dans l'Android Keystore. Zova ne voit rien.</p>
-      </div>
-      <div style="background:#12122e; border:.5px solid rgba(236,72,153,.3); border-radius:14px; padding:16px 12px;">
-        <div style="width:38px; height:38px; background:rgba(236,72,153,.12); border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:12px;">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        </div>
-        <p data-i18n="p2_n" style="font-size:26px; font-weight:700; color:#e2d9f3; margin:0 0 2px; line-height:1;">~1$</p>
-        <p data-i18n="p2_l" style="font-size:12px; font-weight:600; color:#c4b8e0; margin:0 0 6px;">par mois</p>
-        <p data-i18n="p2_d" style="font-size:11px; color:#9a8cb0; margin:0; line-height:1.5;">Pay-as-you-go. Tu paies ce que tu utilises.</p>
-      </div>
-      <div style="background:#12122e; border:.5px solid rgba(139,92,246,.3); border-radius:14px; padding:16px 12px;">
-        <div style="width:38px; height:38px; background:rgba(139,92,246,.15); border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:12px;">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
-        </div>
-        <p style="font-size:26px; font-weight:700; color:#e2d9f3; margin:0 0 2px; line-height:1;">4</p>
-        <p data-i18n="p3_l" style="font-size:12px; font-weight:600; color:#c4b8e0; margin:0 0 6px;">providers</p>
-        <p data-i18n="p3_d" style="font-size:11px; color:#9a8cb0; margin:0; line-height:1.5;">OpenAI, Gemini, Ultravox, Groq. Change en un tap.</p>
-      </div>
-    </div>
-    <div style="margin-top:20px; display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
-      <span style="font-size:11px; color:#9a8cb0; display:flex; align-items:center; gap:5px;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-        Android · APK direct
-      </span>
-      <span style="font-size:11px; color:#9a8cb0; display:flex; align-items:center; gap:5px;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-        FR · EN · ES
-      </span>
-    </div>
-  </div>
 
 </section>
 <!-- ============================================================ -->
@@ -941,16 +913,16 @@
       hero_dl: '⬇  Télécharger Zova v3.3 · 6 Mo',
       hero_qr: 'Scanner pour télécharger',
       why_title: 'Pourquoi Zova ?',
-      w_label: 'Comment ça marche',
-      w_title: 'Ton IA parle directement.<br>Sans intermédiaire.',
-      w_others: 'Les autres apps',
-      w_you: 'Toi',
-      w_srv1: 'Serveur tiers', w_srv1s: 'Stocke tes données',
-      w_ai: 'IA',
-      w_srv2: 'Retour via serveur', w_srv2s: 'Analyse tes échanges',
-      w_exposed: 'Tes conversations exposées',
-      w_direct: 'IA — directement',
-      w_private: "Personne d'autre n'écoute",
+      w_label: 'Pourquoi Zova',
+      w_title: 'Six raisons. Une seule app.',
+      w_col_a: 'Les autres',
+      w_r1_l: 'Tes données', w_r1_a: 'Serveur tiers', w_r1_z: 'Sur ton tél.',
+      w_r2_l: "Choix de l'IA", w_r2_a: 'Imposée', w_r2_z: 'OpenAI·Gemini…',
+      w_r3_l: 'Coût', w_r3_a: 'Abonnement', w_r3_z: '~1$/mois',
+      w_r4_l: 'Personas', w_r4_a: 'Limité', w_r4_z: 'Illimités',
+      w_r5_l: 'Mémoire', w_r5_a: 'Aucune', w_r5_z: 'Évolutive',
+      w_r6_l: 'Compte', w_r6_a: 'Obligatoire', w_r6_z: 'Aucun',
+      w_foot: "Tes clés, tes données, ton téléphone. Personne d'autre n'écoute.",
       w_uc_label: 'Ce que tu peux faire',
       w_uc_title: "Parle. Zova s'occupe du reste.",
       w_mic: '🎙 Toi',
@@ -960,10 +932,6 @@
       u4_t: 'Documents & contrats', u4_q: '"Résume ce bail en 5 points clés, en simple"', u4_a: '"1. Durée 3 ans renouvelable. 2. Loyer indexé sur l\'IRL…"',
       u5_t: 'Apprentissage', u5_q: '"Explique-moi la fusion nucléaire comme si j\'avais 15 ans"', u5_a: '"Imagine deux aimants qui fusionnent et libèrent une énergie…"',
       u6_t: 'Communication', u6_q: '"Rédige un email de refus poli pour cette offre"', u6_a: '"Objet : Suite à votre proposition — Madame, Monsieur…"',
-      w_why_title: 'Ton IA. Ton téléphone. Tes règles.',
-      p1_l: 'serveur inter&shy;médiaire', p1_d: "Clés API dans l'Android Keystore. Zova ne voit rien. Efface tes souvenirs au détail, un par un.",
-      p2_n: '~1$', p2_l: 'par mois', p2_d: 'Pay-as-you-go. Tu paies ce que tu utilises.',
-      p3_l: 'providers', p3_d: 'OpenAI, Gemini, Ultravox, Groq — et DeepSeek/Qwen pour le texte à bas coût. Change en un tap.',
       feat_title: 'Ce que Zova sait faire',
       f1_h: 'Mémoire intelligente', f1_p: 'Zova sélectionne les souvenirs les plus pertinents pour chaque conversation — par score de pertinence ET récence. Chaque persona a sa propre mémoire, indépendante des autres.',
       f2_h: 'Suivis d\'engagements', f2_p: 'Après chaque session, Zova détecte automatiquement tes engagements et les garde en mémoire pour les relancer naturellement à la prochaine conversation.',
@@ -982,28 +950,11 @@
       s2_h: 'Autoriser', s2_p: 'Paramètres → Apps → ton navigateur → <em>"Installer des applis inconnues"</em> → Autoriser. Puis ouvre le fichier APK.',
       s3_h: 'Configurer', s3_p: 'Ouvre Zova → Config → Clé API → colle ta clé <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> (gratuite). C\'est prêt !',
       s4_h: 'Mise à jour', s4_p: 'Déjà une version de Zova ? Installe le nouvel APK <strong>par-dessus</strong> : tes données, mémoires et clés API sont conservées (même app ID + signature). <strong>Ne désinstalle pas</strong> l\'ancienne version.',
-      manual_title: 'Manuel d\'utilisation',
-      m1_h: '🎤 Démarrer une conversation',
-      m1: ['Appuie sur le bouton central pour parler','L\'écran reste allumé pendant la conversation (WakeLock)','Si la connexion se coupe, Zova reconnecte automatiquement (3 tentatives)','Appuie à nouveau pour terminer la session'],
-      m2_h: '🎭 Personas',
-      m2: ['Appuie sur le nom de la persona dans l\'écran d\'accueil pour changer','Config → Personas → "+" pour créer un assistant sur mesure','Chaque persona a son propre prompt, voix, mémoire et profil','La persona Zova apprend à te connaître au fil des conversations'],
-      m3_h: '🧠 Mémoire et profil adaptatif',
-      m3: ['Après chaque session, Zova génère un résumé, met à jour le profil, détecte les engagements et les objectifs — en arrière-plan','Chaque persona a sa propre mémoire, profil, suivis et objectifs — indépendants','Dis "souviens-toi que…" pendant la conversation : Zova mémorise instantanément','Config → section "Profil [nom persona]" pour voir ou effacer le profil actif','Config → "Suivis" : engagements détectés post-session','Config → "Objectifs" : objectifs long terme et leur progression'],
-      m4_h: '📝 Transcription et export',
-      m4: ['La conversation s\'affiche en temps réel dans l\'onglet Transcription','Après la session : bouton "Exporter" pour partager le texte brut','Option "Nettoyer" : l\'IA corrige les erreurs STT et ajoute la ponctuation','Partage via n\'importe quelle app : email, WhatsApp, Notes, Drive…'],
-      m5_h: '💾 Backup et restore',
-      m5: ['Config → Exporter : partage via Drive/WhatsApp ou sauvegarde locale dans Zova','Inclut personas, mémoires, profils — option clés API en bonus','Config → Importer → "Sauvegardes Zova" pour restaurer sans chercher le fichier','Compatible Android 11+ (contourne les restrictions scoped storage)'],
-      m6_h: '🔐 Sécurité et PIN',
-      m6: ['Clés API chiffrées dans l\'Android Keystore matériel (jamais en clair)','Option PIN 4 chiffres pour verrouiller l\'accès à l\'app','Aucune donnée envoyée à des serveurs Zova — connexion directe au provider','Les clés ne quittent ton téléphone qu\'à l\'export si tu le demandes explicitement'],
-      m7_h: '⚙️ Providers et clés API',
-      m7: ['<strong>Groq</strong> (pour débuter) : <a href="https://console.groq.com/keys" target="_blank">console.groq.com</a> — quota gratuit','<strong>OpenAI</strong> : <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>','<strong>Gemini</strong> : <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com</a>','<strong>Ultravox</strong> : <a href="https://app.ultravox.ai" target="_blank">app.ultravox.ai</a>'],
-      m8_h: '❓ Dépannage rapide',
-      m8: ['Bouton "?" dans Config → FAQ complète FR/EN/ES intégrée dans l\'app','Pas de micro : Paramètres → Apps → Zova → Permissions → Micro → Autoriser','Voix muette : normal sur Android WebView — le texte s\'affiche quand même','Xiaomi : active "Débogage USB" + "Installer via USB" dans Options développeur'],
       cta_h: 'Prêt à reprendre le contrôle ?',
       cta_p: 'Tes pensées, ta voix, ton IA. Personne d\'autre.',
       cta_dl: '⬇  Télécharger Zova v3.3',
       footer: 'Zova v3.3  ·  par Xavier Bourdet  ·  <em>"Ton IA. Ton téléphone. Tes règles."</em>',
-      help_title: 'Besoin d\'aide&nbsp;?', help_sub: 'Manuel complet, questions fréquentes et dépannage installation.', help_btn: '📖&nbsp; Consulter le manuel', nav_guide: '📖 Guide',
+      help_title: 'Besoin d\'aide&nbsp;?', help_sub: 'Manuel complet, questions fréquentes et dépannage installation.', help_btn: '📖&nbsp; Consulter le manuel', nav_guide: '? Guide',
       lang_label: '🌐 Langue'
     },
     en: {
@@ -1016,16 +967,16 @@
       hero_dl: '⬇  Download Zova v3.3 · 6 MB',
       hero_qr: 'Scan to download',
       why_title: 'Why Zova?',
-      w_label: 'How it works',
-      w_title: 'Your AI talks directly.<br>No middleman.',
-      w_others: 'Other apps',
-      w_you: 'You',
-      w_srv1: 'Third-party server', w_srv1s: 'Stores your data',
-      w_ai: 'AI',
-      w_srv2: 'Back via server', w_srv2s: 'Analyzes your chats',
-      w_exposed: 'Your conversations exposed',
-      w_direct: 'AI — directly',
-      w_private: 'Nobody else is listening',
+      w_label: 'Why Zova',
+      w_title: 'Six reasons. One app.',
+      w_col_a: 'Others',
+      w_r1_l: 'Your data', w_r1_a: 'Third-party server', w_r1_z: 'On your phone',
+      w_r2_l: 'Choice of AI', w_r2_a: 'Locked in', w_r2_z: 'OpenAI·Gemini…',
+      w_r3_l: 'Cost', w_r3_a: 'Subscription', w_r3_z: '~$1/month',
+      w_r4_l: 'Personas', w_r4_a: 'Limited', w_r4_z: 'Unlimited',
+      w_r5_l: 'Memory', w_r5_a: 'None', w_r5_z: 'Evolving',
+      w_r6_l: 'Account', w_r6_a: 'Required', w_r6_z: 'None',
+      w_foot: 'Your keys, your data, your phone. Nobody else is listening.',
       w_uc_label: 'What you can do',
       w_uc_title: 'Speak. Zova handles the rest.',
       w_mic: '🎙 You',
@@ -1035,10 +986,6 @@
       u4_t: 'Documents & contracts', u4_q: '"Summarize this lease in 5 key points, in plain language"', u4_a: '"1. 3-year renewable term. 2. Rent indexed to inflation…"',
       u5_t: 'Learning', u5_q: '"Explain nuclear fusion like I\'m 15"', u5_a: '"Imagine two magnets merging and releasing energy…"',
       u6_t: 'Communication', u6_q: '"Write a polite rejection email for this offer"', u6_a: '"Subject: Regarding your proposal — Dear Sir or Madam…"',
-      w_why_title: 'Your AI. Your phone. Your rules.',
-      p1_l: 'middleman servers', p1_d: 'API keys in the Android Keystore. Zova sees nothing. Delete your memories one by one.',
-      p2_n: '~$1', p2_l: 'per month', p2_d: 'Pay-as-you-go. You pay for what you use.',
-      p3_l: 'providers', p3_d: 'OpenAI, Gemini, Ultravox, Groq — plus DeepSeek/Qwen for low-cost text. Switch in one tap.',
       feat_title: 'What Zova can do',
       f1_h: 'Smart memory', f1_p: 'Zova selects the most relevant memories for each conversation — by relevance score AND recency. Each persona has its own independent memory.',
       f2_h: 'Engagement follow-ups', f2_p: 'After each session, Zova automatically detects your commitments and keeps them in memory to naturally bring them up next conversation.',
@@ -1057,28 +1004,11 @@
       s2_h: 'Allow', s2_p: 'Settings → Apps → your browser → <em>"Install unknown apps"</em> → Allow. Then open the APK file.',
       s3_h: 'Configure', s3_p: 'Open Zova → Config → API Key → paste your <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> key (free). Done!',
       s4_h: 'Update', s4_p: 'Already have Zova? Install the new APK <strong>over it</strong>: your data, memories and API keys are kept (same app ID + signature). <strong>Don\'t uninstall</strong> the old version.',
-      manual_title: 'User Manual',
-      m1_h: '🎤 Start a conversation',
-      m1: ['Tap the central button to speak','Screen stays on during conversation (WakeLock)','If the connection drops, Zova reconnects automatically (3 attempts)','Tap again to end the session'],
-      m2_h: '🎭 Personas',
-      m2: ['Tap the persona name on the home screen to switch','Config → Personas → "+" to create a custom assistant','Each persona has its own prompt, voice, memory and profile','The Zova persona learns about you through conversations'],
-      m3_h: '🧠 Memory & adaptive profile',
-      m3: ['After each session, Zova generates a summary, updates the profile, detects commitments and goals — in the background','Each persona has its own memory, profile, follow-ups and goals — independent','Say "remember that…" during the conversation: Zova memorizes instantly','Config → "Profile [persona name]" to view or clear the active profile','Config → "Follow-ups": post-session commitments','Config → "Goals": long-term goals and their progress'],
-      m4_h: '📝 Transcription & export',
-      m4: ['Conversation displays in real time in the Transcription tab','After session: "Export" button to share raw text','Option "Clean": AI corrects STT errors and adds punctuation','Share via any app: email, WhatsApp, Notes, Drive…'],
-      m5_h: '💾 Backup & restore',
-      m5: ['Config → Export: share via Drive/WhatsApp or save locally in Zova','Includes personas, memories, profiles — API keys option as bonus','Config → Import → "Zova Backups" to restore without searching for the file','Compatible with Android 11+ (bypasses scoped storage restrictions)'],
-      m6_h: '🔐 Security & PIN',
-      m6: ['API keys encrypted in hardware Android Keystore (never in plaintext)','Optional 4-digit PIN to lock app access','No data sent to Zova servers — direct connection to provider','Keys only leave your phone at export if you explicitly request it'],
-      m7_h: '⚙️ Providers & API keys',
-      m7: ['<strong>Groq</strong> (to start): <a href="https://console.groq.com/keys" target="_blank">console.groq.com</a> — free quota','<strong>OpenAI</strong>: <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>','<strong>Gemini</strong>: <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com</a>','<strong>Ultravox</strong>: <a href="https://app.ultravox.ai" target="_blank">app.ultravox.ai</a>'],
-      m8_h: '❓ Quick troubleshooting',
-      m8: ['"?" button in Config → full FR/EN/ES FAQ built into the app','No mic: Settings → Apps → Zova → Permissions → Microphone → Allow','Silent voice: normal on Android WebView — text still displays','Xiaomi: enable "USB debugging" + "Install via USB" in Developer options'],
       cta_h: 'Ready to take back control?',
       cta_p: 'Your thoughts, your voice, your AI. Nobody else.',
       cta_dl: '⬇  Download Zova v3.3',
       footer: 'Zova v3.3  ·  by Xavier Bourdet  ·  <em>"Your AI. Your phone. Your rules."</em>',
-      help_title: 'Need help?', help_sub: 'Full manual, FAQ and installation troubleshooting.', help_btn: '📖&nbsp; Open the manual', nav_guide: '📖 Guide',
+      help_title: 'Need help?', help_sub: 'Full manual, FAQ and installation troubleshooting.', help_btn: '📖&nbsp; Open the manual', nav_guide: '? Guide',
       lang_label: '🌐 Language'
     },
     es: {
@@ -1091,16 +1021,16 @@
       hero_dl: '⬇  Descargar Zova v3.3 · 6 MB',
       hero_qr: 'Escanear para descargar',
       why_title: '¿Por qué Zova?',
-      w_label: 'Cómo funciona',
-      w_title: 'Tu IA habla directamente.<br>Sin intermediarios.',
-      w_others: 'Las otras apps',
-      w_you: 'Tú',
-      w_srv1: 'Servidor de terceros', w_srv1s: 'Almacena tus datos',
-      w_ai: 'IA',
-      w_srv2: 'Vuelta vía servidor', w_srv2s: 'Analiza tus conversaciones',
-      w_exposed: 'Tus conversaciones expuestas',
-      w_direct: 'IA — directamente',
-      w_private: 'Nadie más escucha',
+      w_label: 'Por qué Zova',
+      w_title: 'Seis razones. Una sola app.',
+      w_col_a: 'Las otras',
+      w_r1_l: 'Tus datos', w_r1_a: 'Servidor de terceros', w_r1_z: 'En tu móvil',
+      w_r2_l: 'Elección de IA', w_r2_a: 'Impuesta', w_r2_z: 'OpenAI·Gemini…',
+      w_r3_l: 'Coste', w_r3_a: 'Suscripción', w_r3_z: '~1$/mes',
+      w_r4_l: 'Personas', w_r4_a: 'Limitado', w_r4_z: 'Ilimitados',
+      w_r5_l: 'Memoria', w_r5_a: 'Ninguna', w_r5_z: 'Evolutiva',
+      w_r6_l: 'Cuenta', w_r6_a: 'Obligatoria', w_r6_z: 'Ninguna',
+      w_foot: 'Tus claves, tus datos, tu móvil. Nadie más escucha.',
       w_uc_label: 'Lo que puedes hacer',
       w_uc_title: 'Habla. Zova se encarga del resto.',
       w_mic: '🎙 Tú',
@@ -1110,10 +1040,6 @@
       u4_t: 'Documentos y contratos', u4_q: '"Resume este contrato de alquiler en 5 puntos clave, en simple"', u4_a: '"1. Duración 3 años renovable. 2. Renta indexada al IPC…"',
       u5_t: 'Aprendizaje', u5_q: '"Explícame la fusión nuclear como si tuviera 15 años"', u5_a: '"Imagina dos imanes que se fusionan y liberan una energía…"',
       u6_t: 'Comunicación', u6_q: '"Redacta un email de rechazo educado para esta oferta"', u6_a: '"Asunto: En respuesta a su propuesta — Estimados señores…"',
-      w_why_title: 'Tu IA. Tu teléfono. Tus reglas.',
-      p1_l: 'servidores inter&shy;mediarios', p1_d: 'Claves API en el Android Keystore. Zova no ve nada. Borra tus recuerdos uno a uno.',
-      p2_n: '~1$', p2_l: 'al mes', p2_d: 'Pay-as-you-go. Pagas lo que usas.',
-      p3_l: 'proveedores', p3_d: 'OpenAI, Gemini, Ultravox, Groq — y DeepSeek/Qwen para texto a bajo coste. Cambia en un tap.',
       feat_title: 'Lo que Zova sabe hacer',
       f1_h: 'Memoria inteligente', f1_p: 'Zova selecciona los recuerdos más relevantes para cada conversación — por puntuación de pertinencia Y recencia. Cada persona tiene su propia memoria independiente.',
       f2_h: 'Seguimiento de compromisos', f2_p: 'Después de cada sesión, Zova detecta automáticamente tus compromisos y los guarda para retomarlos naturalmente en la próxima conversación.',
@@ -1132,28 +1058,11 @@
       s2_h: 'Permitir', s2_p: 'Ajustes → Apps → tu navegador → <em>"Instalar apps desconocidas"</em> → Permitir. Luego abre el archivo APK.',
       s3_h: 'Configurar', s3_p: 'Abre Zova → Config → Clave API → pega tu clave <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq</a> (gratis). ¡Listo!',
       s4_h: 'Actualización', s4_p: '¿Ya tienes Zova? Instala el nuevo APK <strong>encima</strong>: se conservan tus datos, memorias y claves API (mismo ID de app + firma). <strong>No desinstales</strong> la versión anterior.',
-      manual_title: 'Manual de uso',
-      m1_h: '🎤 Iniciar una conversación',
-      m1: ['Pulsa el botón central para hablar','La pantalla permanece encendida durante la conversación (WakeLock)','Si la conexión se corta, Zova reconecta automáticamente (3 intentos)','Pulsa de nuevo para terminar la sesión'],
-      m2_h: '🎭 Personas',
-      m2: ['Pulsa el nombre de la persona en la pantalla de inicio para cambiar','Config → Personas → "+" para crear un asistente personalizado','Cada persona tiene su propio prompt, voz, memoria y perfil','La persona Zova aprende a conocerte a lo largo de las conversaciones'],
-      m3_h: '🧠 Memoria y perfil adaptativo',
-      m3: ['Después de cada sesión, Zova genera un resumen, actualiza el perfil, detecta compromisos y objetivos — en segundo plano','Cada persona tiene su propia memoria, perfil, seguimientos y objetivos — independientes','Di "recuerda que…" durante la conversación: Zova memoriza instantáneamente','Config → sección "Perfil [nombre persona]" para ver o borrar el perfil activo','Config → "Seguimientos": compromisos detectados post-sesión','Config → "Objetivos": objetivos a largo plazo y su progreso'],
-      m4_h: '📝 Transcripción y exportación',
-      m4: ['La conversación se muestra en tiempo real en la pestaña Transcripción','Tras la sesión: botón "Exportar" para compartir el texto','Opción "Limpiar": la IA corrige errores de STT y añade puntuación','Comparte via cualquier app: email, WhatsApp, Notas, Drive…'],
-      m5_h: '💾 Backup y restauración',
-      m5: ['Config → Exportar: comparte via Drive/WhatsApp o guarda localmente en Zova','Incluye personas, memorias, perfiles — opción claves API como bonus','Config → Importar → "Copias Zova" para restaurar sin buscar el archivo','Compatible con Android 11+ (evita las restricciones de scoped storage)'],
-      m6_h: '🔐 Seguridad y PIN',
-      m6: ['Claves API cifradas en Android Keystore de hardware (nunca en texto claro)','Opción PIN de 4 dígitos para bloquear el acceso a la app','Ningún dato enviado a servidores Zova — conexión directa al proveedor','Las claves solo salen de tu teléfono al exportar si lo solicitas explícitamente'],
-      m7_h: '⚙️ Proveedores y claves API',
-      m7: ['<strong>Groq</strong> (para empezar): <a href="https://console.groq.com/keys" target="_blank">console.groq.com</a> — cuota gratuita','<strong>OpenAI</strong>: <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>','<strong>Gemini</strong>: <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com</a>','<strong>Ultravox</strong>: <a href="https://app.ultravox.ai" target="_blank">app.ultravox.ai</a>'],
-      m8_h: '❓ Solución rápida de problemas',
-      m8: ['Botón "?" en Config → FAQ completa FR/EN/ES integrada en la app','Sin micrófono: Ajustes → Apps → Zova → Permisos → Micrófono → Permitir','Voz silenciosa: normal en Android WebView — el texto se muestra igual','Xiaomi: activa "Depuración USB" + "Instalar via USB" en Opciones de desarrollador'],
       cta_h: '¿Listo para recuperar el control?',
       cta_p: 'Tus pensamientos, tu voz, tu IA. Nadie más.',
       cta_dl: '⬇  Descargar Zova v3.3',
       footer: 'Zova v3.3  ·  por Xavier Bourdet  ·  <em>"Tu IA. Tu teléfono. Tus reglas."</em>',
-      help_title: '¿Necesitas ayuda?', help_sub: 'Manual completo, preguntas frecuentes y solución de problemas de instalación.', help_btn: '📖&nbsp; Ver el manual', nav_guide: '📖 Guía',
+      help_title: '¿Necesitas ayuda?', help_sub: 'Manual completo, preguntas frecuentes y solución de problemas de instalación.', help_btn: '📖&nbsp; Ver el manual', nav_guide: '? Guía',
       lang_label: '🌐 Idioma'
     }
   };
@@ -1213,19 +1122,6 @@
       if(!steps[i]) return;
       var h3 = steps[i].querySelector('h3'); var p = steps[i].querySelector('p');
       if(h3) h3.textContent = d[0]; if(p) p.innerHTML = d[1];
-    });
-
-    // Manual cards
-    var mc = qa('.manual-card');
-    var mcData = [
-      [t.m1_h, t.m1],[t.m2_h, t.m2],[t.m3_h, t.m3],[t.m4_h, t.m4],
-      [t.m5_h, t.m5],[t.m6_h, t.m6],[t.m7_h, t.m7],[t.m8_h, t.m8]
-    ];
-    mcData.forEach(function(d, i){
-      if(!mc[i]) return;
-      var h3 = mc[i].querySelector('h3'); if(h3) h3.textContent = d[0];
-      var lis = mc[i].querySelectorAll('li');
-      d[1].forEach(function(txt, j){ if(lis[j]) lis[j].innerHTML = txt; });
     });
 
     // CTA
