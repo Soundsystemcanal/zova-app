@@ -3282,6 +3282,7 @@ Minimum version required to store current data is: `+i+`.
             wiz_q4_title: 'Dale un nombre',
             wiz_q4_ph: 'Ej: Luna',
             wiz_q4_suggest: '✨ Propón uno',
+            wiz_q4_ai: '✨ La IA elegirá un nombre',
             wiz_q5_title: 'Estilo de respuestas',
             wiz_err: 'Error al generar. Reintenta o continúa en manual.',
             wiz_retry: 'Reintentar',
@@ -3417,6 +3418,7 @@ Minimum version required to store current data is: `+i+`.
             wiz_q4_title: 'Give it a name',
             wiz_q4_ph: 'E.g. Luna',
             wiz_q4_suggest: '✨ Suggest one',
+            wiz_q4_ai: '✨ AI will pick a name',
             wiz_q5_title: 'Response style',
             wiz_err: 'Generation failed. Retry or continue manually.',
             wiz_retry: 'Retry',
@@ -3552,6 +3554,7 @@ Minimum version required to store current data is: `+i+`.
             wiz_q4_title: 'Donne-lui un nom',
             wiz_q4_ph: 'Ex : Luna',
             wiz_q4_suggest: '✨ Propose-m\'en un',
+            wiz_q4_ai: '✨ L\'IA choisira un nom',
             wiz_q5_title: 'Style de réponses',
             wiz_err: 'Échec de la génération. Réessaie ou continue en manuel.',
             wiz_retry: 'Réessayer',
@@ -5337,7 +5340,9 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         else { generatePersonaFromWizard(); }
     });
     document.getElementById('wizSuggestName').addEventListener('click', () => {
-        document.getElementById('wizName').value = '';
+        const nameInput = document.getElementById('wizName');
+        nameInput.value = '';
+        nameInput.placeholder = t('wiz_q4_ai'); // le champ vide explique que l'IA nommera
         wizardData.name = '';
         document.getElementById('wizSuggestName').textContent = '✓ ' + t('wiz_q4_suggest');
     });
