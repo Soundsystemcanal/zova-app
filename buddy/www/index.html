@@ -5558,6 +5558,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
 
     function closePersonaWizard() {
         wizGenerating = false;
+        wizardStep = 0; // évite qu'un index d'étape périmé fuie vers une réouverture (2.6)
         document.getElementById('personaWizardModal').classList.remove('active');
     }
 
