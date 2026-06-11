@@ -18,7 +18,23 @@
 | `main` | 🚧 En desarrollo v3 | Nouvelles features widget + mémoire proactive |
 | `v2-beta` | 🗂️ Archivée | Export/import, mémoire, profil |
 
-## Estado (2026-06-10)
+## Estado (2026-06-11)
+
+### v3.3 — 🇨🇳 Providers DeepSeek/Qwen + 🔒 Privacidad (main, non publié) — testé sur Xiaomi 14T (CDP + navegador)
+**Bloque 4 — DeepSeek + Qwen (batch/texto, NO voz tiempo real)**
+✅ Claves en Keystore — `get/setDeepseekApiKey`, `get/setQwenApiKey` (`SecureStore`, prefijos `buddy_deepseekApiKey`/`buddy_qwenApiKey`) + inputs en el modal API (`#deepseekApiKeyInput`/`#qwenApiKeyInput`)
+✅ APIs compatibles OpenAI — `COMPAT_PROVIDERS` registry + helper DRY `postOpenAIFormat()` (fetch `/chat/completions`). DeepSeek `api.deepseek.com/v1` (`deepseek-chat`/`deepseek-reasoner`), Qwen `dashscope-intl.aliyuncs.com/compatible-mode/v1` (`qwen-2.5-72b-instruct`)
+✅ `chatCompletion({systemPrompt,userPrompt,temperature,maxTokens,preferReasoning})` — cadena de fallback: DeepSeek-R1 (si `preferReasoning`) → OpenAI → Gemini → DeepSeek-chat → Qwen ; `hasAnyApiKey()` reconoce configs solo-DeepSeek/Qwen
+✅ Perfil + consolidación de memoria ruteados a DeepSeek-R1 (`preferReasoning:true` en `updateUserProfile`/`consolidatePersonaMemories`). Plan : `docs/superpowers/plans/2026-06-11-v3.3-deepseek-qwen.md`
+
+**Bloque 5 / Fase B — Privacidad**
+✅ Contraste de Config — clase `.config-section-title` (`#f5f3ff` + text-shadow), reemplaza el inline `--text-muted` casi invisible en los 8 títulos de sección
+✅ Export perfil `.md` — `profileToMarkdown()` + `exportUserProfileMd()` (botón en sección Profil) vía `exportJsonFile()` (Filesystem+Share)
+✅ Borrado total — sección 🔒 Privacidad + `wipeAllAiData()` : barre las 7 capas de memoria (+`buddy_chapters_*`) de TODAS las personas, **preserva** `buddy_personas` + claves API (Keystore). Doble confirmación + refresco de contadores. Plan : `docs/superpowers/plans/2026-06-11-v3.3-faseB-privacidad.md`
+✅ Trilingue ES/EN/FR (`config_section_privacy`, `config_wipe_all`, `config_export_profile_md`, `wipe_all_confirm/done`, `config_privacy_hint`)
+
+**Fix — Botón Guardar fiable (móvil)**
+✅ `.btn-save` ya no pierde el primer toque — `preventDefault` global en pointerdown/mousedown mantiene el foco del input (evita el reflow del teclado Android que "comía" el tap) ; el click sí se dispara. `showSavedToast()` (feedback ✅) + textarea de "Mis informaciones" 250→140px (botón sobre el teclado). Aplica a TODOS los botones Guardar (persona, API, budget…)
 
 ### v3.2 — 🪄 Création de persona guidée (main, non publié) — testé sur Xiaomi 14T (CDP + génération réelle)
 ✅ Feuille de choix — « + Nuevo » ouvre `openPersonaChoiceSheet()` (`.dialog-overlay`) : Création guidée ✨ ou Configuration manuelle ⚙️ (mode manuel inchangé)
