@@ -2727,6 +2727,36 @@ Minimum version required to store current data is: `+i+`.
                             </ol>
                             <p>Groq est <strong>gratuit</strong> avec un quota très généreux — idéal pour commencer.</p>
                         </div>
+
+                        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+                        <label for="deepseekApiKeyInput">Clé API DeepSeek</label>
+                        <input type="password" id="deepseekApiKeyInput" placeholder="sk-...">
+                        <div class="hint">Pour les tâches texte (mémoire, wizard) — compatible OpenAI, ~$0.14/M tokens.</div>
+                        <div id="deepseekApiKeyStatus"></div>
+                        <div class="api-guide" style="margin:4px 0">
+                            <p><strong>Comment obtenir une clé API DeepSeek :</strong></p>
+                            <ol>
+                                <li>Créez un compte sur <a href="https://platform.deepseek.com" target="_blank" rel="noopener">platform.deepseek.com</a></li>
+                                <li>Rendez-vous dans <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">API Keys</a></li>
+                                <li>Cliquez sur "Create new API key"</li>
+                                <li>Copiez la clé générée et collez-la ci-dessus</li>
+                            </ol>
+                        </div>
+
+                        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+                        <label for="qwenApiKeyInput">Clé API Qwen (Alibaba DashScope)</label>
+                        <input type="password" id="qwenApiKeyInput" placeholder="sk-...">
+                        <div class="hint">Qwen 2.5 72B — robuste en ES/FR/EN, compatible OpenAI. Endpoint international.</div>
+                        <div id="qwenApiKeyStatus"></div>
+                        <div class="api-guide" style="margin:4px 0">
+                            <p><strong>Comment obtenir une clé API Qwen :</strong></p>
+                            <ol>
+                                <li>Créez un compte sur <a href="https://www.alibabacloud.com/help/en/model-studio/" target="_blank" rel="noopener">Alibaba Cloud Model Studio</a></li>
+                                <li>Activez DashScope et créez une clé API</li>
+                                <li>Copiez la clé générée et collez-la ci-dessus</li>
+                            </ol>
+                            <p>Utilise l'endpoint <code>dashscope-intl</code> (hors Chine continentale).</p>
+                        </div>
                     </div>
 
                     <!-- Panel Modèles -->
@@ -5074,6 +5104,8 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         geminiApiKeyInput.value = await getGeminiApiKey();
         document.getElementById('ultravoxApiKeyInput').value = await getUltravoxApiKey();
         document.getElementById('groqApiKeyInput').value = await getGroqApiKey();
+        document.getElementById('deepseekApiKeyInput').value = await getDeepseekApiKey();
+        document.getElementById('qwenApiKeyInput').value = await getQwenApiKey();
         document.getElementById('realtimeModelSelect').value = getRealtimeModel();
         updateModelSelectDisabled();
         const limit = getBudgetLimit();
@@ -5129,8 +5161,10 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         const geminiKey = geminiApiKeyInput.value.trim();
         const ultravoxKeyVal = document.getElementById('ultravoxApiKeyInput').value.trim();
         const groqKey = document.getElementById('groqApiKeyInput').value.trim();
+        const deepseekKey = document.getElementById('deepseekApiKeyInput').value.trim();
+        const qwenKey = document.getElementById('qwenApiKeyInput').value.trim();
 
-        if (!openaiKey && !geminiKey && !ultravoxKeyVal && !groqKey) {
+        if (!openaiKey && !geminiKey && !ultravoxKeyVal && !groqKey && !deepseekKey && !qwenKey) {
             customAlert('Au moins une clé API (OpenAI, Gemini, Ultravox ou Groq) est requise pour utiliser Zova.', { title: 'Clé API requise', icon: '&#128273;' });
             return;
         }
@@ -5151,6 +5185,8 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         await setGeminiApiKey(geminiKey);
         if (ultravoxKeyVal !== undefined) await setUltravoxApiKey(ultravoxKeyVal);
         if (groqKey !== undefined) await setGroqApiKey(groqKey);
+        await setDeepseekApiKey(deepseekKey);
+        await setQwenApiKey(qwenKey);
         setRealtimeModel(document.getElementById('realtimeModelSelect').value);
         const budgetNum = parseInt(document.getElementById('budgetLimitInput').value, 10);
         setBudgetLimit(!isNaN(budgetNum) && budgetNum > 0 ? budgetNum : null);
