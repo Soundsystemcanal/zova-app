@@ -46,6 +46,10 @@
 ✅ Borrado total — sección 🔒 Privacidad + `wipeAllAiData()` : barre las 7 capas de memoria (+`buddy_chapters_*`) de TODAS las personas, **preserva** `buddy_personas` + claves API (Keystore). Doble confirmación + refresco de contadores. Plan : `docs/superpowers/plans/2026-06-11-v3.3-faseB-privacidad.md`
 ✅ Trilingue ES/EN/FR (`config_section_privacy`, `config_wipe_all`, `config_export_profile_md`, `wipe_all_confirm/done`, `config_privacy_hint`)
 
+**Bloque 5.3 — Borrado granular por ítem (derecho al olvido)**
+✅ Gestor genérico `openItemManager({title,icon,emptyMsg,build,afterChange,footerHtml,onFooter})` — `.dialog-overlay` con una fila por ítem (texto + ✕) ; `build()` devuelve `[{text,remove}]`, cada `remove()` muta su `localStorage` ; re-render tras borrar + refresco de contador. Borrado inmediato sin confirm por ítem (los "Effacer" de sección y `wipeAllAiData` siguen)
+✅ Las 5 vistas "Voir…" pasan de solo-lectura a gestor con ✕ : recuerdos (`viewMemoryBtn`, identidad date+summary, + botón Exporter .txt preservado), seguimientos (índice), objetivos (por `id`), perfil persona (`facts`/`goals`), perfil global (`facts`/`topics`/`goals`/`languages` + botón borrar-todo). CSS `.item-manager-*`, i18n `manage_hint/close/export`. Plan : `docs/superpowers/plans/2026-06-11-v3.3-bloque5.3-borrado-granular.md`
+
 **Fix — Botón Guardar fiable (móvil)**
 ✅ `.btn-save` ya no pierde el primer toque — `preventDefault` global en pointerdown/mousedown mantiene el foco del input (evita el reflow del teclado Android que "comía" el tap) ; el click sí se dispara. `showSavedToast()` (feedback ✅) + textarea de "Mis informaciones" 250→140px (botón sobre el teclado). Aplica a TODOS los botones Guardar (persona, API, budget…)
 
