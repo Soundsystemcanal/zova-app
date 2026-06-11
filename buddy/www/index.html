@@ -2157,6 +2157,16 @@
             color: var(--text-primary);
         }
 
+        .config-section-title {
+            font-size: 0.75rem;
+            color: #f5f3ff;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.55);
+            font-weight: 600;
+        }
+
         /* ═══════════════════════════════════════
            MEJORAS VISUALES v2 (Dark Cosmos)
            ═══════════════════════════════════════ */
@@ -2517,7 +2527,7 @@ Minimum version required to store current data is: `+i+`.
         <button id="openFaqBtn" title="FAQ">?</button>
       </div>
       <div style="margin-bottom:12px">
-          <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px">Idioma / Language / Langue</div>
+          <div class="config-section-title" style="margin-bottom:6px">Idioma / Language / Langue</div>
           <div style="display:flex;gap:6px">
               <button onclick="setLang('es')" style="flex:1;padding:8px;background:var(--bg-hover);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);cursor:pointer;font-family:inherit;font-size:0.85rem">🇪🇸 ES</button>
               <button onclick="setLang('en')" style="flex:1;padding:8px;background:var(--bg-hover);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);cursor:pointer;font-family:inherit;font-size:0.85rem">🇬🇧 EN</button>
@@ -2530,14 +2540,14 @@ Minimum version required to store current data is: `+i+`.
       <button class="config-screen-btn" id="themeToggleBtn">&#9789; <span id="themeToggleLabel">Mode sombre</span></button>
       <!-- Episodic Memory -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🧠 <span data-i18n="config_section_memory">Mémoire épisodique</span></div>
+        <div class="config-section-title">🧠 <span data-i18n="config_section_memory">Mémoire épisodique</span></div>
         <div id="memoryCount" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px"></div>
         <button class="config-screen-btn" id="viewMemoryBtn">📖 <span data-i18n="config_view_memory">Voir les souvenirs</span></button>
         <button class="config-screen-btn" id="clearMemoryBtn" style="color:var(--danger)">🗑️ <span data-i18n="config_clear_memory">Effacer la mémoire</span></button>
       </div>
       <!-- User Profile -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">👤 <span id="profileSectionTitle" data-i18n="config_section_profile">Profil utilisateur</span></div>
+        <div class="config-section-title">👤 <span id="profileSectionTitle" data-i18n="config_section_profile">Profil utilisateur</span></div>
         <div id="profileCount" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px"></div>
         <button class="config-screen-btn" id="viewProfileBtn">🪪 <span data-i18n="config_view_profile">Voir le profil</span></button>
         <button class="config-screen-btn" id="clearProfileBtn" style="color:var(--danger)">🗑️ <span data-i18n="config_clear_profile">Effacer le profil</span></button>
@@ -2546,7 +2556,7 @@ Minimum version required to store current data is: `+i+`.
 
       <!-- Follow-ups / Engagements -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">✅ <span data-i18n="config_section_followups">Suivis</span></div>
+        <div class="config-section-title">✅ <span data-i18n="config_section_followups">Suivis</span></div>
         <div id="followupsCount" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px"></div>
         <button class="config-screen-btn" id="viewFollowupsBtn">📋 <span data-i18n="config_view_followups">Voir les suivis</span></button>
         <button class="config-screen-btn" id="clearFollowupsBtn" style="color:var(--danger)">🗑️ <span data-i18n="config_clear_followups">Effacer les suivis</span></button>
@@ -2554,7 +2564,7 @@ Minimum version required to store current data is: `+i+`.
 
       <!-- Objectifs / Goals -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🎯 <span data-i18n="config_section_goals">Objectifs</span></div>
+        <div class="config-section-title">🎯 <span data-i18n="config_section_goals">Objectifs</span></div>
         <div id="goalsCount" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px"></div>
         <button class="config-screen-btn" id="viewGoalsBtn">📋 <span data-i18n="config_view_goals">Voir les objectifs</span></button>
         <button class="config-screen-btn" id="clearGoalsBtn" style="color:var(--danger)">🗑️ <span data-i18n="config_clear_goals">Effacer les objectifs</span></button>
@@ -2562,7 +2572,7 @@ Minimum version required to store current data is: `+i+`.
 
       <!-- TTS Voice settings -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🎙️ <span data-i18n="config_section_tts">Voix TTS (Groq)</span></div>
+        <div class="config-section-title">🎙️ <span data-i18n="config_section_tts">Voix TTS (Groq)</span></div>
         <div style="margin-bottom:10px">
           <div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:6px">Langue de la voix</div>
           <select id="ttsLangSelect" style="width:100%;padding:9px 12px;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:0.85rem;font-family:inherit;cursor:pointer">
@@ -2586,7 +2596,7 @@ Minimum version required to store current data is: `+i+`.
       </div>
 
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
-        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">🔒 <span data-i18n="config_section_security">Sécurité</span></div>
+        <div class="config-section-title">🔒 <span data-i18n="config_section_security">Sécurité</span></div>
         <button class="config-screen-btn" id="setPinBtn">🔢 <span data-i18n="config_set_pin">Activer le code PIN</span></button>
         <button class="config-screen-btn" id="removePinBtn" style="display:none">🔓 <span data-i18n="config_remove_pin">Supprimer le code PIN</span></button>
       </div>
