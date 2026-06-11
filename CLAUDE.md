@@ -21,6 +21,13 @@
 ## Estado (2026-06-11)
 
 ### v3.3 — 🇨🇳 Providers DeepSeek/Qwen + 🔒 Privacidad (main, non publié) — testé sur Xiaomi 14T (CDP + navegador + génération DeepSeek réelle)
+
+**Bloque 2 / Fase C — Evolución del Wizard de personas**
+✅ Evolucionar persona (2.7) — botón "✨ Évoluer" en el modal (junto a Créer/Optimiser, `#evolvePromptBtn`) : pide directriz libre vía `customPrompt({type:'text'})` → meta-prompt de mutación (fusiona prompt actual + directriz, ≤900 chars) vía `chatCompletion()` → escribe en `#pPrompt` para revisar y guardar (persistencia vía Save existente / `savePersonas()`, NO sobrescritura silenciosa). Trilingue (`persona_evolve*`)
+✅ Límite de caracteres (2.3) — `generatePersonaFromWizard()` instruye ≤900 chars en el campo `prompt` + recorte de seguridad `slice(0,900)` tras el parseo (ahorra tokens en la API de voz tiempo real)
+✅ Chips dinámicos (2.2) — paso 1 del wizard inyecta hasta 3 chips ✨ desde `getUserProfile().topics` (dedup vs estáticos, `esc()`, máx 3) tras los 6 estáticos de `WIZ_TOPIC_SUGGESTIONS`. Plan : `docs/superpowers/plans/2026-06-11-v3.3-faseC-wizard.md`
+✅ Fuera de alcance (siguiente iteración) : 2.1 samples de voz, 2.4/2.5/2.6 (retry/i18n/backButton ya parcialmente hechos)
+
 **Bloque 4 — DeepSeek + Qwen (batch/texto, NO voz tiempo real)**
 ✅ Claves en Keystore — `get/setDeepseekApiKey`, `get/setQwenApiKey` (`SecureStore`, prefijos `buddy_deepseekApiKey`/`buddy_qwenApiKey`) + inputs en el modal API (`#deepseekApiKeyInput`/`#qwenApiKeyInput`)
 ✅ APIs compatibles OpenAI — `COMPAT_PROVIDERS` registry + helper DRY `postOpenAIFormat()` (fetch `/chat/completions`). DeepSeek `api.deepseek.com/v1` (`deepseek-chat`/`deepseek-reasoner`), Qwen `dashscope-intl.aliyuncs.com/compatible-mode/v1` (`qwen-2.5-72b-instruct`)
