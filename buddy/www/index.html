@@ -4430,33 +4430,52 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         return data.choices?.[0]?.message?.content?.trim() || '';
     }
 
-    // Appelle un LLM texte selon les clés dispo : OpenAI → Gemini → DeepSeek → Qwen
-    async function chatCompletion({ systemPrompt, userPrompt, temperature = 0.7, maxTokens = 2000, preferReasoning = false }) {
-        // 0) Si se pide razonamiento profundo y hay clave DeepSeek, usar R1 primero
-        if (preferReasoning) {
-            const dsKey = await getDeepseekApiKey();
-            if (dsKey) {
-                return await postOpenAIFormat({
-                    base: COMPAT_PROVIDERS.deepseek.base, key: dsKey,
-                    model: COMPAT_PROVIDERS.deepseek.reasoner,
-                    systemPrompt, userPrompt, temperature, maxTokens
-                });
-            }
-        }
+    // Devuelve el proveedor/modelo de texto elegido en el selector #modelMemorySelect.
+    // Valores Groq = id de modelo crudo; 'ds-reasoner'/'ds-chat'/'qwen' = compatibles OpenAI.
+    function getTextProvider() {
+        const v = (typeof getModelMemory === 'function')
+            ? getModelMemory()
+            : (localStorage.getItem('buddy_modelMemory') || 'llama3-8b-8192');
+        if (v === 'ds-reasoner') return { type: 'deepseek', model: COMPAT_PROVIDERS.deepseek.reasoner };
+        if (v === 'ds-chat')     return { type: 'deepseek', model: COMPAT_PROVIDERS.deepseek.chat };
+        if (v === 'qwen')        return { type: 'qwen',     model: COMPAT_PROVIDERS.qwen.chat };
+        return { type: 'groq', model: v }; // cualquier id de modelo Groq
+    }
 
-        // 1) OpenAI (gpt-4o-mini)
-        const openaiKey = await getApiKey();
-        if (openaiKey) {
-            return await postOpenAIFormat({
-                base: 'https://api.openai.com/v1', key: openaiKey, model: 'gpt-4o-mini',
-                systemPrompt, userPrompt, temperature, maxTokens
+    // Lookup de clave por tipo de proveedor de texto.
+    async function textProviderKey(type) {
+        if (type === 'groq')     return await getGroqApiKey();
+        if (type === 'openai')   return await getApiKey();
+        if (type === 'gemini')   return await getGeminiApiKey();
+        if (type === 'deepseek') return await getDeepseekApiKey();
+        if (type === 'qwen')     return await getQwenApiKey();
+        return null;
+    }
+
+    // Dispatch de UNA llamada a un proveedor concreto. Devuelve texto o lanza Error.
+    async function callTextProvider(type, model, key, { systemPrompt, userPrompt, temperature, maxTokens }) {
+        if (type === 'groq') {
+            const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model,
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: userPrompt }
+                    ],
+                    max_tokens: maxTokens,
+                    temperature
+                })
             });
+            if (!resp.ok) {
+                const err = await resp.json().catch(() => ({}));
+                throw new Error(err.error?.message || `HTTP ${resp.status}`);
+            }
+            return ((await resp.json()).choices?.[0]?.message?.content || '').trim();
         }
-
-        // 2) Gemini (formato propio, no OpenAI)
-        const geminiKey = await getGeminiApiKey();
-        if (geminiKey) {
-            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(geminiKey)}`, {
+        if (type === 'gemini') {
+            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(key)}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -4469,29 +4488,47 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
                 const err = await resp.json().catch(() => ({}));
                 throw new Error(err.error?.message || `HTTP ${resp.status}`);
             }
-            const data = await resp.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+            return ((await resp.json()).candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
         }
+        // openai / deepseek / qwen — todos formato OpenAI
+        const base = type === 'openai' ? 'https://api.openai.com/v1'
+                   : type === 'deepseek' ? COMPAT_PROVIDERS.deepseek.base
+                   : COMPAT_PROVIDERS.qwen.base;
+        return await postOpenAIFormat({ base, key, model, systemPrompt, userPrompt, temperature, maxTokens });
+    }
 
-        // 3) DeepSeek-chat (compatible OpenAI)
-        const dsKey = await getDeepseekApiKey();
-        if (dsKey) {
-            return await postOpenAIFormat({
-                base: COMPAT_PROVIDERS.deepseek.base, key: dsKey, model: COMPAT_PROVIDERS.deepseek.chat,
-                systemPrompt, userPrompt, temperature, maxTokens
-            });
+    // Punto de entrada ÚNICO para tareas de texto/batch (memoria, wizard, perfil...).
+    // El proveedor elegido en el selector se intenta PRIMERO; el resto es cadena de respaldo.
+    // Incluye Groq (ya no se llama a Groq por separado fuera de aquí).
+    async function chatCompletion({ systemPrompt, userPrompt, temperature = 0.7, maxTokens = 2000 }) {
+        const sel = getTextProvider();
+        const cands = [];
+        const push = (type, model) => {
+            if (!cands.some(c => c.type === type && c.model === model)) cands.push({ type, model });
+        };
+        // 1) Lo que el usuario eligió, primero
+        push(sel.type, sel.model);
+        // 2) Cadena de respaldo (orden coste/calidad razonable)
+        push('groq', 'llama3-8b-8192');
+        push('openai', 'gpt-4o-mini');
+        push('gemini', 'gemini-2.0-flash');
+        push('deepseek', COMPAT_PROVIDERS.deepseek.chat);
+        push('qwen', COMPAT_PROVIDERS.qwen.chat);
+
+        const args = { systemPrompt, userPrompt, temperature, maxTokens };
+        let lastErr = null;
+        for (const c of cands) {
+            const key = await textProviderKey(c.type);
+            if (!key) continue;
+            try {
+                const out = await callTextProvider(c.type, c.model, key, args);
+                if (out) return out;
+            } catch (e) {
+                lastErr = e;
+                console.warn('[chatCompletion]', c.type, '→', e.message);
+            }
         }
-
-        // 4) Qwen (compatible OpenAI vía DashScope)
-        const qwenKey = await getQwenApiKey();
-        if (qwenKey) {
-            return await postOpenAIFormat({
-                base: COMPAT_PROVIDERS.qwen.base, key: qwenKey, model: COMPAT_PROVIDERS.qwen.chat,
-                systemPrompt, userPrompt, temperature, maxTokens
-            });
-        }
-
-        throw new Error('Aucune clé API configurée.');
+        throw lastErr || new Error('Aucune clé API configurée.');
     }
 
     // ════════════════════════════════════════════════
