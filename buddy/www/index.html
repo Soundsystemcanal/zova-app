@@ -4253,6 +4253,12 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     async function getGroqApiKey() { return await SecureStore.get('buddy_groqApiKey'); }
     async function setGroqApiKey(k) { await SecureStore.set('buddy_groqApiKey', k); }
 
+    async function getDeepseekApiKey() { return await SecureStore.get('buddy_deepseekApiKey'); }
+    async function setDeepseekApiKey(k) { await SecureStore.set('buddy_deepseekApiKey', k); }
+
+    async function getQwenApiKey() { return await SecureStore.get('buddy_qwenApiKey'); }
+    async function setQwenApiKey(k) { await SecureStore.set('buddy_qwenApiKey', k); }
+
     function getTheme() { return localStorage.getItem('buddy_theme') || 'dark'; }
     function setThemeStorage(t) { localStorage.setItem('buddy_theme', t); }
 
@@ -4321,32 +4327,67 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     //  CHAT COMPLETION MULTI-FOURNISSEUR
     // ════════════════════════════════════════════════
 
-    // Appelle un LLM texte (OpenAI gpt-4o-mini ou Gemini Flash) selon les clés dispo
-    async function chatCompletion({ systemPrompt, userPrompt, temperature = 0.7, maxTokens = 2000 }) {
-        // Privilégier OpenAI si la clé existe, sinon Gemini
-        const openaiKey = await getApiKey();
-        if (openaiKey) {
-            const resp = await fetch('https://api.openai.com/v1/chat/completions', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${openaiKey}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: 'gpt-4o-mini',
-                    messages: [
-                        { role: 'system', content: systemPrompt },
-                        { role: 'user', content: userPrompt }
-                    ],
-                    temperature,
-                    max_tokens: maxTokens
-                })
-            });
-            if (!resp.ok) {
-                const err = await resp.json().catch(() => ({}));
-                throw new Error(err.error?.message || `HTTP ${resp.status}`);
+    // Proveedores compatibles 100% con el formato OpenAI /chat/completions
+    // (solo tareas batch/texto — NO la conversación de voz en tiempo real)
+    const COMPAT_PROVIDERS = {
+        deepseek: {
+            base: 'https://api.deepseek.com/v1',
+            chat: 'deepseek-chat',         // V3 — uso estándar
+            reasoner: 'deepseek-reasoner'  // R1 — razonamiento profundo
+        },
+        qwen: {
+            base: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
+            chat: 'qwen-2.5-72b-instruct'  // alta calidad ES/FR/EN
+        }
+    };
+
+    // POST genérico formato OpenAI. Devuelve el texto de la respuesta o lanza Error.
+    async function postOpenAIFormat({ base, key, model, systemPrompt, userPrompt, temperature, maxTokens }) {
+        const resp = await fetch(`${base}/chat/completions`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model,
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: userPrompt }
+                ],
+                temperature,
+                max_tokens: maxTokens
+            })
+        });
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.error?.message || `HTTP ${resp.status}`);
+        }
+        const data = await resp.json();
+        return data.choices?.[0]?.message?.content?.trim() || '';
+    }
+
+    // Appelle un LLM texte selon les clés dispo : OpenAI → Gemini → DeepSeek → Qwen
+    async function chatCompletion({ systemPrompt, userPrompt, temperature = 0.7, maxTokens = 2000, preferReasoning = false }) {
+        // 0) Si se pide razonamiento profundo y hay clave DeepSeek, usar R1 primero
+        if (preferReasoning) {
+            const dsKey = await getDeepseekApiKey();
+            if (dsKey) {
+                return await postOpenAIFormat({
+                    base: COMPAT_PROVIDERS.deepseek.base, key: dsKey,
+                    model: COMPAT_PROVIDERS.deepseek.reasoner,
+                    systemPrompt, userPrompt, temperature, maxTokens
+                });
             }
-            const data = await resp.json();
-            return data.choices?.[0]?.message?.content?.trim() || '';
         }
 
+        // 1) OpenAI (gpt-4o-mini)
+        const openaiKey = await getApiKey();
+        if (openaiKey) {
+            return await postOpenAIFormat({
+                base: 'https://api.openai.com/v1', key: openaiKey, model: 'gpt-4o-mini',
+                systemPrompt, userPrompt, temperature, maxTokens
+            });
+        }
+
+        // 2) Gemini (formato propio, no OpenAI)
         const geminiKey = await getGeminiApiKey();
         if (geminiKey) {
             const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(geminiKey)}`, {
@@ -4364,6 +4405,24 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
             }
             const data = await resp.json();
             return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+        }
+
+        // 3) DeepSeek-chat (compatible OpenAI)
+        const dsKey = await getDeepseekApiKey();
+        if (dsKey) {
+            return await postOpenAIFormat({
+                base: COMPAT_PROVIDERS.deepseek.base, key: dsKey, model: COMPAT_PROVIDERS.deepseek.chat,
+                systemPrompt, userPrompt, temperature, maxTokens
+            });
+        }
+
+        // 4) Qwen (compatible OpenAI vía DashScope)
+        const qwenKey = await getQwenApiKey();
+        if (qwenKey) {
+            return await postOpenAIFormat({
+                base: COMPAT_PROVIDERS.qwen.base, key: qwenKey, model: COMPAT_PROVIDERS.qwen.chat,
+                systemPrompt, userPrompt, temperature, maxTokens
+            });
         }
 
         throw new Error('Aucune clé API configurée.');
