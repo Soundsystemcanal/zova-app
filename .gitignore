@@ -1,0 +1,9 @@
+# Config local de Claude Code / dev (no compartir entre máquinas)
+.claude/settings.local.json
+.claude/launch.json
+
+# APK binarios — distribuidos vía GitHub Releases, no en el repo
+buddy/*.apk
+
+# Artefacto huérfano (lib QR minificada, sin referencias en el código)
+buddy/qr_bundle.js
