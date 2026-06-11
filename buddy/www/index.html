@@ -3284,6 +3284,8 @@ Minimum version required to store current data is: `+i+`.
             persona_evolve_working: 'Evolucionando…',
             persona_evolve_done: '¡Prompt evolucionado! Revisa y guarda.',
             persona_evolve_empty: 'Respuesta vacía.',
+            wiz_rescue: 'La generación automática falló. Tus respuestas están guardadas.',
+            wiz_retry_auto: 'Reintentar generación',
             wipe_all_confirm: '¿Borrar TODOS los datos IA (memoria, perfiles, objetivos, seguimientos) de TODAS las personas? Las personas y las claves API se conservan. Acción irreversible.',
             wipe_all_done: 'Todos los datos IA han sido borrados.',
             config_view_goals: 'Ver objetivos',
@@ -3435,6 +3437,8 @@ Minimum version required to store current data is: `+i+`.
             persona_evolve_working: 'Evolving…',
             persona_evolve_done: 'Prompt evolved! Review and save.',
             persona_evolve_empty: 'Empty response.',
+            wiz_rescue: 'Auto-generation failed. Your answers are saved.',
+            wiz_retry_auto: 'Retry generation',
             wipe_all_confirm: 'Erase ALL AI data (memory, profiles, goals, follow-ups) for ALL personas? Personas and API keys are kept. This cannot be undone.',
             wipe_all_done: 'All AI data has been erased.',
             config_view_goals: 'View goals',
@@ -3586,6 +3590,8 @@ Minimum version required to store current data is: `+i+`.
             persona_evolve_working: 'Évolution en cours…',
             persona_evolve_done: 'Prompt mis à jour ! Vérifie et enregistre.',
             persona_evolve_empty: 'Réponse vide.',
+            wiz_rescue: 'La génération automatique a échoué. Tes réponses sont sauvegardées.',
+            wiz_retry_auto: 'Relancer la génération',
             wipe_all_confirm: 'Effacer TOUTES les données IA (mémoire, profils, objectifs, suivis) de TOUS les personas ? Les personas et les clés API sont conservés. Action irréversible.',
             wipe_all_done: 'Toutes les données IA ont été effacées.',
             config_view_goals: 'Voir les objectifs',
@@ -5387,6 +5393,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     let wizardStep = 0;
     let wizGenerating = false;
     let wizardData = { topic:'', tone:'chaleureux', formal:false, who:'persona', name:'', creativity:'balanced' };
+    let currentWizardDraft = null; // snapshot des réponses pour le rescue (2.4)
 
     function resetWizardData() {
         wizardStep = 0;
@@ -5434,17 +5441,18 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         es: ['Coach de bienestar','Tutor de idiomas','Asistente de código','Confidente','Lluvia de ideas','Cocina']
     };
 
-    function openPersonaWizard() {
+    function openPersonaWizard(draft = null) {
         resetWizardData();
+        if (draft) wizardData = { ...draft };
         document.getElementById('wizQ1Title').textContent = t('wiz_q1_title');
         document.getElementById('wizQ1Sub').textContent = t('wiz_q1_sub');
-        document.getElementById('wizTopic').value = '';
+        document.getElementById('wizTopic').value = wizardData.topic || '';
         document.getElementById('wizTopic').placeholder = t('wiz_q1_ph');
         document.getElementById('wizQ2Title').textContent = t('wiz_q2_title');
         document.getElementById('wizQ3Title').textContent = t('wiz_q3_title');
         document.getElementById('wizQ3Who').textContent = t('wiz_q3_who');
         document.getElementById('wizQ4Title').textContent = t('wiz_q4_title');
-        document.getElementById('wizName').value = '';
+        document.getElementById('wizName').value = wizardData.name || '';
         document.getElementById('wizName').placeholder = t('wiz_q4_ph');
         document.getElementById('wizSuggestName').textContent = t('wiz_q4_suggest');
         document.getElementById('wizQ5Title').textContent = t('wiz_q5_title');
@@ -5588,6 +5596,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         wizGenerating = true;
         const langName = LANG === 'es' ? 'español' : LANG === 'en' ? 'english' : 'français';
         const d = wizardData;
+        currentWizardDraft = { ...wizardData };
         const nextBtn = document.getElementById('wizNextBtn');
         const errEl = document.getElementById('wizError');
         nextBtn.disabled = true; nextBtn.style.opacity = '0.5';
@@ -5636,12 +5645,22 @@ ${d.name ? 'Nom imposé : ' + d.name : 'Nom : à proposer'}`;
                  </div>`;
             document.getElementById('wizRetryBtn').addEventListener('click', generatePersonaFromWizard);
             document.getElementById('wizManualBtn').addEventListener('click', () => {
+                const draft = { ...wizardData };
                 closePersonaWizard();
                 openPersonaModal();
-                document.getElementById('pDescription').value = wizardData.topic;
-                document.getElementById('pCreativity').value = wizardData.creativity;
-                document.getElementById('pGreeting').value = wizardData.who;
-                updatePersonaVoiceList(wizardToneToVoice(wizardData.tone));
+                document.getElementById('pDescription').value = draft.topic;
+                document.getElementById('pCreativity').value = draft.creativity;
+                document.getElementById('pGreeting').value = draft.who;
+                updatePersonaVoiceList(wizardToneToVoice(draft.tone));
+                // Zone de rescate : proposer de relancer la génération auto sans re-remplir
+                const banner = document.getElementById('wizardBanner');
+                banner.innerHTML = `${t('wiz_rescue')} <button class="btn-small" id="wizRescueBtn" style="margin-left:8px">↻ ${t('wiz_retry_auto')}</button>`;
+                banner.style.display = '';
+                document.getElementById('wizRescueBtn').addEventListener('click', () => {
+                    closePersonaModal();
+                    openPersonaWizard(currentWizardDraft || draft);
+                    generatePersonaFromWizard();
+                });
             });
         } finally {
             wizGenerating = false;
