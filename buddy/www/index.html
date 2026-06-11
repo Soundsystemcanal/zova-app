@@ -1516,6 +1516,11 @@
             from { transform: translateY(12px) scale(0.97); opacity: 0; }
             to { transform: translateY(0) scale(1); opacity: 1; }
         }
+        .item-manager-list { display:flex; flex-direction:column; gap:8px; max-height:50vh; overflow-y:auto; margin:10px 0; text-align:left; }
+        .item-manager-row { display:flex; align-items:flex-start; gap:10px; background:var(--bg-hover); border:1px solid var(--border); border-radius:10px; padding:10px 12px; }
+        .item-manager-row span { flex:1; font-size:0.85rem; line-height:1.35; color:var(--text-primary); word-break:break-word; }
+        .item-manager-del { flex-shrink:0; background:none; border:none; color:var(--danger); font-size:1.1rem; line-height:1; cursor:pointer; min-width:32px; min-height:32px; border-radius:8px; }
+        .item-manager-del:hover { background:rgba(239,68,68,0.12); }
         .dialog-icon {
             font-size: 2rem;
             margin-bottom: 10px;
@@ -3286,6 +3291,9 @@ Minimum version required to store current data is: `+i+`.
             persona_evolve_empty: 'Respuesta vacía.',
             wiz_rescue: 'La generación automática falló. Tus respuestas están guardadas.',
             wiz_retry_auto: 'Reintentar generación',
+            manage_hint: 'Pulsa ✕ para borrar un elemento.',
+            manage_close: 'Cerrar',
+            manage_export: 'Exportar .txt',
             wipe_all_confirm: '¿Borrar TODOS los datos IA (memoria, perfiles, objetivos, seguimientos) de TODAS las personas? Las personas y las claves API se conservan. Acción irreversible.',
             wipe_all_done: 'Todos los datos IA han sido borrados.',
             config_view_goals: 'Ver objetivos',
@@ -3439,6 +3447,9 @@ Minimum version required to store current data is: `+i+`.
             persona_evolve_empty: 'Empty response.',
             wiz_rescue: 'Auto-generation failed. Your answers are saved.',
             wiz_retry_auto: 'Retry generation',
+            manage_hint: 'Tap ✕ to delete an item.',
+            manage_close: 'Close',
+            manage_export: 'Export .txt',
             wipe_all_confirm: 'Erase ALL AI data (memory, profiles, goals, follow-ups) for ALL personas? Personas and API keys are kept. This cannot be undone.',
             wipe_all_done: 'All AI data has been erased.',
             config_view_goals: 'View goals',
@@ -3592,6 +3603,9 @@ Minimum version required to store current data is: `+i+`.
             persona_evolve_empty: 'Réponse vide.',
             wiz_rescue: 'La génération automatique a échoué. Tes réponses sont sauvegardées.',
             wiz_retry_auto: 'Relancer la génération',
+            manage_hint: 'Appuie sur ✕ pour supprimer un élément.',
+            manage_close: 'Fermer',
+            manage_export: 'Exporter .txt',
             wipe_all_confirm: 'Effacer TOUTES les données IA (mémoire, profils, objectifs, suivis) de TOUS les personas ? Les personas et les clés API sont conservés. Action irréversible.',
             wipe_all_done: 'Toutes les données IA ont été effacées.',
             config_view_goals: 'Voir les objectifs',
@@ -10772,13 +10786,78 @@ Règles de format :
     }
     updateMemoryCount();
 
+    // Gestor de lista interactivo genérico (Bloque 5.3 — borrado por ítem).
+    // build() => [{ text, remove }]. footerHtml/onFooter opcionales (ej. exportar / borrar todo).
+    function openItemManager({ title, icon = '🗂️', emptyMsg, build, afterChange, footerHtml = '', onFooter }) {
+        const overlay = document.createElement('div');
+        overlay.className = 'dialog-overlay';
+        const close = () => overlay.remove();
+        const render = () => {
+            const items = build();
+            const listHtml = items.length
+                ? `<div class="item-manager-list">` + items.map((it, i) =>
+                    `<div class="item-manager-row"><span>${esc(it.text)}</span><button class="item-manager-del" data-i="${i}" aria-label="✕">✕</button></div>`
+                  ).join('') + `</div>`
+                : `<div class="dialog-message" style="opacity:0.7">${esc(emptyMsg || '')}</div>`;
+            overlay.innerHTML = `<div class="dialog-box">
+                <div class="dialog-icon">${icon}</div>
+                <div class="dialog-title">${esc(title)}</div>
+                <div class="dialog-message" style="opacity:0.7;font-size:0.78rem">${t('manage_hint')}</div>
+                ${listHtml}
+                <div class="dialog-buttons" style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+                    ${footerHtml}
+                    <button class="dialog-btn" id="_imClose">${t('manage_close')}</button>
+                </div>
+            </div>`;
+            overlay.querySelectorAll('.item-manager-del').forEach(btn =>
+                btn.addEventListener('click', () => {
+                    const idx = parseInt(btn.dataset.i, 10);
+                    items[idx].remove();
+                    if (afterChange) { try { afterChange(); } catch (e) {} }
+                    render();
+                }));
+            overlay.querySelector('#_imClose').addEventListener('click', close);
+            if (onFooter) {
+                const fb = overlay.querySelector('#_imFooter');
+                if (fb) fb.addEventListener('click', () => onFooter(build()));
+            }
+        };
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+        render();
+        document.body.appendChild(overlay);
+    }
+
     document.getElementById('viewMemoryBtn').addEventListener('click', () => {
         const activeId = getActiveId();
-        const personaMems = activeId ? getPersonaMemories(activeId) : [];
-        const mems = personaMems.length > 0 ? personaMems : getMemories().filter(m => m.personaId === activeId || m.personaId === '');
-        if (!mems.length) { customAlert(t('memory_none'), { title: '🧠 ' + t('config_section_memory'), icon: '🧠' }); return; }
-        const content = mems.map((m, i) => `**${i+1}. ${m.date} — ${m.personaName}**\n${m.summary}`).join('\n\n');
-        showExportModal(content, 'zova-memoires.txt');
+        openItemManager({
+            title: t('config_section_memory'), icon: '🧠',
+            emptyMsg: t('memory_none'),
+            footerHtml: `<button class="dialog-btn" id="_imFooter">${t('manage_export')}</button>`,
+            build: () => {
+                const pmem = getPersonaMemories(activeId);
+                const usePersona = pmem.length > 0;
+                const arr = usePersona ? pmem : getMemories().filter(m => m.personaId === activeId || m.personaId === '');
+                return arr.map(m => ({
+                    text: `${m.date} — ${m.personaName || ''}: ${m.summary}`,
+                    remove: () => {
+                        if (usePersona) {
+                            const a = getPersonaMemories(activeId);
+                            const idx = a.findIndex(x => x.date === m.date && x.summary === m.summary);
+                            if (idx > -1) { a.splice(idx, 1); localStorage.setItem(PERSONA_MEMORY_PREFIX + activeId, JSON.stringify(a)); }
+                        } else {
+                            const g = getMemories();
+                            const idx = g.findIndex(x => x.date === m.date && x.summary === m.summary);
+                            if (idx > -1) { g.splice(idx, 1); localStorage.setItem(MEMORY_KEY, JSON.stringify(g)); }
+                        }
+                    }
+                }));
+            },
+            afterChange: () => updateMemoryCount(),
+            onFooter: (items) => {
+                if (!items.length) return;
+                showExportModal(items.map((it, i) => `**${i+1}.** ${it.text}`).join('\n\n'), 'zova-memoires.txt');
+            }
+        });
     });
 
     document.getElementById('clearMemoryBtn').addEventListener('click', async () => {
@@ -10819,12 +10898,22 @@ Règles de format :
 
     document.getElementById('viewFollowupsBtn').addEventListener('click', () => {
         const activeId = getActiveId();
-        const fus = activeId ? getFollowUps(activeId) : [];
-        if (!fus.length) { customAlert(t('followups_none'), { title: '📌 ' + t('config_section_followups'), icon: '📌' }); return; }
-        const bridge = activeId ? getBridge(activeId) : '';
-        let content = fus.map((f, i) => `${i+1}. ${f}`).join('\n');
-        if (bridge) content += `\n\n💬 Accroche : ${bridge}`;
-        customAlert(content, { title: '📌 ' + t('config_section_followups'), icon: '📌' });
+        openItemManager({
+            title: t('config_section_followups'), icon: '📌',
+            emptyMsg: t('followups_none'),
+            build: () => {
+                const fus = activeId ? getFollowUps(activeId) : [];
+                return fus.map((f, i) => ({
+                    text: f,
+                    remove: () => {
+                        const a = getFollowUps(activeId);
+                        a.splice(i, 1);
+                        saveFollowUps(a, activeId);
+                    }
+                }));
+            },
+            afterChange: () => updateFollowupsCount()
+        });
     });
 
     document.getElementById('clearFollowupsBtn').addEventListener('click', async () => {
@@ -10856,14 +10945,21 @@ Règles de format :
 
     document.getElementById('viewGoalsBtn').addEventListener('click', () => {
         const activeId = getActiveId();
-        const goals = activeId ? getGoals(activeId) : [];
-        if (!goals.length) { customAlert(t('goals_none'), { title: '🎯 ' + t('config_section_goals'), icon: '🎯' }); return; }
-        const lines = goals.map(g => {
-            const pct = g.progress != null ? ` — ${g.progress}%` : '';
-            const done = g.done ? ' ✅' : '';
-            return `${done ? '~~' : ''}${g.text}${pct}${done ? '~~' : ''}${done}`;
+        openItemManager({
+            title: t('config_section_goals'), icon: '🎯',
+            emptyMsg: t('goals_none'),
+            build: () => {
+                const goals = activeId ? getGoals(activeId) : [];
+                return goals.map(g => ({
+                    text: `${g.text}${g.progress != null ? ' — ' + g.progress + '%' : ''}${g.done ? ' ✅' : ''}`,
+                    remove: () => {
+                        const a = getGoals(activeId).filter(x => x.id !== g.id);
+                        saveGoals(a, activeId);
+                    }
+                }));
+            },
+            afterChange: () => updateGoalsCount()
         });
-        customAlert(lines.join('\n'), { title: '🎯 ' + t('config_section_goals'), icon: '🎯' });
     });
 
     document.getElementById('clearGoalsBtn').addEventListener('click', async () => {
