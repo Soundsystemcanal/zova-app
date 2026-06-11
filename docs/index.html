@@ -106,6 +106,22 @@
             margin-bottom: 32px;
             letter-spacing: 0.06em;
         }
+        .android-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(61,220,132,0.12);
+            border: 1px solid rgba(61,220,132,0.40);
+            color: #6ee7a8;
+            font-family: 'Syne', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 7px 16px;
+            border-radius: 30px;
+            margin-bottom: 20px;
+            letter-spacing: 0.03em;
+        }
+        .android-badge svg { flex-shrink: 0; }
         .qr-block {
             display: flex;
             flex-direction: column;
@@ -396,6 +412,11 @@
     <h1>Zova</h1>
     <p class="hero-slogan">Ton IA. Ton téléphone. Tes règles.</p>
     <p class="hero-sub">Assistant vocal IA pour Android — sans serveur intermédiaire, sans abonnement mensuel, sans surveillance. Tes clés API restent sur ton téléphone.</p>
+
+    <div class="android-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#6ee7a8" xmlns="http://www.w3.org/2000/svg"><path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85a.637.637 0 0 0-.83.22l-1.88 3.24a11.46 11.46 0 0 0-8.94 0L5.65 5.67a.643.643 0 0 0-.87-.2c-.28.18-.37.54-.22.83L6.4 9.48A10.78 10.78 0 0 0 1 18h22a10.78 10.78 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>
+        <span data-i18n="hero_android">Exclusivement Android · Optimisé pour Xiaomi 14T</span>
+    </div>
 
     <span class="version-badge">✦ v3.1 — Maintenant disponible</span>
 
@@ -883,6 +904,7 @@
       meta_desc: 'Zova est un assistant vocal IA pour Android. Sans serveur, sans abonnement. Tes clés API restent sur ton téléphone.',
       hero_slogan: 'Ton IA. Ton téléphone. Tes règles.',
       hero_sub: 'Assistant vocal IA pour Android — sans serveur intermédiaire, sans abonnement mensuel, sans surveillance. Tes clés API restent sur ton téléphone.',
+      hero_android: 'Exclusivement Android · Optimisé pour Xiaomi 14T',
       hero_badge: '✦ v3.1 — Maintenant disponible',
       hero_dl: '⬇  Télécharger Zova v3.1 · 6 Mo',
       hero_qr: 'Scanner pour télécharger',
@@ -956,6 +978,7 @@
       meta_desc: 'Zova is an AI voice assistant for Android. No server, no subscription. Your API keys stay on your phone.',
       hero_slogan: 'Your AI. Your phone. Your rules.',
       hero_sub: 'AI voice assistant for Android — no middleman server, no monthly subscription, no tracking. Your API keys stay on your phone.',
+      hero_android: 'Android only · Optimized for Xiaomi 14T',
       hero_badge: '✦ v3.1 — Now available',
       hero_dl: '⬇  Download Zova v3.1 · 6 MB',
       hero_qr: 'Scan to download',
@@ -1029,6 +1052,7 @@
       meta_desc: 'Zova es un asistente de voz IA para Android. Sin servidor, sin suscripción. Tus claves API se quedan en tu teléfono.',
       hero_slogan: 'Tu IA. Tu teléfono. Tus reglas.',
       hero_sub: 'Asistente de voz IA para Android — sin servidor intermediario, sin suscripción mensual, sin vigilancia. Tus claves API se quedan en tu teléfono.',
+      hero_android: 'Exclusivo para Android · Optimizado para Xiaomi 14T',
       hero_badge: '✦ v3.1 — Disponible ahora',
       hero_dl: '⬇  Descargar Zova v3.1 · 6 MB',
       hero_qr: 'Escanear para descargar',
