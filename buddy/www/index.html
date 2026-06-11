@@ -6951,37 +6951,7 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
 
         try {
             let summary = '';
-            const groqKey = await getGroqApiKey();
-            if (groqKey) {
-                // Groq preferred: cheapest and fastest
-                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: getModelMemory(),
-                        messages: [
-                            { role: 'system', content: systemPrompt },
-                            { role: 'user', content: transcriptText.slice(0, 3000) }
-                        ],
-                        max_tokens: 100,
-                        temperature: 0.3
-                    })
-                });
-                if (resp.ok) {
-                    const data = await resp.json();
-                    summary = (data.choices?.[0]?.message?.content || '').trim();
-                }
-            }
-
-            if (!summary) {
-                // Fallback: OpenAI or Gemini via chatCompletion()
-                summary = await chatCompletion({
-                    systemPrompt,
-                    userPrompt: transcriptText.slice(0, 3000),
-                    temperature: 0.3,
-                    maxTokens: 100
-                });
-            }
+            try { summary = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 3000), temperature: 0.3, maxTokens: 100 }); } catch (e) { console.warn('[Zova Memory]', e.message); }
 
             if (summary.length > 10) {
                 const entry = { date, personaId: persona?.id || '', personaName, summary };
@@ -7021,35 +6991,7 @@ Retourne UNIQUEMENT un JSON valide avec ce format exact:
 Langue: ${langName}. Réponds UNIQUEMENT avec le JSON.`;
 
         try {
-            let raw = '';
-            const groqKey = await getGroqApiKey();
-            if (groqKey) {
-                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: getModelMemory(),
-                        messages: [
-                            { role: 'system', content: systemPrompt },
-                            { role: 'user', content: transcriptText.slice(0, 4000) }
-                        ],
-                        max_tokens: 300,
-                        temperature: 0.2
-                    })
-                });
-                if (resp.ok) {
-                    const data = await resp.json();
-                    raw = (data.choices?.[0]?.message?.content || '').trim();
-                }
-            }
-            if (!raw) {
-                raw = await chatCompletion({
-                    systemPrompt,
-                    userPrompt: transcriptText.slice(0, 4000),
-                    temperature: 0.2,
-                    maxTokens: 300
-                });
-            }
+            const raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 4000), temperature: 0.2, maxTokens: 300 });
             // Parse JSON — strip markdown fences if present
             const jsonStr = raw.replace(/^```[a-z]*\n?/i, '').replace(/```$/, '').trim();
             const result = JSON.parse(jsonStr);
@@ -7099,24 +7041,7 @@ Retourne UNIQUEMENT un JSON valide:
 Règles: seulement si l'utilisateur mentionne EXPLICITEMENT un objectif, une progression ou un accomplissement. Tableaux vides [] si rien de pertinent. Max ${MAX_GOALS} objectifs au total. Langue: ${langName}.`;
 
         try {
-            let raw = '';
-            const groqKey = await getGroqApiKey();
-            if (groqKey) {
-                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: getModelMemory(),
-                        messages: [
-                            { role: 'system', content: systemPrompt },
-                            { role: 'user', content: transcriptText.slice(0, 4000) }
-                        ],
-                        max_tokens: 400, temperature: 0.2
-                    })
-                });
-                if (resp.ok) raw = ((await resp.json()).choices?.[0]?.message?.content || '').trim();
-            }
-            if (!raw) raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 4000), temperature: 0.2, maxTokens: 400 });
+            const raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 4000), temperature: 0.2, maxTokens: 400 });
 
             const json = raw.replace(/^```[a-z]*\n?/i, '').replace(/```$/, '').trim();
             const result = JSON.parse(json);
@@ -7171,21 +7096,7 @@ Règles: seulement si l'utilisateur mentionne EXPLICITEMENT un objectif, une pro
         const systemPrompt = `Fusionne ces résumés de sessions en 1 résumé condensé (100 tokens max). Garde les infos clés sur l'utilisateur. Réponds UNIQUEMENT avec le résumé. Langue: ${langName}.`;
 
         try {
-            let summary = '';
-            const groqKey = await getGroqApiKey();
-            if (groqKey) {
-                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: getModelMemory(),
-                        messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: mergeText }],
-                        max_tokens: 120, temperature: 0.3
-                    })
-                });
-                if (resp.ok) summary = ((await resp.json()).choices?.[0]?.message?.content || '').trim();
-            }
-            if (!summary) summary = await chatCompletion({ systemPrompt, userPrompt: mergeText, temperature: 0.3, maxTokens: 120, preferReasoning: true });
+            const summary = await chatCompletion({ systemPrompt, userPrompt: mergeText, temperature: 0.3, maxTokens: 120 });
             if (!summary) return;
 
             const oldest = toMerge[toMerge.length - 1];
@@ -7366,34 +7277,7 @@ Format : [{"title":"...","summary":"...","exchanges":"..."}]`;
 
         try {
             let result = '';
-            const groqKey = await getGroqApiKey();
-            if (groqKey) {
-                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: getModelMemory(),
-                        messages: [
-                            { role: 'system', content: systemPrompt },
-                            { role: 'user', content: transcriptText.slice(0, 6000) }
-                        ],
-                        max_tokens: 600,
-                        temperature: 0.3
-                    })
-                });
-                if (resp.ok) {
-                    const data = await resp.json();
-                    result = (data.choices?.[0]?.message?.content || '').trim();
-                }
-            }
-            if (!result) {
-                result = await chatCompletion({
-                    systemPrompt,
-                    userPrompt: transcriptText.slice(0, 6000),
-                    temperature: 0.3,
-                    maxTokens: 600
-                });
-            }
+            try { result = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 6000), temperature: 0.3, maxTokens: 600 }); } catch (e) { console.warn('[Zova Chapters]', e.message); }
             if (!result) return;
 
             const cleaned = result.replace(/```json\n?|\n?```/g, '').trim();
@@ -7605,33 +7489,9 @@ Règles STRICTES :
 
         try {
             let updated = null;
-            const groqKey = await getGroqApiKey();
-            if (groqKey) {
-                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: getModelMemory(),
-                        messages: [
-                            { role: 'system', content: systemPrompt },
-                            { role: 'user', content: transcriptText.slice(0, 3000) }
-                        ],
-                        max_tokens: 400,
-                        temperature: 0.2
-                    })
-                });
-                if (resp.ok) {
-                    const d = await resp.json();
-                    const raw = (d.choices?.[0]?.message?.content || '').trim();
-                    const m = raw.match(/\{[\s\S]*\}/);
-                    if (m) updated = JSON.parse(m[0]);
-                }
-            }
-            if (!updated) {
-                const raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 3000), temperature: 0.2, maxTokens: 400, preferReasoning: true });
-                const m = raw.match(/\{[\s\S]*\}/);
-                if (m) updated = JSON.parse(m[0]);
-            }
+            const raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 3000), temperature: 0.2, maxTokens: 400 });
+            const m = raw.match(/\{[\s\S]*\}/);
+            if (m) updated = JSON.parse(m[0]);
             if (updated && typeof updated === 'object') {
                 setUserProfile(updated);
                 updateProfileCount();
@@ -7670,33 +7530,9 @@ Règles STRICTES :
 
         try {
             let updated = null;
-            const groqKey = await getGroqApiKey();
-            if (groqKey) {
-                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: getModelMemory(),
-                        messages: [
-                            { role: 'system', content: systemPrompt },
-                            { role: 'user', content: transcriptText.slice(0, 3000) }
-                        ],
-                        max_tokens: 400,
-                        temperature: 0.2
-                    })
-                });
-                if (resp.ok) {
-                    const d = await resp.json();
-                    const raw = (d.choices?.[0]?.message?.content || '').trim();
-                    const m = raw.match(/\{[\s\S]*\}/);
-                    if (m) updated = JSON.parse(m[0]);
-                }
-            }
-            if (!updated) {
-                const raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 3000), temperature: 0.2, maxTokens: 400, preferReasoning: true });
-                const m = raw.match(/\{[\s\S]*\}/);
-                if (m) updated = JSON.parse(m[0]);
-            }
+            const raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 3000), temperature: 0.2, maxTokens: 400 });
+            const m = raw.match(/\{[\s\S]*\}/);
+            if (m) updated = JSON.parse(m[0]);
             if (updated && typeof updated === 'object') {
                 setPersonaProfile(updated, persona.id);
                 updatePersonaProfileCount();
@@ -9614,29 +9450,7 @@ Réponds UNIQUEMENT avec la transcription nettoyée, sans commentaires, sans int
 Langue : ${lang}`;
         try {
             let cleaned = '';
-            const groqKey = await getGroqApiKey();
-            if (groqKey) {
-                const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: getModelMemory(),
-                        messages: [
-                            { role: 'system', content: systemPrompt },
-                            { role: 'user', content: rawText.slice(0, 6000) }
-                        ],
-                        max_tokens: 2000,
-                        temperature: 0.2
-                    })
-                });
-                if (resp.ok) {
-                    const d = await resp.json();
-                    cleaned = (d.choices?.[0]?.message?.content || '').trim();
-                }
-            }
-            if (!cleaned) {
-                cleaned = await chatCompletion({ systemPrompt, userPrompt: rawText.slice(0, 6000), temperature: 0.2, maxTokens: 2000 });
-            }
+            try { cleaned = await chatCompletion({ systemPrompt, userPrompt: rawText.slice(0, 6000), temperature: 0.2, maxTokens: 2000 }); } catch (e) { console.warn('[cleanTranscript]', e.message); }
             return cleaned.length > 20 ? cleaned : rawText;
         } catch(e) {
             console.warn('[cleanTranscript] Failed:', e);
