@@ -5616,7 +5616,8 @@ Réponds UNIQUEMENT avec un JSON valide, sans aucun texte avant ou après, au fo
 
 Pour "prompt" : structure markdown avec titres # — Identité, Personnalité (ton, humour, énergie, expressivité vocale), Langue, Règles de conversation orale, Outils disponibles. Conversation VOCALE : phrases courtes, pas de listes ni markdown dans les réponses parlées, langage naturel. Le persona ${addressRule}. Section Outils : recherche web si utile, météo, date/heure. Rédige le prompt en ${langName}. Le prompt doit être OPÉRATIONNEL et CONCIS, limité STRICTEMENT à 900 caractères maximum.
 Pour "name" : ${nameRule}.
-Pour "description" : une seule phrase en ${langName}.`;
+Pour "description" : une seule phrase en ${langName}.
+IMPÉRATIF : le persona doit saluer et répondre EXCLUSIVEMENT en ${langName}. Inclus dans le prompt une règle de langue explicite imposant ${langName} comme langue de toute la conversation, y compris le premier message d'accueil.`;
 
         const userPrompt = `Sujet / rôle : ${d.topic}
 Ton souhaité : ${toneLabel}
