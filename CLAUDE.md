@@ -26,7 +26,8 @@
 ✅ Evolucionar persona (2.7) — botón "✨ Évoluer" en el modal (junto a Créer/Optimiser, `#evolvePromptBtn`) : pide directriz libre vía `customPrompt({type:'text'})` → meta-prompt de mutación (fusiona prompt actual + directriz, ≤900 chars) vía `chatCompletion()` → escribe en `#pPrompt` para revisar y guardar (persistencia vía Save existente / `savePersonas()`, NO sobrescritura silenciosa). Trilingue (`persona_evolve*`)
 ✅ Límite de caracteres (2.3) — `generatePersonaFromWizard()` instruye ≤900 chars en el campo `prompt` + recorte de seguridad `slice(0,900)` tras el parseo (ahorra tokens en la API de voz tiempo real)
 ✅ Chips dinámicos (2.2) — paso 1 del wizard inyecta hasta 3 chips ✨ desde `getUserProfile().topics` (dedup vs estáticos, `esc()`, máx 3) tras los 6 estáticos de `WIZ_TOPIC_SUGGESTIONS`. Plan : `docs/superpowers/plans/2026-06-11-v3.3-faseC-wizard.md`
-✅ Fuera de alcance (siguiente iteración) : 2.1 samples de voz, 2.4/2.5/2.6 (retry/i18n/backButton ya parcialmente hechos)
+✅ Endurecimiento (2.4/2.5/2.6) — **2.4** zona de rescate : `currentWizardDraft` + `openPersonaWizard(draft)` ; al caer a manual tras un fallo, el `#wizardBanner` muestra "↻ Reintentar generación" que reabre el wizard con las respuestas intactas (claves `wiz_rescue`/`wiz_retry_auto`). **2.5** el meta-prompt del wizard impone idioma `${langName}` para el saludo y toda la conversación. **2.6** `closePersonaWizard()` resetea `wizardStep` ; el listener `backButton` único ya delega bien (recul d'étape si wizard `.active` & step>0), sin cambios al handler
+✅ Fuera de alcance (siguiente iteración) : 2.1 samples de voz
 
 **Bloque 4 — DeepSeek + Qwen (batch/texto, NO voz tiempo real)**
 ✅ Claves en Keystore — `get/setDeepseekApiKey`, `get/setQwenApiKey` (`SecureStore`, prefijos `buddy_deepseekApiKey`/`buddy_qwenApiKey`) + inputs en el modal API (`#deepseekApiKeyInput`/`#qwenApiKeyInput`)
