@@ -420,7 +420,7 @@
 
     <span class="version-badge">✦ v3.3 — Maintenant disponible</span>
 
-    <a class="btn-dl" href="https://github.com/Soundsystemcanal/zova-app/releases/latest">
+    <a class="btn-dl" data-dl-apk href="https://github.com/Soundsystemcanal/zova-app/releases/download/v3.3/Zova-v3.3.apk">
         ⬇&nbsp; Télécharger Zova v3.3
     </a>
 
@@ -844,7 +844,7 @@
 <div class="cta">
     <h2>Prêt à reprendre le contrôle ?</h2>
     <p>Tes pensées, ta voix, ton IA. Personne d'autre.</p>
-    <a class="btn-dl" href="https://github.com/Soundsystemcanal/zova-app/releases/latest">
+    <a class="btn-dl" data-dl-apk href="https://github.com/Soundsystemcanal/zova-app/releases/download/v3.3/Zova-v3.3.apk">
         ⬇&nbsp; Télécharger Zova v3.3
     </a>
 </div>
@@ -1213,9 +1213,25 @@
     qa('.lang-btn').forEach(function(b){ b.classList.toggle('lang-active', b.dataset.lang === l); });
   }
 
+  // Téléchargement direct de l'APK avec confirmation
+  var DL_CONFIRM = {
+    fr: 'Télécharger Zova v3.3 (APK ~6 Mo) ?\n\nSi tu as déjà Zova, installe le fichier par-dessus : tes données et mémoires sont conservées.',
+    en: 'Download Zova v3.3 (APK ~6 MB)?\n\nIf you already have Zova, install the file over it: your data and memories are kept.',
+    es: '¿Descargar Zova v3.3 (APK ~6 MB)?\n\nSi ya tienes Zova, instala el archivo encima: se conservan tus datos y memorias.'
+  };
+  function curLang(){ var l = document.documentElement.lang; return DL_CONFIRM[l] ? l : 'fr'; }
+
   document.addEventListener('DOMContentLoaded', function(){
     qa('.lang-btn').forEach(function(b){
       b.addEventListener('click', function(){ localStorage.setItem('zova_lang', b.dataset.lang); applyLang(b.dataset.lang); });
+    });
+    qa('[data-dl-apk]').forEach(function(a){
+      a.addEventListener('click', function(e){
+        e.preventDefault();
+        if (window.confirm(DL_CONFIRM[curLang()])) {
+          window.location.href = a.href; // GitHub sert l'APK en pièce jointe → téléchargement direct
+        }
+      });
     });
     applyLang(lang);
   });
