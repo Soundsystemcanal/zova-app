@@ -11022,23 +11022,25 @@ Règles de format :
     document.getElementById('viewProfileBtn').addEventListener('click', () => {
         const activeId = getActiveId();
         const activePersona = activeId ? getPersonas().find(p => p.id === activeId) : null;
-        const personaProf = activeId ? getPersonaProfile(activeId) : null;
-        if (!personaProfileHasContent(personaProf)) {
-            customAlert(t('profile_none'), { title: `👤 Profil ${activePersona?.name || ''}`, icon: '👤' });
-            return;
-        }
-        const lines = [];
-        const summL  = LANG === 'es' ? 'Resumen' : LANG === 'en' ? 'Summary' : 'Résumé';
-        const factsL = LANG === 'es' ? 'Lo que sabe' : LANG === 'en' ? 'What it knows' : "Ce qu'il sait";
-        const goalsL = LANG === 'es' ? 'Objetivos' : LANG === 'en' ? 'Goals' : 'Objectifs';
-        const prefL  = LANG === 'es' ? 'Estilo' : LANG === 'en' ? 'Style' : 'Style attendu';
-        const updL   = LANG === 'es' ? 'Actualizado' : LANG === 'en' ? 'Updated' : 'Mis à jour';
-        if (personaProf.summary) lines.push(`<b>${summL} :</b> ${personaProf.summary}`);
-        if (personaProf.facts?.length) lines.push(`<b>${factsL} :</b><br>• ${personaProf.facts.join('<br>• ')}`);
-        if (personaProf.goals?.length) lines.push(`<b>${goalsL} :</b> ${personaProf.goals.join(', ')}`);
-        if (personaProf.preferences) lines.push(`<b>${prefL} :</b> ${personaProf.preferences}`);
-        if (personaProf.lastUpdated) lines.push(`<small style="opacity:0.6">${updL} : ${personaProf.lastUpdated}</small>`);
-        customAlert(lines.join('<br><br>'), { title: `👤 Profil ${activePersona?.name || ''}`, icon: '🪪' });
+        openItemManager({
+            title: `Profil ${activePersona?.name || ''}`, icon: '🪪',
+            emptyMsg: t('profile_none'),
+            build: () => {
+                const prof = activeId ? getPersonaProfile(activeId) : null;
+                if (!prof) return [];
+                const rows = [];
+                (prof.facts || []).forEach(f => rows.push({
+                    text: `📌 ${f}`,
+                    remove: () => { const p = getPersonaProfile(activeId); const idx = (p.facts || []).indexOf(f); if (idx > -1) { p.facts.splice(idx, 1); setPersonaProfile(p, activeId); } }
+                }));
+                (prof.goals || []).forEach(g => rows.push({
+                    text: `🎯 ${g}`,
+                    remove: () => { const p = getPersonaProfile(activeId); const idx = (p.goals || []).indexOf(g); if (idx > -1) { p.goals.splice(idx, 1); setPersonaProfile(p, activeId); } }
+                }));
+                return rows;
+            },
+            afterChange: () => updatePersonaProfileCount()
+        });
     });
 
     document.getElementById('clearProfileBtn').addEventListener('click', async () => {
@@ -11061,38 +11063,34 @@ Règles de format :
 
     // Small link to access the global profile
     document.getElementById('viewGlobalProfileBtn').addEventListener('click', () => {
-        const p = getUserProfile();
-        if (!profileHasContent(p)) {
-            customAlert(t('profile_none'), { title: '👤 ' + t('config_section_profile'), icon: '👤' });
-            return;
-        }
-        const lines = [];
-        const nameL  = LANG === 'es' ? 'Nombre' : LANG === 'en' ? 'Name' : 'Nom';
-        const langL  = LANG === 'es' ? 'Idiomas' : LANG === 'en' ? 'Languages' : 'Langues';
-        const styleL = LANG === 'es' ? 'Estilo' : LANG === 'en' ? 'Style' : 'Style';
-        const topicL = LANG === 'es' ? 'Temas' : LANG === 'en' ? 'Topics' : 'Sujets';
-        const factsL = LANG === 'es' ? 'Datos' : LANG === 'en' ? 'Facts' : 'Infos';
-        const goalsL = LANG === 'es' ? 'Objetivos' : LANG === 'en' ? 'Goals' : 'Objectifs';
-        const updL   = LANG === 'es' ? 'Actualizado' : LANG === 'en' ? 'Updated' : 'Mis à jour';
-        if (p.name) lines.push(`<b>${nameL} :</b> ${p.name}`);
-        if (p.languages?.length) lines.push(`<b>${langL} :</b> ${p.languages.join(', ')}`);
-        if (p.style) lines.push(`<b>${styleL} :</b> ${p.style}`);
-        if (p.topics?.length) lines.push(`<b>${topicL} :</b> ${p.topics.join(', ')}`);
-        if (p.facts?.length) lines.push(`<b>${factsL} :</b><br>• ${p.facts.join('<br>• ')}`);
-        if (p.goals?.length) lines.push(`<b>${goalsL} :</b> ${p.goals.join(', ')}`);
-        if (p.lastUpdated) lines.push(`<small style="opacity:0.6">${updL} : ${p.lastUpdated}</small>`);
-        const clearGlobal = async () => {
-            if (!await customConfirm(
-                LANG === 'es' ? 'Borrar el perfil general?' : LANG === 'en' ? 'Clear global profile?' : 'Effacer le profil général ?',
-                { confirmLabel: LANG === 'es' ? 'Borrar' : LANG === 'en' ? 'Clear' : 'Effacer', danger: true }
-            )) return;
-            localStorage.removeItem(PROFILE_KEY);
-            customAlert(LANG === 'es' ? 'Perfil general borrado.' : LANG === 'en' ? 'Global profile cleared.' : 'Profil général effacé.', { icon: '✅' });
-        };
-        customAlert(
-            lines.join('<br><br>') + `<br><br><button onclick="(${clearGlobal.toString()})()" style="background:none;border:1px solid var(--danger);color:var(--danger);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:0.82rem;">🗑️ ${LANG === 'es' ? 'Borrar perfil general' : LANG === 'en' ? 'Clear global profile' : 'Effacer profil général'}</button>`,
-            { title: '👤 ' + t('config_section_profile'), icon: '🌐' }
-        );
+        openItemManager({
+            title: t('config_section_profile'), icon: '🌐',
+            emptyMsg: t('profile_none'),
+            footerHtml: `<button class="dialog-btn" id="_imFooter" style="color:var(--danger)">🗑️</button>`,
+            build: () => {
+                const p = getUserProfile();
+                if (!p) return [];
+                const rows = [];
+                const addArr = (arr, prefix, field) => (arr || []).forEach((v) => rows.push({
+                    text: `${prefix} ${v}`,
+                    remove: () => { const cur = getUserProfile(); const idx = (cur[field] || []).indexOf(v); if (idx > -1) { cur[field].splice(idx, 1); setUserProfile(cur); } }
+                }));
+                addArr(p.facts, '📌', 'facts');
+                addArr(p.topics, '🏷️', 'topics');
+                addArr(p.goals, '🎯', 'goals');
+                addArr(p.languages, '🗣️', 'languages');
+                return rows;
+            },
+            onFooter: async () => {
+                if (!await customConfirm(
+                    LANG === 'es' ? '¿Borrar el perfil general?' : LANG === 'en' ? 'Clear global profile?' : 'Effacer le profil général ?',
+                    { confirmLabel: LANG === 'es' ? 'Borrar' : LANG === 'en' ? 'Clear' : 'Effacer', danger: true }
+                )) return;
+                localStorage.removeItem(PROFILE_KEY);
+                document.querySelectorAll('.dialog-overlay').forEach(o => o.remove());
+                customAlert(LANG === 'es' ? 'Perfil general borrado.' : LANG === 'en' ? 'Global profile cleared.' : 'Profil général effacé.', { icon: '✅' });
+            }
+        });
     });
 
     document.getElementById('exportProfileMdBtn').addEventListener('click', exportUserProfileMd);
