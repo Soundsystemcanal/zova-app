@@ -5096,7 +5096,8 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
 
     async function hasAnyApiKey() {
         return !!(await getApiKey() || await getGeminiApiKey() ||
-                  await getUltravoxApiKey() || await getGroqApiKey());
+                  await getUltravoxApiKey() || await getGroqApiKey() ||
+                  await getDeepseekApiKey() || await getQwenApiKey());
     }
 
     async function openApiKeyModal() {
