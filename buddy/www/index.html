@@ -6192,6 +6192,16 @@ Règles IMPÉRATIVES :
         const list = getPersonas();
         grid.innerHTML = '';
 
+        // Carte "+ Nouveau" en PREMIER — toujours visible, ouvre le choix guidé/manuel
+        const newCard = document.createElement('div');
+        newCard.className = 'welcome-card welcome-card-new';
+        newCard.innerHTML = `
+            <div class="welcome-card-new-icon">+</div>
+            <div class="welcome-card-name">Nouveau persona</div>
+        `;
+        newCard.addEventListener('click', () => openPersonaChoiceSheet());
+        grid.appendChild(newCard);
+
         list.forEach(p => {
             const card = document.createElement('div');
             card.className = 'welcome-card';
@@ -6295,16 +6305,6 @@ Règles IMPÉRATIVES :
         `;
         importCard.addEventListener('click', () => showImportSheet('importPersonaInput', 'Importer un persona'));
         grid.appendChild(importCard);
-
-        // Carte "+ Nouveau"
-        const newCard = document.createElement('div');
-        newCard.className = 'welcome-card welcome-card-new';
-        newCard.innerHTML = `
-            <div class="welcome-card-new-icon">+</div>
-            <div class="welcome-card-name">Nouveau persona</div>
-        `;
-        newCard.addEventListener('click', () => openPersonaModal());
-        grid.appendChild(newCard);
 
         // Carte Transcripteur
         const trCard = document.createElement('div');
