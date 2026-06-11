@@ -20,6 +20,14 @@
 
 ## Estado (2026-06-10)
 
+### v3.2 — 🪄 Création de persona guidée (main, non publié) — testé sur Xiaomi 14T (CDP + génération réelle)
+✅ Feuille de choix — « + Nuevo » ouvre `openPersonaChoiceSheet()` (`.dialog-overlay`) : Création guidée ✨ ou Configuration manuelle ⚙️ (mode manuel inchangé)
+✅ Wizard 5 étapes — `openPersonaWizard()` : sujet (texte + puces de suggestion) → ton → tutoie/vouvoie + qui commence → nom (ou « l'IA choisit ») → style de réponses ; barre de progression, retour Android recule d'une étape (garde dans le handler `backButton`)
+✅ Mapping déterministe — `WIZARD_VOICE_MAP` (ton→voix par fournisseur, repli via `updatePersonaVoiceList`), style→`creativity`, qui commence→`greeting`, réactivité=balanced ; aucune valeur structurée laissée à l'IA
+✅ Génération IA — `generatePersonaFromWizard()` : 1 seul appel `chatCompletion` → JSON `{name,description,prompt}`, parsing robuste `wizParseJson()` (JSON.parse → regex `{…}` → repli dégradé), verrou `wizGenerating` anti-runs concurrents (reset à la fermeture)
+✅ Aperçu éditable — `applyWizardResult()` ouvre le modal manuel pré-rempli (ordre : `openPersonaModal()` PUIS écrasement des champs PUIS `updatePersonaVoiceList`) + bandeau `#wizardBanner` ; gestion d'erreur Réessayer / Continuer en manuel
+✅ Trilingue ES/EN/FR (clés `wiz_*`, `tone_*`, `crea_*`). Spec+plan : `docs/superpowers/specs|plans/2026-06-10-persona-wizard*`
+
 ### v3.1 — 🔐 Sécurité renforcée (main) — testé sur Xiaomi 14T (CDP)
 ✅ Biométrie native — `@aparajita/capacitor-biometric-auth` (BiometricPrompt Android), remplace l'ancien `navigator.credentials` factice ; auto-prompt à l'ouverture, bouton 🤙 masqué si pas d'empreinte enrôlée  
 ✅ Lockout PIN — 5 essais tolérés puis délai exponentiel (30 s → 15 min max), persistant via localStorage (`buddy_pin_fails` / `buddy_pin_lockuntil`), clavier gelé + compte à rebours ; biométrie reste autorisée pendant le verrou  
@@ -126,6 +134,7 @@ index.html (single-file app)
     ├── PIN lock: 4 dígitos (Keystore) + lockout exponentiel + biométrie native (BiometricAuthNative)
     ├── Backup crypto: encryptBackup()/decryptBackup() — WebCrypto AES-256-GCM + PBKDF2
     ├── customPrompt(): dialogue avec champ saisie (mot de passe)
+    ├── Persona wizard: openPersonaChoiceSheet()/openPersonaWizard()/generatePersonaFromWizard() — création guidée 5 étapes (voir État v3.2)
     ├── Mémoire v3 — 7 couches (voir section Mémoire v3)
     ├── checkMemoryCommand(): 14 patterns FR/EN/ES → saveMemoryFact() → toast 🧠
     ├── showPostSessionSummary(): carte durée+coût+3 lignes async dans transcript
