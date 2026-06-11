@@ -2812,12 +2812,19 @@ Minimum version required to store current data is: `+i+`.
                         <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
 
                         <!-- 🧠 Mémoire -->
-                        <label for="modelMemorySelect">🧠 Mémoire épisodique</label>
-                        <div class="hint" style="margin-bottom:8px">Modèle pour extraire et résumer les souvenirs de conversation.</div>
+                        <label for="modelMemorySelect">🧠 <span data-i18n="config_model_text_tasks">Tâches texte (mémoire, wizard, profil)</span></label>
+                        <div class="hint" style="margin-bottom:8px" data-i18n="config_model_text_hint">Modèle pour la mémoire, le wizard, le profil et la consolidation (hors voix).</div>
                         <select id="modelMemorySelect" class="model-action-select">
-                            <option value="llama3-8b-8192">🟢 Llama 3 8B — économique ($0.05/M tokens)</option>
-                            <option value="llama-3.3-70b-versatile">🟡 Llama 3.3 70B — équilibré ($0.59/M tokens)</option>
-                            <option value="gemma2-9b-it">🔵 Gemma 2 9B — alternatif ($0.20/M tokens)</option>
+                            <optgroup label="Groq">
+                                <option value="llama3-8b-8192">🟢 Llama 3 8B — économique ($0.05/M tokens)</option>
+                                <option value="llama-3.3-70b-versatile">🟡 Llama 3.3 70B — équilibré ($0.59/M tokens)</option>
+                                <option value="gemma2-9b-it">🔵 Gemma 2 9B — alternatif ($0.20/M tokens)</option>
+                            </optgroup>
+                            <optgroup label="DeepSeek / Qwen">
+                                <option value="ds-reasoner">🧠 DeepSeek-R1 — raisonnement (~$0.14/M)</option>
+                                <option value="ds-chat">💬 DeepSeek-chat V3 — rapide (~$0.14/M)</option>
+                                <option value="qwen">🌐 Qwen 2.5 72B — multilingue ES/FR/EN</option>
+                            </optgroup>
                         </select>
 
                         <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
@@ -3267,6 +3274,8 @@ Minimum version required to store current data is: `+i+`.
             config_privacy_hint: 'Tus datos se quedan en este dispositivo.',
             config_wipe_all: 'Borrar todos los datos IA',
             config_export_profile_md: 'Exportar mi perfil (.md)',
+            config_model_text_tasks: 'Tareas de texto (memoria, wizard, perfil)',
+            config_model_text_hint: 'Modelo para memoria, wizard, perfil y consolidación (no voz).',
             wipe_all_confirm: '¿Borrar TODOS los datos IA (memoria, perfiles, objetivos, seguimientos) de TODAS las personas? Las personas y las claves API se conservan. Acción irreversible.',
             wipe_all_done: 'Todos los datos IA han sido borrados.',
             config_view_goals: 'Ver objetivos',
@@ -3409,6 +3418,8 @@ Minimum version required to store current data is: `+i+`.
             config_privacy_hint: 'Your data stays on this device.',
             config_wipe_all: 'Erase all AI data',
             config_export_profile_md: 'Export my profile (.md)',
+            config_model_text_tasks: 'Text tasks (memory, wizard, profile)',
+            config_model_text_hint: 'Model for memory, wizard, profile and consolidation (not voice).',
             wipe_all_confirm: 'Erase ALL AI data (memory, profiles, goals, follow-ups) for ALL personas? Personas and API keys are kept. This cannot be undone.',
             wipe_all_done: 'All AI data has been erased.',
             config_view_goals: 'View goals',
@@ -3551,6 +3562,8 @@ Minimum version required to store current data is: `+i+`.
             config_privacy_hint: 'Vos données restent sur cet appareil.',
             config_wipe_all: 'Effacer toutes les données IA',
             config_export_profile_md: 'Exporter mon profil (.md)',
+            config_model_text_tasks: 'Tâches texte (mémoire, wizard, profil)',
+            config_model_text_hint: 'Modèle pour la mémoire, le wizard, le profil et la consolidation (hors voix).',
             wipe_all_confirm: 'Effacer TOUTES les données IA (mémoire, profils, objectifs, suivis) de TOUS les personas ? Les personas et les clés API sont conservés. Action irréversible.',
             wipe_all_done: 'Toutes les données IA ont été effacées.',
             config_view_goals: 'Voir les objectifs',
@@ -10591,10 +10604,26 @@ Règles de format :
         groqSel.value = getModelGroq();
         groqSel.addEventListener('change', () => localStorage.setItem('buddy_modelGroq', groqSel.value));
 
-        // Memory model
+        // Memory / text-task model
         const memSel = document.getElementById('modelMemorySelect');
         memSel.value = getModelMemory();
         memSel.addEventListener('change', () => localStorage.setItem('buddy_modelMemory', memSel.value));
+        // Gate DeepSeek/Qwen options on key presence; fall back to Groq default if selected provider lost its key
+        (async () => {
+            const hasDs = !!(await getDeepseekApiKey());
+            const hasQwen = !!(await getQwenApiKey());
+            const dsR = memSel.querySelector('option[value="ds-reasoner"]');
+            const dsC = memSel.querySelector('option[value="ds-chat"]');
+            const qw  = memSel.querySelector('option[value="qwen"]');
+            if (dsR) dsR.disabled = !hasDs;
+            if (dsC) dsC.disabled = !hasDs;
+            if (qw)  qw.disabled  = !hasQwen;
+            const cur = memSel.value;
+            if (((cur === 'ds-reasoner' || cur === 'ds-chat') && !hasDs) || (cur === 'qwen' && !hasQwen)) {
+                memSel.value = 'llama3-8b-8192';
+                localStorage.setItem('buddy_modelMemory', 'llama3-8b-8192');
+            }
+        })();
 
         // Insight model
         const insSel = document.getElementById('modelInsightSelect');
