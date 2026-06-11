@@ -4,9 +4,9 @@
 
 ## Resumen rápido
 
-**Zova** es una app Android de voz IA con personas configurables. Single-file HTML + Capacitor. Sin backend. Usa OpenAI Realtime API / Ultravox / Groq. API keys en Android Keystore.
+**Zova** es una app Android de voz IA con personas configurables. Single-file HTML + Capacitor. Sin backend. Voz: OpenAI Realtime / Gemini Live / Ultravox / Groq pipeline. Texto (memoria, wizard, perfil): router `chatCompletion()` con selector (Groq / OpenAI / Gemini / DeepSeek / Qwen). API keys en Android Keystore.
 
-- **App:** `buddy/www/index.html` (~9100 líneas)  
+- **App:** `buddy/www/index.html` (~11 100 líneas)  
 - **Android:** `buddy/android/`  
 - **Icono fuente:** `buddy/assets/icon.svg` (micrófono Dark Cosmos) → compilado a `icon.png`
 - **ID:** `com.zova.voiceapp`
@@ -157,13 +157,15 @@ index.html (single-file app)
     ├── FAQ_CONTENT: objet trilingue 6 Q&A, openFaqModal() avec accordéon
     ├── DEFAULT_PERSONA_ZOVA: "Profile Builder" — apprend à connaître l'user (id: zova-default-v1)
     ├── SecureStorage: Android Keystore via capacitor-secure-storage-plugin
-    ├── Providers: OpenAI Realtime, Gemini Live, Ultravox, Groq pipeline
+    ├── Providers VOZ (temps réel): OpenAI Realtime, Gemini Live, Ultravox, Groq pipeline (STT→LLM→TTS)
+    ├── Providers TEXTO (batch): chatCompletion() = router único — getTextProvider() lee selector #modelMemorySelect (buddy_modelMemory), callTextProvider() despacha groq/openai/gemini/deepseek/qwen; selección 1ª, resto fallback
     ├── WakeLock: screen-on durante conversación
     ├── Reconnect: auto-retry 3x si WS cierra inesperadamente
     ├── PIN lock: 4 dígitos (Keystore) + lockout exponentiel + biométrie native (BiometricAuthNative)
     ├── Backup crypto: encryptBackup()/decryptBackup() — WebCrypto AES-256-GCM + PBKDF2
     ├── customPrompt(): dialogue avec champ saisie (mot de passe)
-    ├── Persona wizard: openPersonaChoiceSheet()/openPersonaWizard()/generatePersonaFromWizard() — création guidée 5 étapes (voir État v3.2)
+    ├── Persona wizard: openPersonaChoiceSheet()/openPersonaWizard(draft?)/generatePersonaFromWizard() — création guidée 5 étapes, chips dynamiques (profil), prompt ≤900 chars, zone de rescate (currentWizardDraft), greeting en langue app
+    ├── Évoluer persona: #evolvePromptBtn → customPrompt(directive) → méta-prompt de mutation → #pPrompt (voir État Bloque 2/Fase C)
     ├── Mémoire v3 — 7 couches (voir section Mémoire v3)
     ├── checkMemoryCommand(): 14 patterns FR/EN/ES → saveMemoryFact() → toast 🧠
     ├── showPostSessionSummary(): carte durée+coût+3 lignes async dans transcript
@@ -276,9 +278,21 @@ index.html (single-file app)
 
 ## Providers y costes
 
+**Voz (tiempo real)** — seleccionable en Config → Modèles, selector "🎙️ Conversations" :
+
 | Provider | Modelo | Coste aprox. |
 |----------|--------|-------------|
 | OpenAI Realtime | gpt-4o-realtime | ~$0.06/min |
 | Gemini Live | gemini-2.0-flash | ~$0.01/min |
 | Ultravox | ultravox-70B | ~$0.005/min |
 | Groq pipeline | Whisper + Llama 3 | ~$0.001/min |
+
+**Texto (batch: memoria, wizard, perfil)** — vía `chatCompletion()`, seleccionable en Config → Modèles, selector "🧠 Tâches texte" :
+
+| Provider | Modelo | Coste aprox. (texto) |
+|----------|--------|----------------------|
+| Groq | llama3-8b-8192 / llama-3.3-70b / gemma2-9b | ~$0.05–0.59/M tokens |
+| OpenAI | gpt-4o-mini | ~$0.15/M tokens |
+| Gemini | gemini-2.0-flash | ~$0.10/M tokens |
+| DeepSeek | deepseek-reasoner (R1) / deepseek-chat (V3) | ~$0.14/M tokens |
+| Qwen (DashScope intl) | qwen-2.5-72b-instruct | bajo coste, multilingüe |
