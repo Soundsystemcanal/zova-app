@@ -24,8 +24,12 @@
 **Bloque 4 — DeepSeek + Qwen (batch/texto, NO voz tiempo real)**
 ✅ Claves en Keystore — `get/setDeepseekApiKey`, `get/setQwenApiKey` (`SecureStore`, prefijos `buddy_deepseekApiKey`/`buddy_qwenApiKey`) + inputs en el modal API (`#deepseekApiKeyInput`/`#qwenApiKeyInput`)
 ✅ APIs compatibles OpenAI — `COMPAT_PROVIDERS` registry + helper DRY `postOpenAIFormat()` (fetch `/chat/completions`). DeepSeek `api.deepseek.com/v1` (`deepseek-chat`/`deepseek-reasoner`), Qwen `dashscope-intl.aliyuncs.com/compatible-mode/v1` (`qwen-2.5-72b-instruct`)
-✅ `chatCompletion({systemPrompt,userPrompt,temperature,maxTokens,preferReasoning})` — cadena de fallback: DeepSeek-R1 (si `preferReasoning`) → OpenAI → Gemini → DeepSeek-chat → Qwen ; `hasAnyApiKey()` reconoce configs solo-DeepSeek/Qwen
-✅ Perfil + consolidación de memoria ruteados a DeepSeek-R1 (`preferReasoning:true` en `updateUserProfile`/`consolidatePersonaMemories`). Plan : `docs/superpowers/plans/2026-06-11-v3.3-deepseek-qwen.md`
+✅ `hasAnyApiKey()` reconoce configs solo-DeepSeek/Qwen. Plan inicial : `docs/superpowers/plans/2026-06-11-v3.3-deepseek-qwen.md`
+
+**Bloque 4.3 — Selector único de proveedor de texto (DeepSeek/Qwen seleccionables)**
+✅ Router unificado — `chatCompletion({systemPrompt,userPrompt,temperature,maxTokens})` es el ÚNICO punto de entrada de tareas de texto. Groq **plegado dentro** (helper `callTextProvider(type,model,key,args)` despacha groq/openai/gemini/deepseek/qwen). El proveedor elegido en el selector se intenta PRIMERO; resto = cadena de respaldo (`getTextProvider()` lee `buddy_modelMemory`). Se eliminó `preferReasoning` (el selector gobierna)
+✅ DRY — los 8 sitios de texto (`generateMemory`, `extractFollowUpsAndBridge`, `extractAndUpdateGoals`, `consolidatePersonaMemories`, `generateChapters`, `updateUserProfile`, `updatePersonaProfile`, `cleanTranscriptWithLLM`) colapsados de "Groq-first inline + fallback" a 1 sola llamada `chatCompletion()`. El pipeline de **voz** Groq (STT→LLM→TTS, ~`8325`) NO se tocó
+✅ UI — selector `#modelMemorySelect` reetiquetado "🧠 Tareas de texto (memoria, wizard, perfil)" con 2 `<optgroup>` (Groq + DeepSeek/Qwen : `ds-reasoner`/`ds-chat`/`qwen`). Opciones DeepSeek/Qwen **deshabilitadas si no hay clave** (en `initModelSelectors`); si el valor guardado pierde su clave → vuelve a Groq 8B. Trilingue (`config_model_text_tasks`, `config_model_text_hint`). Plan : `docs/superpowers/plans/2026-06-11-v3.3-text-provider-selector.md`
 
 **Bloque 5 / Fase B — Privacidad**
 ✅ Contraste de Config — clase `.config-section-title` (`#f5f3ff` + text-shadow), reemplaza el inline `--text-muted` casi invisible en los 8 títulos de sección
