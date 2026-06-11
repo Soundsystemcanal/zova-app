@@ -5451,8 +5451,20 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         document.getElementById('wizError').textContent = '';
 
         const sugg = WIZ_TOPIC_SUGGESTIONS[LANG] || WIZ_TOPIC_SUGGESTIONS.fr;
-        document.getElementById('wizTopicChips').innerHTML = sugg.map(s =>
-            `<span class="wiz-chip" data-topic="${s}">${s}</span>`).join('');
+        // Chips dynamiques : jusqu'à 3 centres d'intérêt du profil utilisateur, sans doublonner les statiques
+        const prof = getUserProfile();
+        const dyn = [];
+        if (prof && Array.isArray(prof.topics)) {
+            const lowerStatic = sugg.map(s => s.toLowerCase());
+            for (const tpc of prof.topics) {
+                const tt = (tpc || '').toString().trim();
+                if (tt && tt.length <= 40 && !lowerStatic.includes(tt.toLowerCase()) && !dyn.some(d => d.toLowerCase() === tt.toLowerCase())) dyn.push(tt);
+                if (dyn.length >= 3) break;
+            }
+        }
+        const staticHtml = sugg.map(s => `<span class="wiz-chip" data-topic="${s}">${s}</span>`).join('');
+        const dynHtml = dyn.map(s => `<span class="wiz-chip wiz-chip-dyn" data-topic="${esc(s)}">✨ ${esc(s)}</span>`).join('');
+        document.getElementById('wizTopicChips').innerHTML = staticHtml + dynHtml;
         document.querySelectorAll('#wizTopicChips .wiz-chip').forEach(c =>
             c.addEventListener('click', () => {
                 const ta = document.getElementById('wizTopic');
