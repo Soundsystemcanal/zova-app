@@ -7071,7 +7071,7 @@ Règles: seulement si l'utilisateur mentionne EXPLICITEMENT un objectif, une pro
                 });
                 if (resp.ok) summary = ((await resp.json()).choices?.[0]?.message?.content || '').trim();
             }
-            if (!summary) summary = await chatCompletion({ systemPrompt, userPrompt: mergeText, temperature: 0.3, maxTokens: 120 });
+            if (!summary) summary = await chatCompletion({ systemPrompt, userPrompt: mergeText, temperature: 0.3, maxTokens: 120, preferReasoning: true });
             if (!summary) return;
 
             const oldest = toMerge[toMerge.length - 1];
@@ -7486,7 +7486,7 @@ Règles STRICTES :
                 }
             }
             if (!updated) {
-                const raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 3000), temperature: 0.2, maxTokens: 400 });
+                const raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 3000), temperature: 0.2, maxTokens: 400, preferReasoning: true });
                 const m = raw.match(/\{[\s\S]*\}/);
                 if (m) updated = JSON.parse(m[0]);
             }
@@ -7551,7 +7551,7 @@ Règles STRICTES :
                 }
             }
             if (!updated) {
-                const raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 3000), temperature: 0.2, maxTokens: 400 });
+                const raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 3000), temperature: 0.2, maxTokens: 400, preferReasoning: true });
                 const m = raw.match(/\{[\s\S]*\}/);
                 if (m) updated = JSON.parse(m[0]);
             }
