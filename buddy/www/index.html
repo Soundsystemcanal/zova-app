@@ -5593,7 +5593,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
 Réponds UNIQUEMENT avec un JSON valide, sans aucun texte avant ou après, au format EXACT :
 {"name":"<nom>","description":"<une phrase>","prompt":"<system prompt markdown>"}
 
-Pour "prompt" : structure markdown avec titres # — Identité, Personnalité (ton, humour, énergie, expressivité vocale), Langue, Règles de conversation orale, Outils disponibles. Conversation VOCALE : phrases courtes, pas de listes ni markdown dans les réponses parlées, langage naturel. Le persona ${addressRule}. Section Outils : recherche web si utile, météo, date/heure. Rédige le prompt en ${langName}.
+Pour "prompt" : structure markdown avec titres # — Identité, Personnalité (ton, humour, énergie, expressivité vocale), Langue, Règles de conversation orale, Outils disponibles. Conversation VOCALE : phrases courtes, pas de listes ni markdown dans les réponses parlées, langage naturel. Le persona ${addressRule}. Section Outils : recherche web si utile, météo, date/heure. Rédige le prompt en ${langName}. Le prompt doit être OPÉRATIONNEL et CONCIS, limité STRICTEMENT à 900 caractères maximum.
 Pour "name" : ${nameRule}.
 Pour "description" : une seule phrase en ${langName}.`;
 
@@ -5614,6 +5614,7 @@ ${d.name ? 'Nom imposé : ' + d.name : 'Nom : à proposer'}`;
                 };
             }
             if (d.name) parsed.name = d.name;
+            if (parsed.prompt && parsed.prompt.length > 900) parsed.prompt = parsed.prompt.slice(0, 900);
             applyWizardResult(parsed);
         } catch (err) {
             errEl.innerHTML = t('wiz_err') +
