@@ -89,6 +89,8 @@
             padding: 16px 36px;
             border-radius: 50px;
             text-decoration: none;
+            white-space: nowrap;
+            max-width: 100%;
             box-shadow: 0 6px 30px rgba(139,92,246,0.45);
             transition: transform 0.2s, box-shadow 0.2s;
             margin-bottom: 28px;
@@ -371,7 +373,32 @@
             .hero { padding: 80px 20px 80px; }
             th, td { padding: 11px 12px; font-size: 0.82rem; }
             .topnav { padding: 10px 18px; }
+            .btn-dl { font-size: 0.95rem; padding: 14px 22px; gap: 8px; }
         }
+
+        /* Back-to-top floating button */
+        #toTop {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+            font-size: 1.3rem;
+            line-height: 1;
+            cursor: pointer;
+            box-shadow: 0 6px 24px rgba(139,92,246,0.5);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: opacity 0.25s, transform 0.25s, visibility 0.25s;
+            z-index: 9000;
+        }
+        #toTop.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        #toTop:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(139,92,246,0.65); }
 
         /* WHY SECTION (flux + carousel + piliers) */
         #zova-why > * { max-width: 860px; margin-left: auto; margin-right: auto; }
@@ -413,11 +440,6 @@
     <p class="hero-slogan">Ton IA. Ton téléphone. Tes règles.</p>
     <p class="hero-sub">Assistant vocal IA pour Android — sans serveur intermédiaire, sans abonnement mensuel, sans surveillance. Tes clés API restent sur ton téléphone.</p>
 
-    <div class="android-badge">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#6ee7a8" xmlns="http://www.w3.org/2000/svg"><path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85a.637.637 0 0 0-.83.22l-1.88 3.24a11.46 11.46 0 0 0-8.94 0L5.65 5.67a.643.643 0 0 0-.87-.2c-.28.18-.37.54-.22.83L6.4 9.48A10.78 10.78 0 0 0 1 18h22a10.78 10.78 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>
-        <span data-i18n="hero_android">Exclusivement Android · Optimisé pour Xiaomi 14T</span>
-    </div>
-
     <span class="version-badge">✦ v3.3 — Maintenant disponible</span>
 
     <a class="btn-dl" data-dl-apk href="https://github.com/Soundsystemcanal/zova-app/releases/download/v3.3/Zova-v3.3.apk">
@@ -427,6 +449,11 @@
     <div class="qr-block">
         <img src="qr-download.png" alt="QR code téléchargement Zova">
         <span>Scanner pour télécharger</span>
+    </div>
+
+    <div class="android-badge" style="margin-top:4px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#6ee7a8" xmlns="http://www.w3.org/2000/svg"><path d="M17.6 9.48l1.84-3.18c.16-.31.04-.69-.26-.85a.637.637 0 0 0-.83.22l-1.88 3.24a11.46 11.46 0 0 0-8.94 0L5.65 5.67a.643.643 0 0 0-.87-.2c-.28.18-.37.54-.22.83L6.4 9.48A10.78 10.78 0 0 0 1 18h22a10.78 10.78 0 0 0-5.4-8.52zM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>
+        <span data-i18n="hero_android">Exclusivement Android · Optimisé pour Xiaomi 14T</span>
     </div>
 
     <div class="scroll-hint">↓</div>
@@ -1233,9 +1260,18 @@
         }
       });
     });
+    // Bouton « retour en haut »
+    var toTop = document.getElementById('toTop');
+    if (toTop) {
+      window.addEventListener('scroll', function(){
+        if (window.scrollY > 500) toTop.classList.add('show'); else toTop.classList.remove('show');
+      }, { passive: true });
+      toTop.addEventListener('click', function(){ window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    }
     applyLang(lang);
   });
 })();
 </script>
+<button id="toTop" aria-label="↑">↑</button>
 </body>
 </html>
