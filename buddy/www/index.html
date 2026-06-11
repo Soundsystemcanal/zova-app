@@ -2571,6 +2571,13 @@ Minimum version required to store current data is: `+i+`.
         <button class="config-screen-btn" id="clearGoalsBtn" style="color:var(--danger)">🗑️ <span data-i18n="config_clear_goals">Effacer les objectifs</span></button>
       </div>
 
+      <!-- Confidentialité / Privacidad -->
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+        <div class="config-section-title">🔒 <span data-i18n="config_section_privacy">Confidentialité</span></div>
+        <div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px" data-i18n="config_privacy_hint">Vos données restent sur cet appareil.</div>
+        <button class="config-screen-btn" id="wipeAllDataBtn" style="color:var(--danger)">🧹 <span data-i18n="config_wipe_all">Effacer toutes les données IA</span></button>
+      </div>
+
       <!-- TTS Voice settings -->
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
         <div class="config-section-title">🎙️ <span data-i18n="config_section_tts">Voix TTS (Groq)</span></div>
@@ -6740,6 +6747,17 @@ Règles IMPÉRATIVES :
         return getGoals(personaId).filter(g => !g.done);
     }
 
+    // ── Privacy: wipe all AI data across personas (keeps personas + API keys) ──
+    function wipeAllAiData() {
+        ['buddy_memories', 'buddy_userProfile'].forEach(k => localStorage.removeItem(k));
+        const prefixes = ['buddy_pmem_', 'buddy_pprofile_', 'buddy_followups_',
+            'buddy_bridge_', 'buddy_goals_', 'buddy_chapters_', 'buddy_chapters_ts_'];
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+            const key = localStorage.key(i);
+            if (key && prefixes.some(p => key.startsWith(p))) localStorage.removeItem(key);
+        }
+    }
+
     // ── "Souviens-toi que…" — real-time memory command ──────────────────────
     const MEMORY_CMD_PATTERNS = [
         // FR
@@ -10839,6 +10857,21 @@ Règles de format :
             LANG === 'es' ? 'Objetivos borrados.' : LANG === 'en' ? 'Goals cleared.' : 'Objectifs effacés.',
             { title: '🎯', icon: '✅' }
         );
+    });
+
+    document.getElementById('wipeAllDataBtn').addEventListener('click', async () => {
+        if (!await customConfirm(
+            t('wipe_all_confirm'),
+            { title: '🧹 ' + t('config_wipe_all'),
+              confirmLabel: LANG === 'es' ? 'Borrar todo' : LANG === 'en' ? 'Erase all' : 'Tout effacer',
+              danger: true }
+        )) return;
+        wipeAllAiData();
+        try { updateMemoryCount(); } catch {}
+        try { updateFollowupsCount(); } catch {}
+        try { updateGoalsCount(); } catch {}
+        try { updatePersonaProfileCount(); } catch {}
+        customAlert(t('wipe_all_done'), { icon: '✅' });
     });
 
     function updatePersonaProfileCount() {
