@@ -2991,6 +2991,7 @@ Minimum version required to store current data is: `+i+`.
                 <div style="display:flex;gap:8px;margin-top:6px;align-items:center;flex-wrap:wrap">
                     <button class="btn-small" id="createPromptBtn"><span class="icon">&#10024;</span> Créer</button>
                     <button class="btn-small" id="optimizePromptBtn"><span class="icon">&#9889;</span> Optimiser</button>
+                    <button class="btn-small" id="evolvePromptBtn"><span class="icon">&#10024;</span> <span data-i18n="persona_evolve">Évoluer</span></button>
                     <span class="hint" id="promptHint" style="margin:0"></span>
                 </div>
                 <div class="hint">"Créer" génère un prompt complet depuis le nom et la description. "Optimiser" restructure votre prompt existant.</div>
@@ -3276,6 +3277,13 @@ Minimum version required to store current data is: `+i+`.
             config_export_profile_md: 'Exportar mi perfil (.md)',
             config_model_text_tasks: 'Tareas de texto (memoria, wizard, perfil)',
             config_model_text_hint: 'Modelo para memoria, wizard, perfil y consolidación (no voz).',
+            persona_evolve: 'Evolucionar',
+            persona_evolve_msg: 'Indica cómo quieres que cambie este asistente:',
+            persona_evolve_ph: 'Ej.: sé más técnico y directo, no saludes de forma tan casual',
+            persona_evolve_need: 'Primero crea o escribe un prompt para poder evolucionarlo.',
+            persona_evolve_working: 'Evolucionando…',
+            persona_evolve_done: '¡Prompt evolucionado! Revisa y guarda.',
+            persona_evolve_empty: 'Respuesta vacía.',
             wipe_all_confirm: '¿Borrar TODOS los datos IA (memoria, perfiles, objetivos, seguimientos) de TODAS las personas? Las personas y las claves API se conservan. Acción irreversible.',
             wipe_all_done: 'Todos los datos IA han sido borrados.',
             config_view_goals: 'Ver objetivos',
@@ -3420,6 +3428,13 @@ Minimum version required to store current data is: `+i+`.
             config_export_profile_md: 'Export my profile (.md)',
             config_model_text_tasks: 'Text tasks (memory, wizard, profile)',
             config_model_text_hint: 'Model for memory, wizard, profile and consolidation (not voice).',
+            persona_evolve: 'Evolve',
+            persona_evolve_msg: 'Tell me how this assistant should change:',
+            persona_evolve_ph: 'E.g.: be more technical and direct, don\'t greet so casually',
+            persona_evolve_need: 'First create or write a prompt so it can be evolved.',
+            persona_evolve_working: 'Evolving…',
+            persona_evolve_done: 'Prompt evolved! Review and save.',
+            persona_evolve_empty: 'Empty response.',
             wipe_all_confirm: 'Erase ALL AI data (memory, profiles, goals, follow-ups) for ALL personas? Personas and API keys are kept. This cannot be undone.',
             wipe_all_done: 'All AI data has been erased.',
             config_view_goals: 'View goals',
@@ -3564,6 +3579,13 @@ Minimum version required to store current data is: `+i+`.
             config_export_profile_md: 'Exporter mon profil (.md)',
             config_model_text_tasks: 'Tâches texte (mémoire, wizard, profil)',
             config_model_text_hint: 'Modèle pour la mémoire, le wizard, le profil et la consolidation (hors voix).',
+            persona_evolve: 'Évoluer',
+            persona_evolve_msg: 'Indique comment cet assistant doit évoluer :',
+            persona_evolve_ph: 'Ex. : sois plus technique et direct, ne salue pas si familièrement',
+            persona_evolve_need: 'Crée ou écris d\'abord un prompt pour pouvoir le faire évoluer.',
+            persona_evolve_working: 'Évolution en cours…',
+            persona_evolve_done: 'Prompt mis à jour ! Vérifie et enregistre.',
+            persona_evolve_empty: 'Réponse vide.',
             wipe_all_confirm: 'Effacer TOUTES les données IA (mémoire, profils, objectifs, suivis) de TOUS les personas ? Les personas et les clés API sont conservés. Action irréversible.',
             wipe_all_done: 'Toutes les données IA ont été effacées.',
             config_view_goals: 'Voir les objectifs',
@@ -5987,6 +6009,45 @@ Règles IMPÉRATIVES :
         } catch (err) {
             hint.textContent = `Erreur : ${err.message}`;
             console.error('Prompt optimization error:', err);
+        } finally {
+            btn.disabled = false;
+        }
+    });
+
+    // Évoluer le persona : fusionne le prompt actuel avec une directive libre de l'utilisateur (≤900 chars)
+    document.getElementById('evolvePromptBtn').addEventListener('click', async () => {
+        const name = document.getElementById('pName').value.trim() || 'Mon assistant';
+        const current = document.getElementById('pPrompt').value.trim();
+        const hint = document.getElementById('promptHint');
+        if (!current) { customAlert(t('persona_evolve_need'), { icon: '&#10024;' }); return; }
+        if (!await hasAnyApiKey()) { customAlert('Configurez d\'abord une clé API.', { title: 'Clé API requise', icon: '&#128273;' }); return; }
+
+        const directive = await customPrompt(t('persona_evolve_msg'), {
+            title: t('persona_evolve'), icon: '&#10024;', type: 'text',
+            placeholder: t('persona_evolve_ph'), confirmLabel: t('persona_evolve')
+        });
+        if (!directive || !directive.trim()) return;
+
+        const langName = LANG === 'es' ? 'español' : LANG === 'en' ? 'english' : 'français';
+        const btn = document.getElementById('evolvePromptBtn');
+        btn.disabled = true; hint.textContent = t('persona_evolve_working');
+        try {
+            const systemMsg = `Tu es un optimiseur de system prompts pour un assistant VOCAL temps réel.
+Fusionne le « Prompt original » avec les « Directives d'évolution » fournies par l'utilisateur.
+Conserve l'identité du persona et les règles de conversation orale. Applique les directives sans tout réécrire inutilement.
+Retourne UNIQUEMENT le prompt fusionné, opérationnel et concis, en ${langName}, limité STRICTEMENT à 900 caractères maximum. Aucun texte avant ou après.`;
+            const userMsg = `Prompt original (persona « ${name} ») :\n${current}\n\nDirectives d'évolution :\n${directive.trim()}`;
+            let evolved = await chatCompletion({ systemPrompt: systemMsg, userPrompt: userMsg, temperature: 0.6, maxTokens: 600 });
+            if (evolved) {
+                evolved = evolved.trim();
+                if (evolved.length > 900) evolved = evolved.slice(0, 900);
+                document.getElementById('pPrompt').value = evolved;
+                hint.textContent = t('persona_evolve_done');
+            } else {
+                hint.textContent = t('persona_evolve_empty');
+            }
+        } catch (err) {
+            hint.textContent = `Erreur : ${err.message}`;
         } finally {
             btn.disabled = false;
         }
