@@ -2975,74 +2975,74 @@ Minimum version required to store current data is: `+i+`.
             <div class="hint">Laissez sur "par défaut" pour utiliser le modèle choisi dans la configuration globale.</div>
 
             <div id="translateLangGroup" style="display:none;margin-top:12px">
-                <label for="pTranslateLang">Langue cible de traduction</label>
+                <label for="pTranslateLang" data-i18n="modal_persona_translate_label">Langue cible de traduction</label>
                 <select id="pTranslateLang">
-                    <option value="en">Anglais</option>
-                    <option value="es">Espagnol</option>
-                    <option value="fr">Français</option>
-                    <option value="de">Allemand</option>
-                    <option value="it">Italien</option>
-                    <option value="pt">Portugais</option>
-                    <option value="nl">Néerlandais</option>
-                    <option value="pl">Polonais</option>
-                    <option value="ru">Russe</option>
-                    <option value="ja">Japonais</option>
-                    <option value="ko">Coréen</option>
-                    <option value="zh">Chinois</option>
-                    <option value="ar">Arabe</option>
+                    <option value="en" data-i18n="lang_en">Anglais</option>
+                    <option value="es" data-i18n="lang_es">Espagnol</option>
+                    <option value="fr" data-i18n="lang_fr">Français</option>
+                    <option value="de" data-i18n="lang_de">Allemand</option>
+                    <option value="it" data-i18n="lang_it">Italien</option>
+                    <option value="pt" data-i18n="lang_pt">Portugais</option>
+                    <option value="nl" data-i18n="lang_nl">Néerlandais</option>
+                    <option value="pl" data-i18n="lang_pl">Polonais</option>
+                    <option value="ru" data-i18n="lang_ru">Russe</option>
+                    <option value="ja" data-i18n="lang_ja">Japonais</option>
+                    <option value="ko" data-i18n="lang_ko">Coréen</option>
+                    <option value="zh" data-i18n="lang_zh">Chinois</option>
+                    <option value="ar" data-i18n="lang_ar">Arabe</option>
                 </select>
-                <div class="hint">Parlez dans n'importe quelle langue — la traduction sera dans la langue choisie ci-dessus.</div>
+                <div class="hint" data-i18n="hint_translate">Parlez dans n'importe quelle langue — la traduction sera dans la langue choisie ci-dessus.</div>
             </div>
 
             <label for="pVoice" data-i18n="modal_persona_voice">Voix</label>
             <select id="pVoice"></select>
 
             <div id="conversationSettingsGroup" style="margin-top:12px">
-                <label for="pReactivity">Réactivité</label>
+                <label for="pReactivity" data-i18n="modal_persona_reactivity">Réactivité</label>
                 <select id="pReactivity">
-                    <option value="reactive">Réactif — répond vite, coupe facilement</option>
-                    <option value="balanced" selected>Équilibré — laisse des pauses normales</option>
-                    <option value="patient">Patient — attend que vous ayez fini</option>
-                    <option value="very-patient">Très patient — vous laisse tout le temps</option>
+                    <option value="reactive" data-i18n="react_reactive">Réactif — répond vite, coupe facilement</option>
+                    <option value="balanced" selected data-i18n="react_balanced">Équilibré — laisse des pauses normales</option>
+                    <option value="patient" data-i18n="react_patient">Patient — attend que vous ayez fini</option>
+                    <option value="very-patient" data-i18n="react_very_patient">Très patient — vous laisse tout le temps</option>
                 </select>
-                <div class="hint">Contrôle le délai avant que le persona considère que vous avez fini de parler.</div>
+                <div class="hint" data-i18n="hint_reactivity">Contrôle le délai avant que le persona considère que vous avez fini de parler.</div>
 
-                <label for="pCreativity">Créativité</label>
+                <label for="pCreativity" data-i18n="modal_persona_creativity">Créativité</label>
                 <select id="pCreativity">
-                    <option value="precise">Précis — réponses factuelles et directes</option>
-                    <option value="balanced" selected>Équilibré — naturel et fiable</option>
-                    <option value="creative">Créatif — réponses variées et imaginatives</option>
-                    <option value="wild">Fantaisiste — imprévisible et original</option>
+                    <option value="precise" data-i18n="crea_precise_opt">Précis — réponses factuelles et directes</option>
+                    <option value="balanced" selected data-i18n="crea_balanced_opt">Équilibré — naturel et fiable</option>
+                    <option value="creative" data-i18n="crea_creative_opt">Créatif — réponses variées et imaginatives</option>
+                    <option value="wild" data-i18n="crea_wild_opt">Fantaisiste — imprévisible et original</option>
                 </select>
-                <div class="hint">Un persona sérieux sera plus précis, un persona fun sera plus créatif.</div>
+                <div class="hint" data-i18n="hint_creativity">Un persona sérieux sera plus précis, un persona fun sera plus créatif.</div>
 
-                <label for="pGreeting">Début de conversation</label>
+                <label for="pGreeting" data-i18n="modal_persona_greeting_label">Début de conversation</label>
                 <select id="pGreeting">
-                    <option value="persona" selected>Le persona parle en premier</option>
-                    <option value="user">J'engage la conversation</option>
+                    <option value="persona" selected data-i18n="greet_persona_first">Le persona parle en premier</option>
+                    <option value="user" data-i18n="greet_user_first">J'engage la conversation</option>
                 </select>
-                <div class="hint">Choisissez qui commence : le persona vous accueille, ou il attend que vous parliez.</div>
+                <div class="hint" data-i18n="hint_greeting">Choisissez qui commence : le persona vous accueille, ou il attend que vous parliez.</div>
 
-                <label for="pPersonaInfo">Infos spécifiques à ce persona</label>
-                <textarea id="pPersonaInfo" style="min-height:80px" placeholder="Informations que seul ce persona connaîtra sur vous (en plus des infos globales)."></textarea>
-                <div class="hint">Ces infos sont transmises uniquement à ce persona, en complément de vos infos globales.</div>
+                <label for="pPersonaInfo" data-i18n="modal_persona_info_label">Infos spécifiques à ce persona</label>
+                <textarea id="pPersonaInfo" style="min-height:80px" data-i18n-placeholder="placeholder_persona_info" placeholder="Informations que seul ce persona connaîtra sur vous (en plus des infos globales)."></textarea>
+                <div class="hint" data-i18n="hint_persona_info">Ces infos sont transmises uniquement à ce persona, en complément de vos infos globales.</div>
             </div>
 
             <div id="promptGroup" style="margin-top:12px">
                 <label for="pPrompt">System Prompt</label>
                 <textarea id="pPrompt"></textarea>
                 <div style="display:flex;gap:8px;margin-top:6px;align-items:center;flex-wrap:wrap">
-                    <button class="btn-small" id="createPromptBtn"><span class="icon">&#10024;</span> Créer</button>
-                    <button class="btn-small" id="optimizePromptBtn"><span class="icon">&#9889;</span> Optimiser</button>
+                    <button class="btn-small" id="createPromptBtn"><span class="icon">&#10024;</span> <span data-i18n="btn_create_prompt">Créer</span></button>
+                    <button class="btn-small" id="optimizePromptBtn"><span class="icon">&#9889;</span> <span data-i18n="btn_optimize_prompt">Optimiser</span></button>
                     <button class="btn-small" id="evolvePromptBtn"><span class="icon">&#10024;</span> <span data-i18n="persona_evolve">Évoluer</span></button>
                     <span class="hint" id="promptHint" style="margin:0"></span>
                 </div>
-                <div class="hint">"Créer" génère un prompt complet depuis le nom et la description. "Optimiser" restructure votre prompt existant.</div>
+                <div class="hint" data-i18n="hint_prompt_actions">"Créer" génère un prompt complet depuis le nom et la description. "Optimiser" restructure votre prompt existant.</div>
             </div>
 
             <div class="persona-share-row">
-                <button class="btn-small" id="exportPersonaBtn" title="Exporter ce persona"><span class="icon">&#128190;</span> Exporter ce persona</button>
-                <button class="btn-small" id="deletePersonaBtn" title="Supprimer ce persona" style="color:var(--danger);border-color:var(--danger);display:none"><span class="icon">&#128465;</span> Supprimer</button>
+                <button class="btn-small" id="exportPersonaBtn"><span class="icon">&#128190;</span> <span data-i18n="btn_export_persona">Exporter ce persona</span></button>
+                <button class="btn-small" id="deletePersonaBtn" style="color:var(--danger);border-color:var(--danger);display:none"><span class="icon">&#128465;</span> <span data-i18n="btn_delete_persona">Supprimer</span></button>
             </div>
 
             <div class="modal-buttons">
@@ -3364,6 +3364,37 @@ Minimum version required to store current data is: `+i+`.
             modal_persona_desc: 'Descripción corta',
             modal_persona_model: 'Modelo de voz',
             modal_persona_voice: 'Voz',
+            modal_persona_reactivity: 'Reactividad',
+            modal_persona_creativity: 'Creatividad',
+            modal_persona_greeting_label: 'Inicio de conversación',
+            modal_persona_info_label: 'Infos específicas de este persona',
+            react_reactive: 'Reactivo — responde rápido, interrumpe fácilmente',
+            react_balanced: 'Equilibrado — pausas normales',
+            react_patient: 'Paciente — espera a que termines',
+            react_very_patient: 'Muy paciente — todo el tiempo del mundo',
+            crea_precise_opt: 'Preciso — respuestas factuales y directas',
+            crea_balanced_opt: 'Equilibrado — natural y fiable',
+            crea_creative_opt: 'Creativo — respuestas variadas e imaginativas',
+            crea_wild_opt: 'Fantasioso — impredecible y original',
+            greet_persona_first: 'El persona habla primero',
+            greet_user_first: 'Yo inicio la conversación',
+            hint_reactivity: 'Controla el tiempo antes de que el persona considere que has terminado de hablar.',
+            hint_creativity: 'Un persona serio será más preciso, un persona divertido será más creativo.',
+            hint_greeting: 'Elige quién comienza: el persona te da la bienvenida o espera a que hables.',
+            hint_persona_info: 'Esta info solo la conoce este persona, además de tus infos globales.',
+            hint_translate: 'Habla en cualquier idioma — la traducción será en el idioma elegido arriba.',
+            hint_prompt_actions: '"Crear" genera un prompt completo desde el nombre y la descripción. "Optimizar" reestructura tu prompt existente.',
+            placeholder_persona_info: 'Información que solo este persona conocerá sobre ti (además de tus infos globales).',
+            btn_create_prompt: 'Crear',
+            btn_optimize_prompt: 'Optimizar',
+            btn_export_persona: 'Exportar persona',
+            btn_delete_persona: 'Eliminar',
+            confirm_delete_persona: '¿Eliminar «{name}»? Esta acción es irreversible.',
+            confirm_delete_title: 'Eliminar persona',
+            modal_persona_translate_label: 'Idioma destino de traducción',
+            lang_en: 'Inglés', lang_es: 'Español', lang_fr: 'Francés', lang_de: 'Alemán',
+            lang_it: 'Italiano', lang_pt: 'Portugués', lang_nl: 'Neerlandés', lang_pl: 'Polaco',
+            lang_ru: 'Ruso', lang_ja: 'Japonés', lang_ko: 'Coreano', lang_zh: 'Chino', lang_ar: 'Árabe',
             // Live indicator
             live_active: 'Conversación activa',
             live_back: 'Volver ›',
@@ -3564,6 +3595,37 @@ Minimum version required to store current data is: `+i+`.
             modal_persona_desc: 'Short description',
             modal_persona_model: 'Voice model',
             modal_persona_voice: 'Voice',
+            modal_persona_reactivity: 'Reactivity',
+            modal_persona_creativity: 'Creativity',
+            modal_persona_greeting_label: 'Conversation start',
+            modal_persona_info_label: 'Persona-specific info',
+            react_reactive: 'Reactive — responds fast, interrupts easily',
+            react_balanced: 'Balanced — normal pauses',
+            react_patient: 'Patient — waits until you finish',
+            react_very_patient: 'Very patient — all the time in the world',
+            crea_precise_opt: 'Precise — factual and direct responses',
+            crea_balanced_opt: 'Balanced — natural and reliable',
+            crea_creative_opt: 'Creative — varied and imaginative responses',
+            crea_wild_opt: 'Whimsical — unpredictable and original',
+            greet_persona_first: 'Persona speaks first',
+            greet_user_first: 'I start the conversation',
+            hint_reactivity: 'Controls the pause before the persona considers you done speaking.',
+            hint_creativity: 'A serious persona will be more precise, a fun persona more creative.',
+            hint_greeting: 'Choose who starts: the persona greets you, or waits for you to speak.',
+            hint_persona_info: 'This info is shared only with this persona, in addition to your global info.',
+            hint_translate: 'Speak in any language — translation will be in the language chosen above.',
+            hint_prompt_actions: '"Create" generates a full prompt from name and description. "Optimize" restructures your existing prompt.',
+            placeholder_persona_info: 'Information only this persona will know about you (in addition to your global info).',
+            btn_create_prompt: 'Create',
+            btn_optimize_prompt: 'Optimize',
+            btn_export_persona: 'Export persona',
+            btn_delete_persona: 'Delete',
+            confirm_delete_persona: 'Delete «{name}»? This cannot be undone.',
+            confirm_delete_title: 'Delete persona',
+            modal_persona_translate_label: 'Target translation language',
+            lang_en: 'English', lang_es: 'Spanish', lang_fr: 'French', lang_de: 'German',
+            lang_it: 'Italian', lang_pt: 'Portuguese', lang_nl: 'Dutch', lang_pl: 'Polish',
+            lang_ru: 'Russian', lang_ja: 'Japanese', lang_ko: 'Korean', lang_zh: 'Chinese', lang_ar: 'Arabic',
             // Live indicator
             live_active: 'Active conversation',
             live_back: 'Back ›',
@@ -3764,6 +3826,37 @@ Minimum version required to store current data is: `+i+`.
             modal_persona_desc: 'Description courte',
             modal_persona_model: 'Modèle vocal',
             modal_persona_voice: 'Voix',
+            modal_persona_reactivity: 'Réactivité',
+            modal_persona_creativity: 'Créativité',
+            modal_persona_greeting_label: 'Début de conversation',
+            modal_persona_info_label: 'Infos spécifiques à ce persona',
+            react_reactive: 'Réactif — répond vite, coupe facilement',
+            react_balanced: 'Équilibré — laisse des pauses normales',
+            react_patient: 'Patient — attend que vous ayez fini',
+            react_very_patient: 'Très patient — vous laisse tout le temps',
+            crea_precise_opt: 'Précis — réponses factuelles et directes',
+            crea_balanced_opt: 'Équilibré — naturel et fiable',
+            crea_creative_opt: 'Créatif — réponses variées et imaginatives',
+            crea_wild_opt: 'Fantaisiste — imprévisible et original',
+            greet_persona_first: 'Le persona parle en premier',
+            greet_user_first: 'J\'engage la conversation',
+            hint_reactivity: 'Contrôle le délai avant que le persona considère que vous avez fini de parler.',
+            hint_creativity: 'Un persona sérieux sera plus précis, un persona fun sera plus créatif.',
+            hint_greeting: 'Choisissez qui commence : le persona vous accueille, ou il attend que vous parliez.',
+            hint_persona_info: 'Ces infos sont transmises uniquement à ce persona, en complément de vos infos globales.',
+            hint_translate: 'Parlez dans n\'importe quelle langue — la traduction sera dans la langue choisie ci-dessus.',
+            hint_prompt_actions: '"Créer" génère un prompt complet depuis le nom et la description. "Optimiser" restructure votre prompt existant.',
+            placeholder_persona_info: 'Informations que seul ce persona connaîtra sur vous (en plus des infos globales).',
+            btn_create_prompt: 'Créer',
+            btn_optimize_prompt: 'Optimiser',
+            btn_export_persona: 'Exporter ce persona',
+            btn_delete_persona: 'Supprimer',
+            confirm_delete_persona: 'Supprimer « {name} » ? Cette action est irréversible.',
+            confirm_delete_title: 'Supprimer ce persona',
+            modal_persona_translate_label: 'Langue cible de traduction',
+            lang_en: 'Anglais', lang_es: 'Espagnol', lang_fr: 'Français', lang_de: 'Allemand',
+            lang_it: 'Italien', lang_pt: 'Portugais', lang_nl: 'Néerlandais', lang_pl: 'Polonais',
+            lang_ru: 'Russe', lang_ja: 'Japonais', lang_ko: 'Coréen', lang_zh: 'Chinois', lang_ar: 'Arabe',
             // Live indicator
             live_active: 'Conversation active',
             live_back: 'Retour ›',
@@ -3990,6 +4083,9 @@ Minimum version required to store current data is: `+i+`.
         document.querySelectorAll('[data-i18n]').forEach(el => {
             el.textContent = t(el.dataset.i18n);
         });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            el.placeholder = t(el.dataset.i18nPlaceholder);
+        });
     }
 
     function setLang(lang) {
@@ -4189,7 +4285,7 @@ Minimum version required to store current data is: `+i+`.
             });
             menu.querySelector('[data-action="delete"]').addEventListener('click', async (e) => {
                 e.stopPropagation(); menu.classList.remove('open');
-                if (!await customConfirm(`¿Eliminar «${p.name}»?`, {title:'Eliminar persona',icon:'&#128465;',confirmLabel:'Eliminar',danger:true})) return;
+                if (!await customConfirm(t('confirm_delete_persona').replace('{name}', p.name), {title:t('confirm_delete_title'),icon:'&#128465;',confirmLabel:t('btn_delete_persona'),danger:true})) return;
                 const newList = getPersonas().filter(x => x.id !== p.id);
                 savePersonas(newList);
                 if (getActiveId() === p.id) { setActiveId(''); showEmptyState(); }
@@ -6442,10 +6538,8 @@ Retourne UNIQUEMENT le prompt fusionné, opérationnel et concis, en ${langName}
         const p = getPersonas().find(x => x.id === editingPersonaId);
         if (!p) return;
         if (!await customConfirm(
-            LANG === 'es' ? `¿Eliminar «${p.name}»? Esta acción es irreversible.` :
-            LANG === 'en' ? `Delete "${p.name}"? This cannot be undone.` :
-            `Supprimer « ${p.name} » ? Cette action est irréversible.`,
-            { title: LANG === 'es' ? 'Eliminar persona' : LANG === 'en' ? 'Delete persona' : 'Supprimer ce persona', icon: '&#128465;', confirmLabel: LANG === 'es' ? 'Eliminar' : LANG === 'en' ? 'Delete' : 'Supprimer', danger: true }
+            t('confirm_delete_persona').replace('{name}', p.name),
+            { title: t('confirm_delete_title'), icon: '&#128465;', confirmLabel: t('btn_delete_persona'), danger: true }
         )) return;
         const newList = getPersonas().filter(x => x.id !== editingPersonaId);
         savePersonas(newList);
@@ -6541,7 +6635,7 @@ Retourne UNIQUEMENT le prompt fusionné, opérationnel et concis, en ${langName}
             });
             el.querySelector('.persona-item-delete').addEventListener('click', async (e) => {
                 e.stopPropagation();
-                if (!await customConfirm(`Supprimer « ${p.name} » ?`, { title: 'Supprimer ce persona', icon: '&#128465;', confirmLabel: 'Supprimer', danger: true })) return;
+                if (!await customConfirm(t('confirm_delete_persona').replace('{name}', p.name), { title: t('confirm_delete_title'), icon: '&#128465;', confirmLabel: t('btn_delete_persona'), danger: true })) return;
                 const newList = getPersonas().filter(x => x.id !== p.id);
                 savePersonas(newList);
                 if (getActiveId() === p.id) {
@@ -6851,7 +6945,7 @@ Retourne UNIQUEMENT le prompt fusionné, opérationnel et concis, en ${langName}
             menu.querySelector('[data-action="delete"]').addEventListener('click', async (e) => {
                 e.stopPropagation();
                 menu.classList.remove('open');
-                if (!await customConfirm(`Êtes-vous sûr de vouloir supprimer « ${p.name} » ? Cette action est irréversible.`, { title: 'Supprimer ce persona', icon: '&#128465;', confirmLabel: 'Supprimer', danger: true })) return;
+                if (!await customConfirm(t('confirm_delete_persona').replace('{name}', p.name), { title: t('confirm_delete_title'), icon: '&#128465;', confirmLabel: t('btn_delete_persona'), danger: true })) return;
                 const newList = getPersonas().filter(x => x.id !== p.id);
                 savePersonas(newList);
                 if (getActiveId() === p.id) {
