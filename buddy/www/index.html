@@ -5560,7 +5560,7 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         const qwenKey = document.getElementById('qwenApiKeyInput').value.trim();
 
         if (!openaiKey && !geminiKey && !ultravoxKeyVal && !groqKey && !deepseekKey && !qwenKey) {
-            customAlert('Au moins une clé API (OpenAI, Gemini, Ultravox, Groq, DeepSeek ou Qwen) est requise pour utiliser Zova.', { title: 'Clé API requise', icon: '&#128273;' });
+            customAlert('Au moins une clé API (OpenAI, Gemini, Ultravox, Groq, DeepSeek ou Qwen) est requise pour utiliser Zova.', { title: t('err_api_key_title'), icon: '&#128273;' });
             return;
         }
 
@@ -5989,7 +5989,7 @@ ${d.name ? 'Imposed name: ' + d.name : 'Name: suggest one'}`;
         document.getElementById('pCreativity').value = persona ? (persona.creativity || 'balanced') : 'balanced';
         document.getElementById('pGreeting').value = persona ? (persona.greeting || 'persona') : 'persona';
         document.getElementById('pPersonaInfo').value = persona ? (persona.personaInfo || '') : '';
-        document.getElementById('pPrompt').value = persona ? persona.prompt : DEFAULT_PROMPT(document.getElementById('pName').value || 'Mon assistant');
+        document.getElementById('pPrompt').value = persona ? persona.prompt : DEFAULT_PROMPT(document.getElementById('pName').value);
         document.getElementById('pTranslateLang').value = persona ? (persona.translateLang || 'en') : 'en';
         updateTranslateLangVisibility();
         document.getElementById('imageHint').textContent = '';
@@ -6278,7 +6278,7 @@ MANDATORY rules:
 
     // Optimiser le prompt via API
     document.getElementById('optimizePromptBtn').addEventListener('click', async () => {
-        const name = document.getElementById('pName').value.trim() || 'Mon assistant';
+        const name = document.getElementById('pName').value.trim();
         const desc = document.getElementById('pDescription').value.trim();
         const currentPrompt = document.getElementById('pPrompt').value.trim();
 
@@ -6286,7 +6286,7 @@ MANDATORY rules:
             customAlert(t('err_name_desc_prompt_required'), { icon: '&#9998;' });
             return;
         }
-        if (!await hasAnyApiKey()) { customAlert('Configurez d\'abord une clé API.', { title: 'Clé API requise', icon: '&#128273;' }); return; }
+        if (!await hasAnyApiKey()) { customAlert(t('err_api_key_required'), { title: t('err_api_key_title'), icon: '&#128273;' }); return; }
 
         const btn = document.getElementById('optimizePromptBtn');
         const hint = document.getElementById('promptHint');
@@ -6334,11 +6334,11 @@ MANDATORY rules:
 
     // Évoluer le persona : fusionne le prompt actuel avec une directive libre de l'utilisateur (≤900 chars)
     document.getElementById('evolvePromptBtn').addEventListener('click', async () => {
-        const name = document.getElementById('pName').value.trim() || 'Mon assistant';
+        const name = document.getElementById('pName').value.trim();
         const current = document.getElementById('pPrompt').value.trim();
         const hint = document.getElementById('promptHint');
         if (!current) { customAlert(t('persona_evolve_need'), { icon: '&#10024;' }); return; }
-        if (!await hasAnyApiKey()) { customAlert('Configurez d\'abord une clé API.', { title: 'Clé API requise', icon: '&#128273;' }); return; }
+        if (!await hasAnyApiKey()) { customAlert(t('err_api_key_required'), { title: t('err_api_key_title'), icon: '&#128273;' }); return; }
 
         const directive = await customPrompt(t('persona_evolve_msg'), {
             title: t('persona_evolve'), icon: '&#10024;', type: 'text',
@@ -6484,7 +6484,7 @@ Retourne UNIQUEMENT le prompt fusionné, opérationnel et concis, en ${langName}
                     greeting: p.greeting || 'persona',
                     translateLang: p.translateLang || 'en',
                     personaInfo: '',
-                    prompt: p.prompt || DEFAULT_PROMPT(p.name || 'Mon assistant')
+                    prompt: p.prompt || DEFAULT_PROMPT(p.name)
                 };
 
                 const list = getPersonas();
@@ -10122,7 +10122,7 @@ Langue : ${lang}`;
                 model: p.model || '', voice: p.voice || 'coral',
                 reactivity: p.reactivity || 'balanced', creativity: p.creativity || 'balanced',
                 greeting: p.greeting || 'persona', translateLang: p.translateLang || 'en',
-                personaInfo: '', prompt: p.prompt || DEFAULT_PROMPT(p.name || 'Mon assistant')
+                personaInfo: '', prompt: p.prompt || DEFAULT_PROMPT(p.name)
             };
             const list = getPersonas(); list.push(newPersona); savePersonas(list);
             renderPersonaList(); renderPersonasGrid(); selectPersona(newPersona.id);
