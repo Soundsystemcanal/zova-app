@@ -2594,7 +2594,7 @@ Minimum version required to store current data is: `+i+`.
         <div id="profileCount" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:8px"></div>
         <button class="config-screen-btn" id="viewProfileBtn">🪪 <span data-i18n="config_view_profile">Voir le profil</span></button>
         <button class="config-screen-btn" id="clearProfileBtn" style="color:var(--danger)">🗑️ <span data-i18n="config_clear_profile">Effacer le profil</span></button>
-        <button id="viewGlobalProfileBtn" style="background:none;border:none;color:var(--text-muted);font-size:0.78rem;cursor:pointer;padding:4px 0;text-align:left;width:100%;">↓ <span id="viewGlobalProfileLabel">Voir / effacer le profil général</span></button>
+        <button id="viewGlobalProfileBtn" style="background:none;border:none;color:var(--text-muted);font-size:0.78rem;cursor:pointer;padding:4px 0;text-align:left;width:100%;">↓ <span id="viewGlobalProfileLabel" data-i18n="config_view_global_profile">Voir / effacer le profil général</span></button>
         <button class="config-screen-btn" id="exportProfileMdBtn">📄 <span data-i18n="config_export_profile_md">Exporter mon profil (.md)</span></button>
       </div>
 
@@ -5258,24 +5258,24 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
         if (includePersonal || includeKeys) {
             const wantEncrypt = await customConfirm(
                 '&#128274; Prot&#233;ger ce fichier par un <b>mot de passe</b>&#160;? Il sera illisible sans lui, m&#234;me s\'il fuite via un partage cloud.<br><small style="opacity:0.75">&#9888; Sans le mot de passe, la sauvegarde est <b>irr&#233;cup&#233;rable</b>.</small>',
-                { title: 'Chiffrer la sauvegarde&#160;?', icon: '&#128274;', confirmLabel: 'Oui, chiffrer', cancelLabel: 'Non, fichier clair' }
+                { title: t('backup_encrypt_title'), icon: '&#128274;', confirmLabel: t('backup_encrypt_yes'), cancelLabel: t('backup_encrypt_no') }
             );
             if (wantEncrypt) {
-                const pw = await customPrompt('Choisis un mot de passe (6 caract&#232;res minimum).', {
-                    title: 'Mot de passe', icon: '&#128273;', placeholder: 'Mot de passe', confirmLabel: 'Suivant'
+                const pw = await customPrompt(t('backup_pw_label'), {
+                    title: t('backup_pw_label'), icon: '&#128273;', placeholder: t('backup_pw_label'), confirmLabel: t('backup_pw_next')
                 });
                 if (pw === null) return; // annulé → pas d'export
-                if (pw.length < 6) { customAlert('Mot de passe trop court (6 caract&#232;res minimum).', { title: 'Erreur', icon: '&#10060;' }); return; }
-                const pw2 = await customPrompt('Confirme le mot de passe.', {
-                    title: 'Confirmation', icon: '&#128273;', placeholder: 'R&#233;p&#233;ter le mot de passe', confirmLabel: 'Chiffrer'
+                if (pw.length < 6) { customAlert(t('backup_pw_short_error'), { title: 'Erreur', icon: '&#10060;' }); return; }
+                const pw2 = await customPrompt(t('backup_pw_confirm_title'), {
+                    title: t('backup_pw_confirm_title'), icon: '&#128273;', placeholder: t('backup_pw_confirm_label'), confirmLabel: t('backup_pw_confirm_label')
                 });
                 if (pw2 === null) return;
-                if (pw !== pw2) { customAlert('Les mots de passe ne correspondent pas.', { title: 'Erreur', icon: '&#10060;' }); return; }
+                if (pw !== pw2) { customAlert(t('backup_pw_mismatch_error'), { title: 'Erreur', icon: '&#10060;' }); return; }
                 try {
                     content = await encryptBackup(content, pw);
                     filename = filename.replace(/\.json$/, '.enc.json');
                 } catch (e) {
-                    customAlert('Erreur de chiffrement : ' + e.message, { title: 'Erreur', icon: '&#10060;' }); return;
+                    customAlert(`${t('backup_encrypt_error')} : ${e.message}`, { title: 'Erreur', icon: '&#10060;' }); return;
                 }
             }
         }
@@ -5355,20 +5355,20 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     async function checkApiKey(key) {
         const statusEl = document.getElementById('apiKeyStatus');
         if (!key) { statusEl.innerHTML = ''; return false; }
-        statusEl.innerHTML = '<span class="api-key-status checking">&#8987; Vérification...</span>';
+        statusEl.innerHTML = `<span class="api-key-status checking">${t('api_checking')}</span>`;
         try {
             const res = await fetch('https://api.openai.com/v1/models', {
                 headers: { 'Authorization': `Bearer ${key}` }
             });
             if (res.ok) {
-                statusEl.innerHTML = '<span class="api-key-status valid">&#10003; Clé valide</span>';
+                statusEl.innerHTML = `<span class="api-key-status valid">${t('api_valid')}</span>`;
                 return true;
             } else {
-                statusEl.innerHTML = '<span class="api-key-status invalid">&#10007; Clé invalide ou expirée</span>';
+                statusEl.innerHTML = `<span class="api-key-status invalid">${t('api_invalid')}</span>`;
                 return false;
             }
         } catch {
-            statusEl.innerHTML = '<span class="api-key-status invalid">&#10007; Erreur de connexion</span>';
+            statusEl.innerHTML = `<span class="api-key-status invalid">${t('api_connection_error')}</span>`;
             return false;
         }
     }
@@ -5376,18 +5376,18 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     async function checkGeminiApiKey(key) {
         const statusEl = document.getElementById('geminiApiKeyStatus');
         if (!key) { statusEl.innerHTML = ''; return false; }
-        statusEl.innerHTML = '<span class="api-key-status checking">&#8987; Vérification...</span>';
+        statusEl.innerHTML = `<span class="api-key-status checking">${t('api_checking')}</span>`;
         try {
             const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`);
             if (res.ok) {
-                statusEl.innerHTML = '<span class="api-key-status valid">&#10003; Clé valide</span>';
+                statusEl.innerHTML = `<span class="api-key-status valid">${t('api_valid')}</span>`;
                 return true;
             } else {
-                statusEl.innerHTML = '<span class="api-key-status invalid">&#10007; Clé invalide</span>';
+                statusEl.innerHTML = `<span class="api-key-status invalid">${t('api_invalid')}</span>`;
                 return false;
             }
         } catch {
-            statusEl.innerHTML = '<span class="api-key-status invalid">&#10007; Erreur de connexion</span>';
+            statusEl.innerHTML = `<span class="api-key-status invalid">${t('api_connection_error')}</span>`;
             return false;
         }
     }
@@ -5442,8 +5442,8 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     document.getElementById('copyShareLinkBtn').addEventListener('click', () => {
         navigator.clipboard.writeText('https://soundsystemcanal.github.io/zova-app/').then(() => {
             const btn = document.getElementById('copyShareLinkBtn');
-            btn.innerHTML = '<span class="icon">&#10003;</span> Lien copié !';
-            setTimeout(() => { btn.innerHTML = '<span class="icon">&#128203;</span> Copier le lien'; }, 2000);
+            btn.innerHTML = `<span class="icon">&#10003;</span> ${t('btn_link_copied')}`;
+            setTimeout(() => { btn.innerHTML = `<span class="icon">&#128203;</span> ${t('btn_copy_link')}`; }, 2000);
         });
     });
     document.querySelector('.config-nav').addEventListener('click', (e) => {
@@ -5924,7 +5924,7 @@ ${d.name ? 'Nom imposé : ' + d.name : 'Nom : à proposer'}`;
             el.addEventListener('mouseleave', () => el.querySelector('._img_overlay').style.opacity = '0');
         } else {
             el.className = 'image-preview-placeholder';
-            el.innerHTML = `<span style="font-size:1.1rem;display:block;margin-bottom:2px">📷</span><span style="font-size:0.7rem">Appuyer</span>`;
+            el.innerHTML = `<span style="font-size:1.1rem;display:block;margin-bottom:2px">📷</span><span style="font-size:0.7rem">${t('img_tap')}</span>`;
         }
         el.addEventListener('click', showImageActionSheet);
         old.replaceWith(el);
@@ -5934,17 +5934,17 @@ ${d.name ? 'Nom imposé : ' + d.name : 'Nom : à proposer'}`;
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:flex-end;background:rgba(0,0,0,0.5)';
         overlay.innerHTML = `<div style="width:100%;background:var(--modal-bg);border-radius:20px 20px 0 0;padding:20px 16px 32px;display:flex;flex-direction:column;gap:10px">
-            <div style="font-size:0.85rem;color:var(--text-secondary);text-align:center;margin-bottom:4px">Image du persona</div>
+            <div style="font-size:0.85rem;color:var(--text-secondary);text-align:center;margin-bottom:4px">${t('img_title')}</div>
             <button id="_imgGenBtn" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;min-height:44px">
-                <span style="font-size:1.3rem">✨</span> Générer avec l'IA
+                <span style="font-size:1.3rem">✨</span> ${t('img_generate')}
             </button>
             <button id="_imgImportBtn" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-hover);border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-primary);font-size:0.95rem;font-weight:600;min-height:44px">
-                <span style="font-size:1.3rem">📁</span> Importer depuis la galerie
+                <span style="font-size:1.3rem">📁</span> ${t('img_import')}
             </button>
             ${tempImage ? `<button id="_imgDelBtn" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:12px;cursor:pointer;color:#ef4444;font-size:0.95rem;font-weight:600;min-height:44px">
-                <span style="font-size:1.3rem">🗑</span> Supprimer l'image
+                <span style="font-size:1.3rem">🗑</span> ${t('img_delete')}
             </button>` : ''}
-            <button id="_imgCancelBtn" style="padding:12px;background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:0.9rem;min-height:44px">Annuler</button>
+            <button id="_imgCancelBtn" style="padding:12px;background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:0.9rem;min-height:44px">${t('img_cancel')}</button>
         </div>`;
         const close = () => overlay.remove();
         overlay.querySelector('#_imgGenBtn').addEventListener('click', () => { close(); document.getElementById('generateImageBtn').click(); });
@@ -6044,13 +6044,13 @@ ${d.name ? 'Nom imposé : ' + d.name : 'Nom : à proposer'}`;
     document.getElementById('generateImageBtn').addEventListener('click', async () => {
         const name = document.getElementById('pName').value.trim();
         const desc = document.getElementById('pDescription').value.trim();
-        if (!desc && !name) { customAlert('Renseignez au moins un nom ou une description.', { icon: '&#9998;' }); return; }
-        if (!await hasAnyApiKey()) { customAlert('Configurez d\'abord une clé API.', { title: 'Clé API requise', icon: '&#128273;' }); return; }
+        if (!desc && !name) { customAlert(t('err_name_or_desc_required'), { icon: '&#9998;' }); return; }
+        if (!await hasAnyApiKey()) { customAlert(t('err_api_key_required'), { title: t('err_api_key_title'), icon: '&#128273;' }); return; }
 
         const btn = document.getElementById('generateImageBtn');
         const hint = document.getElementById('imageHint');
         btn.disabled = true;
-        hint.textContent = 'Génération en cours...';
+        hint.textContent = t('hint_generating_img');
 
         try {
             const style = document.getElementById('pImageStyle').value;
@@ -6136,13 +6136,13 @@ ${d.name ? 'Nom imposé : ' + d.name : 'Nom : à proposer'}`;
         const name = document.getElementById('pName').value.trim();
         const desc = document.getElementById('pDescription').value.trim();
 
-        if (!name) { customAlert('Renseignez au moins le nom du persona.', { icon: '&#9998;' }); return; }
-        if (!await hasAnyApiKey()) { customAlert('Configurez d\'abord une clé API.', { title: 'Clé API requise', icon: '&#128273;' }); return; }
+        if (!name) { customAlert(t('err_name_required'), { icon: '&#9998;' }); return; }
+        if (!await hasAnyApiKey()) { customAlert(t('err_api_key_required'), { title: t('err_api_key_title'), icon: '&#128273;' }); return; }
 
         const btn = document.getElementById('createPromptBtn');
         const hint = document.getElementById('promptHint');
         btn.disabled = true;
-        hint.textContent = 'Création en cours...';
+        hint.textContent = t('hint_creating');
 
         try {
             const systemMsg = `Tu es un expert en prompt engineering pour l'API Realtime (voix) d'OpenAI.
@@ -6166,9 +6166,9 @@ Règles IMPÉRATIVES :
             });
             if (created) {
                 document.getElementById('pPrompt').value = created;
-                hint.textContent = 'Prompt créé !';
+                hint.textContent = t('hint_created');
             } else {
-                hint.textContent = 'Réponse vide.';
+                hint.textContent = t('hint_empty');
             }
         } catch (err) {
             hint.textContent = `Erreur : ${err.message}`;
@@ -6184,7 +6184,7 @@ Règles IMPÉRATIVES :
         const currentPrompt = document.getElementById('pPrompt').value.trim();
 
         if (!currentPrompt && !desc && !name) {
-            customAlert('Renseignez au moins un nom, une description ou un début de prompt.', { icon: '&#9998;' });
+            customAlert(t('err_name_desc_prompt_required'), { icon: '&#9998;' });
             return;
         }
         if (!await hasAnyApiKey()) { customAlert('Configurez d\'abord une clé API.', { title: 'Clé API requise', icon: '&#128273;' }); return; }
@@ -6192,7 +6192,7 @@ Règles IMPÉRATIVES :
         const btn = document.getElementById('optimizePromptBtn');
         const hint = document.getElementById('promptHint');
         btn.disabled = true;
-        hint.textContent = 'Optimisation en cours...';
+        hint.textContent = t('hint_optimizing');
 
         try {
             const systemMsg = `Tu es un expert en prompt engineering pour des assistants vocaux temps réel.
@@ -6220,9 +6220,9 @@ Règles IMPÉRATIVES :
 
             if (optimized) {
                 document.getElementById('pPrompt').value = optimized;
-                hint.textContent = 'Prompt optimisé !';
+                hint.textContent = t('hint_optimized');
             } else {
-                hint.textContent = 'Réponse vide de l\'API.';
+                hint.textContent = t('hint_empty');
             }
         } catch (err) {
             hint.textContent = `Erreur : ${err.message}`;
@@ -6274,7 +6274,7 @@ Retourne UNIQUEMENT le prompt fusionné, opérationnel et concis, en ${langName}
     // Sauvegarder le persona
     document.getElementById('savePersonaBtn').addEventListener('click', () => {
         const name = document.getElementById('pName').value.trim();
-        if (!name) { customAlert('Le nom est obligatoire.', { icon: '&#9998;' }); return; }
+        if (!name) { customAlert(t('err_name_required'), { icon: '&#9998;' }); return; }
 
         const list = getPersonas();
         const prompt = document.getElementById('pPrompt').value.trim() || DEFAULT_PROMPT(name);
@@ -7857,8 +7857,8 @@ Règles STRICTES :
         }
         const costStr = cost > 0.0001 ? ` · ~$${cost.toFixed(4)}` : '';
 
-        const label = LANG === 'es' ? 'Sesión terminada' : LANG === 'en' ? 'Session ended' : 'Session terminée';
-        const analysing = LANG === 'es' ? 'Analizando...' : LANG === 'en' ? 'Analysing...' : 'Analyse en cours...';
+        const label = t('pss_ended');
+        const analysing = t('pss_analysing');
 
         const el = document.createElement('div');
         el.id = 'postSessionSummary';
