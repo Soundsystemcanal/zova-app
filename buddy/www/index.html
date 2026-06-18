@@ -4011,6 +4011,11 @@ Minimum version required to store current data is: `+i+`.
         if (typeof updateGoalsCount === 'function') updateGoalsCount();
     }
 
+    // Returns the language name in English for LLM meta-prompts
+    function getLangName() {
+        return LANG === 'es' ? 'Spanish' : LANG === 'en' ? 'English' : 'French';
+    }
+
     // ════════════════════════════════════════════════
     //  BOTTOM NAVIGATION
     // ════════════════════════════════════════════════
@@ -5779,7 +5784,7 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
     async function generatePersonaFromWizard() {
         if (wizGenerating) return;
         wizGenerating = true;
-        const langName = LANG === 'es' ? 'español' : LANG === 'en' ? 'english' : 'français';
+        const langName = getLangName();
         const d = wizardData;
         currentWizardDraft = { ...wizardData };
         const nextBtn = document.getElementById('wizNextBtn');
@@ -5790,25 +5795,27 @@ Tu peux utiliser des expressions familières et des interjections naturelles ("a
 
         const toneLabel = t('tone_' + d.tone);
         const nameRule = d.name
-            ? `utilise impérativement le nom "${d.name}"`
-            : `invente un nom court, mémorable et adapté au rôle`;
-        const addressRule = d.formal ? 'vouvoie l\'utilisateur' : 'tutoie l\'utilisateur';
+            ? `use the name "${d.name}" without exception`
+            : `invent a short, memorable name suited to the role`;
+        const addressRule = d.formal
+            ? `Address the user formally (vous/usted/formal "you")`
+            : `Address the user informally (tu/tú/casual "you")`;
 
-        const systemPrompt = `Tu es un expert en conception de personas pour un assistant vocal IA temps réel.
-À partir des informations fournies, génère un persona complet.
-Réponds UNIQUEMENT avec un JSON valide, sans aucun texte avant ou après, au format EXACT :
-{"name":"<nom>","description":"<une phrase>","prompt":"<system prompt markdown>"}
+        const systemPrompt = `You are an expert at designing personas for real-time AI voice assistants.
+From the inputs provided, generate a complete persona.
+Reply ONLY with valid JSON, no text before or after, in EXACTLY this format:
+{"name":"<name>","description":"<one sentence>","prompt":"<markdown system prompt>"}
 
-Pour "prompt" : structure markdown avec titres # — Identité, Personnalité (ton, humour, énergie, expressivité vocale), Langue, Règles de conversation orale, Outils disponibles. Conversation VOCALE : phrases courtes, pas de listes ni markdown dans les réponses parlées, langage naturel. Le persona ${addressRule}. Section Outils : recherche web si utile, météo, date/heure. Rédige le prompt en ${langName}. Le prompt doit être OPÉRATIONNEL et CONCIS, limité STRICTEMENT à 900 caractères maximum.
-Pour "name" : ${nameRule}.
-Pour "description" : une seule phrase en ${langName}.
-IMPÉRATIF : le persona doit saluer et répondre EXCLUSIVEMENT en ${langName}. Inclus dans le prompt une règle de langue explicite imposant ${langName} comme langue de toute la conversation, y compris le premier message d'accueil.`;
+For "prompt": use markdown with # headings — Identity, Personality (tone, humor, energy, vocal expressivity), Language, Oral conversation rules, Available tools. VOICE conversation: short sentences, no lists or markdown in spoken replies, natural language. ${addressRule}. Tools section: web search when truly useful, weather, date/time. Write the prompt in ${langName}. The prompt must be OPERATIONAL and CONCISE, strictly limited to 900 characters maximum.
+For "name": ${nameRule}.
+For "description": one sentence in ${langName}.
+MANDATORY: the persona must greet and respond EXCLUSIVELY in ${langName}. Include an explicit language rule in the prompt enforcing ${langName} for the entire conversation, including the opening greeting.`;
 
-        const userPrompt = `Sujet / rôle : ${d.topic}
-Ton souhaité : ${toneLabel}
-Adresse : ${d.formal ? 'vouvoiement' : 'tutoiement'}
-Qui commence : ${d.who === 'persona' ? 'le persona salue en premier' : 'l\'utilisateur commence'}
-${d.name ? 'Nom imposé : ' + d.name : 'Nom : à proposer'}`;
+        const userPrompt = `Topic / role: ${d.topic}
+Desired tone: ${toneLabel}
+Address style: ${d.formal ? 'formal' : 'informal'}
+Who speaks first: ${d.who === 'persona' ? 'persona greets first' : 'user starts'}
+${d.name ? 'Imposed name: ' + d.name : 'Name: suggest one'}`;
 
         try {
             const raw = await chatCompletion({ systemPrompt, userPrompt, temperature: 0.7, maxTokens: 1500 });
@@ -6145,22 +6152,23 @@ ${d.name ? 'Nom imposé : ' + d.name : 'Nom : à proposer'}`;
         hint.textContent = t('hint_creating');
 
         try {
-            const systemMsg = `Tu es un expert en prompt engineering pour l'API Realtime (voix) d'OpenAI.
-Tu dois créer un system prompt complet, structuré en markdown, hyper-optimisé pour une conversation vocale temps réel.
+            const langName = getLangName();
+            const systemMsg = `You are an expert prompt engineer for real-time voice AI APIs.
+Create a complete, markdown-structured system prompt, hyper-optimized for real-time voice conversation.
 
-Règles IMPÉRATIVES :
-- Structure en sections markdown avec des titres #
-- Sections obligatoires : Identité, Personnalité (ton, humour, style, énergie, expressivité vocale), Langue, Règles de conversation orale, Outils disponibles
-- L'identité doit s'appuyer sur le nom et la description fournis pour créer un persona cohérent et vivant
-- Les règles orales doivent insister sur : concision, phrases courtes, pas de markdown/listes dans les réponses, langage naturel, expressivité vocale
-- Spécifie des directives de voix : rythme, intonation, usage de mots de remplissage, niveau de formalité
-- Inclure une section "Outils" mentionnant l'accès à la recherche web (quand c'est vraiment utile), la météo, et la date/heure actuelle
-- Le prompt doit être en français
-- Retourne UNIQUEMENT le prompt, sans explication autour`;
+MANDATORY rules:
+- Structure with markdown # sections
+- Required sections: Identity, Personality (tone, humor, style, energy, vocal expressivity), Language, Oral conversation rules, Available tools
+- Identity must use the name and description to create a coherent, vivid persona
+- Oral rules must emphasize: conciseness, short sentences, no markdown/lists in spoken replies, natural language, vocal expressivity
+- Include voice directives: rhythm, intonation, use of filler words, formality level
+- Include a "Tools" section mentioning web search (when truly useful), weather, and current date/time
+- Write the entire prompt in ${langName}
+- Return ONLY the prompt, no surrounding explanation`;
 
             const created = await chatCompletion({
                 systemPrompt: systemMsg,
-                userPrompt: `Crée un prompt complet pour un persona vocal nommé "${name}". Description : ${desc || 'un assistant vocal sympathique et utile'}.`,
+                userPrompt: `Create a full prompt for a voice persona named "${name}". Description: ${desc || 'a friendly and helpful voice assistant'}.`,
                 temperature: 0.7,
                 maxTokens: 2000
             });
@@ -6195,21 +6203,22 @@ Règles IMPÉRATIVES :
         hint.textContent = t('hint_optimizing');
 
         try {
-            const systemMsg = `Tu es un expert en prompt engineering pour des assistants vocaux temps réel.
-Tu dois transformer le texte fourni par l'utilisateur en un system prompt complet, structuré en markdown, hyper-optimisé pour une conversation vocale temps réel.
+            const langName = getLangName();
+            const systemMsg = `You are an expert prompt engineer for real-time voice AI assistants.
+Transform the user-provided text into a complete, markdown-structured system prompt, hyper-optimized for real-time voice conversation.
 
-Règles IMPÉRATIVES :
-- Structure en sections markdown avec des titres #
-- Sections obligatoires : Identité, Personnalité (ton, humour, style, énergie), Langue, Règles de conversation orale, Outils disponibles
-- Les règles orales doivent insister sur : concision, phrases courtes, pas de markdown/listes dans les réponses, langage naturel, expressivité vocale
-- Spécifie des directives de voix : rythme, intonation, usage de mots de remplissage, niveau de formalité
-- Inclure une section "Outils" mentionnant l'accès à la recherche web (quand c'est vraiment utile), la météo, et la date/heure actuelle. Indiquer comment les utiliser naturellement.
-- Le prompt doit être en français
-- Retourne UNIQUEMENT le prompt optimisé, sans explication ni commentaire autour`;
+MANDATORY rules:
+- Structure with markdown # sections
+- Required sections: Identity, Personality (tone, humor, style, energy), Language, Oral conversation rules, Available tools
+- Oral rules must emphasize: conciseness, short sentences, no markdown/lists in spoken replies, natural language, vocal expressivity
+- Include voice directives: rhythm, intonation, use of filler words, formality level
+- Include a "Tools" section mentioning web search (when truly useful), weather, and current date/time. Explain how to use them naturally.
+- Write the entire prompt in ${langName}
+- Return ONLY the optimized prompt, no surrounding explanation or comment`;
 
             const userMsg = currentPrompt
-                ? `Voici le prompt brut à optimiser pour le persona "${name}" (${desc || 'pas de description'}) :\n\n${currentPrompt}`
-                : `Crée un prompt complet pour un persona vocal nommé "${name}". Description : ${desc || 'un assistant vocal sympathique'}`;
+                ? `Here is the raw prompt to optimize for persona "${name}" (${desc || 'no description'}):\n\n${currentPrompt}`
+                : `Create a full prompt for voice persona named "${name}". Description: ${desc || 'a friendly voice assistant'}`;
 
             const optimized = await chatCompletion({
                 systemPrompt: systemMsg,
