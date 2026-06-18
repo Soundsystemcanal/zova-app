@@ -1912,16 +1912,22 @@
             margin-top: 10px;
         }
         .stats-table th, .stats-table td {
-            padding: 10px 12px;
+            padding: 8px 10px;
             text-align: right;
             border-bottom: 1px solid var(--border);
+            white-space: nowrap;
         }
         .stats-table th:first-child, .stats-table td:first-child {
             text-align: left;
+            white-space: normal;
         }
-        /* Extra padding on last column */
         .stats-table th:last-child, .stats-table td:last-child {
-            padding-right: 20px;
+            padding-right: 4px;
+        }
+        .stats-table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0 -4px;
         }
         .stats-table th {
             font-size: 0.7rem;
@@ -2790,33 +2796,19 @@ Minimum version required to store current data is: `+i+`.
                         </div>
 
                         <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
-                        <label for="deepseekApiKeyInput">Clé API DeepSeek</label>
-                        <input type="password" id="deepseekApiKeyInput" placeholder="sk-...">
-                        <div class="hint">Pour les tâches texte (mémoire, wizard) — compatible OpenAI, ~$0.14/M tokens.</div>
-                        <div id="deepseekApiKeyStatus"></div>
+                        <label for="elevenlabsApiKeyInput">Clé API ElevenLabs</label>
+                        <input type="password" id="elevenlabsApiKeyInput" placeholder="sk_...">
+                        <div class="hint">Pour la synthèse vocale ElevenLabs (TTS haute qualité). Optionnelle.</div>
+                        <div id="elevenlabsApiKeyStatus"></div>
                         <div class="api-guide" style="margin:4px 0">
-                            <p><strong>Comment obtenir une clé API DeepSeek :</strong></p>
+                            <p><strong>Comment obtenir une clé API ElevenLabs :</strong></p>
                             <ol>
-                                <li>Créez un compte sur <a href="https://platform.deepseek.com" target="_blank" rel="noopener">platform.deepseek.com</a></li>
-                                <li>Rendez-vous dans <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">API Keys</a></li>
-                                <li>Cliquez sur "Create new API key"</li>
-                                <li>Copiez la clé générée et collez-la ci-dessus</li>
+                                <li>Créez un compte sur <a href="https://elevenlabs.io" target="_blank" rel="noopener">elevenlabs.io</a></li>
+                                <li>Allez dans votre profil → <a href="https://elevenlabs.io/app/settings/api-keys" target="_blank" rel="noopener">API Keys</a></li>
+                                <li>Cliquez sur "Create API Key"</li>
+                                <li>Copiez la clé et collez-la ci-dessus</li>
                             </ol>
-                        </div>
-
-                        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
-                        <label for="qwenApiKeyInput">Clé API Qwen (Alibaba DashScope)</label>
-                        <input type="password" id="qwenApiKeyInput" placeholder="sk-...">
-                        <div class="hint">Qwen 2.5 72B — robuste en ES/FR/EN, compatible OpenAI. Endpoint international.</div>
-                        <div id="qwenApiKeyStatus"></div>
-                        <div class="api-guide" style="margin:4px 0">
-                            <p><strong>Comment obtenir une clé API Qwen :</strong></p>
-                            <ol>
-                                <li>Créez un compte sur <a href="https://www.alibabacloud.com/help/en/model-studio/" target="_blank" rel="noopener">Alibaba Cloud Model Studio</a></li>
-                                <li>Activez DashScope et créez une clé API</li>
-                                <li>Copiez la clé générée et collez-la ci-dessus</li>
-                            </ol>
-                            <p>Utilise l'endpoint <code>dashscope-intl</code> (hors Chine continentale).</p>
+                            <p>ElevenLabs offre un quota gratuit mensuel pour commencer.</p>
                         </div>
                     </div>
 
@@ -2862,11 +2854,6 @@ Minimum version required to store current data is: `+i+`.
                                 <option value="llama3-8b-8192">🟢 Llama 3 8B — économique ($0.05/M tokens)</option>
                                 <option value="llama-3.3-70b-versatile">🟡 Llama 3.3 70B — équilibré ($0.59/M tokens)</option>
                                 <option value="gemma2-9b-it">🔵 Gemma 2 9B — alternatif ($0.20/M tokens)</option>
-                            </optgroup>
-                            <optgroup label="DeepSeek / Qwen">
-                                <option value="ds-reasoner">🧠 DeepSeek-R1 — raisonnement (~$0.14/M)</option>
-                                <option value="ds-chat">💬 DeepSeek-chat V3 — rapide (~$0.14/M)</option>
-                                <option value="qwen">🌐 Qwen 2.5 72B — multilingue ES/FR/EN</option>
                             </optgroup>
                         </select>
 
@@ -4742,6 +4729,9 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
     async function getQwenApiKey() { return await SecureStore.get('buddy_qwenApiKey'); }
     async function setQwenApiKey(k) { await SecureStore.set('buddy_qwenApiKey', k); }
 
+    async function getElevenLabsApiKey() { return await SecureStore.get('buddy_elevenlabsApiKey'); }
+    async function setElevenLabsApiKey(k) { await SecureStore.set('buddy_elevenlabsApiKey', k); }
+
     function getTheme() { return localStorage.getItem('buddy_theme') || 'dark'; }
     function setThemeStorage(t) { localStorage.setItem('buddy_theme', t); }
 
@@ -4755,11 +4745,7 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         const stats = getStats();
         const now = new Date();
         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        return stats.filter(s => new Date(s.date) >= monthStart).reduce((sum, s) => {
-            if (s.costDollars != null) return sum + s.costDollars;
-            const p = PRICING[s.model] || PRICING['gpt-realtime-1.5'];
-            return sum + ((s.inputTokens || 0) / 1000 * p.input) + ((s.outputTokens || 0) / 1000 * p.output);
-        }, 0);
+        return stats.filter(s => new Date(s.date) >= monthStart).reduce((sum, s) => sum + statCost(s), 0);
     }
 
     function getPersonas() {
@@ -5587,7 +5573,7 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
     async function hasAnyApiKey() {
         return !!(await getApiKey() || await getGeminiApiKey() ||
                   await getUltravoxApiKey() || await getGroqApiKey() ||
-                  await getDeepseekApiKey() || await getQwenApiKey());
+                  await getElevenLabsApiKey());
     }
 
     async function openApiKeyModal() {
@@ -5595,8 +5581,7 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         geminiApiKeyInput.value = await getGeminiApiKey();
         document.getElementById('ultravoxApiKeyInput').value = await getUltravoxApiKey();
         document.getElementById('groqApiKeyInput').value = await getGroqApiKey();
-        document.getElementById('deepseekApiKeyInput').value = await getDeepseekApiKey();
-        document.getElementById('qwenApiKeyInput').value = await getQwenApiKey();
+        document.getElementById('elevenlabsApiKeyInput').value = await getElevenLabsApiKey();
         document.getElementById('realtimeModelSelect').value = getRealtimeModel();
         updateModelSelectDisabled();
         const limit = getBudgetLimit();
@@ -5652,11 +5637,10 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         const geminiKey = geminiApiKeyInput.value.trim();
         const ultravoxKeyVal = document.getElementById('ultravoxApiKeyInput').value.trim();
         const groqKey = document.getElementById('groqApiKeyInput').value.trim();
-        const deepseekKey = document.getElementById('deepseekApiKeyInput').value.trim();
-        const qwenKey = document.getElementById('qwenApiKeyInput').value.trim();
+        const elevenlabsKey = document.getElementById('elevenlabsApiKeyInput').value.trim();
 
-        if (!openaiKey && !geminiKey && !ultravoxKeyVal && !groqKey && !deepseekKey && !qwenKey) {
-            customAlert('Au moins une clé API (OpenAI, Gemini, Ultravox, Groq, DeepSeek ou Qwen) est requise pour utiliser Zova.', { title: t('err_api_key_title'), icon: '&#128273;' });
+        if (!openaiKey && !geminiKey && !ultravoxKeyVal && !groqKey && !elevenlabsKey) {
+            customAlert('Au moins une clé API (OpenAI, Gemini, Ultravox ou Groq) est requise pour utiliser Zova.', { title: t('err_api_key_title'), icon: '&#128273;' });
             return;
         }
 
@@ -5676,8 +5660,7 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         await setGeminiApiKey(geminiKey);
         if (ultravoxKeyVal !== undefined) await setUltravoxApiKey(ultravoxKeyVal);
         if (groqKey !== undefined) await setGroqApiKey(groqKey);
-        await setDeepseekApiKey(deepseekKey);
-        await setQwenApiKey(qwenKey);
+        await setElevenLabsApiKey(elevenlabsKey);
         setRealtimeModel(document.getElementById('realtimeModelSelect').value);
         const budgetNum = parseInt(document.getElementById('budgetLimitInput').value, 10);
         setBudgetLimit(!isNaN(budgetNum) && budgetNum > 0 ? budgetNum : null);
@@ -6442,14 +6425,14 @@ MANDATORY rules:
         });
         if (!directive || !directive.trim()) return;
 
-        const langName = LANG === 'es' ? 'español' : LANG === 'en' ? 'english' : 'français';
+        const langName = getLangName();
         const btn = document.getElementById('evolvePromptBtn');
         btn.disabled = true; hint.textContent = t('persona_evolve_working');
         try {
-            const systemMsg = `Tu es un optimiseur de system prompts pour un assistant VOCAL temps réel.
-Fusionne le « Prompt original » avec les « Directives d'évolution » fournies par l'utilisateur.
-Conserve l'identité du persona et les règles de conversation orale. Applique les directives sans tout réécrire inutilement.
-Retourne UNIQUEMENT le prompt fusionné, opérationnel et concis, en ${langName}, limité STRICTEMENT à 900 caractères maximum. Aucun texte avant ou après.`;
+            const systemMsg = `You are a system prompt optimizer for a real-time VOICE assistant.
+Merge the "Original prompt" with the "Evolution directives" provided by the user.
+Preserve the persona's identity and oral conversation rules. Apply the directives without rewriting everything unnecessarily.
+Return ONLY the merged prompt, operational and concise, in ${langName}, STRICTLY limited to 900 characters maximum. No text before or after.`;
             const userMsg = `Prompt original (persona « ${name} ») :\n${current}\n\nDirectives d'évolution :\n${directive.trim()}`;
             let evolved = await chatCompletion({ systemPrompt: systemMsg, userPrompt: userMsg, temperature: 0.6, maxTokens: 600 });
             if (evolved) {
@@ -7429,11 +7412,12 @@ Retourne UNIQUEMENT le prompt fusionné, opérationnel et concis, en ${langName}
 
         const personaName = persona ? persona.name : 'Zova';
         const date = new Date().toLocaleDateString(LANG === 'fr' ? 'fr-FR' : LANG === 'es' ? 'es-ES' : 'en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+        const langName = getLangName();
 
-        const systemPrompt = `Tu es un assistant qui résume des conversations de manière très concise.
-Génère un résumé en 2-3 phrases maximum (80 tokens max) de cette conversation entre l'utilisateur et ${personaName}.
-Focalise-toi sur: les sujets principaux, l'humeur, les informations importantes sur l'utilisateur.
-Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: ${LANG === 'fr' ? 'français' : LANG === 'es' ? 'español' : 'english'}.`;
+        const systemPrompt = `You are an assistant that summarizes conversations very concisely.
+Generate a 2-3 sentence summary (80 tokens max) of this conversation between the user and ${personaName}.
+Focus on: main topics, mood, important information about the user.
+Reply ONLY with the summary, no introduction or comment. Language: ${langName}.`;
 
         try {
             let summary = '';
@@ -7463,18 +7447,18 @@ Réponds UNIQUEMENT avec le résumé, sans introduction ni commentaire. Langue: 
         if (lineCount < MIN_MSGS_FOR_MEMORY) return;
 
         const personaName = persona.name || 'Zova';
-        const langName = LANG === 'fr' ? 'français' : LANG === 'es' ? 'español' : 'english';
-        const systemPrompt = `Tu es un assistant d'analyse de conversation. Analyse cette conversation entre l'utilisateur et ${personaName}.
+        const langName = getLangName();
+        const systemPrompt = `You are a conversation analysis assistant. Analyze this conversation between the user and ${personaName}.
 
-Retourne UNIQUEMENT un JSON valide avec ce format exact:
+Return ONLY a valid JSON with this exact format:
 {
-  "followups": ["engagement 1", "engagement 2"],
-  "bridge": "phrase d'accroche naturelle pour la prochaine session"
+  "followups": ["commitment 1", "commitment 2"],
+  "bridge": "natural opening phrase for the next session"
 }
 
-"followups": liste des engagements ou intentions exprimés par l'UTILISATEUR (max ${MAX_FOLLOWUPS}). Ex: "Essayer le jeûne intermittent", "Lire le chapitre 3". Tableau vide [] si aucun.
-"bridge": une phrase courte et naturelle que ${personaName} pourrait dire pour ouvrir la prochaine session en référençant ce qui s'est passé. Ex: "La dernière fois tu voulais essayer le jeûne — comment ça s'est passé ?". Chaîne vide "" si la session était trop courte.
-Langue: ${langName}. Réponds UNIQUEMENT avec le JSON.`;
+"followups": list of commitments or intentions expressed by the USER (max ${MAX_FOLLOWUPS}). E.g.: "Try intermittent fasting", "Read chapter 3". Empty array [] if none.
+"bridge": a short natural phrase that ${personaName} could say to open the next session referencing what happened. E.g.: "Last time you wanted to try fasting — how did it go?". Empty string "" if the session was too short.
+Language: ${langName}. Reply ONLY with the JSON.`;
 
         try {
             const raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 4000), temperature: 0.2, maxTokens: 300 });
@@ -7512,19 +7496,19 @@ Langue: ${langName}. Réponds UNIQUEMENT avec le JSON.`;
         const existingJson = existing.length > 0
             ? JSON.stringify(existing.map(g => ({ id: g.id, text: g.text, progress: g.progress, done: g.done })))
             : '[]';
-        const langName = LANG === 'fr' ? 'français' : LANG === 'es' ? 'español' : 'english';
+        const langName = getLangName();
 
-        const systemPrompt = `Tu analyses une conversation pour mettre à jour les objectifs long terme de l'utilisateur avec ${persona.name || 'Zova'}.
+        const systemPrompt = `You analyze a conversation to update the user's long-term goals with ${persona.name || 'Zova'}.
 
-Objectifs actuels: ${existingJson}
+Current goals: ${existingJson}
 
-Retourne UNIQUEMENT un JSON valide:
+Return ONLY a valid JSON:
 {
-  "new": [{"id":"<timestamp_ms>","text":"objectif","progress":0,"done":false,"createdAt":"${new Date().toISOString().slice(0,10)}","updatedAt":"${new Date().toISOString().slice(0,10)}"}],
-  "updates": [{"id":"<id_existant>","progress":<0-100>,"done":<bool>,"updatedAt":"${new Date().toISOString().slice(0,10)}"}],
-  "remove": ["<id à supprimer si l'utilisateur dit explicitement qu'il abandonne cet objectif>"]
+  "new": [{"id":"<timestamp_ms>","text":"goal","progress":0,"done":false,"createdAt":"${new Date().toISOString().slice(0,10)}","updatedAt":"${new Date().toISOString().slice(0,10)}"}],
+  "updates": [{"id":"<existing_id>","progress":<0-100>,"done":<bool>,"updatedAt":"${new Date().toISOString().slice(0,10)}"}],
+  "remove": ["<id to remove if the user explicitly says they are abandoning this goal>"]
 }
-Règles: seulement si l'utilisateur mentionne EXPLICITEMENT un objectif, une progression ou un accomplissement. Tableaux vides [] si rien de pertinent. Max ${MAX_GOALS} objectifs au total. Langue: ${langName}.`;
+Rules: only if the user EXPLICITLY mentions a goal, progress, or achievement. Empty arrays [] if nothing relevant. Max ${MAX_GOALS} goals total. Language: ${langName}.`;
 
         try {
             const raw = await chatCompletion({ systemPrompt, userPrompt: transcriptText.slice(0, 4000), temperature: 0.2, maxTokens: 400 });
@@ -7578,8 +7562,8 @@ Règles: seulement si l'utilisateur mentionne EXPLICITEMENT un objectif, une pro
 
         const toMerge = mems.slice(KEEP_RECENT); // oldest entries (index is newest-first)
         const mergeText = toMerge.map((m, i) => `Session ${i + 1} (${m.date}): ${m.summary}`).join('\n');
-        const langName = LANG === 'fr' ? 'français' : LANG === 'es' ? 'español' : 'english';
-        const systemPrompt = `Fusionne ces résumés de sessions en 1 résumé condensé (100 tokens max). Garde les infos clés sur l'utilisateur. Réponds UNIQUEMENT avec le résumé. Langue: ${langName}.`;
+        const langName = getLangName();
+        const systemPrompt = `Merge these session summaries into 1 condensed summary (100 tokens max). Keep key information about the user. Reply ONLY with the summary. Language: ${langName}.`;
 
         try {
             const summary = await chatCompletion({ systemPrompt, userPrompt: mergeText, temperature: 0.3, maxTokens: 120 });
@@ -7630,10 +7614,10 @@ Règles: seulement si l'utilisateur mentionne EXPLICITEMENT un objectif, une pro
                     <span style="color:#aaa;font-size:0.8rem">Génération...</span>
                 </div>
                 <div style="display:flex;gap:8px;justify-content:center">
-                    <button id="_qrCopyBtn" style="flex:1;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:0.85rem;min-height:44px">📋 Copier le lien</button>
+                    <button id="_qrCopyBtn" style="flex:1;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:0.85rem;min-height:44px">📋 ${t('btn_copy_link')}</button>
                     <button id="_qrShareBtn" style="flex:1;padding:10px;background:rgba(255,255,255,0.1);color:var(--text-primary);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:0.85rem;min-height:44px">📤 Partager</button>
                 </div>
-                <div id="_qrCopiedMsg" style="margin-top:8px;color:var(--accent);font-size:0.8rem;display:none">✅ Lien copié !</div>
+                <div id="_qrCopiedMsg" style="margin-top:8px;color:var(--accent);font-size:0.8rem;display:none">${t('btn_link_copied')}</div>
             </div>
         `;
         document.body.appendChild(overlay);
@@ -7752,14 +7736,16 @@ Règles: seulement si l'utilisateur mentionne EXPLICITEMENT un objectif, une pro
         const lineCount = transcriptText.split('\n').filter(l => l.trim()).length;
         if (lineCount < MIN_LINES_FOR_CHAPTERS) return;
 
-        const systemPrompt = `Tu es un assistant qui analyse des transcriptions de conversations vocales.
-Identifie 3 à 5 chapitres thématiques dans la conversation ci-dessous.
-Pour chaque chapitre, donne :
-- title : titre court du chapitre (5-7 mots max)
-- summary : résumé en 1-2 phrases de ce qui a été discuté
-- exchanges : moment approximatif ("échanges 1-8", "échanges 9-20", etc.)
-Réponds UNIQUEMENT avec un JSON valide, sans texte avant ni après.
-Format : [{"title":"...","summary":"...","exchanges":"..."}]`;
+        const langName = getLangName();
+        const systemPrompt = `You are an assistant that analyzes voice conversation transcripts.
+Identify 3 to 5 thematic chapters in the conversation below.
+For each chapter, provide:
+- title: short chapter title (5-7 words max)
+- summary: 1-2 sentence summary of what was discussed
+- exchanges: approximate position ("exchanges 1-8", "exchanges 9-20", etc.)
+Reply ONLY with valid JSON, no text before or after.
+Format: [{"title":"...","summary":"...","exchanges":"..."}]
+Language: ${langName}`;
 
         try {
             let result = '';
@@ -7959,18 +7945,20 @@ Format : [{"title":"...","summary":"...","exchanges":"..."}]`;
         const today = new Date().toISOString().slice(0, 10);
         const profileJson = JSON.stringify(current, null, 2);
 
-        const systemPrompt = `Tu es un assistant qui maintient un profil utilisateur concis en JSON.
+        const langName = getLangName();
+        const systemPrompt = `You are an assistant that maintains a concise user profile in JSON.
 
-Profil actuel :
+Current profile:
 ${profileJson}
 
-Règles STRICTES :
-- Mets à jour uniquement avec des infos clairement établies dans la conversation
-- max 5 éléments dans "facts", max 4 dans "topics", "style" = 1 phrase courte
-- Conserve les infos existantes pertinentes, remplace les obsolètes
-- Met "lastUpdated": "${today}"
-- Réponds UNIQUEMENT avec le JSON, sans markdown ni commentaire
-- Champs : name, languages[], topics[], style, facts[], goals[], lastUpdated`;
+STRICT rules:
+- Update only with information clearly established in the conversation
+- max 5 items in "facts", max 4 in "topics", "style" = 1 short sentence
+- Keep relevant existing info, replace outdated ones
+- Set "lastUpdated": "${today}"
+- Reply ONLY with the JSON, no markdown or comment
+- Fields: name, languages[], topics[], style, facts[], goals[], lastUpdated
+- Language: ${langName}`;
 
         try {
             let updated = null;
@@ -7997,21 +7985,23 @@ Règles STRICTES :
         const profileJson = JSON.stringify(current, null, 2);
         const personaDesc = persona.description ? `Description : ${persona.description}` : '';
 
-        const systemPrompt = `Tu es un assistant qui maintient le profil utilisateur du point de vue de ${persona.name}.
+        const langName = getLangName();
+        const systemPrompt = `You are an assistant that maintains the user profile from ${persona.name}'s perspective.
 ${personaDesc}
 
-Profil actuel pour ce persona :
+Current profile for this persona:
 ${profileJson}
 
-Règles STRICTES :
-- Ne capture que les infos pertinentes pour le rôle de ${persona.name}
-- max 6 éléments dans "facts", max 3 dans "goals"
-- "summary" = 1 phrase résumant ce que sait ${persona.name} sur l'utilisateur
-- "preferences" = 1 phrase sur le style attendu dans ce contexte
-- Conserve les infos pertinentes existantes, remplace les obsolètes
-- Met "lastUpdated": "${today}"
-- Réponds UNIQUEMENT avec le JSON, sans markdown ni commentaire
-- Champs obligatoires : summary, facts[], goals[], preferences, lastUpdated`;
+STRICT rules:
+- Only capture information relevant to ${persona.name}'s role
+- max 6 items in "facts", max 3 in "goals"
+- "summary" = 1 sentence summarizing what ${persona.name} knows about the user
+- "preferences" = 1 sentence about the expected style in this context
+- Keep relevant existing info, replace outdated ones
+- Set "lastUpdated": "${today}"
+- Reply ONLY with the JSON, no markdown or comment
+- Required fields: summary, facts[], goals[], preferences, lastUpdated
+- Language: ${langName}`;
 
         try {
             let updated = null;
@@ -9890,7 +9880,7 @@ Règles STRICTES :
                         <button data-fmt="txt"><span class="icon">&#128196;</span> Texte brut (.txt)</button>
                         <button data-fmt="md"><span class="icon">&#128221;</span> Markdown (.md)</button>
                     </div>
-                    <button class="export-cancel-btn" data-fmt="cancel">Annuler</button>
+                    <button class="export-cancel-btn" data-fmt="cancel">${t('btn_cancel')}</button>
                 </div>
             `;
             overlay.addEventListener('click', (e) => {
@@ -9937,15 +9927,15 @@ Règles STRICTES :
 
     // Clean a conversation transcript with LLM (fix STT errors, add punctuation, remove fillers)
     async function cleanTranscriptWithLLM(rawText) {
-        const lang = LANG === 'fr' ? 'français' : LANG === 'es' ? 'español' : 'english';
-        const systemPrompt = `Tu es un assistant de transcription. Nettoie cette transcription de conversation vocale en :
-1. Corrigeant les erreurs de reconnaissance vocale évidentes
-2. Ajoutant la ponctuation manquante
-3. Supprimant les mots de remplissage excessifs (euh, hmm, bah, heu...)
-4. Conservant le sens exact et le ton de chaque intervention
-5. Gardant le format "Nom: texte" pour chaque intervenant, sans ajouter de balises markdown
-Réponds UNIQUEMENT avec la transcription nettoyée, sans commentaires, sans introduction.
-Langue : ${lang}`;
+        const langName = getLangName();
+        const systemPrompt = `You are a transcription assistant. Clean this voice conversation transcript by:
+1. Correcting obvious speech recognition errors
+2. Adding missing punctuation
+3. Removing excessive filler words (uh, hmm, um, er...)
+4. Preserving the exact meaning and tone of each turn
+5. Keeping the "Name: text" format for each speaker, without adding markdown tags
+Reply ONLY with the cleaned transcript, no comments, no introduction.
+Language: ${langName}`;
         try {
             let cleaned = '';
             try { cleaned = await chatCompletion({ systemPrompt, userPrompt: rawText.slice(0, 6000), temperature: 0.2, maxTokens: 2000 }); } catch (e) { console.warn('[cleanTranscript]', e.message); }
@@ -9983,7 +9973,7 @@ Langue : ${lang}`;
                         <span style="font-size:1.4rem;">&#128203;</span>
                         <span>${LANG === 'es' ? 'Copiar al portapapeles' : LANG === 'en' ? 'Copy to clipboard' : 'Copier dans le presse-papier'}</span>
                     </button>
-                    <button id="_texpCancel" style="padding:12px 16px;background:none;border:none;border-radius:12px;cursor:pointer;color:var(--text-muted);font-size:0.9rem;">${LANG === 'es' ? 'Cancelar' : LANG === 'en' ? 'Cancel' : 'Annuler'}</button>
+                    <button id="_texpCancel" style="padding:12px 16px;background:none;border:none;border-radius:12px;cursor:pointer;color:var(--text-muted);font-size:0.9rem;">${t('btn_cancel')}</button>
                 </div>`;
             const close = (v) => { overlay.remove(); resolve(v); };
             overlay.querySelector('#_texpClean').addEventListener('click', () => close('clean'));
@@ -10023,7 +10013,7 @@ Langue : ${lang}`;
                         <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Mise &#224; jour uniquement &#8212; effac&#233; si d&#233;sinstall.</span>
                     </span>
                 </button>
-                <button id="_expCancel" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-secondary);font-size:0.9rem;">Annuler</button>
+                <button id="_expCancel" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-secondary);font-size:0.9rem;">${t('btn_cancel')}</button>
             </div>
         `;
         document.body.appendChild(overlay);
@@ -10112,7 +10102,7 @@ Langue : ${lang}`;
             <div style="background:var(--modal-bg);border-radius:16px;padding:20px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:10px;margin-bottom:8px;max-height:70vh;overflow-y:auto;">
                 <div style="font-weight:700;font-size:0.95rem;color:var(--text-primary);text-align:center;margin-bottom:4px;">&#128193; Sauvegardes Zova</div>
                 ${items}
-                <button id="_zfCancel" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-secondary);font-size:0.9rem;">Annuler</button>
+                <button id="_zfCancel" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-secondary);font-size:0.9rem;">${t('btn_cancel')}</button>
             </div>
         `;
         document.body.appendChild(overlay);
@@ -10253,7 +10243,7 @@ Langue : ${lang}`;
                         <span style="font-size:0.78rem;font-weight:400;opacity:0.65;">Fichiers enregistr&#233;s dans l&#39;app (m&#234;me install.)</span>
                     </span>
                 </button>
-                <button id="_impCancel" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-secondary);font-size:0.9rem;">Annuler</button>
+                <button id="_impCancel" style="padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;cursor:pointer;color:var(--text-secondary);font-size:0.9rem;">${t('btn_cancel')}</button>
             </div>
         `;
         document.body.appendChild(overlay);
@@ -10663,32 +10653,34 @@ Langue : ${lang}`;
         modal.classList.add('active');
 
         try {
-            const insightSystemPrompt = `Tu es un assistant qui analyse des transcriptions de conversations vocales.
-Ton rôle : extraire les informations personnelles DURABLES et NOUVELLES sur l'utilisateur (celui qui parle avec l'IA).
+            const langName = getLangName();
+            const insightSystemPrompt = `You are an assistant that analyzes voice conversation transcripts.
+Your role: extract DURABLE and NEW personal information about the user (the person talking with the AI).
 
-Informations déjà connues sur l'utilisateur (NE PAS les répéter) :
-${existingInfo || '(aucune)'}
+Information already known about the user (DO NOT repeat):
+${existingInfo || '(none)'}
 
-EXTRAIRE UNIQUEMENT des faits DURABLES sur l'utilisateur :
-- Identité : prénom, âge, lieu de vie, nationalité
-- Vie pro : métier, entreprise, compétences, projets professionnels
-- Vie perso : famille, animaux, loisirs, passions, goûts
-- Préférences : ce qu'il aime/n'aime pas, habitudes, opinions marquées
-- Projets : voyages prévus, déménagement, changement de carrière, etc.
+EXTRACT ONLY DURABLE facts about the user:
+- Identity: first name, age, location, nationality
+- Professional life: job, company, skills, professional projects
+- Personal life: family, pets, hobbies, passions, tastes
+- Preferences: what they like/dislike, habits, strong opinions
+- Projects: planned trips, moving, career change, etc.
 
-NE JAMAIS EXTRAIRE :
-- L'heure, la date, la météo, ou toute info temporelle/éphémère
-- Ce que l'utilisateur a fait aujourd'hui, ce matin, hier (sauf si ça révèle une habitude)
-- Les questions posées à l'IA ou les sujets de conversation ponctuels
-- Les salutations, formules de politesse, blagues du moment
-- Les émotions passagères ("je suis fatigué", "j'ai faim")
-- Tout ce qui n'est plus vrai demain
+NEVER EXTRACT:
+- Time, date, weather, or any temporal/ephemeral information
+- What the user did today, this morning, yesterday (unless it reveals a habit)
+- Questions asked to the AI or one-time conversation topics
+- Greetings, courtesy phrases, jokes of the moment
+- Passing emotions ("I'm tired", "I'm hungry")
+- Anything that won't be true tomorrow
 
-Règles de format :
-- Chaque info doit être une phrase courte commençant par "- "
-- NE répète PAS ce qui est déjà dans les infos connues
-- Si aucune info durable détectée, retourne exactement : AUCUNE
-- Retourne UNIQUEMENT la liste, sans commentaire`;
+Format rules:
+- Each piece of info must be a short sentence starting with "- "
+- DO NOT repeat what is already in the known info
+- If no durable info detected, return exactly: NONE
+- Return ONLY the list, no comment
+Language: ${langName}`;
 
             const result = await chatCompletion({
                 systemPrompt: insightSystemPrompt,
@@ -10907,8 +10899,8 @@ Règles de format :
                 { label: 'Total', cutoff: new Date(0) }
             ];
 
-            let html = `<table class="stats-table"><thead><tr>
-                <th>Période</th><th>Conv.</th><th>Tokens entrée</th><th>Tokens sortie</th><th>Coût</th>
+            let html = `<div class="stats-table-wrap"><table class="stats-table"><thead><tr>
+                <th>Période</th><th>Conv.</th><th>Tokens in</th><th>Tokens out</th><th>Coût $</th>
             </tr></thead><tbody>`;
 
             periods.forEach((p, i) => {
@@ -10921,7 +10913,7 @@ Règles de format :
                 html += `<tr${cls}><td>${p.label}</td><td>${convos}</td><td>${formatTokens(inp)}</td><td>${formatTokens(out)}</td><td>$${cost.toFixed(4)}</td></tr>`;
             });
 
-            html += `</tbody></table>`;
+            html += `</tbody></table></div>`;
 
             // Graphiques par mois
             const byMonth = {};
@@ -10987,8 +10979,8 @@ Règles de format :
                 return;
             }
 
-            let html = `<table class="stats-table"><thead><tr>
-                <th>Persona</th><th>Conv.</th><th>Durée</th><th>Tokens</th><th>Coût</th>
+            let html = `<div class="stats-table-wrap"><table class="stats-table"><thead><tr>
+                <th>Persona</th><th>Conv.</th><th>Durée</th><th>Tokens</th><th>Coût $</th>
             </tr></thead><tbody>`;
 
             const entries = Object.entries(byPersona).sort((a, b) => b[1].count - a[1].count);
@@ -10999,7 +10991,7 @@ Règles de format :
                 totalConvos += d.count; totalDuration += d.duration; totalTokens += tokens; totalCost += cost;
                 html += `<tr><td>${esc(name)}</td><td>${d.count}</td><td>${formatDuration(d.duration)}</td><td>${formatTokens(tokens)}</td><td>$${cost.toFixed(4)}</td></tr>`;
             });
-            html += `</tbody><tfoot><tr class="stats-total"><td>Total</td><td>${totalConvos}</td><td>${formatDuration(totalDuration)}</td><td>${formatTokens(totalTokens)}</td><td>$${totalCost.toFixed(4)}</td></tr></tfoot></table>`;
+            html += `</tbody><tfoot><tr class="stats-total"><td>Total</td><td>${totalConvos}</td><td>${formatDuration(totalDuration)}</td><td>${formatTokens(totalTokens)}</td><td>$${totalCost.toFixed(4)}</td></tr></tfoot></table></div>`;
             container.innerHTML = html;
 
         } else if (tab === 'models') {
@@ -11019,8 +11011,8 @@ Règles de format :
                 return;
             }
 
-            let html = `<table class="stats-table"><thead><tr>
-                <th>Modèle</th><th>Conv.</th><th>Durée</th><th>Tokens</th><th>Coût</th><th>Coût/h</th>
+            let html = `<div class="stats-table-wrap"><table class="stats-table"><thead><tr>
+                <th>Modèle</th><th>Conv.</th><th>Durée</th><th>Tokens</th><th>Coût $</th><th>$/h</th>
             </tr></thead><tbody>`;
 
             Object.entries(byModel).sort((a, b) => b[1].cost - a[1].cost).forEach(([model, d]) => {
@@ -11028,7 +11020,7 @@ Règles de format :
                 const costPerHour = d.duration > 0 ? (d.cost / d.duration * 3600) : 0;
                 html += `<tr><td>${esc(model)}</td><td>${d.count}</td><td>${formatDuration(d.duration)}</td><td>${formatTokens(tokens)}</td><td>$${d.cost.toFixed(4)}</td><td>$${costPerHour.toFixed(2)}/h</td></tr>`;
             });
-            html += `</tbody></table>`;
+            html += `</tbody></table></div>`;
             container.innerHTML = html;
         }
     }
