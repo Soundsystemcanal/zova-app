@@ -632,6 +632,44 @@
         [data-theme="light"] .viz-label.persona { color: #db2777; }
         [data-theme="light"] .viz-label.user { color: #6d28d9; }
 
+        /* ─── Light mode — lisibilité globale ─────────────────────── */
+
+        /* Titres de section Config (hardcodé #f5f3ff en dark) */
+        [data-theme="light"] .config-section-title {
+            color: var(--text-secondary);
+            text-shadow: none;
+        }
+
+        /* Blobs de fond : moins intenses en mode clair */
+        [data-theme="light"] #v2Blobs .blob {
+            opacity: 0.35;
+        }
+
+        /* Grain de film : quasi invisible en mode clair */
+        [data-theme="light"] #v2Grain {
+            opacity: 0.01;
+        }
+
+        /* Footer app */
+        [data-theme="light"] .app-footer {
+            color: var(--text-muted);
+        }
+
+        /* Cartes des personas — ombre plus visible */
+        [data-theme="light"] .welcome-card:hover {
+            box-shadow: 0 4px 20px rgba(109,40,217,0.18);
+        }
+
+        /* Transcript : séparer visuellement les messages */
+        [data-theme="light"] .transcript-msg {
+            border: 1px solid var(--border);
+        }
+
+        /* Stats : fond de cases alternatives lisible sur fond clair */
+        [data-theme="light"] .stats-table tr:nth-child(even) td {
+            background: rgba(109,40,217,0.04);
+        }
+
         /* Barre de noms + lien entre les visualiseurs */
         #vizBar {
             display: flex;
@@ -1864,7 +1902,7 @@
             width: 100%;
             max-width: 600px;
             margin: 0 auto;
-            padding: 0 4px;
+            padding: 0 16px;
         }
 
         .stats-table {
@@ -7430,8 +7468,7 @@ Format : [{"title":"...","summary":"...","exchanges":"..."}]`;
         banner.id = '_chaptersBanner';
         banner.style.cssText = [
             'position:fixed;bottom:80px;left:50%;transform:translateX(-50%)',
-            'background:linear-gradient(135deg,#1a0a2e,#0f0f2e)',
-            'border:1px solid #8b5cf6;border-radius:14px;padding:10px 16px',
+            'background:var(--modal-bg);border:1px solid var(--accent);border-radius:14px;padding:10px 16px',
             'display:flex;align-items:center;gap:10px;z-index:8000',
             'box-shadow:0 4px 20px rgba(139,92,246,0.3);cursor:pointer',
             'min-width:240px;max-width:90vw;transition:opacity 0.4s'
@@ -7439,10 +7476,10 @@ Format : [{"title":"...","summary":"...","exchanges":"..."}]`;
         banner.innerHTML = `
             <span style="font-size:1.3rem">📑</span>
             <div style="flex:1">
-                <div style="color:#f0e6ff;font-size:0.85rem;font-weight:600">Session longue analysée</div>
-                <div style="color:#9c7dd9;font-size:0.75rem">Voir les chapitres de la conversation</div>
+                <div style="color:var(--text-primary);font-size:0.85rem;font-weight:600">Session longue analysée</div>
+                <div style="color:var(--text-secondary);font-size:0.75rem">Voir les chapitres de la conversation</div>
             </div>
-            <button id="_chaptersBannerClose" style="background:none;border:none;color:#9c7dd9;font-size:1.1rem;cursor:pointer;padding:0 4px;min-height:44px">×</button>
+            <button id="_chaptersBannerClose" style="background:none;border:none;color:var(--text-muted);font-size:1.1rem;cursor:pointer;padding:0 4px;min-height:44px">×</button>
         `;
         document.body.appendChild(banner);
 
@@ -7466,11 +7503,11 @@ Format : [{"title":"...","summary":"...","exchanges":"..."}]`;
         const chaptersHtml = chapters.map((ch, i) => `
             <div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:14px;margin-bottom:10px">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-                    <span style="background:#8b5cf6;color:#fff;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:20px">Ch. ${i+1}</span>
-                    <span style="color:#f0e6ff;font-weight:600;font-size:0.9rem">${esc(ch.title || '')}</span>
+                    <span style="background:var(--accent);color:#fff;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:20px">Ch. ${i+1}</span>
+                    <span style="color:var(--text-primary);font-weight:600;font-size:0.9rem">${esc(ch.title || '')}</span>
                 </div>
-                <div style="color:#b0a0d9;font-size:0.82rem;margin-bottom:4px">${esc(ch.summary || '')}</div>
-                <div style="color:#6b5a9c;font-size:0.75rem">${esc(ch.exchanges || '')}</div>
+                <div style="color:var(--text-secondary);font-size:0.82rem;margin-bottom:4px">${esc(ch.summary || '')}</div>
+                <div style="color:var(--text-muted);font-size:0.75rem">${esc(ch.exchanges || '')}</div>
             </div>
         `).join('');
 
@@ -7680,7 +7717,12 @@ Règles STRICTES :
             return m + 'min' + (r > 0 ? ' ' + r + 's' : '');
         };
         const price = PRICING[activeModelId] || PRICING['gpt-realtime-1.5'];
-        const cost = (totalInputTokens / 1000 * price.input) + (totalOutputTokens / 1000 * price.output);
+        let cost = 0;
+        if (price.perMinute != null) {
+            cost = (duration / 60) * price.perMinute;
+        } else if (price.input != null) {
+            cost = (totalInputTokens / 1000 * price.input) + (totalOutputTokens / 1000 * price.output);
+        }
         const costStr = cost > 0.0001 ? ` · ~$${cost.toFixed(4)}` : '';
 
         const label = LANG === 'es' ? 'Sesión terminada' : LANG === 'en' ? 'Session ended' : 'Session terminée';
@@ -9012,6 +9054,14 @@ Règles STRICTES :
                     setTimeout(() => { micReady = true; }, 500);
                 }
             }
+
+            // usageMetadata peut arriver dans le même message que serverContent
+            const usageInSc = data.usageMetadata || data.usage_metadata;
+            if (usageInSc) {
+                totalInputTokens += usageInSc.promptTokenCount || usageInSc.prompt_token_count || 0;
+                totalOutputTokens += usageInSc.responseTokenCount || usageInSc.response_token_count || usageInSc.candidatesTokenCount || usageInSc.candidates_token_count || 0;
+                updateTokenCounter();
+            }
             return;
         }
 
@@ -9026,11 +9076,11 @@ Règles STRICTES :
             return;
         }
 
-        // usageMetadata — comptage de tokens (Gemini peut envoyer en camelCase ou snake_case)
+        // usageMetadata — message standalone (sans serverContent)
         const usage = data.usageMetadata || data.usage_metadata;
         if (usage) {
             totalInputTokens += usage.promptTokenCount || usage.prompt_token_count || 0;
-            totalOutputTokens += usage.responseTokenCount || usage.response_token_count || 0;
+            totalOutputTokens += usage.responseTokenCount || usage.response_token_count || usage.candidatesTokenCount || usage.candidates_token_count || 0;
             updateTokenCounter();
             return;
         }
@@ -10236,18 +10286,18 @@ Langue : ${lang}`;
 
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
                     <div style="background:rgba(139,92,246,0.1);border-radius:12px;padding:12px;text-align:center">
-                        <div style="font-size:1.6rem;font-weight:700;color:#8b5cf6">${totalSessions}</div>
+                        <div style="font-size:1.6rem;font-weight:700;color:var(--accent)">${totalSessions}</div>
                         <div style="font-size:0.75rem;color:var(--text-secondary)">sessions</div>
                     </div>
                     <div style="background:rgba(236,72,153,0.1);border-radius:12px;padding:12px;text-align:center">
-                        <div style="font-size:1.6rem;font-weight:700;color:#ec4899">${fmtDuration(totalSeconds)}</div>
+                        <div style="font-size:1.6rem;font-weight:700;color:var(--accent2)">${fmtDuration(totalSeconds)}</div>
                         <div style="font-size:0.75rem;color:var(--text-secondary)">temps total</div>
                     </div>
-                    <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px;text-align:center">
+                    <div style="background:var(--bg-hover);border-radius:12px;padding:12px;text-align:center">
                         <div style="font-size:1.4rem;font-weight:700;color:var(--text-primary)">${fmtDuration(avgSeconds)}</div>
                         <div style="font-size:0.75rem;color:var(--text-secondary)">moy. / session</div>
                     </div>
-                    <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:12px;text-align:center">
+                    <div style="background:var(--bg-hover);border-radius:12px;padding:12px;text-align:center">
                         <div style="font-size:1.4rem;font-weight:700;color:var(--text-primary)">$${totalCost.toFixed(3)}</div>
                         <div style="font-size:0.75rem;color:var(--text-secondary)">coût total</div>
                     </div>
