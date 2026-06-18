@@ -1941,6 +1941,10 @@
             color: var(--text-primary);
             border-bottom: none;
         }
+        .stats-cost-col {
+            color: var(--accent);
+            font-weight: 700;
+        }
         .stats-tabs {
             display: flex;
             border: 1px solid var(--border);
@@ -10893,24 +10897,24 @@ Language: ${langName}`;
         if (tab === 'periods') {
             // Périodes : Aujourd'hui, 7 jours, 30 jours, Total
             const periods = [
-                { label: "Aujourd'hui", cutoff: new Date(now.getFullYear(), now.getMonth(), now.getDate()) },
-                { label: '7 derniers jours', cutoff: new Date(now.getTime() - 7 * 86400000) },
-                { label: '30 derniers jours', cutoff: new Date(now.getTime() - 30 * 86400000) },
+                { label: "Auj.", cutoff: new Date(now.getFullYear(), now.getMonth(), now.getDate()) },
+                { label: '7 jours', cutoff: new Date(now.getTime() - 7 * 86400000) },
+                { label: '30 jours', cutoff: new Date(now.getTime() - 30 * 86400000) },
                 { label: 'Total', cutoff: new Date(0) }
             ];
 
             let html = `<div class="stats-table-wrap"><table class="stats-table"><thead><tr>
-                <th>Période</th><th>Conv.</th><th>Tokens in</th><th>Tokens out</th><th>Coût $</th>
+                <th>Période</th><th>Conv.</th><th>Durée</th><th>Tokens</th><th class="stats-cost-col">Coût $</th>
             </tr></thead><tbody>`;
 
             periods.forEach((p, i) => {
                 const filtered = stats.filter(s => new Date(s.date) >= p.cutoff);
                 const convos = filtered.length;
-                const inp = filtered.reduce((s, x) => s + (x.inputTokens || 0), 0);
-                const out = filtered.reduce((s, x) => s + (x.outputTokens || 0), 0);
+                const tokens = filtered.reduce((s, x) => s + (x.inputTokens || 0) + (x.outputTokens || 0), 0);
+                const dur = filtered.reduce((s, x) => s + (x.durationSeconds || 0), 0);
                 const cost = filtered.reduce((s, x) => s + statCost(x), 0);
                 const cls = i === periods.length - 1 ? ' class="stats-total"' : '';
-                html += `<tr${cls}><td>${p.label}</td><td>${convos}</td><td>${formatTokens(inp)}</td><td>${formatTokens(out)}</td><td>$${cost.toFixed(4)}</td></tr>`;
+                html += `<tr${cls}><td>${p.label}</td><td>${convos}</td><td>${formatDuration(dur)}</td><td>${formatTokens(tokens)}</td><td class="stats-cost-col">$${cost.toFixed(2)}</td></tr>`;
             });
 
             html += `</tbody></table></div>`;
@@ -10980,7 +10984,7 @@ Language: ${langName}`;
             }
 
             let html = `<div class="stats-table-wrap"><table class="stats-table"><thead><tr>
-                <th>Persona</th><th>Conv.</th><th>Durée</th><th>Tokens</th><th>Coût $</th>
+                <th>Persona</th><th>Conv.</th><th>Durée</th><th>Tokens</th><th class="stats-cost-col">Coût $</th>
             </tr></thead><tbody>`;
 
             const entries = Object.entries(byPersona).sort((a, b) => b[1].count - a[1].count);
@@ -10989,9 +10993,9 @@ Language: ${langName}`;
                 const tokens = d.input + d.output;
                 const cost = personaCosts[name] || 0;
                 totalConvos += d.count; totalDuration += d.duration; totalTokens += tokens; totalCost += cost;
-                html += `<tr><td>${esc(name)}</td><td>${d.count}</td><td>${formatDuration(d.duration)}</td><td>${formatTokens(tokens)}</td><td>$${cost.toFixed(4)}</td></tr>`;
+                html += `<tr><td>${esc(name)}</td><td>${d.count}</td><td>${formatDuration(d.duration)}</td><td>${formatTokens(tokens)}</td><td class="stats-cost-col">$${cost.toFixed(2)}</td></tr>`;
             });
-            html += `</tbody><tfoot><tr class="stats-total"><td>Total</td><td>${totalConvos}</td><td>${formatDuration(totalDuration)}</td><td>${formatTokens(totalTokens)}</td><td>$${totalCost.toFixed(4)}</td></tr></tfoot></table></div>`;
+            html += `</tbody><tfoot><tr class="stats-total"><td>Total</td><td>${totalConvos}</td><td>${formatDuration(totalDuration)}</td><td>${formatTokens(totalTokens)}</td><td class="stats-cost-col">$${totalCost.toFixed(2)}</td></tr></tfoot></table></div>`;
             container.innerHTML = html;
 
         } else if (tab === 'models') {
@@ -11012,13 +11016,13 @@ Language: ${langName}`;
             }
 
             let html = `<div class="stats-table-wrap"><table class="stats-table"><thead><tr>
-                <th>Modèle</th><th>Conv.</th><th>Durée</th><th>Tokens</th><th>Coût $</th><th>$/h</th>
+                <th>Modèle</th><th>Conv.</th><th>Durée</th><th>Tokens</th><th class="stats-cost-col">Coût $</th><th class="stats-cost-col">$/h</th>
             </tr></thead><tbody>`;
 
             Object.entries(byModel).sort((a, b) => b[1].cost - a[1].cost).forEach(([model, d]) => {
                 const tokens = d.input + d.output;
                 const costPerHour = d.duration > 0 ? (d.cost / d.duration * 3600) : 0;
-                html += `<tr><td>${esc(model)}</td><td>${d.count}</td><td>${formatDuration(d.duration)}</td><td>${formatTokens(tokens)}</td><td>$${d.cost.toFixed(4)}</td><td>$${costPerHour.toFixed(2)}/h</td></tr>`;
+                html += `<tr><td>${esc(model)}</td><td>${d.count}</td><td>${formatDuration(d.duration)}</td><td>${formatTokens(tokens)}</td><td class="stats-cost-col">$${d.cost.toFixed(2)}</td><td class="stats-cost-col">$${costPerHour.toFixed(2)}/h</td></tr>`;
             });
             html += `</tbody></table></div>`;
             container.innerHTML = html;
