@@ -3957,79 +3957,151 @@ Minimum version required to store current data is: `+i+`.
         fr: [
             {
                 q: 'Par où commencer ?',
-                a: 'Zova fonctionne sans serveur intermédiaire : tu parles directement aux IA via leur API officielle. Pour démarrer, choisis d\'abord un fournisseur (OpenAI, Gemini, Ultravox ou Groq), crée un compte sur leur site, obtiens une clé API, puis colle-la dans l\'onglet Clé API de la Configuration. C\'est tout — tu peux ensuite lancer ta première conversation.'
-            },
-            {
-                q: 'Quel provider choisir ?',
-                a: 'Tout dépend de tes priorités. OpenAI Realtime offre la meilleure qualité et la latence la plus faible. Gemini Live est excellent et très abordable. Ultravox est économique avec une bonne qualité. Groq est le moins cher de tous avec une latence légèrement plus élevée. Tu peux changer de provider à tout moment dans l\'onglet Modèle sans perdre tes conversations.'
+                a: 'Zova parle directement aux IA sans serveur intermédiaire. Va dans Configuration → Clé API, choisis un fournisseur et colle ta clé — <strong>Groq propose un niveau gratuit</strong> pour débuter. Une fois la clé enregistrée, lance ta première conversation depuis l\'écran principal.'
             },
             {
                 q: 'Comment entrer ma clé API ?',
-                a: 'Commence par cliquer sur le lien de ton provider dans l\'onglet Clé API pour créer ton compte et récupérer ta clé. Reviens ensuite dans l\'app, colle la clé dans le champ correspondant et appuie sur Sauvegarder. La clé est stockée exclusivement dans l\'Android Keystore de ton téléphone — elle ne transite jamais par un serveur externe.'
+                a: 'Dans Configuration → Clé API, clique sur le lien du fournisseur pour créer ton compte et récupérer ta clé. Reviens dans l\'app, colle-la dans le champ et appuie sur Sauvegarder. Elle est chiffrée dans l\'Android Keystore de ton téléphone et ne transite jamais par un serveur Zova.'
+            },
+            {
+                q: 'Quel provider voix choisir ?',
+                a: '<strong>Groq</strong> (~$0,001/min) — quasi gratuit, idéal pour commencer.<br><strong>Ultravox</strong> (~$0,005/min) — bon équilibre qualité/prix.<br><strong>Gemini Live</strong> (~$0,01/min) — très naturel, très abordable.<br><strong>OpenAI Realtime</strong> (~$0,06/min) — meilleure qualité, plus cher.<br>Tu peux changer à tout moment dans Configuration → Modèles sans perdre tes conversations.'
+            },
+            {
+                q: 'À quoi sert le "modèle de texte" ?',
+                a: 'Pendant les conversations, Zova utilise le provider voix. En dehors, un modèle de texte séparé (Configuration → Modèles → Tâches texte) gère la mémoire, la création de personas et les résumés de session. Groq est utilisé par défaut ; DeepSeek ou Qwen sont des alternatives encore moins chères si tu as les clés.'
+            },
+            {
+                q: 'Comment sont calculés les coûts ?',
+                a: 'Les providers voix facturent <strong>à la minute</strong> de conversation. Les tâches texte (mémoire, profil) facturent <strong>au token</strong> — une session typique consomme quelques centimes. Consulte l\'onglet Statistiques pour voir tes dépenses réelles par période, persona et modèle.'
             },
             {
                 q: 'Comment maîtriser mes dépenses ?',
-                a: 'Va dans Configuration → Budget et entre un montant mensuel maximum. Zova t\'avertira quand tu atteindras 90 % de la limite et bloquera les nouvelles conversations une fois le plafond dépassé. Le compteur se remet à zéro le 1er de chaque mois. Tu peux laisser le champ vide pour désactiver le plafond.'
+                a: 'Va dans Configuration → Budget et entre un montant mensuel maximum. Zova t\'avertit à 90 % de la limite et bloque les nouvelles conversations au-delà. Le compteur se remet à zéro le 1er du mois. Laisse le champ vide pour désactiver le plafond.'
             },
             {
-                q: 'Comment créer un assistant personnalisé ?',
-                a: 'Va dans l\'onglet Personas et appuie sur + Nouveau persona. Donne-lui un nom, une description, choisis une voix et un modèle. Le champ Prompt système définit sa personnalité : plus tu le détailles, plus il sera unique. Tu peux générer une image avec l\'IA ou en importer une depuis ta galerie.'
+                q: 'Que retient Zova de moi ?',
+                a: 'Après chaque conversation, Zova génère automatiquement : un <strong>résumé de session</strong>, met à jour ton <strong>profil</strong> (intérêts, habitudes), détecte tes <strong>engagements</strong> (follow-ups) et suit tes <strong>objectifs à long terme</strong>. Chaque persona a sa propre mémoire indépendante. Tout est stocké localement — jamais envoyé à Zova.'
+            },
+            {
+                q: 'Comment voir et effacer mes données ?',
+                a: 'Dans Configuration, chaque section (Mémoire, Suivis, Objectifs, Profil) affiche un bouton "Voir" qui liste les éléments un par un avec un ✕ pour effacer au cas par cas. Pour tout supprimer d\'un coup, va dans Configuration → Confidentialité → <strong>Effacer toutes les données IA</strong> : cela efface les 7 couches de mémoire de toutes les personas, en conservant tes personas et clés API.'
+            },
+            {
+                q: 'Mes données sont-elles privées ?',
+                a: 'Oui. Tes conversations partent <strong>directement</strong> de ton téléphone vers l\'API du fournisseur (OpenAI, Google, etc.) — Zova n\'a aucun serveur intermédiaire. Tes souvenirs et ton profil sont stockés dans l\'app, sur ton téléphone uniquement. Les clés API et le PIN sont chiffrés dans l\'Android Keystore. Zova ne collecte aucune donnée.'
             },
             {
                 q: 'Comment sécuriser l\'app ?',
-                a: 'Va dans Configuration → Sécurité et appuie sur Activer le code PIN (4 chiffres) : il te sera demandé à chaque ouverture. Si ton téléphone a une empreinte enregistrée, tu peux aussi déverrouiller par empreinte (bouton 🤙). Après plusieurs codes erronés, le clavier se verrouille temporairement pour bloquer les tentatives à répétition. Le PIN est stocké dans l\'Android Keystore au même titre que tes clés API. Enfin, à l\'export tu peux chiffrer ta sauvegarde par mot de passe (AES-256). Tes données restent uniquement sur ton téléphone, jamais envoyées à Zova.'
+                a: 'Dans Configuration → Sécurité, active le code PIN (4 chiffres) : il sera demandé à chaque ouverture. Si ton téléphone a une empreinte enregistrée, déverrouille aussi par biométrie (bouton 🤙). Après plusieurs codes erronés, le clavier se verrouille progressivement (30 s → 15 min max).'
+            },
+            {
+                q: 'Comment sauvegarder et restaurer ?',
+                a: 'Dans Configuration → Sauvegarde, exporte toutes tes données (personas, mémoire, profil) dans un fichier JSON. Tu peux choisir de <strong>chiffrer la sauvegarde par mot de passe</strong> (AES-256) — sans ce mot de passe, le fichier est illisible. Pour restaurer, importe le fichier depuis "Sauvegardes Zova" ou ton gestionnaire de fichiers.'
+            },
+            {
+                q: 'Comment créer un assistant personnalisé ?',
+                a: 'Dans l\'onglet Personas, appuie sur <strong>+ Nouveau</strong> et choisis "Création guidée" : un assistant en 5 étapes génère la persona pour toi (sujet, ton, style, nom). Tu peux aussi configurer manuellement le nom, la voix, le modèle et le prompt système. Le bouton ✨ Évoluer permet ensuite de faire muter le prompt d\'une persona existante.'
             }
         ],
         en: [
             {
                 q: 'Where do I start?',
-                a: 'Zova works without any middleman server: you talk directly to AI providers via their official API. To get started, pick a provider (OpenAI, Gemini, Ultravox or Groq), create an account on their website, get an API key, then paste it in the API Key tab of Settings. That\'s it — you can then start your first conversation.'
-            },
-            {
-                q: 'Which provider should I choose?',
-                a: 'It depends on your priorities. OpenAI Realtime delivers the best quality and lowest latency. Gemini Live is excellent and very affordable. Ultravox is budget-friendly with good quality. Groq is the cheapest option with slightly higher latency. You can switch providers anytime in the Model tab without losing your conversations.'
+                a: 'Zova talks directly to AI providers without any middleman server. Go to Settings → API Key, choose a provider and paste your key — <strong>Groq offers a free tier</strong> to get started. Once the key is saved, launch your first conversation from the home screen.'
             },
             {
                 q: 'How do I enter my API key?',
-                a: 'Start by clicking the link for your provider in the API Key tab to create your account and retrieve your key. Then come back to the app, paste the key in the matching field and tap Save. The key is stored exclusively in your phone\'s Android Keystore — it never passes through any external server.'
+                a: 'In Settings → API Key, tap the provider link to create your account and retrieve your key. Come back to the app, paste the key in the matching field and tap Save. It is encrypted in your phone\'s Android Keystore and never passes through a Zova server.'
+            },
+            {
+                q: 'Which voice provider should I choose?',
+                a: '<strong>Groq</strong> (~$0.001/min) — nearly free, great to start.<br><strong>Ultravox</strong> (~$0.005/min) — good quality/price balance.<br><strong>Gemini Live</strong> (~$0.01/min) — very natural, very affordable.<br><strong>OpenAI Realtime</strong> (~$0.06/min) — best quality, pricier.<br>You can switch anytime in Settings → Models without losing your conversations.'
+            },
+            {
+                q: 'What is the "text model" for?',
+                a: 'During conversations, Zova uses the voice provider. Outside of them, a separate text model (Settings → Models → Text tasks) handles memory, persona creation and session summaries. Groq is used by default; DeepSeek or Qwen are cheaper alternatives if you have those keys.'
+            },
+            {
+                q: 'How are costs calculated?',
+                a: 'Voice providers charge <strong>per minute</strong> of conversation. Text tasks (memory, profile) charge <strong>per token</strong> — a typical session costs a few cents. Check the Statistics tab to see your actual spending by period, persona and model.'
             },
             {
                 q: 'How do I control my spending?',
-                a: 'Go to Settings → Budget and enter a monthly maximum amount. Zova will warn you when you reach 90% of the limit and block new conversations once the cap is exceeded. The counter resets on the 1st of each month. You can leave the field empty to disable the cap.'
+                a: 'Go to Settings → Budget and enter a monthly maximum. Zova warns you at 90% of the limit and blocks new conversations beyond that. The counter resets on the 1st of each month. Leave the field empty to disable the cap.'
             },
             {
-                q: 'How do I create a custom assistant?',
-                a: 'Go to the Personas tab and tap + New persona. Give it a name, a description, choose a voice and a model. The System prompt field defines its personality: the more detailed it is, the more unique it will be. You can generate an image with AI or import one from your gallery.'
+                q: 'What does Zova remember about me?',
+                a: 'After each conversation, Zova automatically generates a <strong>session summary</strong>, updates your <strong>profile</strong> (interests, habits), detects your <strong>commitments</strong> (follow-ups) and tracks your <strong>long-term goals</strong>. Each persona has its own independent memory. Everything is stored locally — never sent to Zova.'
+            },
+            {
+                q: 'How do I view and delete my data?',
+                a: 'In Settings, each section (Memory, Follow-ups, Goals, Profile) has a "View" button that lists items one by one with a ✕ to delete them individually. To wipe everything at once, go to Settings → Privacy → <strong>Erase all AI data</strong>: it clears the 7 memory layers of all personas while keeping your personas and API keys.'
+            },
+            {
+                q: 'Is my data private?',
+                a: 'Yes. Your conversations go <strong>directly</strong> from your phone to the provider\'s API (OpenAI, Google, etc.) — Zova has no intermediary server. Your memories and profile are stored in the app, on your phone only. API keys and PIN are encrypted in the Android Keystore. Zova collects no data.'
             },
             {
                 q: 'How do I secure the app?',
-                a: 'Go to Settings → Security and tap Activate PIN code (4 digits): it will be required each time you open the app. If your phone has a fingerprint enrolled, you can also unlock with biometrics (🤙 button). After several wrong codes, the keypad locks temporarily to block repeated guessing. The PIN is stored in the Android Keystore alongside your API keys. Finally, when exporting you can encrypt your backup with a password (AES-256). Your data stays only on your phone, never sent to Zova.'
+                a: 'In Settings → Security, enable the PIN code (4 digits): it will be required every time you open the app. If your phone has a fingerprint enrolled, you can also unlock with biometrics (🤙 button). After several wrong codes, the keypad locks progressively (30 s → 15 min max).'
+            },
+            {
+                q: 'How do I back up and restore?',
+                a: 'In Settings → Backup, export all your data (personas, memory, profile) to a JSON file. You can choose to <strong>encrypt the backup with a password</strong> (AES-256) — without it, the file is unreadable. To restore, import the file from "Zova Backups" or your file manager.'
+            },
+            {
+                q: 'How do I create a custom assistant?',
+                a: 'In the Personas tab, tap <strong>+ New</strong> and choose "Guided creation": a 5-step wizard generates the persona for you (topic, tone, style, name). You can also configure manually: name, voice, model and system prompt. The ✨ Evolve button lets you mutate an existing persona\'s prompt with a free instruction.'
             }
         ],
         es: [
             {
                 q: '¿Por dónde empezar?',
-                a: 'Zova funciona sin servidor intermediario: hablas directamente con las IAs a través de su API oficial. Para empezar, elige un proveedor (OpenAI, Gemini, Ultravox o Groq), crea una cuenta en su web, obtén una clave API y pégala en la pestaña Clave API de Configuración. Eso es todo — ya puedes iniciar tu primera conversación.'
-            },
-            {
-                q: '¿Qué proveedor elegir?',
-                a: 'Depende de tus prioridades. OpenAI Realtime ofrece la mejor calidad y la latencia más baja. Gemini Live es excelente y muy asequible. Ultravox es económico con buena calidad. Groq es el más barato con una latencia algo mayor. Puedes cambiar de proveedor en cualquier momento en la pestaña Modelo sin perder tus conversaciones.'
+                a: 'Zova habla directamente con las IAs sin servidor intermediario. Ve a Configuración → Clave API, elige un proveedor y pega tu clave — <strong>Groq ofrece un nivel gratuito</strong> para empezar. Una vez guardada la clave, lanza tu primera conversación desde la pantalla principal.'
             },
             {
                 q: '¿Cómo introduzco mi clave API?',
-                a: 'Empieza haciendo clic en el enlace de tu proveedor en la pestaña Clave API para crear tu cuenta y obtener tu clave. Luego vuelve a la app, pega la clave en el campo correspondiente y pulsa Guardar. La clave se almacena exclusivamente en el Android Keystore de tu teléfono — nunca pasa por un servidor externo.'
+                a: 'En Configuración → Clave API, toca el enlace del proveedor para crear tu cuenta y obtener la clave. Vuelve a la app, pégala en el campo correspondiente y pulsa Guardar. Se cifra en el Android Keystore de tu teléfono y nunca pasa por un servidor de Zova.'
+            },
+            {
+                q: '¿Qué proveedor de voz elegir?',
+                a: '<strong>Groq</strong> (~$0,001/min) — casi gratuito, ideal para empezar.<br><strong>Ultravox</strong> (~$0,005/min) — buen equilibrio calidad/precio.<br><strong>Gemini Live</strong> (~$0,01/min) — muy natural y asequible.<br><strong>OpenAI Realtime</strong> (~$0,06/min) — mejor calidad, más caro.<br>Puedes cambiar en cualquier momento en Configuración → Modelos sin perder tus conversaciones.'
+            },
+            {
+                q: '¿Para qué sirve el "modelo de texto"?',
+                a: 'Durante las conversaciones, Zova usa el proveedor de voz. Fuera de ellas, un modelo de texto separado (Configuración → Modelos → Tareas de texto) gestiona la memoria, la creación de personas y los resúmenes de sesión. Groq se usa por defecto; DeepSeek o Qwen son alternativas más económicas si tienes esas claves.'
+            },
+            {
+                q: '¿Cómo se calculan los costes?',
+                a: 'Los proveedores de voz cobran <strong>por minuto</strong> de conversación. Las tareas de texto (memoria, perfil) cobran <strong>por token</strong> — una sesión típica cuesta pocos céntimos. Consulta la pestaña Estadísticas para ver tus gastos reales por período, persona y modelo.'
             },
             {
                 q: '¿Cómo controlo mis gastos?',
-                a: 'Ve a Configuración → Presupuesto e introduce un importe máximo mensual. Zova te avisará cuando alcances el 90 % del límite y bloqueará nuevas conversaciones una vez superado el tope. El contador se reinicia el 1 de cada mes. Puedes dejar el campo vacío para desactivar el tope.'
+                a: 'Ve a Configuración → Presupuesto e introduce un importe máximo mensual. Zova te avisa al 90 % del límite y bloquea nuevas conversaciones al superarlo. El contador se reinicia el 1 de cada mes. Deja el campo vacío para desactivar el tope.'
             },
             {
-                q: '¿Cómo creo un asistente personalizado?',
-                a: 'Ve a la pestaña Personas y pulsa + Nueva persona. Dale un nombre, una descripción, elige una voz y un modelo. El campo Prompt del sistema define su personalidad: cuanto más detallado sea, más único será. Puedes generar una imagen con IA o importar una desde tu galería.'
+                q: '¿Qué recuerda Zova de mí?',
+                a: 'Tras cada conversación, Zova genera automáticamente un <strong>resumen de sesión</strong>, actualiza tu <strong>perfil</strong> (intereses, hábitos), detecta tus <strong>compromisos</strong> (seguimientos) y sigue tus <strong>objetivos a largo plazo</strong>. Cada persona tiene su propia memoria independiente. Todo se guarda en local — nunca se envía a Zova.'
+            },
+            {
+                q: '¿Cómo ver y borrar mis datos?',
+                a: 'En Configuración, cada sección (Memoria, Seguimientos, Objetivos, Perfil) tiene un botón "Ver" que lista los elementos uno a uno con un ✕ para borrarlos individualmente. Para borrarlo todo de una vez, ve a Configuración → Privacidad → <strong>Borrar todos los datos IA</strong>: limpia las 7 capas de memoria de todas las personas conservando tus personas y claves API.'
+            },
+            {
+                q: '¿Son privados mis datos?',
+                a: 'Sí. Tus conversaciones van <strong>directamente</strong> de tu teléfono a la API del proveedor (OpenAI, Google, etc.) — Zova no tiene ningún servidor intermediario. Tus recuerdos y perfil se guardan en la app, solo en tu teléfono. Las claves API y el PIN se cifran en el Android Keystore. Zova no recopila ningún dato.'
             },
             {
                 q: '¿Cómo protejo la app?',
-                a: 'Ve a Configuración → Seguridad y pulsa Activar código PIN (4 dígitos): se te pedirá cada vez que abras la app. Si tu teléfono tiene una huella registrada, también puedes desbloquear con biometría (botón 🤙). Tras varios códigos incorrectos, el teclado se bloquea temporalmente para impedir intentos repetidos. El PIN se almacena en el Android Keystore junto a tus claves API. Por último, al exportar puedes cifrar tu copia con una contraseña (AES-256). Tus datos permanecen únicamente en tu teléfono, nunca se envían a Zova.'
+                a: 'En Configuración → Seguridad, activa el código PIN (4 dígitos): se pedirá cada vez que abras la app. Si tu teléfono tiene una huella registrada, también puedes desbloquear con biometría (botón 🤙). Tras varios códigos incorrectos, el teclado se bloquea progresivamente (30 s → 15 min máx).'
+            },
+            {
+                q: '¿Cómo hago una copia de seguridad y la restauro?',
+                a: 'En Configuración → Copia de seguridad, exporta todos tus datos (personas, memoria, perfil) a un archivo JSON. Puedes <strong>cifrar la copia con contraseña</strong> (AES-256) — sin ella, el archivo es ilegible. Para restaurar, importa el archivo desde "Copias de seguridad Zova" o tu gestor de archivos.'
+            },
+            {
+                q: '¿Cómo creo un asistente personalizado?',
+                a: 'En la pestaña Personas, pulsa <strong>+ Nuevo</strong> y elige "Creación guiada": un asistente de 5 pasos genera la persona por ti (tema, tono, estilo, nombre). También puedes configurarla manualmente: nombre, voz, modelo y prompt de sistema. El botón ✨ Evolucionar permite mutar el prompt de una persona existente con una instrucción libre.'
             }
         ]
     };
