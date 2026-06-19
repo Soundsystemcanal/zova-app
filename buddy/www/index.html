@@ -2736,6 +2736,7 @@ Minimum version required to store current data is: `+i+`.
                 <div class="config-panels">
                     <!-- Panel Clé API -->
                     <div class="config-panel active" id="configPanelApi">
+                        <div class="setup-min-hint" data-i18n-html="setup_min_hint" style="background:rgba(139,92,246,0.12);border:1px solid var(--accent);border-radius:10px;padding:10px 12px;margin-bottom:16px;font-size:0.85rem;line-height:1.45;color:var(--text-primary)">ℹ️ <strong>Minimum : une seule clé.</strong> Groq est <strong>gratuit</strong> et le plus simple pour démarrer. Les autres sont optionnelles.</div>
                         <label for="apiKeyInput">Clé API OpenAI</label>
                         <input type="password" id="apiKeyInput" placeholder="sk-...">
                         <div class="hint">Nécessaire pour les modèles OpenAI (gpt-realtime).</div>
@@ -3475,6 +3476,9 @@ Minimum version required to store current data is: `+i+`.
             err_name_desc_prompt_required: 'Introduce al menos un nombre, una descripción o el inicio de un prompt.',
             err_api_key_required: 'Configura primero una clave API.',
             err_api_key_title: 'Clave API requerida',
+            err_need_one_key: 'Necesitas al menos una clave API para usar Zova. Groq es gratis y la más fácil para empezar.',
+            err_text_providers_failed: 'No se pudo contactar con ningún proveedor de texto. Revisa tu conexión o tu clave API.',
+            setup_min_hint: 'ℹ️ <strong>Mínimo: 1 sola clave.</strong> Groq es <strong>gratis</strong> y la más fácil para empezar. Las demás son opcionales.',
             // Status hints
             hint_creating: 'Creando...',
             hint_created: '¡Prompt creado!',
@@ -3706,6 +3710,9 @@ Minimum version required to store current data is: `+i+`.
             err_name_desc_prompt_required: 'Please enter at least a name, description, or the start of a prompt.',
             err_api_key_required: 'Set up an API key first.',
             err_api_key_title: 'API key required',
+            err_need_one_key: 'You need at least one API key to use Zova. Groq is free and the easiest to start with.',
+            err_text_providers_failed: 'Could not reach any text provider. Check your connection or API key.',
+            setup_min_hint: 'ℹ️ <strong>Minimum: just 1 key.</strong> Groq is <strong>free</strong> and the easiest to start with. The others are optional.',
             // Status hints
             hint_creating: 'Creating...',
             hint_created: 'Prompt created!',
@@ -3937,6 +3944,9 @@ Minimum version required to store current data is: `+i+`.
             err_name_desc_prompt_required: 'Renseignez au moins un nom, une description ou un début de prompt.',
             err_api_key_required: 'Configurez d\'abord une clé API.',
             err_api_key_title: 'Clé API requise',
+            err_need_one_key: 'Il faut au moins une clé API pour utiliser Zova. Groq est gratuit et le plus simple pour démarrer.',
+            err_text_providers_failed: 'Impossible de contacter un fournisseur de texte. Vérifiez votre connexion ou votre clé API.',
+            setup_min_hint: 'ℹ️ <strong>Minimum : une seule clé.</strong> Groq est <strong>gratuit</strong> et le plus simple pour démarrer. Les autres sont optionnelles.',
             // Status hints
             hint_creating: 'Création en cours...',
             hint_created: 'Prompt créé !',
@@ -4145,6 +4155,11 @@ Minimum version required to store current data is: `+i+`.
     function applyI18n() {
         document.querySelectorAll('[data-i18n]').forEach(el => {
             el.textContent = t(el.dataset.i18n);
+        });
+        // Trusted translation strings that contain markup (e.g. <strong>). Only
+        // ever fed from TRANSLATIONS, never from user/network data → innerHTML safe.
+        document.querySelectorAll('[data-i18n-html]').forEach(el => {
+            el.innerHTML = t(el.dataset.i18nHtml);
         });
         document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
             el.placeholder = t(el.dataset.i18nPlaceholder);
@@ -4996,9 +5011,11 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
 
         const args = { systemPrompt, userPrompt, temperature, maxTokens };
         let lastErr = null;
+        let triedAny = false; // un provider avec clé a réellement été tenté
         for (const c of cands) {
             const key = await textProviderKey(c.type);
             if (!key) continue;
+            triedAny = true;
             try {
                 const out = await callTextProvider(c.type, c.model, key, args);
                 if (out) return out;
@@ -5007,7 +5024,10 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
                 console.warn('[chatCompletion]', c.type, '→', e.message);
             }
         }
-        throw lastErr || new Error('Aucune clé API configurée.');
+        // Message distinct : config manquante vs. providers en échec, pour ne
+        // pas afficher "aucune clé" alors qu'une clé existe mais que l'API a échoué.
+        if (!triedAny) throw new Error(t('err_api_key_required'));
+        throw lastErr || new Error(t('err_text_providers_failed'));
     }
 
     // ════════════════════════════════════════════════
@@ -5019,6 +5039,15 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
     let mediaStream = null;
     let scriptProcessor = null;
     let sourceNode = null;
+
+    // Ferme proprement le WebSocket précédent avant d'en ouvrir un nouveau
+    // (reconnexion) : on neutralise onclose pour ne pas déclencher une autre
+    // reconnexion en chaîne, et on libère ses handlers.
+    function closePrevWs() {
+        if (!ws) return;
+        try { ws.onclose = null; ws.onerror = null; ws.onmessage = null; ws.onopen = null; ws.close(); } catch {}
+        ws = null;
+    }
 
     let playbackContext = null;
     let playbackAnalyser = null;
@@ -5178,12 +5207,39 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
     let pinMode = 'unlock'; // 'unlock' | 'set' | 'confirm'
     let pinTemp = '';
     let pinLockTimer = null;
+    // Compteurs anti-brute-force tenus en mémoire (lus de façon synchrone par
+    // l'UI) et persistés dans le Keystore — hors de portée de localStorage/XSS.
+    let pinFailsMem = 0;
+    let pinLockUntilMem = 0;
+
+    // SHA-256 → hex. Le PIN n'est jamais stocké en clair : on ne garde que le
+    // hash, comparé au hash de la saisie.
+    async function hashPin(pin) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Charge les compteurs depuis le Keystore vers la mémoire (au démarrage).
+    async function loadPinLockState() {
+        try {
+            pinFailsMem = parseInt(await SecureStore.get(PIN_FAIL_KEY) || '0', 10) || 0;
+            pinLockUntilMem = parseInt(await SecureStore.get(PIN_LOCK_KEY) || '0', 10) || 0;
+        } catch { pinFailsMem = 0; pinLockUntilMem = 0; }
+    }
+
+    // Persiste l'état courant (fire-and-forget) + migre l'ancien localStorage.
+    function persistPinLockState() {
+        SecureStore.set(PIN_FAIL_KEY, String(pinFailsMem)).catch(() => {});
+        SecureStore.set(PIN_LOCK_KEY, String(pinLockUntilMem)).catch(() => {});
+        // Nettoie d'éventuels restes de l'ancienne implémentation localStorage
+        localStorage.removeItem(PIN_FAIL_KEY);
+        localStorage.removeItem(PIN_LOCK_KEY);
+    }
 
     // Secondes restantes avant déverrouillage du clavier (0 = non verrouillé)
     function pinLockRemaining() {
-        const until = parseInt(localStorage.getItem(PIN_LOCK_KEY) || '0', 10);
-        if (!until) return 0;
-        const rem = Math.ceil((until - Date.now()) / 1000);
+        if (!pinLockUntilMem) return 0;
+        const rem = Math.ceil((pinLockUntilMem - Date.now()) / 1000);
         return rem > 0 ? rem : 0;
     }
 
@@ -5210,6 +5266,7 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
     async function initPinScreen() {
         const savedPin = await SecureStore.get(PIN_KEY);
         if (!savedPin) return; // no PIN set, open normally
+        await loadPinLockState(); // restore anti-brute-force counters from Keystore
         showPinScreen('unlock');
         // Masque le bouton 🤙 si aucune empreinte n'est disponible, sinon
         // propose directement l'empreinte (sauf pendant un verrou PIN).
@@ -5270,24 +5327,33 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
     async function processPinComplete() {
         const savedPin = await SecureStore.get(PIN_KEY);
         if (pinMode === 'unlock') {
-            if (pinBuffer === savedPin) {
+            // Migration : un ancien PIN était stocké en clair (4 chiffres).
+            // On l'accepte une fois puis on le réécrit hashé.
+            const isLegacyPlain = savedPin && savedPin.length === 4;
+            const ok = isLegacyPlain
+                ? (pinBuffer === savedPin)
+                : ((await hashPin(pinBuffer)) === savedPin);
+            if (ok) {
+                if (isLegacyPlain) { await SecureStore.set(PIN_KEY, await hashPin(pinBuffer)); }
                 // Succès → on remet les compteurs anti-brute-force à zéro
-                localStorage.removeItem(PIN_FAIL_KEY);
-                localStorage.removeItem(PIN_LOCK_KEY);
+                pinFailsMem = 0;
+                pinLockUntilMem = 0;
+                persistPinLockState();
                 if (pinLockTimer) { clearInterval(pinLockTimer); pinLockTimer = null; }
                 hidePinScreen();
             } else {
-                const fails = parseInt(localStorage.getItem(PIN_FAIL_KEY) || '0', 10) + 1;
-                localStorage.setItem(PIN_FAIL_KEY, String(fails));
+                pinFailsMem += 1;
                 pinBuffer = '';
                 updatePinDots();
-                if (fails >= PIN_FAIL_THRESHOLD) {
+                if (pinFailsMem >= PIN_FAIL_THRESHOLD) {
                     // Délai exponentiel à partir du seuil, plafonné
-                    const over = fails - PIN_FAIL_THRESHOLD;
+                    const over = pinFailsMem - PIN_FAIL_THRESHOLD;
                     const delay = Math.min(PIN_LOCK_BASE_MS * Math.pow(2, over), PIN_LOCK_MAX_MS);
-                    localStorage.setItem(PIN_LOCK_KEY, String(Date.now() + delay));
+                    pinLockUntilMem = Date.now() + delay;
+                    persistPinLockState();
                     refreshPinLockUI();
                 } else {
+                    persistPinLockState();
                     document.getElementById('pinError').textContent = t('pin_wrong');
                 }
             }
@@ -5300,7 +5366,7 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
             updatePinDots();
         } else if (pinMode === 'confirm') {
             if (pinBuffer === pinTemp) {
-                await SecureStore.set(PIN_KEY, pinBuffer);
+                await SecureStore.set(PIN_KEY, await hashPin(pinBuffer));
                 hidePinScreen();
                 customAlert(t('pin_activated'), { title: t('pin_security'), icon: '🔒' });
             } else {
@@ -5347,8 +5413,9 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
                 allowDeviceCredential: false
             });
             // Succès → reset des compteurs anti-brute-force et ouverture
-            localStorage.removeItem(PIN_FAIL_KEY);
-            localStorage.removeItem(PIN_LOCK_KEY);
+            pinFailsMem = 0;
+            pinLockUntilMem = 0;
+            persistPinLockState();
             if (pinLockTimer) { clearInterval(pinLockTimer); pinLockTimer = null; }
             hidePinScreen();
         } catch(e) {
@@ -5358,6 +5425,11 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
 
     async function removePin() {
         await SecureStore.remove(PIN_KEY);
+        // Purge les compteurs anti-brute-force (mémoire + Keystore)
+        pinFailsMem = 0;
+        pinLockUntilMem = 0;
+        SecureStore.remove(PIN_FAIL_KEY).catch(() => {});
+        SecureStore.remove(PIN_LOCK_KEY).catch(() => {});
         customAlert(t('pin_removed'), { title: t('pin_security'), icon: '🔓' });
     }
 
@@ -5548,7 +5620,7 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
             try {
                 await processBackupJson(ev.target.result);
             } catch (err) {
-                customAlert('Erreur lors de l\'import : ' + err.message, { title: 'Erreur', icon: '&#10060;' });
+                customAlert('Erreur lors de l\'import : ' + esc(err.message), { title: 'Erreur', icon: '&#10060;' });
             }
         };
         reader.readAsText(file);
@@ -5646,6 +5718,27 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         }
     }
 
+    async function checkGroqApiKey(key) {
+        const statusEl = document.getElementById('groqApiKeyStatus');
+        if (!key) { statusEl.innerHTML = ''; return false; }
+        statusEl.innerHTML = `<span class="api-key-status checking">${t('api_checking')}</span>`;
+        try {
+            const res = await fetch('https://api.groq.com/openai/v1/models', {
+                headers: { 'Authorization': `Bearer ${key}` }
+            });
+            if (res.ok) {
+                statusEl.innerHTML = `<span class="api-key-status valid">${t('api_valid')}</span>`;
+                return true;
+            } else {
+                statusEl.innerHTML = `<span class="api-key-status invalid">${t('api_invalid')}</span>`;
+                return false;
+            }
+        } catch {
+            statusEl.innerHTML = `<span class="api-key-status invalid">${t('api_connection_error')}</span>`;
+            return false;
+        }
+    }
+
     async function hasAnyApiKey() {
         return !!(await getApiKey() || await getGeminiApiKey() ||
                   await getUltravoxApiKey() || await getGroqApiKey() ||
@@ -5716,7 +5809,7 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         const elevenlabsKey = document.getElementById('elevenlabsApiKeyInput').value.trim();
 
         if (!openaiKey && !geminiKey && !ultravoxKeyVal && !groqKey && !elevenlabsKey) {
-            customAlert('Au moins une clé API (OpenAI, Gemini, Ultravox ou Groq) est requise pour utiliser Zova.', { title: t('err_api_key_title'), icon: '&#128273;' });
+            customAlert(t('err_need_one_key'), { title: t('err_api_key_title'), icon: '&#128273;' });
             return;
         }
 
@@ -5729,6 +5822,12 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         // Vérifier la clé Gemini si elle a changé
         if (geminiKey && geminiKey !== await getGeminiApiKey()) {
             const valid = await checkGeminiApiKey(geminiKey);
+            if (!valid) return;
+        }
+
+        // Vérifier la clé Groq si elle a changé (recommandée — feedback immédiat)
+        if (groqKey && groqKey !== await getGroqApiKey()) {
+            const valid = await checkGroqApiKey(groqKey);
             if (!valid) return;
         }
 
@@ -6648,7 +6747,7 @@ Return ONLY the merged prompt, operational and concise, in ${langName}, STRICTLY
                 selectPersona(newPersona.id);
 
             } catch (err) {
-                customAlert('Erreur lors de l\'import : ' + err.message, { title: 'Erreur', icon: '&#10060;' });
+                customAlert('Erreur lors de l\'import : ' + esc(err.message), { title: 'Erreur', icon: '&#10060;' });
             }
         };
         reader.readAsText(file);
@@ -8326,6 +8425,7 @@ STRICT rules:
             'realtime',
             `openai-insecure-api-key.${apiKey}`
         ];
+        closePrevWs();
         ws = new WebSocket(url, protocols);
 
         ws.onopen = () => {
@@ -8413,6 +8513,7 @@ STRICT rules:
         if (!apiKey) return;
         const url = `wss://api.openai.com/v1/realtime/translations?model=gpt-realtime-translate`;
 
+        closePrevWs();
         ws = new WebSocket(url, [
             'realtime',
             `openai-insecure-api-key.${apiKey}`
@@ -8486,6 +8587,7 @@ STRICT rules:
         shouldReconnect = true;
         const url = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${geminiKey}`;
 
+        closePrevWs();
         ws = new WebSocket(url);
 
         ws.onopen = () => {
@@ -8630,6 +8732,7 @@ STRICT rules:
             return;
         }
 
+        closePrevWs();
         ws = new WebSocket(joinUrl);
         ws.onopen = () => {
             reconnectAttempts = 0;
@@ -8942,7 +9045,7 @@ STRICT rules:
         const samples = { 'es-ES': 'Hola, soy Zova, tu asistente de voz.', 'es-MX': 'Hola, soy Zova, tu asistente de voz.', 'fr-FR': 'Bonjour, je suis Zova, votre assistant vocal.', 'en-US': 'Hello, I am Zova, your voice assistant.', 'en-GB': 'Hello, I am Zova, your voice assistant.' };
         const text = samples[lang] || 'Hello, I am Zova.';
         if (CapTTS) {
-            try { await CapTTS.speak({ text, lang, rate, pitch: 1.0, volume: 1.0, category: 'ambient' }); } catch(e) { customAlert('TTS error: ' + e.message); }
+            try { await CapTTS.speak({ text, lang, rate, pitch: 1.0, volume: 1.0, category: 'ambient' }); } catch(e) { customAlert('TTS error: ' + esc(e.message)); }
         } else if (window.speechSynthesis) {
             const u = new SpeechSynthesisUtterance(text);
             u.lang = lang; u.rate = rate;
@@ -9042,6 +9145,7 @@ STRICT rules:
 
         // 2. Connexion WebSocket avec le token — la session est déjà configurée
         const url = 'wss://api.openai.com/v1/realtime';
+        closePrevWs();
         ws = new WebSocket(url, [
             'realtime',
             `openai-insecure-api-key.${clientSecret}`
@@ -10195,7 +10299,7 @@ Language: ${langName}`;
                     const r = await Filesystem.readFile({ path: name, directory: 'EXTERNAL', encoding: 'utf8' });
                     onPick(r.data, name);
                 } catch (e) {
-                    customAlert('Erreur lecture : ' + e.message, { title: 'Erreur', icon: '&#10060;' });
+                    customAlert('Erreur lecture : ' + esc(e.message), { title: 'Erreur', icon: '&#10060;' });
                 }
             });
         });
@@ -10264,7 +10368,7 @@ Language: ${langName}`;
             }
             customAlert('Vos donn&#233;es ont &#233;t&#233; restaur&#233;es avec succ&#232;s.', { title: 'Import r&#233;ussi', icon: '&#10004;' });
         } catch (err) {
-            customAlert('Erreur import : ' + err.message, { title: 'Erreur', icon: '&#10060;' });
+            customAlert('Erreur import : ' + esc(err.message), { title: 'Erreur', icon: '&#10060;' });
         }
     }
 
@@ -10287,7 +10391,7 @@ Language: ${langName}`;
             const list = getPersonas(); list.push(newPersona); savePersonas(list);
             renderPersonaList(); renderPersonasGrid(); selectPersona(newPersona.id);
         } catch (err) {
-            customAlert('Erreur import : ' + err.message, { title: 'Erreur', icon: '&#10060;' });
+            customAlert('Erreur import : ' + esc(err.message), { title: 'Erreur', icon: '&#10060;' });
         }
     }
 

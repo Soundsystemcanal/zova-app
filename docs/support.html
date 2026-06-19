@@ -234,7 +234,7 @@
 <div class="cta">
     <h2 data-i18n="cta_h">Prêt à essayer Zova ?</h2>
     <p data-i18n="cta_p">Télécharge la dernière version et configure ta première clé en 3 minutes.</p>
-    <a class="btn-dl" data-dl-apk href="https://github.com/Soundsystemcanal/zova-app/releases/download/v4.0/Zova-v4.0.apk" data-i18n="cta_dl">⬇&nbsp; Télécharger Zova v4.0</a>
+    <a class="btn-dl" data-dl-apk href="https://github.com/Soundsystemcanal/zova-app/releases/download/v4.1/Zova-v4.1.apk" data-i18n="cta_dl">⬇&nbsp; Télécharger Zova v4.1</a>
 </div>
 
 <footer>
@@ -243,7 +243,7 @@
         <a href="https://github.com/Soundsystemcanal/zova-app" target="_blank" rel="noopener">GitHub</a>
         <a href="https://github.com/Soundsystemcanal/zova-app/releases" target="_blank" rel="noopener">Releases</a>
     </div>
-    <div data-i18n="footer">Zova v4.0 &nbsp;·&nbsp; par Xavier Bourdet &nbsp;·&nbsp; <em>"Ton IA. Ton téléphone. Tes règles."</em></div>
+    <div data-i18n="footer">Zova v4.1 &nbsp;·&nbsp; par Xavier Bourdet &nbsp;·&nbsp; <em>"Ton IA. Ton téléphone. Tes règles."</em></div>
 </footer>
 
 <script>
@@ -277,7 +277,7 @@
       m8: ['Bouton "?" dans Config → FAQ complète FR/EN/ES intégrée dans l\'app','Pas de micro : Paramètres → Apps → Zova → Permissions → Micro → Autoriser','Voix muette : normal sur Android WebView — le texte s\'affiche quand même','Xiaomi : active "Débogage USB" + "Installer via USB" dans Options développeur'],
       faq_title: 'Questions fréquentes',
       q1: 'Par où commencer ?',
-      a1: "Zova fonctionne sans serveur intermédiaire : tu parles directement aux IA via leur API officielle. Choisis d'abord un fournisseur (OpenAI, Gemini, Ultravox ou Groq), crée un compte sur leur site, obtiens une clé API, puis colle-la dans l'onglet Clé API de la Configuration. C'est tout — tu peux lancer ta première conversation.",
+      a1: "Zova fonctionne sans serveur intermédiaire : tu parles directement aux IA via leur API officielle. Choisis d'abord un fournisseur (OpenAI, Gemini, Ultravox ou Groq), crée un compte sur leur site, obtiens une clé API, puis colle-la dans l'onglet Clé API de la Configuration. Une seule clé suffit pour démarrer — et Groq est gratuit. C'est tout — tu peux lancer ta première conversation.",
       q2: 'Quel provider choisir ?',
       a2: "Tout dépend de tes priorités. OpenAI Realtime offre la meilleure qualité et la latence la plus faible. Gemini Live est excellent et très abordable. Ultravox est économique avec une bonne qualité. Groq est le moins cher avec une latence un peu plus élevée. Tu peux changer de provider à tout moment sans perdre tes conversations. Pour les tâches texte (mémoire, wizard, profil), tu peux aussi router vers DeepSeek ou Qwen à très bas coût via le sélecteur « Tâches texte » dans Config → Modèles.",
       q3: 'Comment entrer ma clé API ?',
@@ -287,10 +287,10 @@
       q5: 'Comment créer un assistant personnalisé ?',
       a5: "Va dans l'onglet Personas et appuie sur + Nouveau persona. Deux options : la création guidée (assistant ✨ en 5 étapes — sujet, ton, tutoiement, nom, style — l'IA génère le persona) ou la configuration manuelle. Tu peux générer une image avec l'IA ou en importer une. Pour ajuster un persona existant sans tout refaire, ouvre-le et utilise « ✨ Évoluer » : donne une directive en langage naturel (ex. « sois plus technique ») et l'IA fait muter son prompt.",
       q6: "Comment sécuriser l'app ?",
-      a6: "Va dans Configuration → Sécurité et active le code PIN (4 chiffres), demandé à chaque ouverture. Si ton téléphone a une empreinte enregistrée, tu peux aussi déverrouiller par empreinte. Après plusieurs codes erronés, le clavier se verrouille temporairement. Le PIN est stocké dans l'Android Keystore comme tes clés API. Enfin, à l'export tu peux chiffrer ta sauvegarde par mot de passe (AES-256). Tes données restent uniquement sur ton téléphone, jamais envoyées à Zova.",
+      a6: "Va dans Configuration → Sécurité et active le code PIN (4 chiffres), demandé à chaque ouverture. Si ton téléphone a une empreinte enregistrée, tu peux aussi déverrouiller par empreinte. Après plusieurs codes erronés, le clavier se verrouille temporairement. Le PIN est stocké haché (SHA-256), jamais en clair, et le verrou anti-essais est conservé dans l'Android Keystore. Enfin, à l'export tu peux chiffrer ta sauvegarde par mot de passe (AES-256). Tes données restent uniquement sur ton téléphone, jamais envoyées à Zova.",
       ts_title: 'Dépannage installation',
       ts1_h: "📥 L'installation est bloquée",
-      ts1: ['Android demande d\'autoriser les sources inconnues : c\'est normal pour une app hors Play Store','Paramètres → Apps → ton navigateur (ou Gestionnaire de fichiers) → "Installer des applis inconnues" → Autoriser','Rouvre ensuite le fichier Zova-v4.0.apk depuis tes Téléchargements','Play Protect peut afficher un avertissement : appuie sur "Installer quand même"'],
+      ts1: ['Android demande d\'autoriser les sources inconnues : c\'est normal pour une app hors Play Store','Paramètres → Apps → ton navigateur (ou Gestionnaire de fichiers) → "Installer des applis inconnues" → Autoriser','Rouvre ensuite le fichier Zova-v4.1.apk depuis tes Téléchargements','Play Protect peut afficher un avertissement : appuie sur "Installer quand même"'],
       ts2_h: '📱 Xiaomi / MIUI',
       ts2: ['Active les Options développeur (Paramètres → À propos → tape 7× sur la version MIUI)','Active "Débogage USB" et "Installer via USB"','MIUI peut demander une confirmation supplémentaire pendant l\'install — accepte','Désactive "Optimisation MIUI" si l\'install échoue toujours'],
       ts3_h: '🔄 Mettre à jour Zova',
@@ -299,8 +299,8 @@
       ts4: ['Pas de micro : Paramètres → Apps → Zova → Permissions → Microphone → Autoriser','Voix de l\'IA muette : normal sur Android WebView, le texte s\'affiche quand même','En mode texte, Groq TTS fonctionne pour la synthèse vocale','Coupures fréquentes : Zova reconnecte automatiquement (3 tentatives)'],
       cta_h: 'Prêt à essayer Zova ?',
       cta_p: 'Télécharge la dernière version et configure ta première clé en 3 minutes.',
-      cta_dl: '⬇  Télécharger Zova v4.0',
-      footer: 'Zova v4.0  ·  par Xavier Bourdet  ·  <em>"Ton IA. Ton téléphone. Tes règles."</em>'
+      cta_dl: '⬇  Télécharger Zova v4.1',
+      footer: 'Zova v4.1  ·  par Xavier Bourdet  ·  <em>"Ton IA. Ton téléphone. Tes règles."</em>'
     },
     en: {
       title: 'Zova — Guide & Support',
@@ -327,7 +327,7 @@
       m8: ['"?" button in Config → full FR/EN/ES FAQ built into the app','No mic: Settings → Apps → Zova → Permissions → Microphone → Allow','Silent voice: normal on Android WebView — text still displays','Xiaomi: enable "USB debugging" + "Install via USB" in Developer options'],
       faq_title: 'Frequently asked questions',
       q1: 'Where do I start?',
-      a1: "Zova works without any middleman server: you talk directly to AI providers via their official API. First pick a provider (OpenAI, Gemini, Ultravox or Groq), create an account on their website, get an API key, then paste it in the API Key tab of Settings. That's it — you can start your first conversation.",
+      a1: "Zova works without any middleman server: you talk directly to AI providers via their official API. First pick a provider (OpenAI, Gemini, Ultravox or Groq), create an account on their website, get an API key, then paste it in the API Key tab of Settings. A single key is enough to start — and Groq is free. That's it — you can start your first conversation.",
       q2: 'Which provider should I choose?',
       a2: "It depends on your priorities. OpenAI Realtime delivers the best quality and lowest latency. Gemini Live is excellent and very affordable. Ultravox is budget-friendly with good quality. Groq is the cheapest with slightly higher latency. You can switch providers anytime without losing your conversations. For text tasks (memory, wizard, profile) you can also route to DeepSeek or Qwen at very low cost via the \"Text tasks\" selector in Config → Models.",
       q3: 'How do I enter my API key?',
@@ -337,10 +337,10 @@
       q5: 'How do I create a custom assistant?',
       a5: "Go to the Personas tab and tap + New persona. Two options: guided creation (✨ assistant, 5 steps — topic, tone, formality, name, style — the AI generates the persona) or manual setup. You can generate an image with AI or import one. To tweak an existing persona without redoing everything, open it and use \"✨ Evolve\": give a plain-language directive (e.g. \"be more technical\") and the AI mutates its prompt.",
       q6: 'How do I secure the app?',
-      a6: "Go to Settings → Security and activate the PIN code (4 digits), required each time you open the app. If your phone has a fingerprint enrolled, you can also unlock with biometrics. After several wrong codes, the keypad locks temporarily. The PIN is stored in the Android Keystore like your API keys. Finally, when exporting you can encrypt your backup with a password (AES-256). Your data stays only on your phone, never sent to Zova.",
+      a6: "Go to Settings → Security and activate the PIN code (4 digits), required each time you open the app. If your phone has a fingerprint enrolled, you can also unlock with biometrics. After several wrong codes, the keypad locks temporarily. The PIN is stored hashed (SHA-256), never in clear text, and the brute-force lockout is kept in the Android Keystore. Finally, when exporting you can encrypt your backup with a password (AES-256). Your data stays only on your phone, never sent to Zova.",
       ts_title: 'Installation troubleshooting',
       ts1_h: '📥 Installation is blocked',
-      ts1: ['Android asks to allow unknown sources: normal for an app outside the Play Store','Settings → Apps → your browser (or File manager) → "Install unknown apps" → Allow','Then reopen the Zova-v4.0.apk file from your Downloads','Play Protect may show a warning: tap "Install anyway"'],
+      ts1: ['Android asks to allow unknown sources: normal for an app outside the Play Store','Settings → Apps → your browser (or File manager) → "Install unknown apps" → Allow','Then reopen the Zova-v4.1.apk file from your Downloads','Play Protect may show a warning: tap "Install anyway"'],
       ts2_h: '📱 Xiaomi / MIUI',
       ts2: ['Enable Developer options (Settings → About → tap MIUI version 7×)','Enable "USB debugging" and "Install via USB"','MIUI may ask for extra confirmation during install — accept it','Disable "MIUI optimization" if install still fails'],
       ts3_h: '🔄 Update Zova',
@@ -349,8 +349,8 @@
       ts4: ['No mic: Settings → Apps → Zova → Permissions → Microphone → Allow','AI voice silent: normal on Android WebView, text still displays','In text mode, Groq TTS works for voice synthesis','Frequent drops: Zova reconnects automatically (3 attempts)'],
       cta_h: 'Ready to try Zova?',
       cta_p: 'Download the latest version and set up your first key in 3 minutes.',
-      cta_dl: '⬇  Download Zova v4.0',
-      footer: 'Zova v4.0  ·  by Xavier Bourdet  ·  <em>"Your AI. Your phone. Your rules."</em>'
+      cta_dl: '⬇  Download Zova v4.1',
+      footer: 'Zova v4.1  ·  by Xavier Bourdet  ·  <em>"Your AI. Your phone. Your rules."</em>'
     },
     es: {
       title: 'Zova — Guía y Soporte',
@@ -377,7 +377,7 @@
       m8: ['Botón "?" en Config → FAQ completa FR/EN/ES integrada en la app','Sin micrófono: Ajustes → Apps → Zova → Permisos → Micrófono → Permitir','Voz silenciosa: normal en Android WebView — el texto se muestra igual','Xiaomi: activa "Depuración USB" + "Instalar via USB" en Opciones de desarrollador'],
       faq_title: 'Preguntas frecuentes',
       q1: '¿Por dónde empezar?',
-      a1: "Zova funciona sin servidor intermediario: hablas directamente con las IAs a través de su API oficial. Primero elige un proveedor (OpenAI, Gemini, Ultravox o Groq), crea una cuenta en su web, obtén una clave API y pégala en la pestaña Clave API de Configuración. Eso es todo — ya puedes iniciar tu primera conversación.",
+      a1: "Zova funciona sin servidor intermediario: hablas directamente con las IAs a través de su API oficial. Primero elige un proveedor (OpenAI, Gemini, Ultravox o Groq), crea una cuenta en su web, obtén una clave API y pégala en la pestaña Clave API de Configuración. Basta con una sola clave para empezar — y Groq es gratis. Eso es todo — ya puedes iniciar tu primera conversación.",
       q2: '¿Qué proveedor elegir?',
       a2: "Depende de tus prioridades. OpenAI Realtime ofrece la mejor calidad y la latencia más baja. Gemini Live es excelente y muy asequible. Ultravox es económico con buena calidad. Groq es el más barato con una latencia algo mayor. Puedes cambiar de proveedor en cualquier momento sin perder tus conversaciones. Para las tareas de texto (memoria, wizard, perfil) también puedes enrutar a DeepSeek o Qwen a muy bajo coste con el selector \"Tareas de texto\" en Config → Modelos.",
       q3: '¿Cómo introduzco mi clave API?',
@@ -387,10 +387,10 @@
       q5: '¿Cómo creo un asistente personalizado?',
       a5: "Ve a la pestaña Personas y pulsa + Nueva persona. Dos opciones: la creación guiada (asistente ✨ en 5 pasos — tema, tono, tuteo, nombre, estilo — la IA genera la persona) o la configuración manual. Puedes generar una imagen con IA o importar una. Para ajustar una persona existente sin rehacerla, ábrela y usa \"✨ Evolucionar\": da una directriz en lenguaje natural (ej. \"sé más técnico\") y la IA muta su prompt.",
       q6: '¿Cómo protejo la app?',
-      a6: "Ve a Configuración → Seguridad y activa el código PIN (4 dígitos), requerido cada vez que abras la app. Si tu teléfono tiene una huella registrada, también puedes desbloquear con biometría. Tras varios códigos incorrectos, el teclado se bloquea temporalmente. El PIN se almacena en el Android Keystore como tus claves API. Por último, al exportar puedes cifrar tu copia con una contraseña (AES-256). Tus datos permanecen solo en tu teléfono, nunca se envían a Zova.",
+      a6: "Ve a Configuración → Seguridad y activa el código PIN (4 dígitos), requerido cada vez que abras la app. Si tu teléfono tiene una huella registrada, también puedes desbloquear con biometría. Tras varios códigos incorrectos, el teclado se bloquea temporalmente. El PIN se almacena cifrado (SHA-256), nunca en claro, y el bloqueo anti-intentos se guarda en el Android Keystore. Por último, al exportar puedes cifrar tu copia con una contraseña (AES-256). Tus datos permanecen solo en tu teléfono, nunca se envían a Zova.",
       ts_title: 'Solución de problemas de instalación',
       ts1_h: '📥 La instalación está bloqueada',
-      ts1: ['Android pide permitir fuentes desconocidas: es normal para una app fuera de Play Store','Ajustes → Apps → tu navegador (o Gestor de archivos) → "Instalar apps desconocidas" → Permitir','Luego vuelve a abrir el archivo Zova-v4.0.apk desde tus Descargas','Play Protect puede mostrar un aviso: pulsa "Instalar de todos modos"'],
+      ts1: ['Android pide permitir fuentes desconocidas: es normal para una app fuera de Play Store','Ajustes → Apps → tu navegador (o Gestor de archivos) → "Instalar apps desconocidas" → Permitir','Luego vuelve a abrir el archivo Zova-v4.1.apk desde tus Descargas','Play Protect puede mostrar un aviso: pulsa "Instalar de todos modos"'],
       ts2_h: '📱 Xiaomi / MIUI',
       ts2: ['Activa las Opciones de desarrollador (Ajustes → Acerca de → toca 7× la versión MIUI)','Activa "Depuración USB" e "Instalar via USB"','MIUI puede pedir una confirmación extra durante la instalación — acéptala','Desactiva "Optimización MIUI" si la instalación sigue fallando'],
       ts3_h: '🔄 Actualizar Zova',
@@ -399,8 +399,8 @@
       ts4: ['Sin micrófono: Ajustes → Apps → Zova → Permisos → Micrófono → Permitir','Voz de la IA muda: normal en Android WebView, el texto se muestra igual','En modo texto, Groq TTS funciona para la síntesis de voz','Cortes frecuentes: Zova reconecta automáticamente (3 intentos)'],
       cta_h: '¿Listo para probar Zova?',
       cta_p: 'Descarga la última versión y configura tu primera clave en 3 minutos.',
-      cta_dl: '⬇  Descargar Zova v4.0',
-      footer: 'Zova v4.0  ·  por Xavier Bourdet  ·  <em>"Tu IA. Tu teléfono. Tus reglas."</em>'
+      cta_dl: '⬇  Descargar Zova v4.1',
+      footer: 'Zova v4.1  ·  por Xavier Bourdet  ·  <em>"Tu IA. Tu teléfono. Tus reglas."</em>'
     }
   };
 
@@ -441,9 +441,9 @@
   var lang = raw.toLowerCase().indexOf('es') === 0 ? 'es' : raw.toLowerCase().indexOf('en') === 0 ? 'en' : 'fr';
 
   var DL_CONFIRM = {
-    fr: 'Télécharger Zova v4.0 (APK ~6 Mo) ?\n\nSi tu as déjà Zova, installe le fichier par-dessus : tes données et mémoires sont conservées.',
-    en: 'Download Zova v4.0 (APK ~6 MB)?\n\nIf you already have Zova, install the file over it: your data and memories are kept.',
-    es: '¿Descargar Zova v4.0 (APK ~6 MB)?\n\nSi ya tienes Zova, instala el archivo encima: se conservan tus datos y memorias.'
+    fr: 'Télécharger Zova v4.1 (APK ~6 Mo) ?\n\nSi tu as déjà Zova, installe le fichier par-dessus : tes données et mémoires sont conservées.',
+    en: 'Download Zova v4.1 (APK ~6 MB)?\n\nIf you already have Zova, install the file over it: your data and memories are kept.',
+    es: '¿Descargar Zova v4.1 (APK ~6 MB)?\n\nSi ya tienes Zova, instala el archivo encima: se conservan tus datos y memorias.'
   };
   function curLang(){ var l = document.documentElement.lang; return DL_CONFIRM[l] ? l : 'fr'; }
 
