@@ -607,8 +607,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 2;
         }
         #avatarWrap.hidden { display: none !important; }
+        #avatarWrap svg { width: 300px; height: 300px; overflow: visible; }
 
         .viz-container canvas {
             background: transparent;
@@ -2527,13 +2529,11 @@ Minimum version required to store current data is: `+i+`.
               <div id="vizRingWrap">
                 <div class="viz-ring viz-ring-1" id="vizRing1"></div>
                 <div class="viz-ring viz-ring-2" id="vizRing2"></div>
+                <div id="avatarWrap" class="hidden">
+                    <svg id="avatarStage" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"></svg>
+                </div>
                 <div id="visualizers">
-                    <div class="viz-container">
-                        <canvas id="personaViz" width="280" height="280"></canvas>
-                        <div id="avatarWrap" class="hidden">
-                            <svg id="avatarStage" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:260px;aspect-ratio:1;overflow:visible"></svg>
-                        </div>
-                    </div>
+                    <div class="viz-container"><canvas id="personaViz" width="280" height="280"></canvas></div>
                     <div class="viz-container"><canvas id="userViz" width="280" height="280"></canvas></div>
                 </div>
               </div>
@@ -5438,10 +5438,10 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
 
     function maybeMountAvatar() {
         const wrap = document.getElementById('avatarWrap');
-        const personaViz = document.getElementById('personaViz');
+        const visualizers = document.getElementById('visualizers');
         if (!avatarEnabled) {
             wrap?.classList.add('hidden');
-            if (personaViz) personaViz.style.display = '';
+            if (visualizers) visualizers.style.display = '';
             return;
         }
         if (!homeAvatar) {
@@ -5450,7 +5450,7 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         }
         homeAvatar.setState(currentConvState);
         wrap?.classList.remove('hidden');
-        if (personaViz) personaViz.style.display = 'none';
+        if (visualizers) visualizers.style.display = 'none';
     }
 
     // ── WakeLock ──────────────────────────────────────
