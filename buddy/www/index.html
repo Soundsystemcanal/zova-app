@@ -5165,6 +5165,26 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
     let micReady = false;
     let waitingGreeting = false;
 
+    // ════════════════════════════════════════════════
+    //  FASE 2 — Andamiaje (estado + stubs)
+    // ════════════════════════════════════════════════
+    let currentConvState = 'idle';   // 'idle' | 'thinking' | 'listening' | 'speaking'
+    let aiIsSpeaking = false;
+    let hapticEnabled = localStorage.getItem('zova_haptic') !== 'false';
+    let homeAvatar = null;           // se rellena en Fase 3
+
+    function haptic(pattern) { if (hapticEnabled) navigator.vibrate?.(pattern); }
+
+    function onStateChange(state) {
+        if (state === currentConvState) return;
+        currentConvState = state;
+        homeAvatar?.setState(state);
+        aiIsSpeaking = (state === 'speaking');
+        document.getElementById('conversationArea')?.classList.toggle('ai-speaking', state === 'speaking');
+        if (state === 'speaking') haptic([30]);
+        else if (state === 'listening') haptic([15]);
+    }
+
     // ── WakeLock ──────────────────────────────────────
     let wakeLock = null;
     async function requestWakeLock() {
@@ -9986,7 +10006,16 @@ STRICT rules:
             drawRadialViz(personaCtx, personaCanvas, smoothPersonaLevel, 'rgb(236, 72, 153)', time, personaSpeaking);
             drawRadialViz(userCtx, userCanvas, smoothUserLevel, 'rgb(139, 92, 246)', time, userSpeaking);
             drawVizLink(time);
+
+            // Deriva el estado de conversación y notifica (FASE 2)
+            const derivedState = !isConnected ? 'idle'
+                : personaSpeaking ? 'speaking'
+                : userSpeaking ? 'listening'
+                : 'thinking';
+            onStateChange(derivedState);
         }
+
+        homeAvatar?.tick();   // null hasta Fase 3 — no hace nada
 
         if (isConnected) {
             animationId = requestAnimationFrame(animate);
