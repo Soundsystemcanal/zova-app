@@ -3216,9 +3216,11 @@ Minimum version required to store current data is: `+i+`.
                     await window.Capacitor.Plugins.SecureStoragePlugin.set({ key, value });
                     return;
                 } catch(e) {
-                    console.error('[SecureStorage] set failed, falling back:', e);
+                    console.error('[SecureStorage] set failed:', e);
+                    throw new Error(t('err_keystore_unavailable'));
                 }
             }
+            // Browser / dev mode only (IS_CAPACITOR is false)
             localStorage.setItem(key, value);
         },
         async remove(key) {
@@ -3478,6 +3480,7 @@ Minimum version required to store current data is: `+i+`.
             err_api_key_title: 'Clave API requerida',
             err_need_one_key: 'Necesitas al menos una clave API para usar Zova. Groq es gratis y la más fácil para empezar.',
             err_text_providers_failed: 'No se pudo contactar con ningún proveedor de texto. Revisa tu conexión o tu clave API.',
+            err_keystore_unavailable: 'No se pudo guardar la clave de forma segura. Reinicia la app e inténtalo de nuevo.',
             setup_min_hint: 'ℹ️ <strong>Mínimo: 1 sola clave.</strong> Groq es <strong>gratis</strong> y la más fácil para empezar. Las demás son opcionales.',
             // Status hints
             hint_creating: 'Creando...',
@@ -3712,6 +3715,7 @@ Minimum version required to store current data is: `+i+`.
             err_api_key_title: 'API key required',
             err_need_one_key: 'You need at least one API key to use Zova. Groq is free and the easiest to start with.',
             err_text_providers_failed: 'Could not reach any text provider. Check your connection or API key.',
+            err_keystore_unavailable: 'Could not save the key securely. Restart the app and try again.',
             setup_min_hint: 'ℹ️ <strong>Minimum: just 1 key.</strong> Groq is <strong>free</strong> and the easiest to start with. The others are optional.',
             // Status hints
             hint_creating: 'Creating...',
@@ -3946,6 +3950,7 @@ Minimum version required to store current data is: `+i+`.
             err_api_key_title: 'Clé API requise',
             err_need_one_key: 'Il faut au moins une clé API pour utiliser Zova. Groq est gratuit et le plus simple pour démarrer.',
             err_text_providers_failed: 'Impossible de contacter un fournisseur de texte. Vérifiez votre connexion ou votre clé API.',
+            err_keystore_unavailable: 'Impossible de sauvegarder la clé de façon sécurisée. Redémarre l\'app et réessaie.',
             setup_min_hint: 'ℹ️ <strong>Minimum : une seule clé.</strong> Groq est <strong>gratuit</strong> et le plus simple pour démarrer. Les autres sont optionnelles.',
             // Status hints
             hint_creating: 'Création en cours...',
@@ -5929,11 +5934,16 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
             if (!valid) return;
         }
 
-        await setApiKey(openaiKey);
-        await setGeminiApiKey(geminiKey);
-        if (ultravoxKeyVal !== undefined) await setUltravoxApiKey(ultravoxKeyVal);
-        if (groqKey !== undefined) await setGroqApiKey(groqKey);
-        await setElevenLabsApiKey(elevenlabsKey);
+        try {
+            await setApiKey(openaiKey);
+            await setGeminiApiKey(geminiKey);
+            if (ultravoxKeyVal !== undefined) await setUltravoxApiKey(ultravoxKeyVal);
+            if (groqKey !== undefined) await setGroqApiKey(groqKey);
+            await setElevenLabsApiKey(elevenlabsKey);
+        } catch(e) {
+            customAlert(esc(e.message), { title: '🔒 Keystore', icon: '&#10060;' });
+            return;
+        }
         setRealtimeModel(document.getElementById('realtimeModelSelect').value);
         const budgetNum = parseInt(document.getElementById('budgetLimitInput').value, 10);
         setBudgetLimit(!isNaN(budgetNum) && budgetNum > 0 ? budgetNum : null);
