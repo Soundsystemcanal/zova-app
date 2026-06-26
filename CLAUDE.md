@@ -15,8 +15,37 @@
 
 | Rama | Estado | Descripción |
 |------|--------|-------------|
-| `main` | 🚧 En desarrollo v3 | Nouvelles features widget + mémoire proactive |
+| `main` | 🚧 En desarrollo v5 | Avatar animado, tap-to-interrupt, portrait Zova |
 | `v2-beta` | 🗂️ Archivée | Export/import, mémoire, profil |
+
+## Estado (2026-06-27)
+
+### v5 — 🎭 Avatar Zova animado + UX conversación (main, no publicado) — testé sur Xiaomi 14T
+
+**FASE 3 — Avatar Zova animado**
+✅ Avatar sphère animée — `createZovaAvatar(stageEl)` factory : machine d'états `idle/thinking/listening/speaking`, interpolation spring, clignements/regard/hochements aléatoires, expressions (EXPR : idle/greeting/listening/thinking/speaking). `ZOVA_SVG` inline (~200 lignes SVG, gradients Dark Cosmos violet/rose). Monté dans `<svg id="avatarStage">` via `homeAvatar = createZovaAvatar(...)`
+✅ Intégration state machine — `onStateChange(state)` → `homeAvatar?.setState(state)` ; `currentConvState` ('idle'|'thinking'|'listening'|'speaking') piloté par tous les providers
+✅ Niveau audio — `animate()` : `homeAvatar.setLevel(gerardAudioLevel)` si speaking, `userAudioLevel` si listening, 0 sinon
+✅ Toggle Config — `#avatarToggle` (checkbox) + `zova_avatar` localStorage ; `maybeMountAvatar()` appelé à `selectPersona()` et au changement
+✅ Layout — `#avatarWrap` sibling de `#visualizers` dans `#vizRingWrap` ; quand actif : `avatar-active` sur ringWrap (height:240px, viz-rings masqués), `visualizers` `display:none`. Tailles : 200px idle → 290px talking (transition spring 0.6s)
+✅ i18n — `config_avatar_toggle` / `config_avatar_hint` (ES/EN/FR)
+
+**Retrato Zova — imagen de perfil**
+✅ `getDefaultPersonaZova()` — campo `image` con retrato SVG base64 (sphère violet/rose, yeux, expression greeting, 200×200). Même style graphique que l'avatar animé
+✅ Migration — `injectDefaultPersona()` : si `personas[idx].image` absent → injecte le portrait (users existants v3/v4 reçoivent l'image au prochain démarrage)
+
+**FASE 4 — Tap-to-interrupt + haptic**
+✅ `interruptSpeech()` — coupe le playback audio, envoie `{ type: 'response.cancel' }` si OpenAI (WS), appelle `onStateChange('listening')` + haptic `[15,50,15]` (double buzz) + ripple visuel (`tap-ripple` class → `avatarRipple` CSS animation)
+✅ Listener tap — `#vizRingWrap` click → `interruptSpeech()` (guard interne `currentConvState !== 'speaking'`)
+✅ Classe `av-speaking` — `onStateChange` toggle sur `#vizRingWrap` ; active le hint CSS
+✅ Hint visuel — `#tapHint` (`<span data-i18n="tap_to_stop">`) : `opacity:0` → `0.7` via `@keyframes tapHintFade` avec `delay:1.2s` (apparaît après 1.2s de parole, pas intrusif). Trilingue (`tap_to_stop` ES/EN/FR)
+✅ Haptics améliorés — start session : déjà `[30]` via `onStateChange` ; interrupt : `[15,50,15]`
+
+**FASEs pendientes v5:**
+- FASE 5 — Onboarding sin API (primer arranque más amigable)
+- FASE 6 — Modo inmersivo (pantalla completa durante conversación)
+- FASE 7 — ElevenLabs TTS
+- FASE 8 — Resumen de sesión + historial
 
 ## Estado (2026-06-11)
 
