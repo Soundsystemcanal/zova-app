@@ -610,7 +610,18 @@
             z-index: 2;
         }
         #avatarWrap.hidden { display: none !important; }
-        #avatarWrap svg { width: 300px; height: 300px; overflow: visible; }
+        #avatarWrap svg {
+            width: 160px; height: 160px;
+            overflow: visible;
+            transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1), height 0.6s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        #avatarWrap.av-talking svg { width: 250px; height: 250px; }
+
+        #vizRingWrap.avatar-active {
+            height: 220px;
+            min-height: 220px;
+        }
+        #vizRingWrap.avatar-active .viz-ring { display: none !important; }
 
         .viz-container canvas {
             background: transparent;
@@ -5209,6 +5220,7 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         homeAvatar?.setState(state);
         aiIsSpeaking = (state === 'speaking');
         document.getElementById('conversationArea')?.classList.toggle('ai-speaking', state === 'speaking');
+        document.getElementById('avatarWrap')?.classList.toggle('av-talking', state !== 'idle');
         if (state === 'speaking') haptic([30]);
         else if (state === 'listening') haptic([15]);
     }
@@ -5439,8 +5451,10 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
     function maybeMountAvatar() {
         const wrap = document.getElementById('avatarWrap');
         const visualizers = document.getElementById('visualizers');
+        const ringWrap = document.getElementById('vizRingWrap');
         if (!avatarEnabled) {
             wrap?.classList.add('hidden');
+            ringWrap?.classList.remove('avatar-active');
             if (visualizers) visualizers.style.display = '';
             return;
         }
@@ -5450,6 +5464,8 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         }
         homeAvatar.setState(currentConvState);
         wrap?.classList.remove('hidden');
+        wrap?.classList.toggle('av-talking', currentConvState !== 'idle');
+        ringWrap?.classList.add('avatar-active');
         if (visualizers) visualizers.style.display = 'none';
     }
 
