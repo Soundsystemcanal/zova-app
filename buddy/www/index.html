@@ -598,7 +598,17 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
+
+        #avatarWrap {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #avatarWrap.hidden { display: none !important; }
 
         .viz-container canvas {
             background: transparent;
@@ -2518,7 +2528,12 @@ Minimum version required to store current data is: `+i+`.
                 <div class="viz-ring viz-ring-1" id="vizRing1"></div>
                 <div class="viz-ring viz-ring-2" id="vizRing2"></div>
                 <div id="visualizers">
-                    <div class="viz-container"><canvas id="personaViz" width="280" height="280"></canvas></div>
+                    <div class="viz-container">
+                        <canvas id="personaViz" width="280" height="280"></canvas>
+                        <div id="avatarWrap" class="hidden">
+                            <svg id="avatarStage" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:260px;aspect-ratio:1;overflow:visible"></svg>
+                        </div>
+                    </div>
                     <div class="viz-container"><canvas id="userViz" width="280" height="280"></canvas></div>
                 </div>
               </div>
@@ -2586,6 +2601,13 @@ Minimum version required to store current data is: `+i+`.
               <button onclick="setLang('en')" style="flex:1;padding:8px;background:var(--bg-hover);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);cursor:pointer;font-family:inherit;font-size:0.85rem">🇬🇧 EN</button>
               <button onclick="setLang('fr')" style="flex:1;padding:8px;background:var(--bg-hover);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);cursor:pointer;font-family:inherit;font-size:0.85rem">🇫🇷 FR</button>
           </div>
+      </div>
+      <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0">
+          <div>
+              <div style="font-size:0.88rem;color:var(--text-primary)" data-i18n="config_avatar_toggle">Avatar animado</div>
+              <div style="font-size:0.75rem;color:var(--text-secondary)" data-i18n="config_avatar_hint">Desactívalo si la conversación se ralentiza</div>
+          </div>
+          <label class="toggle-switch"><input type="checkbox" id="avatarToggle"><span class="toggle-slider"></span></label>
       </div>
       <button class="config-screen-btn" id="apiConfigBtn">&#9881; <span data-i18n="config_api_keys">API Keys y Modelo</span></button>
       <button class="config-screen-btn" id="myInfoBtn">&#128100; <span data-i18n="config_my_info">Mis informaciones</span></button>
@@ -3481,6 +3503,8 @@ Minimum version required to store current data is: `+i+`.
             err_need_one_key: 'Necesitas al menos una clave API para usar Zova. Groq es gratis y la más fácil para empezar.',
             err_text_providers_failed: 'No se pudo contactar con ningún proveedor de texto. Revisa tu conexión o tu clave API.',
             err_keystore_unavailable: 'No se pudo guardar la clave de forma segura. Reinicia la app e inténtalo de nuevo.',
+            config_avatar_toggle: 'Avatar animado',
+            config_avatar_hint: 'Desactívalo si la conversación se ralentiza',
             setup_min_hint: 'ℹ️ <strong>Mínimo: 1 sola clave.</strong> Groq es <strong>gratis</strong> y la más fácil para empezar. Las demás son opcionales.',
             // Status hints
             hint_creating: 'Creando...',
@@ -3716,6 +3740,8 @@ Minimum version required to store current data is: `+i+`.
             err_need_one_key: 'You need at least one API key to use Zova. Groq is free and the easiest to start with.',
             err_text_providers_failed: 'Could not reach any text provider. Check your connection or API key.',
             err_keystore_unavailable: 'Could not save the key securely. Restart the app and try again.',
+            config_avatar_toggle: 'Animated avatar',
+            config_avatar_hint: 'Disable if conversation slows down',
             setup_min_hint: 'ℹ️ <strong>Minimum: just 1 key.</strong> Groq is <strong>free</strong> and the easiest to start with. The others are optional.',
             // Status hints
             hint_creating: 'Creating...',
@@ -3951,6 +3977,8 @@ Minimum version required to store current data is: `+i+`.
             err_need_one_key: 'Il faut au moins une clé API pour utiliser Zova. Groq est gratuit et le plus simple pour démarrer.',
             err_text_providers_failed: 'Impossible de contacter un fournisseur de texte. Vérifiez votre connexion ou votre clé API.',
             err_keystore_unavailable: 'Impossible de sauvegarder la clé de façon sécurisée. Redémarre l\'app et réessaie.',
+            config_avatar_toggle: 'Avatar animé',
+            config_avatar_hint: 'Désactive-le si la conversation ralentit',
             setup_min_hint: 'ℹ️ <strong>Minimum : une seule clé.</strong> Groq est <strong>gratuit</strong> et le plus simple pour démarrer. Les autres sont optionnelles.',
             // Status hints
             hint_creating: 'Création en cours...',
@@ -5185,6 +5213,246 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         else if (state === 'listening') haptic([15]);
     }
 
+    // ════════════════════════════════════════════════
+    //  FASE 3 — Avatar Zova
+    // ════════════════════════════════════════════════
+    let avatarEnabled = localStorage.getItem('zova_avatar') !== 'false';
+
+    const ZOVA_SVG = `<defs>
+<radialGradient id="zFA" cx="36%" cy="26%" r="78%"><stop offset="0%" stop-color="#4a4194"/><stop offset="38%" stop-color="#2f2870"/><stop offset="72%" stop-color="#1d184a"/><stop offset="100%" stop-color="#0f0c2e"/></radialGradient>
+<linearGradient id="zRM" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#c4b5fd"/><stop offset="100%" stop-color="#f9a8d4"/></linearGradient>
+<radialGradient id="zIA" cx="32%" cy="28%" r="72%"><stop offset="0%" stop-color="#ffffff"/><stop offset="35%" stop-color="#d8caff"/><stop offset="100%" stop-color="#8b5cf6"/></radialGradient>
+<radialGradient id="zIB" cx="32%" cy="28%" r="72%"><stop offset="0%" stop-color="#ffffff"/><stop offset="35%" stop-color="#fbcfe8"/><stop offset="100%" stop-color="#ec4899"/></radialGradient>
+<radialGradient id="zIC" cx="32%" cy="28%" r="72%"><stop offset="0%" stop-color="#ffffff"/><stop offset="35%" stop-color="#c4b5fd"/><stop offset="100%" stop-color="#7c3aed"/></radialGradient>
+<radialGradient id="zSP" cx="35%" cy="20%" r="45%"><stop offset="0%" stop-color="rgba(216,202,255,0.18)"/><stop offset="100%" stop-color="rgba(216,202,255,0)"/></radialGradient>
+<radialGradient id="zSpec" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(255,255,255,1)"/><stop offset="25%" stop-color="rgba(255,255,255,0.85)"/><stop offset="55%" stop-color="rgba(255,255,255,0.25)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
+<radialGradient id="zSpec2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(255,255,255,0.95)"/><stop offset="60%" stop-color="rgba(255,255,255,0.3)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
+<radialGradient id="zRim" cx="50%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(167,139,250,0)"/><stop offset="74%" stop-color="rgba(167,139,250,0)"/><stop offset="92%" stop-color="rgba(196,181,253,0.35)"/><stop offset="100%" stop-color="rgba(216,202,255,0.55)"/></radialGradient>
+<radialGradient id="zCore" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(10,8,30,0)"/><stop offset="70%" stop-color="rgba(10,8,30,0)"/><stop offset="100%" stop-color="rgba(8,5,22,0.55)"/></radialGradient>
+<filter id="zGL"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<clipPath id="zEyeClipL"><path d="M-17,1Q-9,-11 1,-10Q14,-9 16,3Q14,11 0,12Q-13,11 -17,1Z"/></clipPath>
+<clipPath id="zEyeClipR"><path d="M17,1Q9,-11 -1,-10Q-14,-9 -16,3Q-14,11 0,12Q13,11 17,1Z"/></clipPath>
+<radialGradient id="zMouthIn" cx="50%" cy="30%" r="80%"><stop offset="0%" stop-color="#7a2348"/><stop offset="55%" stop-color="#4a1530"/><stop offset="100%" stop-color="#2a0a1c"/></radialGradient>
+<linearGradient id="zLipLo" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fb7185"/><stop offset="100%" stop-color="#e11d6a"/></linearGradient>
+<linearGradient id="zLipUp" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#e879a8"/><stop offset="100%" stop-color="#db4d8a"/></linearGradient>
+<radialGradient id="zVol" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(196,181,253,0)"/><stop offset="75%" stop-color="rgba(196,181,253,0)"/><stop offset="100%" stop-color="rgba(167,139,250,0.25)"/></radialGradient>
+</defs>
+<ellipse id="zShadow" cx="100" cy="190" rx="66" ry="8" fill="#7c3aed" opacity="0.16"/>
+<g id="zFloat">
+<circle cx="100" cy="100" r="93" fill="none" stroke="rgba(167,139,250,0.15)" stroke-width="7"/>
+<circle id="zRing" cx="100" cy="100" r="92" fill="none" stroke="url(#zRM)" stroke-width="1.8" opacity="0.7"/>
+<circle cx="100" cy="100" r="87" fill="none" stroke="rgba(167,139,250,0.1)" stroke-width="1"/>
+<circle cx="100" cy="100" r="85" fill="url(#zFA)"/>
+<circle cx="100" cy="100" r="85" fill="url(#zCore)"/>
+<circle cx="100" cy="100" r="85" fill="url(#zRim)"/>
+<ellipse cx="82" cy="68" rx="44" ry="32" fill="url(#zSP)"/>
+<ellipse id="zSpecMain" cx="70" cy="56" rx="26" ry="18" fill="url(#zSpec)" opacity="0.9" transform="rotate(-28,70,56)"/>
+<circle id="zSpecHot" cx="64" cy="50" r="6" fill="url(#zSpec2)" opacity="0.95"/>
+<g id="zFaceGroup">
+<path id="zBrowL" d="M54,62Q67,55 81,60" stroke="#ddd6fe" stroke-width="3.8" fill="none" stroke-linecap="round" filter="url(#zGL)" opacity="0.85"/>
+<path id="zBrowR" d="M119,60Q133,55 146,62" stroke="#ddd6fe" stroke-width="3.8" fill="none" stroke-linecap="round" filter="url(#zGL)" opacity="0.85"/>
+<ellipse id="zCheekL" cx="62" cy="116" rx="14" ry="9" fill="rgba(236,72,153,0)" filter="url(#zGL)"/>
+<ellipse id="zCheekR" cx="138" cy="116" rx="14" ry="9" fill="rgba(236,72,153,0)" filter="url(#zGL)"/>
+<g transform="translate(70,90)">
+  <path d="M-17,1Q-9,-11 1,-10Q14,-9 16,3Q14,11 0,12Q-13,11 -17,1Z" fill="rgba(8,5,22,0.85)"/>
+  <g clip-path="url(#zEyeClipL)">
+    <circle id="zIL" cx="0" cy="1" r="11" fill="url(#zIA)" filter="url(#zGL)"/>
+    <circle id="zPL" cx="0" cy="1" r="5.5" fill="#050312"/>
+    <circle id="zHL1L" cx="-4" cy="-3.5" r="3.5" fill="rgba(255,255,255,0.85)"/>
+    <circle cx="3.5" cy="4" r="1.8" fill="rgba(255,255,255,0.4)"/>
+    <circle cx="-5.5" cy="2" r="1.2" fill="rgba(255,200,230,0.5)"/>
+  </g>
+  <path d="M-17,1Q-9,-11 1,-10Q14,-9 16,3Q14,11 0,12Q-13,11 -17,1Z" fill="none" stroke="rgba(196,181,253,0.55)" stroke-width="1.4" stroke-linejoin="round"/>
+  <path id="zLL" d="M-17,1Q-9,-11 1,-10Q14,-9 16,3Q0,-10 -17,1Z" fill="#0a0820"/>
+  <path id="zLBL" d="M-17,3Q0,9 16,3Q0,13 -17,3Z" fill="#0a0820" opacity="0"/>
+</g>
+<g transform="translate(130,90)">
+  <path d="M17,1Q9,-11 -1,-10Q-14,-9 -16,3Q-14,11 0,12Q13,11 17,1Z" fill="rgba(8,5,22,0.85)"/>
+  <g clip-path="url(#zEyeClipR)">
+    <circle id="zIR" cx="0" cy="1" r="11" fill="url(#zIA)" filter="url(#zGL)"/>
+    <circle id="zPR" cx="0" cy="1" r="5.5" fill="#050312"/>
+    <circle id="zHL1R" cx="-4" cy="-3.5" r="3.5" fill="rgba(255,255,255,0.85)"/>
+    <circle cx="3.5" cy="4" r="1.8" fill="rgba(255,255,255,0.4)"/>
+    <circle cx="5.5" cy="2" r="1.2" fill="rgba(255,200,230,0.5)"/>
+  </g>
+  <path d="M17,1Q9,-11 -1,-10Q-14,-9 -16,3Q-14,11 0,12Q13,11 17,1Z" fill="none" stroke="rgba(196,181,253,0.55)" stroke-width="1.4" stroke-linejoin="round"/>
+  <path id="zLR" d="M17,1Q9,-11 -1,-10Q-14,-9 -16,3Q0,-10 17,1Z" fill="#0a0820"/>
+  <path id="zLBR" d="M17,3Q0,9 -16,3Q0,13 17,3Z" fill="#0a0820" opacity="0"/>
+</g>
+<g transform="translate(100,127)">
+  <ellipse id="zMS" cx="0" cy="9" rx="20" ry="4.5" fill="rgba(0,0,0,0.18)"/>
+  <path id="zMFill" d="M-19,0Q0,2 19,0Q0,2 -19,0Z" fill="url(#zMouthIn)" opacity="0"/>
+  <ellipse id="zTongue" cx="0" cy="6" rx="9" ry="4" fill="#fb7185" opacity="0"/>
+  <path id="zTeeth" d="M-15,-2Q0,-3.5 15,-2L15,-0.5Q0,-2 -15,-0.5Z" fill="rgba(255,252,254,0.95)" opacity="0"/>
+  <path id="zLipLower" d="M-19,0Q0,8 19,0Q0,11 -19,0Z" fill="url(#zLipLo)" opacity="0.95"/>
+  <path id="zLipUpper" d="M-19,0Q-9,-3 0,-1.5Q9,-3 19,0Q0,1.5 -19,0Z" fill="url(#zLipUp)" opacity="0.95"/>
+  <path id="zLipShine" d="M-7,5.5Q0,8 7,5.5" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+  <circle id="zCL" cx="-19" cy="0" r="2" fill="#e11d6a" opacity="0.6"/>
+  <circle id="zCR" cx="19" cy="0" r="2" fill="#e11d6a" opacity="0.6"/>
+</g>
+</g>
+<circle cx="100" cy="100" r="85" fill="url(#zVol)" opacity="0.8"/>
+</g>
+<circle id="zDot" cx="100" cy="173" r="3" fill="#8b5cf6" opacity="0.5" filter="url(#zGL)"/>`;
+
+    function createZovaAvatar(stageEl) {
+        const g = id => stageEl.querySelector('#' + id);
+        const lrp = (a, b, t) => a + (b - a) * t;
+
+        let avState = 'idle', level = 0, rph = 0;
+        let bkT = null, bkTL = 0, bkTR = 0, nodT = null, gzT = null;
+
+        let ip = {mo:0,bll:0,blr:0,bfl:0,bfr:0,is:1,ps:1,ro:.4,rr:92,bkL:0,bkR:0,gx:0,gy:0,tilt:0,cheek:0,squint:0,nod:0,bcurv:0,bang:0};
+        const tg = {...ip};
+
+        const EXPR = {
+            idle:     {mo:0,  bll:.05, blr:.05, bfl:0,   bfr:0,is:1,   ps:1,   ro:.38,rr:92,tilt:0,  cheek:.18,squint:0,  nod:0,bcurv:.15,bang:0},
+            greeting: {mo:.25,bll:.85, blr:.85, bfl:0,   bfr:0,is:1.16,ps:1.28,ro:.9, rr:94,tilt:-.5,cheek:1,  squint:.15,nod:0,bcurv:.9, bang:.2},
+            listening:{mo:0,  bll:.55, blr:.3,  bfl:0,   bfr:0,is:1.1, ps:1.14,ro:.68,rr:92,tilt:.6, cheek:.4, squint:0,  nod:0,bcurv:.6, bang:.35},
+            thinking: {mo:0,  bll:-.2, blr:.4,  bfl:.55, bfr:0,is:.9,  ps:.82, ro:.5, rr:92,tilt:-.4,cheek:.05,squint:.2, nod:0,bcurv:0,  bang:-.4},
+            speaking: {mo:.3, bll:.25, blr:.25, bfl:0,   bfr:0,is:1.12,ps:1.1, ro:.82,rr:94,tilt:0,  cheek:.5, squint:.2, nod:0,bcurv:.4, bang:.1},
+        };
+        function applyExpr(s) { Object.assign(tg, EXPR[s] || EXPR.idle); }
+
+        function doBlink() {
+            bkTL = 1; bkTR = Math.random() > .15 ? 1 : 0;
+            setTimeout(() => { bkTL = 0; bkTR = 0; }, 120);
+            if (Math.random() < .2) setTimeout(() => { bkTL = 1; bkTR = 1; setTimeout(() => { bkTL = 0; bkTR = 0; }, 110); }, 230);
+        }
+        function scheduleBlink() {
+            clearTimeout(bkT);
+            const d = avState === 'thinking' ? 1400+Math.random()*900 : avState === 'speaking' ? 2800+Math.random()*2000 : 2500+Math.random()*2500;
+            bkT = setTimeout(() => { doBlink(); scheduleBlink(); }, d);
+        }
+        function scheduleNod() {
+            clearTimeout(nodT);
+            nodT = setTimeout(() => {
+                if (avState === 'listening' || avState === 'thinking') { tg.nod = 1; setTimeout(() => { tg.nod = 0; }, 400); }
+                scheduleNod();
+            }, 4000+Math.random()*4000);
+        }
+        function scheduleGaze() {
+            clearTimeout(gzT);
+            gzT = setTimeout(() => {
+                if (avState !== 'thinking') { const a = Math.random()*Math.PI*2, r = .12+Math.random()*.18; tg.gx = Math.cos(a)*r; tg.gy = Math.sin(a)*r; setTimeout(() => { tg.gx = 0; tg.gy = 0; }, 600+Math.random()*500); }
+                scheduleGaze();
+            }, 3200+Math.random()*3800);
+        }
+
+        function interpolate() {
+            if (avState === 'speaking') { const t = performance.now()/1000; const o = Math.abs(Math.sin(t*8))*.4+Math.abs(Math.sin(t*5.3+1.2))*.28+Math.abs(Math.sin(t*12+.5))*.1; tg.mo = .12+o*.4+level*.4; }
+            if (avState === 'listening') tg.mo = level*.12;
+            tg.bkL = bkTL; tg.bkR = bkTR;
+            const spd = {mo:.14,bll:.08,blr:.08,bfl:.08,bfr:.08,is:.07,ps:.07,ro:.06,rr:.06,bkL:.35,bkR:.35,gx:.1,gy:.1,tilt:.05,cheek:.06,squint:.1,nod:.12,bcurv:.07,bang:.07};
+            for (const k in ip) ip[k] = lrp(ip[k], tg[k] ?? ip[k], spd[k] || .1);
+        }
+
+        function renderZova() {
+            rph += .018;
+            const ft = performance.now()/1000;
+            const floatY = Math.sin(ft*.9)*4.5, swayX = Math.sin(ft*.6)*3, rollZ = Math.sin(ft*.45)*1.2, breath = 1+Math.sin(ft*.8)*.018;
+            const zFloat = g('zFloat');
+            if (zFloat) zFloat.setAttribute('transform', `translate(${swayX},${floatY}) rotate(${rollZ},100,100) scale(${breath})`);
+            const lift = (floatY+4.5)/9;
+            g('zShadow')?.setAttribute('rx', 66-lift*12);
+            g('zShadow')?.setAttribute('opacity', 0.2-lift*0.09);
+            g('zShadow')?.setAttribute('cx', 100+swayX*.5);
+            const specDX = -swayX*.5, specDY = -floatY*.3;
+            const sm = g('zSpecMain'); if (sm) { sm.setAttribute('cx', 70+specDX); sm.setAttribute('cy', 56+specDY); }
+            const sh = g('zSpecHot');  if (sh) { sh.setAttribute('cx', 64+specDX); sh.setAttribute('cy', 50+specDY); }
+            const rOp = Math.max(0, Math.min(1, ip.ro+Math.sin(rph)*.08));
+            const rR = ip.rr+(avState === 'speaking' ? level*5 : 0);
+            const zR = g('zRing'); if (zR) { zR.setAttribute('r', rR); zR.setAttribute('opacity', rOp); zR.setAttribute('stroke-width', avState === 'speaking' ? 1.5+level*2 : 1.5); }
+            const tiltDeg = ip.tilt*5, nodY = ip.nod*4;
+            g('zFaceGroup')?.setAttribute('transform', `rotate(${tiltDeg},100,100) translate(0,${nodY})`);
+            const bcurv = ip.bcurv, bang = ip.bang;
+            const Llift = -ip.bll*8, LinnerY = 62+Llift-bang*7, LouterY = 60+Llift, LmidY = (LinnerY+LouterY)/2-4-bcurv*8;
+            g('zBrowL')?.setAttribute('d', `M54,${LouterY}Q67,${LmidY}81,${LinnerY}`);
+            const Rlift = -ip.blr*8, RinnerY = 60+Rlift-bang*7, RouterY = 62+Rlift, RmidY = (RinnerY+RouterY)/2-4-bcurv*8;
+            g('zBrowR')?.setAttribute('d', `M119,${RinnerY}Q133,${RmidY}146,${RouterY}`);
+            const bOp = .7+Math.max(Math.abs(ip.bll), Math.abs(ip.blr), ip.bfl, bcurv)*.3;
+            g('zBrowL')?.setAttribute('opacity', Math.min(1,bOp)); g('zBrowR')?.setAttribute('opacity', Math.min(1,bOp));
+            g('zCheekL')?.setAttribute('fill', `rgba(236,72,153,${ip.cheek*.22})`);
+            g('zCheekR')?.setAttribute('fill', `rgba(236,72,153,${ip.cheek*.22})`);
+            const ig = avState === 'speaking' ? 'zIB' : avState === 'thinking' ? 'zIC' : 'zIA';
+            const iR = 11*ip.is, pR = Math.min(5.5*ip.ps, iR*.55), gx = ip.gx*3.5, gy = ip.gy*2.5+1;
+            for (const s of ['L','R']) {
+                g(`zI${s}`)?.setAttribute('fill', `url(#${ig})`); g(`zI${s}`)?.setAttribute('r', iR); g(`zI${s}`)?.setAttribute('cx', gx); g(`zI${s}`)?.setAttribute('cy', gy);
+                g(`zP${s}`)?.setAttribute('r', pR); g(`zP${s}`)?.setAttribute('cx', gx); g(`zP${s}`)?.setAttribute('cy', gy);
+                g(`zHL1${s}`)?.setAttribute('cx', gx-4); g(`zHL1${s}`)?.setAttribute('cy', gy-4.5);
+            }
+            const lidPosL = 12*ip.bkL;
+            g('zLL')?.setAttribute('d', `M-17,1Q-9,-11 1,-10Q14,-9 16,3Q0,${-10+lidPosL*1.8} -17,${1+lidPosL}Z`);
+            const lidPosR = 12*ip.bkR;
+            g('zLR')?.setAttribute('d', `M17,1Q9,-11 -1,-10Q-14,-9 -16,3Q0,${-10+lidPosR*1.8} 17,${1+lidPosR}Z`);
+            const sq = ip.squint*6;
+            g('zLBL')?.setAttribute('opacity', ip.squint > .02 ? 1 : 0);
+            g('zLBL')?.setAttribute('d', `M-17,4Q0,${9-sq} 16,4Q0,13 -17,4Z`);
+            g('zLBR')?.setAttribute('opacity', ip.squint > .02 ? 1 : 0);
+            g('zLBR')?.setAttribute('d', `M17,4Q0,${9-sq} -16,4Q0,13 17,4Z`);
+            const op = Math.max(0, Math.min(1, ip.mo)), smile = Math.max(0, Math.min(1, ip.cheek));
+            const t2 = performance.now()/1000;
+            const vowel = avState === 'speaking' ? (Math.sin(t2*6.5)*.5+.5) : .5;
+            const w = 19*(.85+vowel*.2);
+            const cyL = -smile*5.5-smile*1, cyR = -smile*5.5;
+            const gap = op*15, upBot = -gap*.45-smile, loTop = gap*.55;
+            if (op > .05) {
+                g('zMFill')?.setAttribute('d', `M-${w},${(cyL+cyR)/2}Q0,${upBot} ${w},${(cyL+cyR)/2}Q0,${loTop+gap*.4} -${w},${(cyL+cyR)/2}Z`);
+                g('zMFill')?.setAttribute('opacity', Math.min(1, op*1.6));
+                const tongueShow = Math.max(0, op-.35);
+                g('zTongue')?.setAttribute('opacity', tongueShow*.8); g('zTongue')?.setAttribute('cy', loTop+gap*.15);
+                g('zTongue')?.setAttribute('rx', 7+vowel*3); g('zTongue')?.setAttribute('ry', 2+op*2);
+                const teethShow = Math.max(0, smile-.3)*Math.min(1, op*2.5);
+                g('zTeeth')?.setAttribute('opacity', teethShow);
+                g('zTeeth')?.setAttribute('d', `M-${w*.8},${upBot+1}Q0,${upBot-.5} ${w*.8},${upBot+1}L${w*.8},${upBot+2.5}Q0,${upBot+1} -${w*.8},${upBot+2.5}Z`);
+            } else {
+                g('zMFill')?.setAttribute('opacity', 0); g('zTongue')?.setAttribute('opacity', 0); g('zTeeth')?.setAttribute('opacity', 0);
+            }
+            g('zLipUpper')?.setAttribute('d', `M-${w},${cyL}Q-${w*.45},${upBot-3.5} 0,${upBot-2}Q${w*.45},${upBot-3.5} ${w},${cyR}Q${w*.5},${upBot} 0,${upBot+.5}Q-${w*.5},${upBot} -${w},${cyL}Z`);
+            g('zLipUpper')?.setAttribute('opacity', 0.95);
+            const fullness = 6+smile*2+op*4;
+            g('zLipLower')?.setAttribute('d', `M-${w},${cyL}Q0,${loTop+1} ${w},${cyR}Q0,${loTop+fullness} -${w},${cyL}Z`);
+            g('zLipLower')?.setAttribute('opacity', 0.95);
+            const shineShift = Math.sin(t2*.9)*2;
+            g('zLipShine')?.setAttribute('d', `M${-w*.4+shineShift},${loTop+fullness*.45}Q${shineShift},${loTop+fullness*.75} ${w*.4+shineShift},${loTop+fullness*.45}`);
+            g('zLipShine')?.setAttribute('opacity', .45+smile*.25);
+            g('zMS')?.setAttribute('ry', 3.5+op*4); g('zMS')?.setAttribute('cy', 9+op*3+fullness*.3);
+            g('zCL')?.setAttribute('cy', cyL); g('zCR')?.setAttribute('cy', cyR);
+            g('zCL')?.setAttribute('opacity', .4+smile*.5); g('zCR')?.setAttribute('opacity', .4+smile*.5);
+            const dc = {idle:'rgba(167,139,250,.4)',greeting:'#c4b5fd',listening:'#a78bfa',thinking:'#8b5cf6',speaking:'#fb7185'};
+            g('zDot')?.setAttribute('fill', dc[avState] || '#a78bfa');
+        }
+
+        return {
+            mount() {
+                stageEl.innerHTML = ZOVA_SVG;
+                applyExpr('idle');
+                Object.assign(ip, {mo:0,bll:0,blr:0,bfl:0,bfr:0,is:1,ps:1,ro:.4,rr:92,bkL:0,bkR:0,gx:0,gy:0,tilt:0,cheek:0,squint:0,nod:0,bcurv:0,bang:0});
+                scheduleBlink(); scheduleGaze(); scheduleNod();
+            },
+            setState(s) { avState = s; applyExpr(s); },
+            setLevel(v) { level = v; },
+            tick() { interpolate(); renderZova(); }
+        };
+    }
+
+    function maybeMountAvatar() {
+        const wrap = document.getElementById('avatarWrap');
+        const personaViz = document.getElementById('personaViz');
+        if (!avatarEnabled) {
+            wrap?.classList.add('hidden');
+            if (personaViz) personaViz.style.display = '';
+            return;
+        }
+        if (!homeAvatar) {
+            homeAvatar = createZovaAvatar(document.getElementById('avatarStage'));
+            homeAvatar.mount();
+        }
+        homeAvatar.setState(currentConvState);
+        wrap?.classList.remove('hidden');
+        if (personaViz) personaViz.style.display = 'none';
+    }
+
     // ── WakeLock ──────────────────────────────────────
     let wakeLock = null;
     async function requestWakeLock() {
@@ -5582,6 +5850,16 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
     document.getElementById('themeToggleBtn').addEventListener('click', () => {
         applyTheme(getTheme() === 'dark' ? 'light' : 'dark');
     });
+
+    const avatarToggleEl = document.getElementById('avatarToggle');
+    if (avatarToggleEl) {
+        avatarToggleEl.checked = avatarEnabled;
+        avatarToggleEl.addEventListener('change', () => {
+            avatarEnabled = avatarToggleEl.checked;
+            localStorage.setItem('zova_avatar', avatarEnabled ? 'true' : 'false');
+            maybeMountAvatar();
+        });
+    }
 
     document.getElementById('homeBtn').addEventListener('click', () => { showEmptyState(); switchTab('home'); });
 
@@ -7013,8 +7291,9 @@ Return ONLY the merged prompt, operational and concise, in ${langName}, STRICTLY
         // v2: activar anillos respirantes
         document.getElementById('vizRing1') && (document.getElementById('vizRing1').style.display = 'block');
         document.getElementById('vizRing2') && (document.getElementById('vizRing2').style.display = 'block');
+        maybeMountAvatar();
 
-        // Réafficher les éléments cachés par le transcripteur
+        // Réafficher les éléments cachés par el transcripteur
         document.getElementById('duplicatePersonaBtn').style.display = '';
         document.getElementById('insightsPersonaBtn').style.display = '';
         // Chapitres : ne montrer que s'il existe des chapitres pour la persona active
@@ -10015,7 +10294,8 @@ STRICT rules:
             onStateChange(derivedState);
         }
 
-        homeAvatar?.tick();   // null hasta Fase 3 — no hace nada
+        if (homeAvatar) homeAvatar.setLevel(currentConvState === 'speaking' ? gerardAudioLevel : currentConvState === 'listening' ? userAudioLevel : 0);
+        homeAvatar?.tick();
 
         if (isConnected) {
             animationId = requestAnimationFrame(animate);
