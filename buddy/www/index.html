@@ -3617,6 +3617,7 @@ Minimum version required to store current data is: `+i+`.
             tone_chaleureux: 'Cálido y cercano', tone_pro: 'Profesional y directo', tone_fun: 'Divertido y enérgico', tone_calme: 'Tranquilo y sereno', tone_expert: 'Experto serio',
             crea_precise: 'Preciso', crea_balanced: 'Equilibrado', crea_creative: 'Creativo', crea_wild: 'Fantasioso',
             pin_bio_reason: 'Desbloquea Zova',
+            pin_bio_subtitle: 'Usa tu huella dactilar',
             pin_bio_cancel: 'Usar PIN',
             pin_security: 'Seguridad',
             // Nav confirm
@@ -3862,6 +3863,7 @@ Minimum version required to store current data is: `+i+`.
             tone_chaleureux: 'Warm & caring', tone_pro: 'Professional & direct', tone_fun: 'Fun & energetic', tone_calme: 'Calm & composed', tone_expert: 'Serious expert',
             crea_precise: 'Precise', crea_balanced: 'Balanced', crea_creative: 'Creative', crea_wild: 'Whimsical',
             pin_bio_reason: 'Unlock Zova',
+            pin_bio_subtitle: 'Use your fingerprint',
             pin_bio_cancel: 'Use PIN',
             pin_security: 'Security',
             // Nav confirm
@@ -4107,6 +4109,7 @@ Minimum version required to store current data is: `+i+`.
             tone_chaleureux: 'Chaleureux & bienveillant', tone_pro: 'Professionnel & direct', tone_fun: 'Fun & énergique', tone_calme: 'Calme & posé', tone_expert: 'Expert sérieux',
             crea_precise: 'Précis', crea_balanced: 'Équilibré', crea_creative: 'Créatif', crea_wild: 'Fantaisiste',
             pin_bio_reason: 'Déverrouiller Zova',
+            pin_bio_subtitle: 'Utilise ton empreinte digitale',
             pin_bio_cancel: 'Utiliser le PIN',
             pin_security: 'Sécurité',
             // Nav confirm
@@ -4795,6 +4798,14 @@ Comienza siempre con un saludo cálido + UNA sola pregunta enfocada en info que 
 - Reutiliza lo que sabes: "me contaste que trabajas en X..."
 - Sé curiosa, cálida y atenta, nunca intrusiva
 
+# Conocimiento de la app
+Eres también la ayuda integrada de Zova. Si el usuario pregunta cómo configurar algo, responde con naturalidad:
+- **Clave API mínima**: solo se necesita Groq (gratis en console.groq.com) para empezar.
+- **ElevenLabs**: va en Configuración → Clave API → campo ElevenLabs. Se activa automáticamente con el provider "Groq pipeline". Las voces se asignan solas (shimmer → Rachel, nova → Bella, echo → Josh, alloy → Domi). Cuota gratuita mensual en elevenlabs.io.
+- **Providers de voz**: Groq (~gratis), Ultravox (~$0,005/min), Gemini Live (~$0,01/min), OpenAI Realtime (~$0,06/min). Se cambian en Configuración → Modelos.
+- **Avatar**: se activa en Configuración → Avatar. Toca la pantalla durante la conversación para interrumpir.
+- **Si la voz de IA no suena**: es normal en el proveedor Groq sin clave ElevenLabs — el texto se ve igual, la voz Android funciona como respaldo.
+
 # Formato de respuesta (voz)
 - Máximo 2 a 3 frases por respuesta
 - Solo texto — sin listas, sin guiones, sin markdown
@@ -4819,6 +4830,14 @@ Always start with a warm greeting + ONE focused question about missing profile i
 - Reuse what you know: "you told me you were working on X..."
 - Be curious, warm, and attentive, never intrusive
 
+# App knowledge
+You are also Zova's built-in help. If the user asks how to configure something, answer naturally:
+- **Minimum API key**: only Groq is needed to start (free at console.groq.com).
+- **ElevenLabs**: go to Settings → API Key → ElevenLabs field. Activates automatically with the "Groq pipeline" provider. Voices are assigned automatically (shimmer → Rachel, nova → Bella, echo → Josh, alloy → Domi). Free monthly quota at elevenlabs.io.
+- **Voice providers**: Groq (~free), Ultravox (~$0.005/min), Gemini Live (~$0.01/min), OpenAI Realtime (~$0.06/min). Switch in Settings → Models.
+- **Avatar**: enable in Settings → Avatar. Tap the screen during a conversation to interrupt.
+- **If the AI voice doesn't play**: normal with Groq provider without ElevenLabs key — text still shows, Android TTS works as fallback.
+
 # Response format (voice)
 - Maximum 2 to 3 sentences per reply
 - Plain text only — no lists, no bullet points, no markdown
@@ -4842,6 +4861,14 @@ Commence toujours par une salutation chaleureuse + UNE seule question ciblée su
 - Ne mentionne jamais explicitement "ton profil" ou "je collecte tes données" — sois naturelle
 - Réutilise ce que tu sais : "tu m'avais dit que tu travaillais sur X..."
 - Sois curieuse, chaleureuse et attentionnée, jamais intrusive
+
+# Connaissance de l'app
+Tu es aussi l'aide intégrée de Zova. Si l'utilisateur demande comment configurer quelque chose, réponds naturellement :
+- **Clé API minimum** : seule Groq est nécessaire pour démarrer (gratuit sur console.groq.com).
+- **ElevenLabs** : va dans Configuration → Clé API → champ ElevenLabs. S'active automatiquement avec le provider "Groq pipeline". Les voix sont assignées automatiquement (shimmer → Rachel, nova → Bella, echo → Josh, alloy → Domi). Quota gratuit mensuel sur elevenlabs.io.
+- **Providers voix** : Groq (~gratuit), Ultravox (~$0,005/min), Gemini Live (~$0,01/min), OpenAI Realtime (~$0,06/min). Change dans Configuration → Modèles.
+- **Avatar** : active dans Configuration → Avatar. Touche l'écran pendant une conversation pour interrompre.
+- **Si la voix IA ne joue pas** : normal avec Groq sans clé ElevenLabs — le texte s'affiche quand même, la voix Android fonctionne en secours.
 
 # Format de réponse (voix)
 - Maximum 2 à 3 phrases par réponse
@@ -6030,7 +6057,7 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
             await bio.internalAuthenticate({
                 reason: t('pin_bio_reason'),
                 androidTitle: 'Zova',
-                androidSubtitle: t('pin_bio_reason'),
+                androidSubtitle: t('pin_bio_subtitle'),
                 cancelTitle: t('pin_bio_cancel'),
                 allowDeviceCredential: false
             });
@@ -9798,19 +9825,22 @@ STRICT rules:
                     body: JSON.stringify({
                         text,
                         model_id: 'eleven_turbo_v2_5',
-                        voice_settings: { stability: 0.5, similarity_boost: 0.75, speed: rate }
+                        voice_settings: { stability: 0.5, similarity_boost: 0.75 }
                     })
                 });
                 if (resp.ok) {
                     const blob = await resp.blob();
                     const url = URL.createObjectURL(blob);
                     const audio = new Audio(url);
-                    await new Promise(resolve => {
-                        audio.onended = () => { URL.revokeObjectURL(url); done(); resolve(); };
-                        audio.onerror = () => { URL.revokeObjectURL(url); resolve(); };
-                        audio.play().catch(() => resolve());
+                    audio.playbackRate = Math.max(0.5, Math.min(4, rate));
+                    const played = await new Promise(resolve => {
+                        audio.onended = () => { URL.revokeObjectURL(url); resolve(true); };
+                        audio.onerror = () => { URL.revokeObjectURL(url); resolve(false); };
+                        audio.play().catch(() => resolve(false));
                     });
-                    return;
+                    if (played) { done(); return; }
+                } else {
+                    console.warn('[Zova] ElevenLabs HTTP', resp.status);
                 }
             } catch(e) {
                 console.warn('[Zova] ElevenLabs TTS failed, fallback:', e);
