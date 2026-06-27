@@ -99,7 +99,6 @@
         .hero-avatar {
             width: 180px; height: 180px;
             margin-bottom: 28px;
-            filter: drop-shadow(0 0 32px rgba(139,92,246,0.55)) drop-shadow(0 8px 24px rgba(236,72,153,0.25));
             overflow: visible;
         }
         .version-badge {
@@ -426,7 +425,8 @@
         <radialGradient id="zSpec2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(255,255,255,.95)"/><stop offset="60%" stop-color="rgba(255,255,255,.3)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
         <radialGradient id="zRim" cx="50%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(167,139,250,0)"/><stop offset="74%" stop-color="rgba(167,139,250,0)"/><stop offset="92%" stop-color="rgba(196,181,253,.35)"/><stop offset="100%" stop-color="rgba(216,202,255,.55)"/></radialGradient>
         <radialGradient id="zCore" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(10,8,30,0)"/><stop offset="70%" stop-color="rgba(10,8,30,0)"/><stop offset="100%" stop-color="rgba(8,5,22,.55)"/></radialGradient>
-        <filter id="zGL"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="zGL" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="zGlow" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="18"/></filter>
         <clipPath id="zECL"><path d="M-17,1Q-9,-11 1,-10Q14,-9 16,3Q14,11 0,12Q-13,11 -17,1Z"/></clipPath>
         <clipPath id="zECR"><path d="M17,1Q9,-11 -1,-10Q-14,-9 -16,3Q-14,11 0,12Q13,11 17,1Z"/></clipPath>
         <radialGradient id="zMI" cx="50%" cy="30%" r="80%"><stop offset="0%" stop-color="#7a2348"/><stop offset="55%" stop-color="#4a1530"/><stop offset="100%" stop-color="#2a0a1c"/></radialGradient>
@@ -436,6 +436,9 @@
         </defs>
         <!-- shadow -->
         <ellipse id="zShadow" cx="100" cy="190" rx="66" ry="8" fill="#7c3aed" opacity="0.16"/>
+        <!-- outer glow — SVG native, no CSS filter needed -->
+        <circle cx="100" cy="100" r="85" fill="rgba(139,92,246,0.38)" filter="url(#zGlow)"/>
+        <circle cx="100" cy="104" r="70" fill="rgba(236,72,153,0.15)" filter="url(#zGlow)"/>
         <g id="zFloat">
         <!-- sphere layers -->
         <circle cx="100" cy="100" r="93" fill="none" stroke="rgba(167,139,250,.15)" stroke-width="7"/>
@@ -459,7 +462,7 @@
           <g transform="translate(70,90)">
             <path d="M-17,1Q-9,-11 1,-10Q14,-9 16,3Q14,11 0,12Q-13,11 -17,1Z" fill="rgba(8,5,22,.85)"/>
             <g clip-path="url(#zECL)">
-              <circle id="zIL" cx="0" cy="1" r="12.8" fill="url(#zIA)" filter="url(#zGL)"/>
+              <circle id="zIL" cx="0" cy="1" r="12.8" fill="url(#zIA)"/>
               <circle id="zPL" cx="0" cy="1" r="7" fill="#050312"/>
               <circle cx="-4" cy="-3.5" r="3.5" fill="rgba(255,255,255,.85)"/>
               <circle cx="3.5" cy="4" r="1.8" fill="rgba(255,255,255,.4)"/>
@@ -474,7 +477,7 @@
           <g transform="translate(130,90)">
             <path d="M17,1Q9,-11 -1,-10Q-14,-9 -16,3Q-14,11 0,12Q13,11 17,1Z" fill="rgba(8,5,22,.85)"/>
             <g clip-path="url(#zECR)">
-              <circle id="zIR" cx="0" cy="1" r="12.8" fill="url(#zIA)" filter="url(#zGL)"/>
+              <circle id="zIR" cx="0" cy="1" r="12.8" fill="url(#zIA)"/>
               <circle id="zPR" cx="0" cy="1" r="7" fill="#050312"/>
               <circle cx="-4" cy="-3.5" r="3.5" fill="rgba(255,255,255,.85)"/>
               <circle cx="3.5" cy="4" r="1.8" fill="rgba(255,255,255,.4)"/>
