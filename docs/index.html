@@ -96,6 +96,12 @@
             margin-bottom: 28px;
         }
         .btn-dl:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(139,92,246,0.6); text-decoration: none; }
+        .hero-avatar {
+            width: 180px; height: 180px;
+            margin-bottom: 28px;
+            filter: drop-shadow(0 0 32px rgba(139,92,246,0.55)) drop-shadow(0 8px 24px rgba(236,72,153,0.25));
+            overflow: visible;
+        }
         .version-badge {
             display: inline-block;
             background: rgba(139,92,246,0.18);
@@ -410,18 +416,89 @@
 
 <!-- HERO -->
 <div class="hero">
-    <svg class="hero-logo" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg id="zovaHero" class="hero-avatar" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
         <defs>
-            <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#8b5cf6"/>
-                <stop offset="100%" stop-color="#ec4899"/>
-            </linearGradient>
+        <radialGradient id="zFA" cx="36%" cy="26%" r="78%"><stop offset="0%" stop-color="#4a4194"/><stop offset="38%" stop-color="#2f2870"/><stop offset="72%" stop-color="#1d184a"/><stop offset="100%" stop-color="#0f0c2e"/></radialGradient>
+        <linearGradient id="zRM" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#c4b5fd"/><stop offset="100%" stop-color="#f9a8d4"/></linearGradient>
+        <radialGradient id="zIA" cx="32%" cy="28%" r="72%"><stop offset="0%" stop-color="#fff"/><stop offset="35%" stop-color="#d8caff"/><stop offset="100%" stop-color="#8b5cf6"/></radialGradient>
+        <radialGradient id="zSP" cx="35%" cy="20%" r="45%"><stop offset="0%" stop-color="rgba(216,202,255,.18)"/><stop offset="100%" stop-color="rgba(216,202,255,0)"/></radialGradient>
+        <radialGradient id="zSpec" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(255,255,255,1)"/><stop offset="25%" stop-color="rgba(255,255,255,.85)"/><stop offset="55%" stop-color="rgba(255,255,255,.25)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
+        <radialGradient id="zSpec2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(255,255,255,.95)"/><stop offset="60%" stop-color="rgba(255,255,255,.3)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
+        <radialGradient id="zRim" cx="50%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(167,139,250,0)"/><stop offset="74%" stop-color="rgba(167,139,250,0)"/><stop offset="92%" stop-color="rgba(196,181,253,.35)"/><stop offset="100%" stop-color="rgba(216,202,255,.55)"/></radialGradient>
+        <radialGradient id="zCore" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(10,8,30,0)"/><stop offset="70%" stop-color="rgba(10,8,30,0)"/><stop offset="100%" stop-color="rgba(8,5,22,.55)"/></radialGradient>
+        <filter id="zGL"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <clipPath id="zECL"><path d="M-17,1Q-9,-11 1,-10Q14,-9 16,3Q14,11 0,12Q-13,11 -17,1Z"/></clipPath>
+        <clipPath id="zECR"><path d="M17,1Q9,-11 -1,-10Q-14,-9 -16,3Q-14,11 0,12Q13,11 17,1Z"/></clipPath>
+        <radialGradient id="zMI" cx="50%" cy="30%" r="80%"><stop offset="0%" stop-color="#7a2348"/><stop offset="55%" stop-color="#4a1530"/><stop offset="100%" stop-color="#2a0a1c"/></radialGradient>
+        <linearGradient id="zLL2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fb7185"/><stop offset="100%" stop-color="#e11d6a"/></linearGradient>
+        <linearGradient id="zLU2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#e879a8"/><stop offset="100%" stop-color="#db4d8a"/></linearGradient>
+        <radialGradient id="zVol" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(196,181,253,0)"/><stop offset="75%" stop-color="rgba(196,181,253,0)"/><stop offset="100%" stop-color="rgba(167,139,250,.25)"/></radialGradient>
         </defs>
-        <rect x="28" y="8" width="24" height="36" rx="12" fill="url(#lg)"/>
-        <path d="M16 38c0 13.3 10.7 24 24 24s24-10.7 24-24" stroke="url(#lg)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
-        <line x1="40" y1="62" x2="40" y2="72" stroke="url(#lg)" stroke-width="3.5" stroke-linecap="round"/>
-        <line x1="29" y1="72" x2="51" y2="72" stroke="url(#lg)" stroke-width="3.5" stroke-linecap="round"/>
-        <rect x="34" y="18" width="4" height="8" rx="2" fill="rgba(255,255,255,0.25)"/>
+        <!-- shadow -->
+        <ellipse id="zShadow" cx="100" cy="190" rx="66" ry="8" fill="#7c3aed" opacity="0.16"/>
+        <g id="zFloat">
+        <!-- sphere layers -->
+        <circle cx="100" cy="100" r="93" fill="none" stroke="rgba(167,139,250,.15)" stroke-width="7"/>
+        <circle id="zRing" cx="100" cy="100" r="94" fill="none" stroke="url(#zRM)" stroke-width="1.8" opacity="0.9"/>
+        <circle cx="100" cy="100" r="87" fill="none" stroke="rgba(167,139,250,.1)" stroke-width="1"/>
+        <circle cx="100" cy="100" r="85" fill="url(#zFA)"/>
+        <circle cx="100" cy="100" r="85" fill="url(#zCore)"/>
+        <circle cx="100" cy="100" r="85" fill="url(#zRim)"/>
+        <ellipse cx="82" cy="68" rx="44" ry="32" fill="url(#zSP)"/>
+        <ellipse id="zSpecMain" cx="70" cy="56" rx="26" ry="18" fill="url(#zSpec)" opacity="0.9" transform="rotate(-28,70,56)"/>
+        <circle id="zSpecHot" cx="64" cy="50" r="6" fill="url(#zSpec2)" opacity="0.95"/>
+        <!-- face — greeting expression: tilt -2.5deg, brows raised+arched, cheeks, smile -->
+        <g id="zFaceGroup" transform="rotate(-2.5,100,100)">
+          <!-- brows raised and arched (greeting) -->
+          <path id="zBrowL" d="M54,53Q67,42 81,54" stroke="#ddd6fe" stroke-width="3.8" fill="none" stroke-linecap="round" filter="url(#zGL)" opacity="1"/>
+          <path id="zBrowR" d="M119,52Q133,42 146,55" stroke="#ddd6fe" stroke-width="3.8" fill="none" stroke-linecap="round" filter="url(#zGL)" opacity="1"/>
+          <!-- cheeks (greeting: full blush) -->
+          <ellipse id="zCheekL" cx="62" cy="116" rx="14" ry="9" fill="rgba(236,72,153,0.22)" filter="url(#zGL)"/>
+          <ellipse id="zCheekR" cx="138" cy="116" rx="14" ry="9" fill="rgba(236,72,153,0.22)" filter="url(#zGL)"/>
+          <!-- left eye -->
+          <g transform="translate(70,90)">
+            <path d="M-17,1Q-9,-11 1,-10Q14,-9 16,3Q14,11 0,12Q-13,11 -17,1Z" fill="rgba(8,5,22,.85)"/>
+            <g clip-path="url(#zECL)">
+              <circle id="zIL" cx="0" cy="1" r="12.8" fill="url(#zIA)" filter="url(#zGL)"/>
+              <circle id="zPL" cx="0" cy="1" r="7" fill="#050312"/>
+              <circle cx="-4" cy="-3.5" r="3.5" fill="rgba(255,255,255,.85)"/>
+              <circle cx="3.5" cy="4" r="1.8" fill="rgba(255,255,255,.4)"/>
+            </g>
+            <path d="M-17,1Q-9,-11 1,-10Q14,-9 16,3Q14,11 0,12Q-13,11 -17,1Z" fill="none" stroke="rgba(196,181,253,.55)" stroke-width="1.4"/>
+            <!-- lid (open, greeting) -->
+            <path id="zLL" d="M-17,1Q-9,-11 1,-10Q14,-9 16,3Q0,-9 -17,1.6Z" fill="#0a0820"/>
+            <!-- squint lower (greeting: squint=0.15) -->
+            <path id="zLBL" d="M-17,4Q0,8 16,4Q0,13 -17,4Z" fill="#0a0820" opacity="1"/>
+          </g>
+          <!-- right eye -->
+          <g transform="translate(130,90)">
+            <path d="M17,1Q9,-11 -1,-10Q-14,-9 -16,3Q-14,11 0,12Q13,11 17,1Z" fill="rgba(8,5,22,.85)"/>
+            <g clip-path="url(#zECR)">
+              <circle id="zIR" cx="0" cy="1" r="12.8" fill="url(#zIA)" filter="url(#zGL)"/>
+              <circle id="zPR" cx="0" cy="1" r="7" fill="#050312"/>
+              <circle cx="-4" cy="-3.5" r="3.5" fill="rgba(255,255,255,.85)"/>
+              <circle cx="3.5" cy="4" r="1.8" fill="rgba(255,255,255,.4)"/>
+            </g>
+            <path d="M17,1Q9,-11 -1,-10Q-14,-9 -16,3Q-14,11 0,12Q13,11 17,1Z" fill="none" stroke="rgba(196,181,253,.55)" stroke-width="1.4"/>
+            <path id="zLR" d="M17,1Q9,-11 -1,-10Q-14,-9 -16,3Q0,-9 17,1.6Z" fill="#0a0820"/>
+            <path id="zLBR" d="M17,4Q0,8 -16,4Q0,13 17,4Z" fill="#0a0820" opacity="1"/>
+          </g>
+          <!-- mouth — greeting smile (mo=0.25, cheek=1) -->
+          <g transform="translate(100,127)">
+            <ellipse id="zMS" cx="0" cy="12.5" rx="20" ry="4.5" fill="rgba(0,0,0,.18)"/>
+            <path id="zMFill" d="M-18,-6Q0,-2.7 18,-6Q0,3.6 -18,-6Z" fill="url(#zMI)" opacity="0.4"/>
+            <path id="zTeeth" d="M-14.4,-1.7Q0,-3.2 14.4,-1.7L14.4,-0.2Q0,-1.7 -14.4,-0.2Z" fill="rgba(255,252,254,.95)" opacity="0.44"/>
+            <path id="zLipLower" d="M-18,-6.5Q0,3 18,-5.5Q0,11 -18,-6.5Z" fill="url(#zLL2)" opacity="0.95"/>
+            <path id="zLipUpper" d="M-18,-6.5Q-8,-6 0,-4.7Q8,-6 18,-5.5Q9,-2.7 0,-2.2Q-9,-2.7 -18,-6.5Z" fill="url(#zLU2)" opacity="0.95"/>
+            <path id="zLipShine" d="M-7,5Q0,8.5 7,5" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+            <circle id="zCL" cx="-18" cy="-6.5" r="2" fill="#e11d6a" opacity="0.9"/>
+            <circle id="zCR" cx="18" cy="-5.5" r="2" fill="#e11d6a" opacity="0.9"/>
+          </g>
+        </g>
+        <circle cx="100" cy="100" r="85" fill="url(#zVol)" opacity="0.8"/>
+        </g>
+        <!-- bottom dot — greeting color -->
+        <circle id="zDot" cx="100" cy="173" r="3" fill="#c4b5fd" opacity="0.75" filter="url(#zGL)"/>
     </svg>
 
     <h1>Zova</h1>
@@ -1227,6 +1304,44 @@
 })();
 </script>
 <button id="toTop" aria-label="↑">↑</button>
+<script>
+(function(){
+    var svg = document.getElementById('zovaHero');
+    if (!svg) return;
+    var g = function(id){ return svg.querySelector('#'+id); };
+    var t0 = null, nextBlink = 2.5, blinking = false;
+    function animate(ts){
+        if (!t0) t0 = ts;
+        var t = (ts - t0) / 1000;
+        var floatY = Math.sin(t * 0.9) * 4.5;
+        var swayX  = Math.sin(t * 0.6) * 3;
+        var rollZ  = Math.sin(t * 0.45) * 1.2;
+        var breath = 1 + Math.sin(t * 0.8) * 0.018;
+        var zf = g('zFloat');
+        if (zf) zf.setAttribute('transform','translate('+swayX+','+floatY+') rotate('+rollZ+',100,100) scale('+breath+')');
+        var lift = (floatY + 4.5) / 9;
+        var sh = g('zShadow');
+        if (sh){ sh.setAttribute('rx', 66 - lift*12); sh.setAttribute('opacity', 0.2 - lift*0.09); sh.setAttribute('cx', 100 + swayX*0.5); }
+        var sm = g('zSpecMain'); if (sm){ sm.setAttribute('cx', 70 - swayX*0.5); sm.setAttribute('cy', 56 - floatY*0.3); }
+        var sh2 = g('zSpecHot');  if (sh2){ sh2.setAttribute('cx', 64 - swayX*0.5); sh2.setAttribute('cy', 50 - floatY*0.3); }
+        var rng = g('zRing'); if (rng) rng.setAttribute('opacity', 0.7 + Math.sin(t*1.1)*0.15);
+        if (!blinking && t > nextBlink){
+            blinking = true;
+            var ll = g('zLL'), lr = g('zLR');
+            if (ll) ll.setAttribute('d','M-17,1Q-9,-11 1,-10Q14,-9 16,3Q0,11 -17,13Z');
+            if (lr) lr.setAttribute('d','M17,1Q9,-11 -1,-10Q-14,-9 -16,3Q0,11 17,13Z');
+            setTimeout(function(){
+                if (ll) ll.setAttribute('d','M-17,1Q-9,-11 1,-10Q14,-9 16,3Q0,-9 -17,1.6Z');
+                if (lr) lr.setAttribute('d','M17,1Q9,-11 -1,-10Q-14,-9 -16,3Q0,-9 17,1.6Z');
+                blinking = false;
+                nextBlink = t + 2.5 + Math.random()*2.5;
+            }, 120);
+        }
+        requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+})();
+</script>
 </body>
 </html>
 
