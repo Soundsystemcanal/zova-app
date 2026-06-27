@@ -1,4 +1,4 @@
-
+﻿
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -428,11 +428,15 @@
     <p class="hero-slogan">Ton IA. Ton téléphone. Tes règles.</p>
     <p class="hero-sub">Assistant vocal IA pour Android — sans serveur intermédiaire, sans abonnement mensuel, sans surveillance. Tes clés API restent sur ton téléphone.</p>
 
-    <span class="version-badge">✦ v4.1 — Maintenant disponible</span>
+    <span class="version-badge">✦ v5.0 — Maintenant disponible</span>
 
-    <a class="btn-dl" data-dl-apk href="https://github.com/Soundsystemcanal/zova-app/releases/download/v4.1/Zova-v4.1.apk">
-        ⬇&nbsp; Télécharger Zova v4.1
+    <a class="btn-dl" data-dl-apk href="https://github.com/Soundsystemcanal/zova-app/releases/download/v5.0/Zova-v5.0.apk">
+        ⬇&nbsp; Télécharger Zova v5.0
     </a>
+
+    <div style="margin-top:10px;font-size:0.8rem;color:var(--muted);">
+        Version précédente : <a href="https://github.com/Soundsystemcanal/zova-app/releases/download/v4.1/Zova-v4.1.apk" style="color:var(--muted);text-decoration:underline;">Zova v4.1</a>
+    </div>
 
     <div class="qr-block">
         <img src="qr-download.png" alt="QR code téléchargement Zova">
@@ -769,6 +773,26 @@
             <h3>Code PIN renforcé <span class="feat-new">v4.1</span></h3>
             <p>Ton code PIN n'est plus jamais stocké en clair : seule son empreinte chiffrée (SHA-256) est gardée. Le verrou anti-essais est protégé dans le coffre sécurisé d'Android.</p>
         </div>
+        <div class="feature-card">
+            <span class="feat-icon">🎭</span>
+            <h3>Avatar Zova animé <span class="feat-new">v5</span></h3>
+            <p>Une sphère Dark Cosmos s'anime en temps réel selon l'état de la conversation (écoute, réflexion, parole). Touche l'écran pendant qu'elle parle pour l'interrompre instantanément — avec double retour haptique.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feat-icon">🎙️</span>
+            <h3>ElevenLabs TTS haute qualité <span class="feat-new">v5</span></h3>
+            <p>Avec le pipeline Groq, remplace la voix Android par des voix de qualité studio via ElevenLabs. La voix est choisie automatiquement d'après le profil vocal de ta persona. Sans clé, la voix Android prend le relai.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feat-icon">📋</span>
+            <h3>Historial de sessions <span class="feat-new">v5</span></h3>
+            <p>Un onglet Historique dans les Statistiques liste toutes tes sessions en ordre antichronologique, groupées par jour, avec persona, durée et coût de chaque échange.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feat-icon">✨</span>
+            <h3>Onboarding &amp; mode immersif <span class="feat-new">v5</span></h3>
+            <p>Premier lancement sans clé API : un écran de bienvenue avec portrait Zova guide vers la config. En conversation : la navigation disparaît pour une expérience plein écran. Elle revient à l'arrêt.</p>
+        </div>
     </div>
 </div>
 
@@ -817,6 +841,7 @@
         </table>
     </div>
     <p class="table-note">Groq offre un quota gratuit généreux — parfait pour découvrir Zova sans frais.</p>
+    <p style="margin-top:16px;font-size:0.9rem;color:var(--muted);"><strong style="color:var(--text)">+ ElevenLabs TTS</strong> (v5) — Associe une clé ElevenLabs à Groq pipeline pour des voix de qualité studio (~$0.30/1k chars). Choisie automatiquement d'après la voix de ta persona.</p>
 </div>
 
 <hr class="sep">
@@ -863,8 +888,8 @@
 <div class="cta">
     <h2>Prêt à reprendre le contrôle ?</h2>
     <p>Tes pensées, ta voix, ton IA. Personne d'autre.</p>
-    <a class="btn-dl" data-dl-apk href="https://github.com/Soundsystemcanal/zova-app/releases/download/v4.1/Zova-v4.1.apk">
-        ⬇&nbsp; Télécharger Zova v4.1
+    <a class="btn-dl" data-dl-apk href="https://github.com/Soundsystemcanal/zova-app/releases/download/v5.0/Zova-v5.0.apk">
+        ⬇&nbsp; Télécharger Zova v5.0
     </a>
 </div>
 
@@ -876,7 +901,7 @@
         <a href="https://github.com/Soundsystemcanal/zova-app/releases" target="_blank" rel="noopener">Releases</a>
         <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Clé Groq gratuite</a>
     </div>
-    <div>Zova v4.1 &nbsp;·&nbsp; par Xavier Bourdet &nbsp;·&nbsp; <em>"Ton IA. Ton téléphone. Tes règles."</em></div>
+    <div>Zova v5.0 &nbsp;·&nbsp; par Xavier Bourdet &nbsp;·&nbsp; <em>"Ton IA. Ton téléphone. Tes règles."</em></div>
 </footer>
 
 
@@ -929,7 +954,7 @@
       hero_slogan: 'Ton IA. Ton téléphone. Tes règles.',
       hero_sub: 'Assistant vocal IA pour Android — sans serveur intermédiaire, sans abonnement mensuel, sans surveillance. Tes clés API restent sur ton téléphone.',
       hero_android: 'Exclusivement Android · Optimisé pour Xiaomi 14T',
-      hero_badge: '✦ v4.1 — Maintenant disponible',
+      hero_badge: '✦ v5.0 — Maintenant disponible',
       hero_dl: '⬇  Télécharger Zova v4.1 · 6 Mo',
       hero_qr: 'Scanner pour télécharger',
       why_title: 'Pourquoi Zova ?',
@@ -987,7 +1012,7 @@
       hero_slogan: 'Your AI. Your phone. Your rules.',
       hero_sub: 'AI voice assistant for Android — no middleman server, no monthly subscription, no tracking. Your API keys stay on your phone.',
       hero_android: 'Android only · Optimized for Xiaomi 14T',
-      hero_badge: '✦ v4.1 — Now available',
+      hero_badge: '✦ v5.0 — Now available',
       hero_dl: '⬇  Download Zova v4.1 · 6 MB',
       hero_qr: 'Scan to download',
       why_title: 'Why Zova?',
@@ -1045,7 +1070,7 @@
       hero_slogan: 'Tu IA. Tu teléfono. Tus reglas.',
       hero_sub: 'Asistente de voz IA para Android — sin servidor intermediario, sin suscripción mensual, sin vigilancia. Tus claves API se quedan en tu teléfono.',
       hero_android: 'Exclusivo para Android · Optimizado para Xiaomi 14T',
-      hero_badge: '✦ v4.1 — Disponible ahora',
+      hero_badge: '✦ v5.0 — Disponible ahora',
       hero_dl: '⬇  Descargar Zova v4.1 · 6 MB',
       hero_qr: 'Escanear para descargar',
       why_title: '¿Por qué Zova?',
@@ -1204,3 +1229,4 @@
 <button id="toTop" aria-label="↑">↑</button>
 </body>
 </html>
+

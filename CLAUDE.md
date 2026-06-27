@@ -6,7 +6,7 @@
 
 **Zova** es una app Android de voz IA con personas configurables. Single-file HTML + Capacitor. Sin backend. Voz: OpenAI Realtime / Gemini Live / Ultravox / Groq pipeline. Texto (memoria, wizard, perfil): router `chatCompletion()` con selector (Groq / OpenAI / Gemini / DeepSeek / Qwen). API keys en Android Keystore.
 
-- **App:** `buddy/www/index.html` (~11 100 líneas)  
+- **App:** `buddy/www/index.html` (~12 500 líneas)  
 - **Android:** `buddy/android/`  
 - **Icono fuente:** `buddy/assets/icon.svg` (micrófono Dark Cosmos) → compilado a `icon.png`
 - **ID:** `com.zova.voiceapp`
@@ -41,11 +41,19 @@
 ✅ Hint visuel — `#tapHint` (`<span data-i18n="tap_to_stop">`) : `opacity:0` → `0.7` via `@keyframes tapHintFade` avec `delay:1.2s` (apparaît après 1.2s de parole, pas intrusif). Trilingue (`tap_to_stop` ES/EN/FR)
 ✅ Haptics améliorés — start session : déjà `[30]` via `onStateChange` ; interrupt : `[15,50,15]`
 
-**FASEs pendientes v5:**
-- FASE 5 — Onboarding sin API (primer arranque más amigable)
-- FASE 6 — Modo inmersivo (pantalla completa durante conversación)
-- FASE 7 — ElevenLabs TTS
-- FASE 8 — Resumen de sesión + historial
+**FASE 5 — Onboarding sin API**
+✅ `showOnboarding()` — overlay al primer arranque si no hay ninguna clave : portrait Zova, 3 perks (🎭 personas / 🧠 memoria / 🆓 Groq gratis), 2 CTAs ("Configurar claves" → `openApiKeyModal()` ; "Restaurar backup" → `showImportSheet()`). Reemplaza el antiguo `customConfirm` frío. Trilingue (`onb_title/sub/perk1/perk2/perk3/start/restore` ES/EN/FR)
+
+**FASE 6 — Modo inmersivo**
+✅ `enterImmersive()` / `exitImmersive()` — `body.immersive` class + `StatusBar.hide/show` (`@capacitor/status-bar` ^8.0.2). `#bottomNav` desliza hacia abajo (transform translateY 100%), `#personaHeader` colapsa (max-height 0). Llamado en `startBtn` click / inicio de `stopConversation()`. Avatar activo crece a 300px en inmersivo.
+
+**FASE 7 — ElevenLabs TTS**
+✅ `EL_VOICE_MAP` — mapa de voces OpenAI → ElevenLabs (shimmer→Rachel, nova→Bella, alloy→Domi, echo→Josh, fable→Antoni, onyx→Arnold)
+✅ `groqSpeak()` — ElevenLabs insertado como prioridad 0 : si `getElevenLabsApiKey()` retorna clave, `POST api.elevenlabs.io/v1/text-to-speech/{voiceId}` con `eleven_turbo_v2_5` + `speed:rate` → blob MP3 → `<Audio>` element → `onended` → `done()`. Si falla → fallback Capacitor TTS (sin cambio de comportamiento)
+
+**FASE 8 — Historial de sesiones**
+✅ Tab "Historial" (4º tab) — `stats_sessions` (ES: Historial / EN: History / FR: Historique) en `#screenStatsTabBtns` y `#statsTabBtns`
+✅ `renderStats('sessions')` — lista `buddy_stats[]` en orden inverso, agrupada por día (`.hist-day` separador), cada fila `.hist-row` : avatar/inicial + nombre persona + hora · duración · coste. CSS `.hist-list/.hist-day/.hist-row/.hist-info/.hist-name/.hist-meta`
 
 ## Estado (2026-06-11)
 

@@ -506,7 +506,21 @@
             width: 100%;
             max-width: 800px;
             flex-shrink: 0;
-            transition: background 0.3s;
+            transition: background 0.3s, max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.35s, padding 0.4s, margin 0.4s;
+            max-height: 120px;
+            overflow: hidden;
+        }
+        body.immersive #personaHeader {
+            max-height: 0;
+            opacity: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        body.immersive #vizRingWrap.avatar-active {
+            height: 300px;
+            min-height: 300px;
         }
 
         #personaHeaderAvatar img,
@@ -1040,6 +1054,13 @@
             transition: color 0.3s;
         }
         .pss-line.done { color: var(--text-primary); font-weight: 500; }
+
+        .hist-list { padding: 4px 0 16px; }
+        .hist-day { font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; padding: 14px 4px 6px; }
+        .hist-row { display: flex; align-items: center; gap: 10px; padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .hist-info { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+        .hist-name { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .hist-meta { font-size: 0.72rem; color: var(--text-secondary); }
 
         .transcript-msg.ai {
             background: var(--transcript-ai);
@@ -1671,6 +1692,97 @@
             background: var(--danger);
         }
 
+        /* ── Onboarding (first-run) ── */
+        .onboarding-box {
+            background: var(--modal-bg);
+            border-radius: 22px;
+            padding: 32px 26px 26px;
+            width: 360px;
+            max-width: 92vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            box-shadow: 0 20px 60px var(--shadow);
+            animation: dialogSlideIn 0.25s ease;
+        }
+        .onb-avatar {
+            width: 88px; height: 88px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(139,92,246,0.4);
+            box-shadow: 0 0 28px rgba(139,92,246,0.35);
+            margin-bottom: 16px;
+        }
+        .onb-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            text-align: center;
+        }
+        .onb-sub {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            text-align: center;
+            line-height: 1.45;
+            margin-bottom: 20px;
+        }
+        .onb-perks {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            margin-bottom: 24px;
+        }
+        .onb-perk {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-hover);
+            border-radius: 12px;
+            padding: 9px 14px;
+            font-size: 0.82rem;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+        .onb-perk-icon { font-size: 1.1rem; flex-shrink: 0; }
+        .onb-perk strong { color: var(--accent-pink, #ec4899); }
+        .onb-actions {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .onb-btn-primary {
+            width: 100%;
+            padding: 13px;
+            border-radius: 50px;
+            border: none;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: opacity 0.15s;
+        }
+        .onb-btn-primary:hover { opacity: 0.88; }
+        .onb-btn-secondary {
+            width: 100%;
+            padding: 11px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.15s;
+        }
+        .onb-btn-secondary:hover { background: var(--bg-hover); }
+
         /* Icônes dans les boutons : gris, pas coloré */
         .icon {
             filter: grayscale(1);
@@ -2170,6 +2282,12 @@
             padding: 8px 0 max(8px, env(safe-area-inset-bottom));
             flex-shrink: 0;
             z-index: 100;
+            transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.4s;
+        }
+        body.immersive #bottomNav {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
         }
 
         .nav-tab {
@@ -2623,6 +2741,7 @@ Minimum version required to store current data is: `+i+`.
             <button data-stats-tab="periods" data-i18n="stats_periods" class="active">Períodos</button>
             <button data-stats-tab="personas" data-i18n="stats_personas">Personas</button>
             <button data-stats-tab="models" data-i18n="stats_models">Modelos</button>
+            <button data-stats-tab="sessions" data-i18n="stats_sessions">Historial</button>
         </div>
         <div id="screenStatsContent"></div>
       </div>
@@ -3186,6 +3305,7 @@ Minimum version required to store current data is: `+i+`.
                 <button data-stats-tab="periods" class="active">Périodes</button>
                 <button data-stats-tab="personas">Personas</button>
                 <button data-stats-tab="models">Modèles</button>
+                <button data-stats-tab="sessions" data-i18n="stats_sessions">Historial</button>
             </div>
             <div id="statsContent"></div>
         </div>
@@ -3350,7 +3470,7 @@ Minimum version required to store current data is: `+i+`.
             persona_new_title: 'Nuevo persona',
             persona_edit_title: 'Editar persona',
             model_using_default: 'Usar modelo por defecto',
-            stats_periods: 'Períodos', stats_personas: 'Personas', stats_models: 'Modelos',
+            stats_periods: 'Períodos', stats_personas: 'Personas', stats_models: 'Modelos', stats_sessions: 'Historial',
             config_title: 'Configuración',
             config_api_keys: 'API Keys y Modelo',
             config_my_info: 'Mis informaciones',
@@ -3508,6 +3628,13 @@ Minimum version required to store current data is: `+i+`.
             first_run_msg: '¿Tienes una copia de seguridad de una instalación anterior?',
             first_run_restore: '📁 Restaurar backup',
             first_run_setup: '🔑 Configurar claves API',
+            onb_title: '¡Bienvenido a Zova!',
+            onb_sub: 'Tu asistente de voz IA con memoria.\nSin suscripción. Sin servidor.',
+            onb_perk1: 'Habla con <strong>personas IA</strong> configurables',
+            onb_perk2: 'Memoria que <strong>evoluciona</strong> con cada conversación',
+            onb_perk3: 'Solo necesitas <strong>1 clave Groq — gratis</strong>',
+            onb_start: '✨ Empezar (Groq gratis)',
+            onb_restore: '📁 Tengo un backup',
             // Image action sheet
             img_tap: 'Toca para cambiar',
             img_title: 'Imagen del persona',
@@ -3588,7 +3715,7 @@ Minimum version required to store current data is: `+i+`.
             persona_new_title: 'New persona',
             persona_edit_title: 'Edit persona',
             model_using_default: 'Use default model',
-            stats_periods: 'Periods', stats_personas: 'Personas', stats_models: 'Models',
+            stats_periods: 'Periods', stats_personas: 'Personas', stats_models: 'Models', stats_sessions: 'History',
             config_title: 'Settings',
             config_api_keys: 'API Keys & Model',
             config_my_info: 'My information',
@@ -3746,6 +3873,13 @@ Minimum version required to store current data is: `+i+`.
             first_run_msg: 'Do you have a backup from a previous installation?',
             first_run_restore: '📁 Restore backup',
             first_run_setup: '🔑 Set up API keys',
+            onb_title: 'Welcome to Zova!',
+            onb_sub: 'Your AI voice assistant with memory.\nNo subscription. No server.',
+            onb_perk1: 'Talk to configurable <strong>AI personas</strong>',
+            onb_perk2: 'Memory that <strong>grows</strong> with every conversation',
+            onb_perk3: 'Only need <strong>1 Groq key — free</strong>',
+            onb_start: '✨ Get started (Groq free)',
+            onb_restore: '📁 I have a backup',
             // Image action sheet
             img_tap: 'Tap to change',
             img_title: 'Persona image',
@@ -3826,7 +3960,7 @@ Minimum version required to store current data is: `+i+`.
             persona_new_title: 'Nouveau persona',
             persona_edit_title: 'Modifier le persona',
             model_using_default: 'Utiliser le modèle par défaut',
-            stats_periods: 'Périodes', stats_personas: 'Personas', stats_models: 'Modèles',
+            stats_periods: 'Périodes', stats_personas: 'Personas', stats_models: 'Modèles', stats_sessions: 'Historique',
             config_title: 'Configuration',
             config_api_keys: 'Clés API & Modèle',
             config_my_info: 'Mes informations',
@@ -3984,6 +4118,13 @@ Minimum version required to store current data is: `+i+`.
             first_run_msg: 'Tu as une sauvegarde d\'une installation précédente ?',
             first_run_restore: '📁 Restaurer un backup',
             first_run_setup: '🔑 Configurer les clés API',
+            onb_title: 'Bienvenue sur Zova !',
+            onb_sub: 'Ton assistant vocal IA avec mémoire.\nSans abonnement. Sans serveur.',
+            onb_perk1: 'Parle à des <strong>personas IA</strong> configurables',
+            onb_perk2: 'Une mémoire qui <strong>évolue</strong> à chaque conversation',
+            onb_perk3: 'Une seule clé Groq suffit — <strong>gratuite</strong>',
+            onb_start: '✨ Commencer (Groq gratuit)',
+            onb_restore: '📁 J\'ai une sauvegarde',
             // Image action sheet
             img_tap: 'Appuyer pour changer',
             img_title: 'Image du persona',
@@ -4088,6 +4229,18 @@ Minimum version required to store current data is: `+i+`.
             {
                 q: 'Comment créer un assistant personnalisé ?',
                 a: 'Dans l\'onglet Personas, appuie sur <strong>+ Nouveau</strong> et choisis "Création guidée" : un assistant en 5 étapes génère la persona pour toi (sujet, ton, style, nom). Tu peux aussi configurer manuellement le nom, la voix, le modèle et le prompt système. Le bouton ✨ Évoluer permet ensuite de faire muter le prompt d\'une persona existante.'
+            },
+            {
+                q: 'À quoi servent l\'avatar animé et le mode immersif ? <span style="font-size:0.75em;color:#8b5cf6">v5</span>',
+                a: 'L\'avatar sphère de Zova anime ses états (écoute, réflexion, parole) en temps réel. <strong>Active-le</strong> dans Configuration → Avatar. Pendant qu\'elle parle, <strong>touche l\'écran</strong> pour interrompre instantanément (double vibration). Le <strong>mode immersif</strong> masque automatiquement le menu de navigation pendant la conversation pour une expérience plein écran. Il se rétablit à l\'arrêt.'
+            },
+            {
+                q: 'Comment utiliser ElevenLabs pour une voix de qualité studio ? <span style="font-size:0.75em;color:#8b5cf6">v5</span>',
+                a: 'Avec le provider <strong>Groq pipeline</strong>, tu peux remplacer la voix native Android par des voix ElevenLabs de qualité studio. Va dans Configuration → Clé API → colle ta clé ElevenLabs. Zova choisit automatiquement la voix ElevenLabs la plus proche du nom de voix de ta persona (shimmer → Rachel, nova → Bella, echo → Josh…). Sans clé, la voix Android est utilisée en secours.'
+            },
+            {
+                q: 'Comment voir l\'historique de mes sessions ? <span style="font-size:0.75em;color:#8b5cf6">v5</span>',
+                a: 'Dans l\'onglet <strong>Statistiques</strong>, un 4e onglet <em>Historique</em> liste toutes tes sessions dans l\'ordre antichronologique, groupées par jour. Chaque ligne affiche la persona, l\'heure, la durée et le coût de la session. Les autres onglets (Périodes, Personas, Modèles) donnent les totaux agrégés.'
             }
         ],
         en: [
@@ -4138,6 +4291,18 @@ Minimum version required to store current data is: `+i+`.
             {
                 q: 'How do I create a custom assistant?',
                 a: 'In the Personas tab, tap <strong>+ New</strong> and choose "Guided creation": a 5-step wizard generates the persona for you (topic, tone, style, name). You can also configure manually: name, voice, model and system prompt. The ✨ Evolve button lets you mutate an existing persona\'s prompt with a free instruction.'
+            },
+            {
+                q: 'What are the animated avatar and immersive mode? <span style="font-size:0.75em;color:#8b5cf6">v5</span>',
+                a: 'Zova\'s sphere avatar animates its states (listening, thinking, speaking) in real time. <strong>Enable it</strong> in Settings → Avatar. While it is speaking, <strong>tap the screen</strong> to interrupt instantly (double haptic). <strong>Immersive mode</strong> automatically hides the bottom navigation bar during conversations for a full-screen experience. It restores when you stop.'
+            },
+            {
+                q: 'How do I use ElevenLabs for studio-quality voice? <span style="font-size:0.75em;color:#8b5cf6">v5</span>',
+                a: 'With the <strong>Groq pipeline</strong> provider, you can replace Android\'s native TTS with ElevenLabs studio-quality voices. Go to Settings → API Key → paste your ElevenLabs key. Zova automatically selects the closest ElevenLabs voice for your persona\'s voice setting (shimmer → Rachel, nova → Bella, echo → Josh…). Without a key, the Android voice is used as fallback.'
+            },
+            {
+                q: 'How do I view my session history? <span style="font-size:0.75em;color:#8b5cf6">v5</span>',
+                a: 'In the <strong>Statistics</strong> tab, a 4th <em>History</em> tab lists all your sessions in reverse chronological order, grouped by day. Each row shows the persona, time, duration and cost. The other tabs (Periods, Personas, Models) show aggregated totals.'
             }
         ],
         es: [
@@ -4188,6 +4353,18 @@ Minimum version required to store current data is: `+i+`.
             {
                 q: '¿Cómo creo un asistente personalizado?',
                 a: 'En la pestaña Personas, pulsa <strong>+ Nuevo</strong> y elige "Creación guiada": un asistente de 5 pasos genera la persona por ti (tema, tono, estilo, nombre). También puedes configurarla manualmente: nombre, voz, modelo y prompt de sistema. El botón ✨ Evolucionar permite mutar el prompt de una persona existente con una instrucción libre.'
+            },
+            {
+                q: '¿Para qué sirven el avatar animado y el modo inmersivo? <span style="font-size:0.75em;color:#8b5cf6">v5</span>',
+                a: 'El avatar esfera de Zova anima sus estados (escuchando, pensando, hablando) en tiempo real. <strong>Actívalo</strong> en Configuración → Avatar. Mientras habla, <strong>toca la pantalla</strong> para interrumpirla al instante (doble vibración). El <strong>modo inmersivo</strong> oculta automáticamente el menú inferior durante la conversación para una experiencia a pantalla completa. Se restaura al parar.'
+            },
+            {
+                q: '¿Cómo uso ElevenLabs para una voz de calidad estudio? <span style="font-size:0.75em;color:#8b5cf6">v5</span>',
+                a: 'Con el proveedor <strong>Groq pipeline</strong>, puedes reemplazar la voz nativa de Android por voces ElevenLabs de calidad estudio. Ve a Configuración → Clave API → pega tu clave ElevenLabs. Zova elige automáticamente la voz ElevenLabs más cercana a la voz de tu persona (shimmer → Rachel, nova → Bella, echo → Josh…). Sin clave, se usa la voz Android como respaldo.'
+            },
+            {
+                q: '¿Cómo veo el historial de mis sesiones? <span style="font-size:0.75em;color:#8b5cf6">v5</span>',
+                a: 'En la pestaña <strong>Estadísticas</strong>, hay un 4º tab <em>Historial</em> que lista todas tus sesiones en orden cronológico inverso, agrupadas por día. Cada fila muestra la persona, la hora, la duración y el coste. Los otros tabs (Períodos, Personas, Modelos) muestran totales agregados.'
             }
         ]
     };
@@ -5919,6 +6096,54 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
     document.getElementById('vizRingWrap')?.addEventListener('click', () => {
         interruptSpeech();
     });
+
+    // ════════════════════════════════════════════════
+    //  FASE 6 — Modo inmersivo
+    // ════════════════════════════════════════════════
+    const _StatusBar = window.Capacitor?.Plugins?.StatusBar;
+
+    async function enterImmersive() {
+        document.body.classList.add('immersive');
+        try { await _StatusBar?.hide?.(); } catch(e) {}
+    }
+    async function exitImmersive() {
+        document.body.classList.remove('immersive');
+        try { await _StatusBar?.show?.(); } catch(e) {}
+    }
+
+    // ════════════════════════════════════════════════
+    //  FASE 5 — Onboarding (primer arranque)
+    // ════════════════════════════════════════════════
+    function showOnboarding() {
+        const zovaImg = getDefaultPersonaZova().image;
+        const overlay = document.createElement('div');
+        overlay.className = 'dialog-overlay';
+        overlay.innerHTML = `
+        <div class="onboarding-box">
+            <img class="onb-avatar" src="${zovaImg}" alt="Zova">
+            <div class="onb-title">${t('onb_title')}</div>
+            <div class="onb-sub">${t('onb_sub').replace('\n','<br>')}</div>
+            <div class="onb-perks">
+                <div class="onb-perk"><span class="onb-perk-icon">🎭</span><span>${t('onb_perk1')}</span></div>
+                <div class="onb-perk"><span class="onb-perk-icon">🧠</span><span>${t('onb_perk2')}</span></div>
+                <div class="onb-perk"><span class="onb-perk-icon">🆓</span><span>${t('onb_perk3')}</span></div>
+            </div>
+            <div class="onb-actions">
+                <button class="onb-btn-primary" id="onbStartBtn">${t('onb_start')}</button>
+                <button class="onb-btn-secondary" id="onbRestoreBtn">${t('onb_restore')}</button>
+            </div>
+        </div>`;
+        document.body.appendChild(overlay);
+        const close = () => overlay.remove();
+        overlay.querySelector('#onbStartBtn').addEventListener('click', () => {
+            close();
+            openApiKeyModal();
+        });
+        overlay.querySelector('#onbRestoreBtn').addEventListener('click', () => {
+            close();
+            showImportSheet('backupImportInput', t('config_backup'));
+        });
+    }
 
     document.getElementById('homeBtn').addEventListener('click', () => { showEmptyState(); switchTab('home'); });
 
@@ -9536,6 +9761,16 @@ STRICT rules:
     });
     // ─────────────────────────────────────────────────
 
+    // ElevenLabs voice mapping (OpenAI voice name → ElevenLabs voice ID)
+    const EL_VOICE_MAP = {
+        shimmer: '21m00Tcm4TlvDq8ikWAM', // Rachel — female, warm
+        nova:    'EXAVITQu4vr4xnSDxMaL', // Bella  — female, energetic
+        alloy:   'AZnzlk1XvdvUeBnXmlld', // Domi   — female, strong
+        echo:    'TxGEqnHWrfWFTfGW9XjX', // Josh   — male, natural
+        fable:   'ErXwobaYiN019PkySvjV', // Antoni — male, calm
+        onyx:    'VR6AewLTigWG4xSOukaG', // Arnold — male, deep
+    };
+
     async function groqSpeak(text, persona) {
         groqSpeaking = true;
         setStatus(t('status_speaking'), 'connected');
@@ -9552,7 +9787,37 @@ STRICT rules:
 
         const rate = getTtsRate();
 
-        // 1. Capacitor native TTS (Android) — uses device TTS engine
+        // 1. ElevenLabs TTS (high quality) — only if key is set
+        const elKey = await getElevenLabsApiKey();
+        if (elKey) {
+            try {
+                const voiceId = EL_VOICE_MAP[persona?.voice] || EL_VOICE_MAP.shimmer;
+                const resp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+                    method: 'POST',
+                    headers: { 'xi-api-key': elKey, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text,
+                        model_id: 'eleven_turbo_v2_5',
+                        voice_settings: { stability: 0.5, similarity_boost: 0.75, speed: rate }
+                    })
+                });
+                if (resp.ok) {
+                    const blob = await resp.blob();
+                    const url = URL.createObjectURL(blob);
+                    const audio = new Audio(url);
+                    await new Promise(resolve => {
+                        audio.onended = () => { URL.revokeObjectURL(url); done(); resolve(); };
+                        audio.onerror = () => { URL.revokeObjectURL(url); resolve(); };
+                        audio.play().catch(() => resolve());
+                    });
+                    return;
+                }
+            } catch(e) {
+                console.warn('[Zova] ElevenLabs TTS failed, fallback:', e);
+            }
+        }
+
+        // 2. Capacitor native TTS (Android device engine)
         const CapTTS = window.Capacitor?.Plugins?.TextToSpeech;
         if (IS_CAPACITOR && CapTTS) {
             try {
@@ -9564,7 +9829,7 @@ STRICT rules:
             }
         }
 
-        // 2. Web Speech API (browser / desktop)
+        // 3. Web Speech API (browser / desktop)
         if (window.speechSynthesis) {
             return new Promise(resolve => {
                 const utterance = new SpeechSynthesisUtterance(text);
@@ -9576,7 +9841,7 @@ STRICT rules:
             });
         }
 
-        // 3. Fallback — text only (no audio)
+        // 4. Fallback — text only (no audio)
         done();
     }
 
@@ -10441,6 +10706,7 @@ STRICT rules:
 
         startBtn.style.display = 'none';
         stopBtn.style.display = 'inline-block';
+        enterImmersive();
         // v2: activar anillos respirantes al iniciar conversación
         document.getElementById('vizRing1') && (document.getElementById('vizRing1').style.display = 'block');
         document.getElementById('vizRing2') && (document.getElementById('vizRing2').style.display = 'block');
@@ -11060,6 +11326,7 @@ Language: ${langName}`;
     });
 
     function stopConversation(analyzeInsights = false) {
+        exitImmersive();
         recentTranscriptContext = [];
         // Clean up Groq pipeline
         if (groqMediaRecorder && groqMediaRecorder.state !== 'inactive') {
@@ -11694,6 +11961,41 @@ Language: ${langName}`;
             });
             html += `</tbody></table></div>`;
             container.innerHTML = html;
+
+        } else if (tab === 'sessions') {
+            if (stats.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-secondary)">Aucune session enregistrée.</div>';
+                return;
+            }
+            const sorted = [...stats].reverse();
+            let lastDay = '';
+            let html = '<div class="hist-list">';
+            sorted.forEach(s => {
+                const d = new Date(s.date);
+                const day = d.toLocaleDateString(LANG === 'fr' ? 'fr-FR' : LANG === 'es' ? 'es-ES' : 'en-US', { weekday: 'short', day: 'numeric', month: 'short' });
+                const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const dur = formatDuration(s.durationSeconds || 0);
+                const cost = statCost(s);
+                const costStr = cost > 0.0001 ? `$${cost.toFixed(4)}` : '—';
+                const personas = getPersonas();
+                const p = personas.find(x => x.id === s.personaId);
+                const imgHtml = p?.image
+                    ? `<img src="${p.image}" style="width:30px;height:30px;border-radius:8px;object-fit:cover;flex-shrink:0">`
+                    : `<div style="width:30px;height:30px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0">${esc((s.personaName||'?')[0])}</div>`;
+                if (day !== lastDay) {
+                    html += `<div class="hist-day">${day}</div>`;
+                    lastDay = day;
+                }
+                html += `<div class="hist-row">
+                    ${imgHtml}
+                    <div class="hist-info">
+                        <span class="hist-name">${esc(s.personaName || '?')}</span>
+                        <span class="hist-meta">${time} · ${dur} · ${costStr}</span>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
         }
     }
 
@@ -12159,22 +12461,7 @@ Language: ${langName}`;
         }
         await initPinScreen();
         if (!await hasAnyApiKey()) {
-            const wantsRestore = await customConfirm(
-                t('first_run_msg'),
-                {
-                    title: t('first_run_title'),
-                    icon: '👋',
-                    confirmLabel: t('first_run_restore'),
-                    cancelLabel: t('first_run_setup')
-                }
-            );
-            if (wantsRestore) {
-                // Open backup import — after a successful restore the API keys
-                // will be set (if included) and the modal won't show again on next launch
-                showImportSheet('backupImportInput', t('config_backup'));
-            } else {
-                openApiKeyModal();
-            }
+            showOnboarding();
         }
     })();
 
