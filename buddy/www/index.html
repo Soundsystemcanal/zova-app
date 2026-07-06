@@ -3380,6 +3380,18 @@ Minimum version required to store current data is: `+i+`.
         typeof window.Capacitor.isNativePlatform === 'function' &&
         window.Capacitor.isNativePlatform());
 
+    // getUserMedia (écho-annulation) fait basculer Android en mode
+    // "communication" qui route par défaut vers l'écouteur — on force le
+    // haut-parleur pendant la conversation, et on restaure au stop.
+    function enableSpeakerAudio() {
+        if (!IS_CAPACITOR) return;
+        try { window.ZovaBridge && window.ZovaBridge.setSpeakerAudio(true); } catch(e) {}
+    }
+    function disableSpeakerAudio() {
+        if (!IS_CAPACITOR) return;
+        try { window.ZovaBridge && window.ZovaBridge.setSpeakerAudio(false); } catch(e) {}
+    }
+
     const SecureStore = {
         async get(key) {
             if (IS_CAPACITOR && window.Capacitor.Plugins.SecureStoragePlugin) {
@@ -8125,6 +8137,7 @@ Return ONLY the merged prompt, operational and concise, in ${langName}, STRICTLY
                 audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, sampleRate: sampleRate, channelCount: 1 }
             });
         }
+        enableSpeakerAudio();
         mediaStream = persistentStream;
         audioContext = new AudioContext({ sampleRate: sampleRate });
         sourceNode = audioContext.createMediaStreamSource(mediaStream);
@@ -9654,6 +9667,7 @@ STRICT rules:
                     audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 }
                 });
             }
+            enableSpeakerAudio();
         } catch(e) {
             setStatus(t('status_mic_required'), 'error');
             return;
@@ -11454,6 +11468,14 @@ Language: ${langName}`;
         groqAudioLevel = 0;
         releaseWakeLock();
         cancelReconnect();
+
+        // Libère le micro : sinon Android reste en mode "communication"
+        // (routage écouteur) même après la fin de la session, ce qui
+        // affecte aussi les autres apps (ex. Spotify) en arrière-plan.
+        if (mediaStream) { try { mediaStream.getTracks().forEach(t => t.stop()); } catch(e) {} }
+        mediaStream = null;
+        persistentStream = null;
+        disableSpeakerAudio();
 
         // Détecter si une conversation a eu lieu
         const hasTranscriptMessages = document.querySelectorAll('#transcript .transcript-msg').length > 0;

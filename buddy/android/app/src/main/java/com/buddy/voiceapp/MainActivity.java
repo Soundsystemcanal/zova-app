@@ -1,6 +1,7 @@
 package com.buddy.voiceapp;
 
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.view.WindowManager;
@@ -10,11 +11,15 @@ import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
 
+    private AudioManager audioManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
         PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
         if (pm != null) {
@@ -30,6 +35,18 @@ public class MainActivity extends BridgeActivity {
         // Tap widget → démarrer la conversation directement
         if (getIntent() != null && getIntent().getBooleanExtra("AUTO_START", false)) {
             triggerAutoStart(2500);
+        }
+    }
+
+    // Filet de sécurité : quand l'app passe en arrière-plan, on restaure le
+    // routage audio normal pour ne pas laisser d'autres apps (Spotify, etc.)
+    // coincées en mode "communication"/écouteur si le JS n'a pas nettoyé.
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (audioManager != null) {
+            audioManager.setSpeakerphoneOn(false);
+            audioManager.setMode(AudioManager.MODE_NORMAL);
         }
     }
 
@@ -71,6 +88,32 @@ public class MainActivity extends BridgeActivity {
 
         ZovaJSBridge(MainActivity activity) {
             this.activity = activity;
+        }
+
+        // getUserMedia (écho-annulation) fait basculer Android en mode
+        // MODE_IN_COMMUNICATION, qui route par défaut vers l'écouteur au lieu
+        // du haut-parleur — et peut affecter d'autres apps (Spotify) si on ne
+        // le restaure pas. Le JS appelle ceci au démarrage/arrêt du micro.
+        @JavascriptInterface
+        public void setSpeakerAudio(final boolean enabled) {
+            activity.runOnUiThread(() -> {
+                if (activity.audioManager == null) return;
+                if (enabled) {
+                    activity.audioManager.setMode(AudioManager.MODE_NORMAL);
+                    activity.audioManager.setSpeakerphoneOn(true);
+                    // Chromium réaffirme son propre mode audio peu après le
+                    // démarrage effectif de la piste micro — on réapplique le
+                    // haut-parleur une fois que ça s'est stabilisé.
+                    activity.getWindow().getDecorView().postDelayed(() -> {
+                        if (activity.audioManager == null) return;
+                        activity.audioManager.setMode(AudioManager.MODE_NORMAL);
+                        activity.audioManager.setSpeakerphoneOn(true);
+                    }, 400);
+                } else {
+                    activity.audioManager.setSpeakerphoneOn(false);
+                    activity.audioManager.setMode(AudioManager.MODE_NORMAL);
+                }
+            });
         }
 
         @JavascriptInterface
