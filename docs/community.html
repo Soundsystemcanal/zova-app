@@ -1,0 +1,242 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zova — Communauté</title>
+    <meta name="description" content="Rejoins la communauté Zova : partage tes personas, pose tes questions, échange des idées avec d'autres utilisateurs.">
+    <meta property="og:title" content="Zova — Communauté">
+    <meta property="og:description" content="Partage tes personas, pose tes questions, échange des idées avec d'autres utilisateurs.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/Soundsystemcanal/zova-app/main/buddy/assets/icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:       #0a0a1f;
+            --bg2:      #0f0f2e;
+            --accent:   #8b5cf6;
+            --accent2:  #ec4899;
+            --text:     #e2d9f3;
+            --muted:    #c4b8e0;
+            --border:   rgba(139,92,246,0.20);
+            --card:     rgba(15,15,46,0.85);
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background:
+                radial-gradient(ellipse at 15% 15%, rgba(139,92,246,0.13) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 85%, rgba(236,72,153,0.09) 0%, transparent 55%),
+                var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', system-ui, sans-serif;
+            line-height: 1.65;
+            overflow-x: hidden;
+        }
+        h1, h2, h3 { font-family: 'Syne', system-ui, sans-serif; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* TOPNAV */
+        .topnav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 28px;
+            background: rgba(10,10,31,0.72);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(139,92,246,0.14);
+        }
+        .topnav-logo {
+            font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.05rem;
+            letter-spacing: 0.1em;
+            background: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 50%, #ec4899 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            text-decoration: none;
+        }
+        .topnav-right { display: flex; align-items: center; gap: 16px; }
+        .nav-back { color: var(--muted); font-size: 0.8rem; font-weight: 500; }
+        .nav-back:hover { color: var(--text); text-decoration: none; }
+        .lang-switcher {
+            display: flex; gap: 2px;
+            background: rgba(139,92,246,0.08);
+            border: 1px solid rgba(139,92,246,0.22);
+            border-radius: 30px; padding: 3px;
+        }
+        .lang-btn {
+            background: none; border: none; color: var(--muted); cursor: pointer;
+            font-family: 'DM Sans', sans-serif; font-size: 0.73rem; font-weight: 500;
+            padding: 5px 14px; border-radius: 20px;
+            transition: background 0.2s, color 0.2s; letter-spacing: 0.05em;
+        }
+        .lang-btn:hover { color: var(--text); background: rgba(139,92,246,0.15); }
+        .lang-btn.lang-active {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff; font-weight: 700; box-shadow: 0 2px 12px rgba(139,92,246,0.35);
+        }
+
+        /* PAGE HEAD */
+        .page-head { padding: 120px 24px 24px; text-align: center; max-width: 760px; margin: 0 auto; }
+        .page-head h1 {
+            font-size: clamp(2.2rem, 6vw, 3rem); font-weight: 800; letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 45%, #ec4899 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            margin-bottom: 12px;
+        }
+        .page-head p { color: var(--muted); font-size: 1rem; }
+
+        /* SECTIONS */
+        .section { max-width: 900px; margin: 0 auto; padding: 24px 24px 56px; }
+
+        /* GISCUS WRAP */
+        .giscus-wrap {
+            min-height: 260px;
+            border-top: 1px solid var(--border);
+            padding-top: 32px;
+        }
+        .giscus-note {
+            font-size: 0.82rem; color: var(--muted); text-align: center;
+            margin-bottom: 24px;
+        }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--border); padding: 36px 24px; text-align: center;
+            font-size: 0.8rem; color: var(--muted);
+            display: flex; flex-direction: column; align-items: center; gap: 14px;
+        }
+        .footer-links { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
+
+        @media (max-width: 560px) {
+            .topnav { padding: 10px 16px; }
+            .topnav-right { gap: 10px; }
+            .page-head { padding-top: 100px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a href="index.html" class="topnav-logo">ZOVA</a>
+    <div class="topnav-right">
+        <a href="index.html" class="nav-back" data-i18n="nav_home">← Accueil</a>
+        <div class="lang-switcher">
+            <button class="lang-btn" data-lang="fr">FR</button>
+            <button class="lang-btn" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="es">ES</button>
+        </div>
+    </div>
+</nav>
+
+<header class="page-head">
+    <h1 data-i18n="page_title">Communauté</h1>
+    <p data-i18n="page_sub">Partage tes personas, pose tes questions, échange des idées avec d'autres utilisateurs de Zova.</p>
+</header>
+
+<div class="section">
+    <div class="giscus-wrap">
+        <p class="giscus-note" data-i18n="giscus_note">Les discussions sont hébergées via GitHub Discussions — un compte GitHub est nécessaire pour participer.</p>
+        <script src="https://giscus.app/client.js"
+            data-repo="Soundsystemcanal/zova-app"
+            data-repo-id="REPLACE_WITH_REPO_ID"
+            data-category="Comunidad"
+            data-category-id="REPLACE_WITH_CATEGORY_ID"
+            data-mapping="pathname"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="top"
+            data-theme="dark_dimmed"
+            data-lang="fr"
+            crossorigin="anonymous"
+            async>
+        </script>
+    </div>
+</div>
+
+<footer>
+    <div class="footer-links">
+        <a href="index.html" data-i18n="nav_home">← Accueil</a>
+        <a href="support.html" data-i18n="nav_guide">Guide &amp; Support</a>
+        <a href="https://github.com/Soundsystemcanal/zova-app" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <div data-i18n="footer">Zova v5.0 &nbsp;·&nbsp; par Xavier Bourdet &nbsp;·&nbsp; <em>"Ton IA. Ton téléphone. Tes règles."</em></div>
+</footer>
+
+<script>
+(function(){
+  var q  = function(s){ return document.querySelector(s); };
+  var qa = function(s){ return document.querySelectorAll(s); };
+
+  var T = {
+    fr: {
+      title: 'Zova — Communauté',
+      meta_desc: "Rejoins la communauté Zova : partage tes personas, pose tes questions, échange des idées avec d'autres utilisateurs.",
+      nav_home: '← Accueil',
+      nav_guide: 'Guide & Support',
+      page_title: 'Communauté',
+      page_sub: "Partage tes personas, pose tes questions, échange des idées avec d'autres utilisateurs de Zova.",
+      giscus_note: 'Les discussions sont hébergées via GitHub Discussions — un compte GitHub est nécessaire pour participer.',
+      footer: 'Zova v5.0  ·  par Xavier Bourdet  ·  <em>"Ton IA. Ton téléphone. Tes règles."</em>',
+      giscus_lang: 'fr'
+    },
+    en: {
+      title: 'Zova — Community',
+      meta_desc: 'Join the Zova community: share your personas, ask questions, exchange ideas with other users.',
+      nav_home: '← Home',
+      nav_guide: 'Guide & Support',
+      page_title: 'Community',
+      page_sub: 'Share your personas, ask questions, exchange ideas with other Zova users.',
+      giscus_note: 'Discussions are hosted via GitHub Discussions — a GitHub account is required to participate.',
+      footer: 'Zova v5.0  ·  by Xavier Bourdet  ·  <em>"Your AI. Your phone. Your rules."</em>',
+      giscus_lang: 'en'
+    },
+    es: {
+      title: 'Zova — Comunidad',
+      meta_desc: 'Únete a la comunidad Zova: comparte tus personas, haz preguntas, intercambia ideas con otros usuarios.',
+      nav_home: '← Inicio',
+      nav_guide: 'Guía y Soporte',
+      page_title: 'Comunidad',
+      page_sub: 'Comparte tus personas, haz preguntas, intercambia ideas con otros usuarios de Zova.',
+      giscus_note: 'Las discusiones se alojan vía GitHub Discussions — se necesita una cuenta de GitHub para participar.',
+      footer: 'Zova v5.0  ·  por Xavier Bourdet  ·  <em>"Tu IA. Tu teléfono. Tus reglas."</em>',
+      giscus_lang: 'es'
+    }
+  };
+
+  function setGiscusLang(lang) {
+    var iframe = q('iframe.giscus-frame');
+    if (!iframe) return;
+    iframe.contentWindow.postMessage({ giscus: { setConfig: { lang: lang } } }, 'https://giscus.app');
+  }
+
+  function applyLang(l) {
+    var t = T[l] || T.fr;
+    document.title = t.title;
+    document.documentElement.lang = l;
+    var m = q('meta[name="description"]'); if (m) m.content = t.meta_desc;
+
+    qa('[data-i18n]').forEach(function(el){
+      var k = el.getAttribute('data-i18n');
+      if (t[k] !== undefined) el.innerHTML = t[k];
+    });
+
+    qa('.lang-btn').forEach(function(b){ b.classList.toggle('lang-active', b.dataset.lang === l); });
+    setGiscusLang(t.giscus_lang);
+  }
+
+  var stored = localStorage.getItem('zova_lang');
+  var raw = stored || navigator.language || navigator.userLanguage || 'fr';
+  var lang = raw.toLowerCase().indexOf('es') === 0 ? 'es' : raw.toLowerCase().indexOf('en') === 0 ? 'en' : 'fr';
+
+  document.addEventListener('DOMContentLoaded', function(){
+    qa('.lang-btn').forEach(function(b){
+      b.addEventListener('click', function(){ localStorage.setItem('zova_lang', b.dataset.lang); applyLang(b.dataset.lang); });
+    });
+    applyLang(lang);
+  });
+})();
+</script>
+</body>
+</html>
