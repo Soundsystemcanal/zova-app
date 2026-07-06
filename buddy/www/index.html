@@ -5549,6 +5549,68 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
 </g>
 <circle id="zDot" cx="100" cy="173" r="3" fill="#8b5cf6" opacity="0.5" filter="url(#zGL)"/>`;
 
+    // ════════════════════════════════════════════════
+    //  Visèmes phonétiques — lip-sync piloté par le texte
+    // ════════════════════════════════════════════════
+    const VISEMES = {
+        0:  { w: 1,    open: 0,    vowel: .5 },
+        1:  { w: 1.15, open: 0.75, vowel: 1   },   // AH (a)
+        2:  { w: 1.35, open: 0.2,  vowel: 0   },   // EE (e,i)
+        3:  { w: 0.9,  open: 0.55, vowel: 0.6 },   // OH (o)
+        4:  { w: 0.65, open: 0.35, vowel: 0.4 },   // OO (u)
+        5:  { w: 0.5,  open: 0,    vowel: 0   },   // MBP (m,b,p)
+        6:  { w: 0.95, open: 0.1,  vowel: 0.2 },   // FV (f,v)
+        7:  { w: 1.0,  open: 0.3,  vowel: 0.5 },   // L
+        8:  { w: 0.88, open: 0.25, vowel: 0.3 },   // CDKNRSZ
+        9:  { w: 0.92, open: 0.2,  vowel: 0.3 },   // TH (t)
+        10: { w: 0.7,  open: 0.3,  vowel: 0.4 },   // WQ (w,q,y)
+    };
+    const CHAR_TO_VISEME = (() => {
+        const m = new Array(256).fill(0);
+        'aA'.split('').forEach(c => m[c.charCodeAt(0)] = 1);
+        'eEiI'.split('').forEach(c => m[c.charCodeAt(0)] = 2);
+        'oO'.split('').forEach(c => m[c.charCodeAt(0)] = 3);
+        'uU'.split('').forEach(c => m[c.charCodeAt(0)] = 4);
+        'mbpMBP'.split('').forEach(c => m[c.charCodeAt(0)] = 5);
+        'fvFV'.split('').forEach(c => m[c.charCodeAt(0)] = 6);
+        'lL'.split('').forEach(c => m[c.charCodeAt(0)] = 7);
+        'cdknrsCDKNRSzZgG'.split('').forEach(c => m[c.charCodeAt(0)] = 8);
+        'tT'.split('').forEach(c => m[c.charCodeAt(0)] = 9);
+        'wqyWQ'.split('').forEach(c => m[c.charCodeAt(0)] = 10);
+        'hjHJ'.split('').forEach(c => m[c.charCodeAt(0)] = 1);
+        return m;
+    })();
+    let visemeTrack = [];
+    let visemeStartT = 0;
+    let visemeEndT = 0;
+    function buildVisemeTrack(text) {
+        if (!text) return [];
+        const rate = /[éèêëàâçîïôùûü]/i.test(text) ? 15 : 13;
+        const track = [];
+        [...text].forEach((ch, i) => {
+            const code = ch.charCodeAt(0);
+            const v = code < 256 ? CHAR_TO_VISEME[code] : 0;
+            if (v > 0) track.push({ t: i / rate, v });
+        });
+        return track;
+    }
+    function startVisemes(text, durationSec) {
+        visemeTrack = buildVisemeTrack(text);
+        visemeStartT = performance.now() / 1000;
+        visemeEndT = visemeStartT + (durationSec || (text.length / 13));
+    }
+    function stopVisemes() { visemeTrack = []; visemeEndT = 0; }
+    function getCurrentViseme() {
+        if (!visemeTrack.length) return 0;
+        const t = performance.now() / 1000;
+        if (t < visemeStartT || t > visemeEndT) return 0;
+        const localT = t - visemeStartT;
+        for (let i = visemeTrack.length - 1; i >= 0; i--) {
+            if (visemeTrack[i].t <= localT) return visemeTrack[i].v;
+        }
+        return 0;
+    }
+
     function createZovaAvatar(stageEl) {
         const g = id => stageEl.querySelector('#' + id);
         const lrp = (a, b, t) => a + (b - a) * t;
@@ -5556,7 +5618,7 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         let avState = 'idle', level = 0, rph = 0;
         let bkT = null, bkTL = 0, bkTR = 0, nodT = null, gzT = null;
 
-        let ip = {mo:0,bll:0,blr:0,bfl:0,bfr:0,is:1,ps:1,ro:.4,rr:92,bkL:0,bkR:0,gx:0,gy:0,tilt:0,cheek:0,squint:0,nod:0,bcurv:0,bang:0};
+        let ip = {mo:0,bll:0,blr:0,bfl:0,bfr:0,is:1,ps:1,ro:.4,rr:92,bkL:0,bkR:0,gx:0,gy:0,tilt:0,cheek:0,squint:0,nod:0,bcurv:0,bang:0,_vowel:.5,_mwidth:1};
         const tg = {...ip};
 
         const EXPR = {
@@ -5594,10 +5656,21 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         }
 
         function interpolate() {
-            if (avState === 'speaking') { const t = performance.now()/1000; const o = Math.abs(Math.sin(t*8))*.4+Math.abs(Math.sin(t*5.3+1.2))*.28+Math.abs(Math.sin(t*12+.5))*.1; tg.mo = .12+o*.4+level*.4; }
+            if (avState === 'speaking') {
+                const v = getCurrentViseme();
+                if (v > 0 && visemeTrack.length) {
+                    const vis = VISEMES[v];
+                    tg.mo = vis.open * (0.4 + level * 0.6);
+                    tg._vowel = vis.vowel;
+                    tg._mwidth = vis.w;
+                } else {
+                    const t = performance.now()/1000; const o = Math.abs(Math.sin(t*8))*.4+Math.abs(Math.sin(t*5.3+1.2))*.28+Math.abs(Math.sin(t*12+.5))*.1; tg.mo = .12+o*.4+level*.4;
+                    tg._vowel = .5; tg._mwidth = 1;
+                }
+            }
             if (avState === 'listening') tg.mo = level*.12;
             tg.bkL = bkTL; tg.bkR = bkTR;
-            const spd = {mo:.14,bll:.08,blr:.08,bfl:.08,bfr:.08,is:.07,ps:.07,ro:.06,rr:.06,bkL:.35,bkR:.35,gx:.1,gy:.1,tilt:.05,cheek:.06,squint:.1,nod:.12,bcurv:.07,bang:.07};
+            const spd = {mo:.18,bll:.08,blr:.08,bfl:.08,bfr:.08,is:.07,ps:.07,ro:.06,rr:.06,bkL:.35,bkR:.35,gx:.1,gy:.1,tilt:.05,cheek:.06,squint:.1,nod:.12,bcurv:.07,bang:.07};
             for (const k in ip) ip[k] = lrp(ip[k], tg[k] ?? ip[k], spd[k] || .1);
         }
 
@@ -5646,8 +5719,9 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
             g('zLBR')?.setAttribute('d', `M17,4Q0,${9-sq} -16,4Q0,13 17,4Z`);
             const op = Math.max(0, Math.min(1, ip.mo)), smile = Math.max(0, Math.min(1, ip.cheek));
             const t2 = performance.now()/1000;
-            const vowel = avState === 'speaking' ? (Math.sin(t2*6.5)*.5+.5) : .5;
-            const w = 19*(.85+vowel*.2);
+            const vowel = avState === 'speaking' ? (ip._vowel ?? (Math.sin(t2*6.5)*.5+.5)) : .5;
+            const mwidth = ip._mwidth ?? 1;
+            const w = 19*(.85+vowel*.2)*mwidth;
             const cyL = -smile*5.5-smile*1, cyR = -smile*5.5;
             const gap = op*15, upBot = -gap*.45-smile, loTop = gap*.55;
             if (op > .05) {
@@ -9804,10 +9878,13 @@ STRICT rules:
         addTranscriptMessage(persona ? persona.name : 'Zova', text, 'ai');
         scrollTranscript();
 
+        startVisemes(text, text.length / 13);
+
         const lang = getTtsLang();
 
         const done = () => {
             groqSpeaking = false;
+            stopVisemes();
             setStatus(t('status_connected'), 'connected');
             if (isConnected) groqStartListening(persona);
         };
