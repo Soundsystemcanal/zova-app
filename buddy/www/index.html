@@ -5946,6 +5946,9 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
     async function requestWakeLock() {
         // Fix C: démarrer/redémarrer le heartbeat dès qu'on est en conversation active
         if (shouldReconnect) startHeartbeat();
+        // Maintien natif (WakeLock CPU + service réseau + écran) — SEULEMENT
+        // pendant une conversation, plus au démarrage de l'app (drain batterie).
+        try { window.ZovaBridge && window.ZovaBridge.startConversationHold(); } catch(e) {}
         if ('wakeLock' in navigator) {
             try {
                 wakeLock = await navigator.wakeLock.request('screen');
@@ -5963,6 +5966,8 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
     function releaseWakeLock() {
         if (wakeLock) { wakeLock.release().catch(()=>{}); wakeLock = null; }
         stopHeartbeat();
+        // Libère le maintien natif (WakeLock CPU + service + écran)
+        try { window.ZovaBridge && window.ZovaBridge.stopConversationHold(); } catch(e) {}
     }
     // Fix B: visibilitychange vérifie ws.readyState réel, pas isConnected périmé
     document.addEventListener('visibilitychange', () => {
@@ -9512,6 +9517,7 @@ STRICT rules:
     async function connectTranslate(persona) {
         const apiKey = await getApiKey();
         if (!apiKey) return;
+        requestWakeLock();
         const url = `wss://api.openai.com/v1/realtime/translations?model=gpt-realtime-translate`;
 
         closePrevWs();
@@ -9586,6 +9592,7 @@ STRICT rules:
         const geminiKey = await getGeminiApiKey();
         if (!geminiKey) return;
         shouldReconnect = true;
+        requestWakeLock();
         const url = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${geminiKey}`;
 
         closePrevWs();
@@ -10198,6 +10205,7 @@ STRICT rules:
     async function connectWhisper() {
         const apiKey = await getApiKey();
         if (!apiKey) return;
+        requestWakeLock();
         setStatus(t('status_connecting'), 'connected');
 
         // 1. Créer une session de transcription et obtenir un token
@@ -10284,6 +10292,7 @@ STRICT rules:
                 return;
             }
         }
+        requestWakeLock();
         isConnected = true;
         micReady = true;
         setStatus(t('status_connected'), 'connected');

@@ -12,22 +12,19 @@ import com.getcapacitor.BridgeActivity;
 public class MainActivity extends BridgeActivity {
 
     private AudioManager audioManager;
+    private PowerManager.WakeLock convWakeLock; // acquis SEULEMENT pendant une conversation active
+    private boolean serviceRunning = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        // NB : pas de FLAG_KEEP_SCREEN_ON ni de WakeLock/ForegroundService ici.
+        // Ils étaient permanents (drain batterie en veille) → désormais liés à la
+        // conversation active via startConversationHold()/stopConversationHold(),
+        // appelés par le JS dans requestWakeLock()/releaseWakeLock().
 
         audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-
-        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-        if (pm != null) {
-            PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Zova::AppActive");
-            wl.acquire(8 * 60 * 60 * 1000L);
-        }
-
-        startForegroundService(new Intent(this, ZovaForegroundService.class));
 
         // Bridge JS→Android : mise à jour widget + lecture persona active
         getBridge().getWebView().addJavascriptInterface(new ZovaJSBridge(this), "ZovaBridge");
@@ -36,6 +33,44 @@ public class MainActivity extends BridgeActivity {
         if (getIntent() != null && getIntent().getBooleanExtra("AUTO_START", false)) {
             triggerAutoStart(2500);
         }
+    }
+
+    // Maintien pendant une conversation : WakeLock CPU + service au premier plan
+    // (réseau non throttlé) + écran allumé. Idempotent.
+    void startConversationHold() {
+        runOnUiThread(() -> {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            if (convWakeLock == null) {
+                PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+                if (pm != null) convWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Zova::Conversation");
+            }
+            if (convWakeLock != null && !convWakeLock.isHeld()) {
+                convWakeLock.acquire(4 * 60 * 60 * 1000L); // garde-fou : 4 h max
+            }
+            if (!serviceRunning) {
+                try { startForegroundService(new Intent(this, ZovaForegroundService.class)); serviceRunning = true; } catch (Exception e) {}
+            }
+        });
+    }
+
+    void stopConversationHold() {
+        runOnUiThread(() -> {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            if (convWakeLock != null && convWakeLock.isHeld()) {
+                try { convWakeLock.release(); } catch (Exception e) {}
+            }
+            if (serviceRunning) {
+                try { stopService(new Intent(this, ZovaForegroundService.class)); } catch (Exception e) {}
+                serviceRunning = false;
+            }
+        });
+    }
+
+    // Filet de sécurité : si l'activité est détruite en pleine session, on libère.
+    @Override
+    public void onDestroy() {
+        stopConversationHold();
+        super.onDestroy();
     }
 
     // Filet de sécurité : quand l'app passe en arrière-plan, on restaure le
@@ -89,6 +124,14 @@ public class MainActivity extends BridgeActivity {
         ZovaJSBridge(MainActivity activity) {
             this.activity = activity;
         }
+
+        // Maintien pendant une conversation (WakeLock CPU + service réseau +
+        // écran allumé). Appelés depuis requestWakeLock()/releaseWakeLock() en JS.
+        @JavascriptInterface
+        public void startConversationHold() { activity.startConversationHold(); }
+
+        @JavascriptInterface
+        public void stopConversationHold() { activity.stopConversationHold(); }
 
         // getUserMedia (écho-annulation) fait basculer Android en mode
         // MODE_IN_COMMUNICATION, qui route par défaut vers l'écouteur au lieu

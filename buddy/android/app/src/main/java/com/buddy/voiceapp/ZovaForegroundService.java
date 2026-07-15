@@ -11,7 +11,8 @@ import androidx.core.app.NotificationCompat;
 
 /**
  * Foreground Service — empêche MIUI/Android de throttler le réseau en mode économie d'énergie.
- * Démarré dans MainActivity.onCreate(), arrêté dans onDestroy().
+ * Démarré/arrêté par MainActivity.start/stopConversationHold() (uniquement pendant
+ * une conversation active, plus au lancement de l'app → économie de batterie en veille).
  * La présence de ce service + notification indique à l'OS que l'app est "active"
  * et doit conserver ses connexions réseau (WebSocket IA).
  */
@@ -35,7 +36,15 @@ public class ZovaForegroundService extends Service {
             stopSelf();
             return START_NOT_STICKY;
         }
-        return START_STICKY;
+        // NON sticky : le cycle de vie est piloté explicitement par le JS
+        // (start/stop hold). Pas de redémarrage auto après stopService().
+        return START_NOT_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        stopForeground(STOP_FOREGROUND_REMOVE); // retire la notification
+        super.onDestroy();
     }
 
     @Override
