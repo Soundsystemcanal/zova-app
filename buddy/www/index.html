@@ -575,6 +575,7 @@
         }
 
         .btn-edit-persona:hover { color: var(--accent); border-color: var(--accent); }
+        .btn-edit-persona.eco-active { color: #34d399; border-color: #34d399; }
 
         #insightsPersonaBtn {
             background: rgba(139,92,246,0.18);
@@ -2673,6 +2674,8 @@ Minimum version required to store current data is: `+i+`.
                       <div id="personaHeaderDesc"></div>
                       <div id="v2LocalPill" aria-hidden="true"><span class="dot"></span><span>LOCAL</span></div>
                   </div>
+                  <button class="btn-edit-persona" id="transcripteurEcoBtn" title="Mode économique" style="display:none"><span class="icon">💎</span></button>
+                  <button class="btn-edit-persona" id="transcripteurImportBtn" title="Importer un audio" style="display:none"><span class="icon">📥</span></button>
                   <button class="btn-edit-persona" id="chaptersPersonaBtn" title="Chapitres" style="display:none"><span class="icon">📑</span></button>
                   <button class="btn-edit-persona" id="insightsPersonaBtn" title="Insights"><span class="icon">📊</span></button>
                   <button class="btn-edit-persona" id="duplicatePersonaBtn" title="Duplicar"><span class="icon">&#10697;</span></button>
@@ -3062,16 +3065,6 @@ Minimum version required to store current data is: `+i+`.
 
                         <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
 
-                        <!-- ⚡ Groq réponses -->
-                        <label for="modelGroqSelect">⚡ Groq — réponses rapides</label>
-                        <div class="hint" style="margin-bottom:8px">Modèle LLM du pipeline Groq (STT → LLM → TTS).</div>
-                        <select id="modelGroqSelect" class="model-action-select">
-                            <option value="openai/gpt-oss-120b">🟡 GPT-OSS 120B — équilibré (~$0.001/min)</option>
-                            <option value="openai/gpt-oss-20b">🟢 GPT-OSS 20B — économique (~$0.0005/min)</option>
-                        </select>
-
-                        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
-
                         <!-- 🌐 OpenRouter voix -->
                         <label for="modelOpenrouterSelect">🌐 OpenRouter — modèle voix</label>
                         <div class="hint" style="margin-bottom:8px">LLM du pipeline voix quand le provider "OpenRouter" est sélectionné (STT Groq → LLM OpenRouter → TTS). Nécessite les clés Groq + OpenRouter.</div>
@@ -3104,16 +3097,6 @@ Minimum version required to store current data is: `+i+`.
                             <optgroup label="OpenRouter">
                                 <option value="openrouter">🌍 OpenRouter — modèle voix ci-dessus</option>
                             </optgroup>
-                        </select>
-
-                        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
-
-                        <!-- 📝 Insights -->
-                        <label for="modelInsightSelect">📝 Résumés &amp; Insights</label>
-                        <div class="hint" style="margin-bottom:8px">Modèle pour générer les résumés et analyses de conversations.</div>
-                        <select id="modelInsightSelect" class="model-action-select">
-                            <option value="openai/gpt-oss-20b">🟢 GPT-OSS 20B — économique ($0.075/M tokens)</option>
-                            <option value="openai/gpt-oss-120b">🟡 GPT-OSS 120B — équilibré ($0.15/M tokens)</option>
                         </select>
                     </div>
 
@@ -3360,6 +3343,31 @@ Minimum version required to store current data is: `+i+`.
     </div>
 
     <!-- ════════════════════════════════════════
+         MODAL : Import audio → transcription + résumé
+         ════════════════════════════════════════ -->
+    <div class="modal-overlay" id="audioImportModal">
+        <div class="modal" style="position:relative;max-width:560px">
+            <button class="modal-close" id="closeAudioImportBtn">&times;</button>
+            <h2 data-i18n="audio_import_title">Audio importé</h2>
+            <div id="audioImportLoading" style="text-align:center;padding:28px 0">
+                <div class="hint" id="audioImportLoadingText" data-i18n="audio_import_loading">Transcription en cours…</div>
+            </div>
+            <div id="audioImportResult" style="display:none">
+                <div class="hint" id="audioImportMeta" style="margin-bottom:10px"></div>
+                <label data-i18n="audio_import_summary_label">Résumé</label>
+                <div id="audioImportSummary" class="api-guide" style="white-space:pre-wrap"></div>
+                <label data-i18n="audio_import_transcript_label">Transcription complète</label>
+                <textarea id="audioImportTranscript" readonly style="min-height:160px;font-size:0.82rem"></textarea>
+                <div style="display:flex;gap:8px;margin-top:12px">
+                    <button class="btn-small" id="audioImportCopyBtn"><span class="icon">&#128203;</span> <span data-i18n="btn_copy">Copier</span></button>
+                    <button class="btn-small" id="audioImportExportBtn"><span class="icon">&#128196;</span> <span data-i18n="btn_export">Exporter</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="file" accept="audio/*" id="audioImportInput" style="display:none">
+
+    <!-- ════════════════════════════════════════
          MODAL : Statistiques
          ════════════════════════════════════════ -->
     <div class="modal-overlay" id="statsModal">
@@ -3526,6 +3534,15 @@ Minimum version required to store current data is: `+i+`.
             btn_new_persona: '+ Nuevo persona',
             btn_start: 'Iniciar conversación',
             btn_start_transcribe: 'Iniciar transcripción',
+            eco_mode_on: '💰 Modo económico activado (Groq, ~$0.04/h)',
+            eco_mode_off: '💎 Modo estándar (OpenAI, ~$1/h) — toca para cambiar a económico',
+            audio_import_title: 'Audio importado',
+            audio_import_loading: 'Transcribiendo y resumiendo…',
+            audio_import_summary_label: 'Resumen',
+            audio_import_transcript_label: 'Transcripción completa',
+            audio_import_too_large: 'El archivo supera el límite de 25 MB de la API de Groq.',
+            audio_import_empty: 'No se detectó voz en el audio.',
+            audio_import_error: 'Error al procesar el audio',
             btn_stop: 'Terminar',
             btn_save: 'Guardar',
             btn_cancel: 'Cancelar',
@@ -3772,6 +3789,15 @@ Minimum version required to store current data is: `+i+`.
             btn_new_persona: '+ New persona',
             btn_start: 'Start conversation',
             btn_start_transcribe: 'Start transcription',
+            eco_mode_on: '💰 Economy mode on (Groq, ~$0.04/h)',
+            eco_mode_off: '💎 Standard mode (OpenAI, ~$1/h) — tap to switch to economy',
+            audio_import_title: 'Imported audio',
+            audio_import_loading: 'Transcribing and summarizing…',
+            audio_import_summary_label: 'Summary',
+            audio_import_transcript_label: 'Full transcript',
+            audio_import_too_large: 'File exceeds the Groq API 25 MB limit.',
+            audio_import_empty: 'No speech detected in the audio.',
+            audio_import_error: 'Error processing audio',
             btn_stop: 'End',
             btn_save: 'Save',
             btn_cancel: 'Cancel',
@@ -4018,6 +4044,15 @@ Minimum version required to store current data is: `+i+`.
             btn_new_persona: '+ Nouveau persona',
             btn_start: 'Démarrer la conversation',
             btn_start_transcribe: 'Démarrer la transcription',
+            eco_mode_on: '💰 Mode économique activé (Groq, ~$0.04/h)',
+            eco_mode_off: '💎 Mode standard (OpenAI, ~$1/h) — appuyer pour passer en économique',
+            audio_import_title: 'Audio importé',
+            audio_import_loading: 'Transcription et résumé en cours…',
+            audio_import_summary_label: 'Résumé',
+            audio_import_transcript_label: 'Transcription complète',
+            audio_import_too_large: 'Le fichier dépasse la limite de 25 Mo de l\'API Groq.',
+            audio_import_empty: 'Aucune voix détectée dans l\'audio.',
+            audio_import_error: 'Erreur lors du traitement de l\'audio',
             btn_stop: 'Terminer',
             btn_save: 'Sauvegarder',
             btn_cancel: 'Annuler',
@@ -5211,15 +5246,28 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         'gpt-realtime-translate': { input: 0.032, output: 0.064 },
         'gemini-3.1-flash-live-preview': { input: 0.003, output: 0.012 },
         'gpt-realtime-whisper': { perMinute: 0.017 },
+        'whisper-eco': { perMinute: 0.000667 }, // Groq whisper-large-v3-turbo ~$0.04/h
         'ultravox-70b': { perMinute: 0.005 },
         'ultravox-8b':  { perMinute: 0.002 },
         'groq-70b': { perMinute: 0.001 },
         'groq-8b':  { perMinute: 0.0005 },
-        // Estimación media por tokens — el precio real varía según el modelo OpenRouter
+        // Modelos OpenRouter — precio real por token (openrouter.ai/api/v1/models, $/1K tokens)
+        'anthropic/claude-haiku-4.5':  { input: 0.001,   output: 0.005   },
+        'anthropic/claude-sonnet-5':   { input: 0.002,   output: 0.01    },
+        'openai/gpt-4o-mini':          { input: 0.00015, output: 0.0006 },
+        'google/gemini-2.5-flash':     { input: 0.0003,  output: 0.0025 },
+        'meta-llama/llama-4-maverick': { input: 0.0002,  output: 0.0008 },
+        'deepseek/deepseek-chat-v3.1': { input: 0.00025, output: 0.00095},
+        // Repli si el modelo OpenRouter no está en la lista curada (campo libre)
         'openrouter': { input: 0.001, output: 0.003 }
     };
 
     const TRANSCRIPTEUR_ID = '__transcripteur__';
+
+    // Mode économique du Transcripteur : Groq Whisper par blocs (~$0.04/h)
+    // au lieu d'OpenAI Realtime streaming (~$1/h). Choix persistant.
+    function getTranscripteurEco() { return localStorage.getItem('buddy_transcripteurEco') === '1'; }
+    function setTranscripteurEco(v) { localStorage.setItem('buddy_transcripteurEco', v ? '1' : '0'); }
 
     function getProviderForModel(model) {
         if (model && model.startsWith('gemini')) return 'gemini';
@@ -7781,6 +7829,8 @@ Return ONLY the merged prompt, operational and concise, in ${langName}, STRICTLY
         const trTop = document.getElementById('transcripteurTop');
         if (trTop) trTop.remove();
         document.getElementById('startBtn').textContent = t('btn_start');
+        document.getElementById('transcripteurEcoBtn').style.display = 'none';
+        document.getElementById('transcripteurImportBtn').style.display = 'none';
 
         setActiveId(id);
         notifyWidget(id);
@@ -7856,6 +7906,12 @@ Return ONLY the merged prompt, operational and concise, in ${langName}, STRICTLY
         document.getElementById('insightsPersonaBtn').style.display = 'none';
         document.getElementById('chaptersPersonaBtn').style.display = 'none';
 
+        // Toggle mode économique (Groq Whisper) — modifiable tant que la session n'est pas démarrée
+        const ecoBtn = document.getElementById('transcripteurEcoBtn');
+        ecoBtn.style.display = 'inline-flex';
+        updateTranscripteurEcoBtn();
+        document.getElementById('transcripteurImportBtn').style.display = 'inline-flex';
+
         // Créer le layout horizontal : fiche à gauche, visualiseur à droite
         let trTop = document.getElementById('transcripteurTop');
         if (!trTop) {
@@ -7888,6 +7944,21 @@ Return ONLY the merged prompt, operational and concise, in ${langName}, STRICTLY
         updateTokenCounter();
     }
 
+    function updateTranscripteurEcoBtn() {
+        const btn = document.getElementById('transcripteurEcoBtn');
+        if (!btn) return;
+        const eco = getTranscripteurEco();
+        btn.querySelector('.icon').textContent = eco ? '💰' : '💎';
+        btn.title = eco ? t('eco_mode_on') : t('eco_mode_off');
+        btn.classList.toggle('eco-active', eco);
+    }
+
+    document.getElementById('transcripteurEcoBtn').addEventListener('click', () => {
+        if (isConnected) return; // ne pas changer de mode en pleine session
+        setTranscripteurEco(!getTranscripteurEco());
+        updateTranscripteurEcoBtn();
+    });
+
     function showEmptyState() {
         // Restaurer le canvas utilisateur si déplacé par le transcripteur
         restoreTranscripteurLayout();
@@ -7896,6 +7967,8 @@ Return ONLY the merged prompt, operational and concise, in ${langName}, STRICTLY
         const trTop = document.getElementById('transcripteurTop');
         if (trTop) trTop.remove();
         document.getElementById('startBtn').textContent = t('btn_start');
+        document.getElementById('transcripteurEcoBtn').style.display = 'none';
+        document.getElementById('transcripteurImportBtn').style.display = 'none';
 
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('conversationArea').style.display = 'none';
@@ -9321,7 +9394,8 @@ STRICT rules:
         setStatus(t('status_connecting'));
 
         if (isTranscripteurMode) {
-            connectWhisper();
+            if (activeModelId === 'whisper-eco') connectWhisperEco();
+            else connectWhisper();
             return;
         }
 
@@ -10189,6 +10263,200 @@ STRICT rules:
         };
     }
 
+    // ════════════════════════════════════════════════
+    //  TRANSCRIPTEUR ÉCO — Groq Whisper par blocs (~$0.04/h)
+    //  Alternative économique au streaming OpenAI Realtime ci-dessus.
+    // ════════════════════════════════════════════════
+
+    let whisperEcoRecorder = null;
+    let whisperEcoActive = false;
+    let whisperEcoChunks = [];
+    const WHISPER_ECO_CHUNK_MS = 12000; // compromis latence d'affichage / overhead d'appels API
+
+    async function connectWhisperEco() {
+        if (!mediaStream || !mediaStream.active) {
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({
+                    audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 }
+                });
+            } catch (e) {
+                setStatus(t('status_mic_required'), 'error');
+                return;
+            }
+        }
+        isConnected = true;
+        micReady = true;
+        setStatus(t('status_connected'), 'connected');
+        whisperEcoActive = true;
+        whisperEcoRecordLoop();
+    }
+
+    function whisperEcoRecordLoop() {
+        if (!whisperEcoActive || !isConnected) return;
+        if (isPaused || !mediaStream || !mediaStream.active) { setTimeout(whisperEcoRecordLoop, 500); return; }
+
+        whisperEcoChunks = [];
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+            ? 'audio/webm;codecs=opus' : 'audio/webm';
+        whisperEcoRecorder = new MediaRecorder(mediaStream, { mimeType });
+        whisperEcoRecorder.ondataavailable = (e) => { if (e.data.size > 0) whisperEcoChunks.push(e.data); };
+        whisperEcoRecorder.onstop = () => whisperEcoProcessChunk();
+        whisperEcoRecorder.start();
+        setTimeout(() => {
+            if (whisperEcoActive && whisperEcoRecorder && whisperEcoRecorder.state !== 'inactive') whisperEcoRecorder.stop();
+        }, WHISPER_ECO_CHUNK_MS);
+    }
+
+    async function whisperEcoProcessChunk() {
+        if (!whisperEcoActive) return;
+        const chunks = whisperEcoChunks;
+        whisperEcoChunks = [];
+        if (!chunks.length) { whisperEcoRecordLoop(); return; }
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        // Bloc trop court (silence/bruit) — économise l'appel API, évite les hallucinations Whisper
+        if (blob.size < 4000) { whisperEcoRecordLoop(); return; }
+        try {
+            const groqKey = await getGroqApiKey();
+            const formData = new FormData();
+            formData.append('file', blob, 'audio.webm');
+            formData.append('model', 'whisper-large-v3-turbo');
+            formData.append('language', LANG);
+            const resp = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${groqKey}` },
+                body: formData,
+                signal: AbortSignal.timeout(15000)
+            });
+            if (resp.ok) {
+                const data = await resp.json();
+                const text = (data.text || '').trim();
+                if (text && !isWhisperArtifact(text)) finalizeTranscriptSegment(text);
+            }
+        } catch (e) {
+            console.warn('[WhisperEco] transcription error:', e);
+        }
+        whisperEcoRecordLoop();
+    }
+
+    function stopWhisperEco() {
+        whisperEcoActive = false;
+        if (whisperEcoRecorder && whisperEcoRecorder.state !== 'inactive') {
+            try { whisperEcoRecorder.onstop = null; whisperEcoRecorder.stop(); } catch(e) {}
+        }
+        whisperEcoRecorder = null;
+        whisperEcoChunks = [];
+    }
+
+    // ════════════════════════════════════════════════
+    //  IMPORTER UN AUDIO — transcription Groq Whisper + résumé chatCompletion
+    // ════════════════════════════════════════════════
+
+    document.getElementById('transcripteurImportBtn').addEventListener('click', () => {
+        document.getElementById('audioImportInput').click();
+    });
+
+    function getAudioFileDuration(file) {
+        return new Promise((resolve, reject) => {
+            const url = URL.createObjectURL(file);
+            const audio = document.createElement('audio');
+            audio.preload = 'metadata';
+            audio.onloadedmetadata = () => { URL.revokeObjectURL(url); resolve(audio.duration); };
+            audio.onerror = () => { URL.revokeObjectURL(url); reject(new Error('duration')); };
+            audio.src = url;
+        });
+    }
+
+    function openAudioImportModal() {
+        document.getElementById('audioImportLoading').style.display = 'block';
+        document.getElementById('audioImportResult').style.display = 'none';
+        document.getElementById('audioImportLoadingText').textContent = t('audio_import_loading');
+        document.getElementById('audioImportModal').classList.add('active');
+    }
+    function closeAudioImportModal() {
+        document.getElementById('audioImportModal').classList.remove('active');
+    }
+    document.getElementById('closeAudioImportBtn').addEventListener('click', closeAudioImportModal);
+
+    function showAudioImportResult(transcript, summary, durationSec, filename) {
+        document.getElementById('audioImportLoading').style.display = 'none';
+        document.getElementById('audioImportResult').style.display = 'block';
+        let metaText = filename || '';
+        if (durationSec != null && isFinite(durationSec)) {
+            const mins = durationSec / 60;
+            const cost = mins * PRICING['whisper-eco'].perMinute;
+            metaText += ` · ${formatDuration(Math.round(durationSec))} · ~$${cost.toFixed(4)}`;
+        }
+        document.getElementById('audioImportMeta').textContent = metaText;
+        document.getElementById('audioImportSummary').textContent = summary;
+        document.getElementById('audioImportTranscript').value = transcript;
+    }
+
+    document.getElementById('audioImportInput').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        e.target.value = ''; // permet de réimporter le même fichier
+        if (!file) return;
+
+        const groqKey = await getGroqApiKey();
+        if (!groqKey) { openApiKeyModal(); return; }
+
+        const MAX_SIZE = 25 * 1024 * 1024; // limite de l'API Groq Whisper
+        if (file.size > MAX_SIZE) {
+            customAlert(t('audio_import_too_large'), { title: t('audio_import_title'), icon: '&#9888;' });
+            return;
+        }
+
+        openAudioImportModal();
+        let durationSec = null;
+        try { durationSec = await getAudioFileDuration(file); } catch (e) {}
+
+        try {
+            // 1. Transcription — Groq Whisper (fichier entier, un seul appel)
+            const formData = new FormData();
+            formData.append('file', file, file.name || 'audio');
+            formData.append('model', 'whisper-large-v3-turbo');
+            formData.append('language', LANG);
+            const sttResp = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${groqKey}` },
+                body: formData,
+                signal: AbortSignal.timeout(60000)
+            });
+            if (!sttResp.ok) throw new Error(`STT HTTP ${sttResp.status}`);
+            const sttData = await sttResp.json();
+            const transcript = (sttData.text || '').trim();
+            if (!transcript) throw new Error(t('audio_import_empty'));
+
+            // 2. Résumé — chatCompletion() (même routeur que mémoire/wizard/profil)
+            const summaryPrompt = LANG === 'es'
+                ? `Resume el siguiente audio transcrito en puntos clave, destacando decisiones y tareas pendientes si las hay. Responde en español.\n\n${transcript}`
+                : LANG === 'fr'
+                ? `Résume le texte audio transcrit suivant en points clés, en mettant en évidence les décisions et tâches à faire s'il y en a. Réponds en français.\n\n${transcript}`
+                : `Summarize the following transcribed audio into key bullet points, highlighting decisions and action items if any. Respond in English.\n\n${transcript}`;
+            const summary = await chatCompletion({
+                systemPrompt: 'Tu es un assistant qui résume des transcriptions audio de façon claire et concise, avec des puces.',
+                userPrompt: summaryPrompt,
+                maxTokens: 500
+            });
+
+            showAudioImportResult(transcript, summary, durationSec, file.name);
+        } catch (err) {
+            closeAudioImportModal();
+            customAlert(t('audio_import_error') + ' : ' + esc(err.message), { title: t('audio_import_title'), icon: '&#10060;' });
+        }
+    });
+
+    document.getElementById('audioImportCopyBtn').addEventListener('click', async () => {
+        const text = document.getElementById('audioImportTranscript').value;
+        try { await navigator.clipboard.writeText(text); } catch (e) {}
+    });
+
+    document.getElementById('audioImportExportBtn').addEventListener('click', async () => {
+        const transcript = document.getElementById('audioImportTranscript').value;
+        const summary = document.getElementById('audioImportSummary').textContent;
+        const content = `# ${t('audio_import_summary_label')}\n\n${summary}\n\n# ${t('audio_import_transcript_label')}\n\n${transcript}`;
+        await exportJsonFile(content, `zova-audio-import-${new Date().toISOString().slice(0,10)}.txt`);
+    });
+
     function handleWhisperServerEvent(data) {
         console.log('[Whisper] Event:', data.type, data);
         switch (data.type) {
@@ -10938,15 +11206,23 @@ STRICT rules:
         if (!getActiveId()) return;
 
         if (isTranscripteurMode) {
-            // Mode transcripteur — whisper
-            activeModelId = 'gpt-realtime-whisper';
-            activeProvider = 'openai';
-
-            if (!await getApiKey()) {
-                await customAlert('Le transcripteur nécessite une clé API OpenAI. Veuillez en configurer une dans les paramètres.', { title: 'Clé API requise', icon: '&#128273;' });
-                openApiKeyModal();
-                return;
+            if (getTranscripteurEco()) {
+                // Mode économique — Groq Whisper par blocs (~$0.04/h)
+                activeModelId = 'whisper-eco';
+                activeProvider = 'groq';
+                if (!await getGroqApiKey()) { openApiKeyModal(); return; }
+            } else {
+                // Mode standard — OpenAI Realtime streaming (~$1/h)
+                activeModelId = 'gpt-realtime-whisper';
+                activeProvider = 'openai';
+                if (!await getApiKey()) {
+                    await customAlert('Le transcripteur nécessite une clé API OpenAI. Veuillez en configurer une dans les paramètres.', { title: 'Clé API requise', icon: '&#128273;' });
+                    openApiKeyModal();
+                    return;
+                }
             }
+            document.getElementById('transcripteurEcoBtn').style.display = 'none';
+        document.getElementById('transcripteurImportBtn').style.display = 'none'; // figé pendant la session
         } else {
             // Mode persona normal
             const persona = getPersonas().find(p => p.id === getActiveId());
@@ -11616,6 +11892,7 @@ Language: ${langName}`;
         if (window.speechSynthesis) window.speechSynthesis.cancel();
         if (groqVadContext) { try { groqVadContext.close(); } catch(e) {} groqVadContext = null; }
         groqAudioLevel = 0;
+        stopWhisperEco();
         releaseWakeLock();
         cancelReconnect();
 
@@ -11638,11 +11915,12 @@ Language: ${langName}`;
             if (isTranscripteurMode) {
                 // Coût basé sur la durée (hors temps de pause)
                 const activeDuration = duration - Math.floor(pausedTime / 1000);
-                const cost = (activeDuration / 60) * 0.017;
+                const trModel = activeModelId === 'whisper-eco' ? 'whisper-eco' : 'gpt-realtime-whisper';
+                const cost = (activeDuration / 60) * PRICING[trModel].perMinute;
                 addStat({
                     personaId: TRANSCRIPTEUR_ID,
                     personaName: 'Transcripteur',
-                    model: 'gpt-realtime-whisper',
+                    model: trModel,
                     date: new Date().toISOString(),
                     inputTokens: 0,
                     outputTokens: 0,
@@ -11651,10 +11929,14 @@ Language: ${langName}`;
                 });
             } else {
                 const persona = getPersonas().find(p => p.id === getActiveId());
+                // Pour OpenRouter, on stocke le vrai modèle choisi (Claude Haiku,
+                // Sonnet…) et non le libellé générique "openrouter" — sinon
+                // statCost() ne peut pas retrouver son prix réel par token.
+                const statModel = activeModelId === 'openrouter' ? getModelOpenrouter() : (activeModelId || getRealtimeModel());
                 addStat({
                     personaId: getActiveId(),
                     personaName: persona ? persona.name : '?',
-                    model: activeModelId || getRealtimeModel(),
+                    model: statModel,
                     date: new Date().toISOString(),
                     inputTokens: totalInputTokens,
                     outputTokens: totalOutputTokens,
@@ -12045,8 +12327,9 @@ Language: ${langName}`;
 
             // Mise à jour du coût en temps réel pour le transcripteur
             if (isTranscripteurMode) {
-                const cost = (Math.max(0, elapsed) / 60) * 0.017;
-                document.getElementById('sessionModel').textContent = 'gpt-realtime-whisper';
+                const trModel = activeModelId === 'whisper-eco' ? 'whisper-eco' : 'gpt-realtime-whisper';
+                const cost = (Math.max(0, elapsed) / 60) * PRICING[trModel].perMinute;
+                document.getElementById('sessionModel').textContent = trModel;
                 document.getElementById('sessionTokens').textContent = '';
                 document.getElementById('sessionCost').textContent = `~$${cost.toFixed(4)}`;
             }
@@ -12089,8 +12372,10 @@ Language: ${langName}`;
             return minutes * p.perMinute;
         }
 
-        // Token-based pricing (OpenAI, Gemini)
-        const pricing = p || PRICING['gpt-realtime-1.5'];
+        // Token-based pricing (OpenAI, Gemini). Modèle inconnu au format
+        // "fournisseur/modèle" (ex. champ libre OpenRouter) → estimation
+        // générique OpenRouter plutôt que le tarif (bien plus cher) d'OpenAI.
+        const pricing = p || (s.model && s.model.includes('/') ? PRICING['openrouter'] : PRICING['gpt-realtime-1.5']);
         if (pricing.input == null) return 0; // unknown model, show 0 rather than NaN
         return ((s.inputTokens || 0) / 1000 * pricing.input) + ((s.outputTokens || 0) / 1000 * pricing.output);
     }
@@ -12319,16 +12604,14 @@ Language: ${langName}`;
             'llama-3.1-8b-instant':    'openai/gpt-oss-20b',
             'llama-3.3-70b-versatile': 'openai/gpt-oss-120b'
         };
-        for (const k of ['buddy_modelGroq', 'buddy_modelMemory', 'buddy_modelInsight']) {
+        for (const k of ['buddy_modelMemory']) {
             const v = localStorage.getItem(k);
             if (v && MAP[v]) localStorage.setItem(k, MAP[v]);
         }
     })();
 
     function getModelConv()    { return localStorage.getItem('buddy_modelConv')    || 'groq-70b'; }
-    function getModelGroq()    { return localStorage.getItem('buddy_modelGroq')    || 'openai/gpt-oss-120b'; }
     function getModelMemory()  { return localStorage.getItem('buddy_modelMemory')  || 'openai/gpt-oss-20b'; }
-    function getModelInsight() { return localStorage.getItem('buddy_modelInsight') || 'openai/gpt-oss-20b'; }
 
     function initModelSelectors() {
         // Conversation model selector
@@ -12344,11 +12627,6 @@ Language: ${langName}`;
             updateConvCost();
             applyConvModel(convSel.value);
         });
-
-        // Groq LLM model
-        const groqSel = document.getElementById('modelGroqSelect');
-        groqSel.value = getModelGroq();
-        groqSel.addEventListener('change', () => localStorage.setItem('buddy_modelGroq', groqSel.value));
 
         // OpenRouter voice model (lista curada + campo libre prioritario)
         const orSel = document.getElementById('modelOpenrouterSelect');
@@ -12382,11 +12660,6 @@ Language: ${langName}`;
                 localStorage.setItem('buddy_modelMemory', 'openai/gpt-oss-20b');
             }
         })();
-
-        // Insight model
-        const insSel = document.getElementById('modelInsightSelect');
-        insSel.value = getModelInsight();
-        insSel.addEventListener('change', () => localStorage.setItem('buddy_modelInsight', insSel.value));
     }
 
     function updateConvCost() {
