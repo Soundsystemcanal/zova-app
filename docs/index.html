@@ -7,7 +7,7 @@
     <title>Zova — Ton IA. Ton téléphone. Tes règles.</title>
     <meta name="description" content="Zova est un assistant vocal IA pour Android. Sans serveur, sans abonnement. Tes clés API restent sur ton téléphone.">
     <meta property="og:title" content="Zova — Assistant vocal IA pour Android">
-    <meta property="og:description" content="Sans serveur, sans abonnement. 4 providers au choix. Dès 0,001$/min.">
+    <meta property="og:description" content="Sans serveur, sans abonnement. 5 providers au choix. Dès 0,001$/min.">
     <meta property="og:image" content="https://raw.githubusercontent.com/Soundsystemcanal/zova-app/main/buddy/assets/icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -881,7 +881,7 @@
 
 <!-- PROVIDERS -->
 <div class="section">
-    <h2>4 providers au choix</h2>
+    <h2>5 providers au choix</h2>
     <div class="divider"></div>
     <div class="table-wrap">
         <table>
@@ -918,11 +918,18 @@
                     <td>~$0.001</td>
                     <td>Débuter sans CB</td>
                 </tr>
+                <tr>
+                    <td>OpenRouter</td>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td class="p5-cost">selon modèle</td>
+                    <td>Choisir son IA (Claude, GPT, Llama…)</td>
+                </tr>
             </tbody>
         </table>
     </div>
     <p class="table-note">Groq offre un quota gratuit généreux — parfait pour découvrir Zova sans frais.</p>
     <p style="margin-top:16px;font-size:0.9rem;color:var(--muted);"><strong style="color:var(--text)">+ ElevenLabs TTS</strong> (v5) — Associe une clé ElevenLabs à Groq pipeline pour des voix de qualité studio (~$0.30/1k chars). Choisie automatiquement d'après la voix de ta persona.</p>
+    <p style="margin-top:8px;font-size:0.9rem;color:var(--muted);"><strong style="color:var(--text)">+ OpenRouter</strong> (v6) — Une seule clé pour accéder à des centaines de modèles (Claude, GPT, Mistral, Llama…) comme cerveau du pipeline vocal. Idéal pour choisir précisément la personnalité de ton IA.</p>
 </div>
 
 <hr class="sep">
@@ -1072,9 +1079,9 @@
       f10_h: 'Confidentialité granulaire', f10_p: 'Efface tes souvenirs un par un depuis Config → Mémoire (bouton ✕). Ou supprime toutes les données IA d\'un coup via Config → Confidentialité — personas et clés API préservés.',
       f11_h: 'Démarrage simplifié', f11_p: 'Une seule clé API suffit pour commencer — et Groq est gratuit. L\'écran de config te le rappelle clairement et vérifie ta clé à l\'enregistrement.',
       f12_h: 'Code PIN renforcé', f12_p: 'Ton code PIN n\'est plus jamais stocké en clair : seule son empreinte chiffrée (SHA-256) est gardée. Le verrou anti-essais est protégé dans le coffre sécurisé d\'Android.',
-      prov_title: '4 providers au choix',
+      prov_title: '5 providers au choix',
       th_quality: 'Qualité', th_cost: 'Coût / min', th_best: 'Idéal pour',
-      p1_best: 'Qualité maximale', p2_best: 'Rapport qualité/prix', p3_best: 'Usage intensif', p4_best: 'Débuter sans CB',
+      p1_best: 'Qualité maximale', p2_best: 'Rapport qualité/prix', p3_best: 'Usage intensif', p4_best: 'Débuter sans CB', p5_best: 'Choisir son IA (Claude, GPT, Llama…)', p5_cost: 'selon modèle',
       prov_note: 'Groq offre un quota gratuit généreux — parfait pour découvrir Zova sans frais.',
       install_title: 'Installer ou mettre à jour',
       s1_h: 'Télécharger', s1_p: 'Clique le bouton ou scanne le QR. Le dernier APK Zova se télécharge sur ton Android.',
@@ -1130,9 +1137,9 @@
       f10_h: 'Granular privacy controls', f10_p: 'Delete memories one by one from Config → Memory (✕ button). Or wipe all AI data at once via Config → Privacy — personas and API keys preserved.',
       f11_h: 'Simpler onboarding', f11_p: 'A single API key is enough to start — and Groq is free. The config screen makes that clear and validates your key on save.',
       f12_h: 'Hardened PIN code', f12_p: 'Your PIN is never stored in plain text anymore: only its encrypted SHA-256 fingerprint is kept. The brute-force lockout lives in Android\'s secure keystore.',
-      prov_title: '4 providers to choose from',
+      prov_title: '5 providers to choose from',
       th_quality: 'Quality', th_cost: 'Cost / min', th_best: 'Best for',
-      p1_best: 'Maximum quality', p2_best: 'Best value', p3_best: 'Heavy use', p4_best: 'Start free',
+      p1_best: 'Maximum quality', p2_best: 'Best value', p3_best: 'Heavy use', p4_best: 'Start free', p5_best: 'Pick your AI (Claude, GPT, Llama…)', p5_cost: 'depends on model',
       prov_note: 'Groq offers a generous free quota — perfect for discovering Zova at no cost.',
       install_title: 'Install or update',
       s1_h: 'Download', s1_p: 'Click the button or scan the QR. The latest Zova APK downloads to your Android.',
@@ -1188,9 +1195,9 @@
       f10_h: 'Privacidad granular', f10_p: 'Borra tus recuerdos uno a uno desde Config → Memoria (botón ✕). O elimina todos los datos IA de una vez desde Config → Privacidad — personas y claves API se conservan.',
       f11_h: 'Configuración más fácil', f11_p: 'Basta con una sola clave API para empezar — y Groq es gratis. La pantalla de config te lo recuerda claramente y valida tu clave al guardar.',
       f12_h: 'Código PIN reforzado', f12_p: 'Tu PIN ya no se guarda nunca en claro: solo se conserva su huella cifrada (SHA-256). El bloqueo anti-intentos vive en el almacén seguro de Android.',
-      prov_title: '4 proveedores a elegir',
+      prov_title: '5 proveedores a elegir',
       th_quality: 'Calidad', th_cost: 'Coste / min', th_best: 'Ideal para',
-      p1_best: 'Calidad máxima', p2_best: 'Mejor relación calidad/precio', p3_best: 'Uso intensivo', p4_best: 'Empezar gratis',
+      p1_best: 'Calidad máxima', p2_best: 'Mejor relación calidad/precio', p3_best: 'Uso intensivo', p4_best: 'Empezar gratis', p5_best: 'Elegir tu IA (Claude, GPT, Llama…)', p5_cost: 'según modelo',
       prov_note: 'Groq ofrece una cuota gratuita generosa — perfecta para descubrir Zova sin coste.',
       install_title: 'Instalar o actualizar',
       s1_h: 'Descargar', s1_p: 'Haz clic en el botón o escanea el QR. El último APK de Zova se descarga en tu Android.',
@@ -1252,9 +1259,10 @@
     if(ths[2]) ths[2].textContent = t.th_cost;
     if(ths[3]) ths[3].textContent = t.th_best;
     var rows = qa('tbody tr');
-    var bests = [t.p1_best, t.p2_best, t.p3_best, t.p4_best];
+    var bests = [t.p1_best, t.p2_best, t.p3_best, t.p4_best, t.p5_best];
     rows.forEach(function(r, i){ var tds = r.querySelectorAll('td'); if(tds[3]) tds[3].textContent = bests[i]; });
     var tn = q('.table-note'); if(tn) tn.textContent = t.prov_note;
+    var p5c = q('.p5-cost'); if(p5c) p5c.textContent = t.p5_cost;
 
     // Steps
     var steps = qa('.step');
