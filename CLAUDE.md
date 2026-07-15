@@ -326,13 +326,13 @@ index.html (single-file app)
 | OpenAI Realtime | gpt-4o-realtime | ~$0.06/min |
 | Gemini Live | gemini-2.0-flash | ~$0.01/min |
 | Ultravox | ultravox-70B | ~$0.005/min |
-| Groq pipeline | Whisper + Llama 3 | ~$0.001/min |
+| Groq pipeline | Whisper turbo + GPT-OSS 120B/20B | ~$0.001/min |
 
 **Texto (batch: memoria, wizard, perfil)** — vía `chatCompletion()`, seleccionable en Config → Modèles, selector "🧠 Tâches texte" :
 
 | Provider | Modelo | Coste aprox. (texto) |
 |----------|--------|----------------------|
-| Groq | llama3-8b-8192 / llama-3.3-70b / gemma2-9b | ~$0.05–0.59/M tokens |
+| Groq | openai/gpt-oss-20b / openai/gpt-oss-120b | ~$0.075–0.15/M tokens |
 | OpenAI | gpt-4o-mini | ~$0.15/M tokens |
 | Gemini | gemini-2.0-flash | ~$0.10/M tokens |
 | DeepSeek | deepseek-reasoner (R1) / deepseek-chat (V3) | ~$0.14/M tokens |

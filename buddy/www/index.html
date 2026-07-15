@@ -2996,6 +2996,46 @@ Minimum version required to store current data is: `+i+`.
                             </ol>
                             <p>ElevenLabs offre un quota gratuit mensuel pour commencer.</p>
                         </div>
+
+                        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+                        <label for="openrouterApiKeyInput">Clé API OpenRouter</label>
+                        <input type="password" id="openrouterApiKeyInput" placeholder="sk-or-...">
+                        <div class="hint">Accès à des centaines de modèles (Claude, GPT, Mistral…) avec une seule clé. Voix (pipeline) et tâches texte.</div>
+                        <div id="openrouterApiKeyStatus"></div>
+                        <div class="api-guide" style="margin:4px 0">
+                            <p><strong>Comment obtenir une clé API OpenRouter :</strong></p>
+                            <ol>
+                                <li>Créez un compte sur <a href="https://openrouter.ai" target="_blank" rel="noopener">openrouter.ai</a></li>
+                                <li>Rendez-vous dans <a href="https://openrouter.ai/settings/keys" target="_blank" rel="noopener">Settings → Keys</a></li>
+                                <li>Cliquez sur "Create Key"</li>
+                                <li>Copiez la clé (sk-or-…) et collez-la ci-dessus</li>
+                            </ol>
+                            <p>Paiement à l'usage (prix du modèle +5%), sans abonnement.</p>
+                        </div>
+
+                        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+                        <label for="deepseekApiKeyInput">Clé API DeepSeek</label>
+                        <input type="password" id="deepseekApiKeyInput" placeholder="sk-...">
+                        <div class="hint">Pour les tâches texte (mémoire, wizard, profil) à bas coût. Optionnelle.</div>
+                        <div class="api-guide" style="margin:4px 0">
+                            <p><strong>Comment obtenir une clé API DeepSeek :</strong></p>
+                            <ol>
+                                <li>Créez un compte sur <a href="https://platform.deepseek.com" target="_blank" rel="noopener">platform.deepseek.com</a></li>
+                                <li>Allez dans <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">API Keys</a> et créez une clé</li>
+                            </ol>
+                        </div>
+
+                        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+                        <label for="qwenApiKeyInput">Clé API Qwen (DashScope)</label>
+                        <input type="password" id="qwenApiKeyInput" placeholder="sk-...">
+                        <div class="hint">Pour les tâches texte multilingues à bas coût. Optionnelle.</div>
+                        <div class="api-guide" style="margin:4px 0">
+                            <p><strong>Comment obtenir une clé API Qwen :</strong></p>
+                            <ol>
+                                <li>Créez un compte sur <a href="https://modelstudio.console.alibabacloud.com" target="_blank" rel="noopener">Alibaba Cloud Model Studio</a></li>
+                                <li>Créez une clé API dans la console DashScope</li>
+                            </ol>
+                        </div>
                     </div>
 
                     <!-- Panel Modèles -->
@@ -3026,9 +3066,25 @@ Minimum version required to store current data is: `+i+`.
                         <label for="modelGroqSelect">⚡ Groq — réponses rapides</label>
                         <div class="hint" style="margin-bottom:8px">Modèle LLM du pipeline Groq (STT → LLM → TTS).</div>
                         <select id="modelGroqSelect" class="model-action-select">
-                            <option value="llama-3.3-70b-versatile">🟡 Llama 3.3 70B — équilibré (~$0.001/min)</option>
-                            <option value="llama-3.1-8b-instant">🟢 Llama 3.1 8B — économique (~$0.0005/min)</option>
+                            <option value="openai/gpt-oss-120b">🟡 GPT-OSS 120B — équilibré (~$0.001/min)</option>
+                            <option value="openai/gpt-oss-20b">🟢 GPT-OSS 20B — économique (~$0.0005/min)</option>
                         </select>
+
+                        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+
+                        <!-- 🌐 OpenRouter voix -->
+                        <label for="modelOpenrouterSelect">🌐 OpenRouter — modèle voix</label>
+                        <div class="hint" style="margin-bottom:8px">LLM du pipeline voix quand le provider "OpenRouter" est sélectionné (STT Groq → LLM OpenRouter → TTS). Nécessite les clés Groq + OpenRouter.</div>
+                        <select id="modelOpenrouterSelect" class="model-action-select">
+                            <option value="anthropic/claude-haiku-4.5">⚡ Claude Haiku 4.5 — rapide &amp; naturel</option>
+                            <option value="anthropic/claude-sonnet-5">🏆 Claude Sonnet 5 — qualité max</option>
+                            <option value="openai/gpt-4o-mini">🟢 GPT-4o mini — économique</option>
+                            <option value="google/gemini-2.5-flash">🔵 Gemini 2.5 Flash — rapide</option>
+                            <option value="meta-llama/llama-4-maverick">🦙 Llama 4 Maverick — open source</option>
+                            <option value="deepseek/deepseek-chat-v3.1">💎 DeepSeek V3.1 — ultra éco</option>
+                        </select>
+                        <input type="text" id="modelOpenrouterCustom" placeholder="Ou ID libre : ex. mistralai/mistral-small-3.2-24b-instruct" style="margin-top:8px" autocapitalize="off" autocorrect="off" spellcheck="false">
+                        <div class="hint">Champ libre prioritaire sur la liste — n'importe quel ID de <a href="https://openrouter.ai/models" target="_blank" rel="noopener">openrouter.ai/models</a>.</div>
 
                         <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
 
@@ -3037,9 +3093,16 @@ Minimum version required to store current data is: `+i+`.
                         <div class="hint" style="margin-bottom:8px" data-i18n="config_model_text_hint">Modèle pour la mémoire, le wizard, le profil et la consolidation (hors voix).</div>
                         <select id="modelMemorySelect" class="model-action-select">
                             <optgroup label="Groq">
-                                <option value="llama3-8b-8192">🟢 Llama 3 8B — économique ($0.05/M tokens)</option>
-                                <option value="llama-3.3-70b-versatile">🟡 Llama 3.3 70B — équilibré ($0.59/M tokens)</option>
-                                <option value="gemma2-9b-it">🔵 Gemma 2 9B — alternatif ($0.20/M tokens)</option>
+                                <option value="openai/gpt-oss-20b">🟢 GPT-OSS 20B — économique ($0.075/M tokens)</option>
+                                <option value="openai/gpt-oss-120b">🟡 GPT-OSS 120B — équilibré ($0.15/M tokens)</option>
+                            </optgroup>
+                            <optgroup label="DeepSeek / Qwen">
+                                <option value="ds-reasoner">🧩 DeepSeek R1 — raisonnement ($0.14/M tokens)</option>
+                                <option value="ds-chat">💬 DeepSeek V3 — chat ($0.14/M tokens)</option>
+                                <option value="qwen">🌐 Qwen 2.5 72B — multilingue</option>
+                            </optgroup>
+                            <optgroup label="OpenRouter">
+                                <option value="openrouter">🌍 OpenRouter — modèle voix ci-dessus</option>
                             </optgroup>
                         </select>
 
@@ -3049,9 +3112,8 @@ Minimum version required to store current data is: `+i+`.
                         <label for="modelInsightSelect">📝 Résumés &amp; Insights</label>
                         <div class="hint" style="margin-bottom:8px">Modèle pour générer les résumés et analyses de conversations.</div>
                         <select id="modelInsightSelect" class="model-action-select">
-                            <option value="llama3-8b-8192">🟢 Llama 3 8B — économique ($0.05/M tokens)</option>
-                            <option value="llama-3.3-70b-versatile">🟡 Llama 3.3 70B — équilibré ($0.59/M tokens)</option>
-                            <option value="gemma2-9b-it">🔵 Gemma 2 9B — alternatif ($0.20/M tokens)</option>
+                            <option value="openai/gpt-oss-20b">🟢 GPT-OSS 20B — économique ($0.075/M tokens)</option>
+                            <option value="openai/gpt-oss-120b">🟡 GPT-OSS 120B — équilibré ($0.15/M tokens)</option>
                         </select>
                     </div>
 
@@ -3141,8 +3203,11 @@ Minimum version required to store current data is: `+i+`.
                     <option value="ultravox-8b">Ultravox Llama 3.1 8B — muy económico (~$0.002/min)</option>
                 </optgroup>
                 <optgroup label="Groq (Pipeline STT→LLM→TTS)">
-                    <option value="groq-70b">Groq Llama 3.3 70B — ultra económico (~$0.001/min)</option>
-                    <option value="groq-8b">Groq Llama 3.1 8B — más económico (~$0.0005/min)</option>
+                    <option value="groq-70b">Groq GPT-OSS 120B — ultra económico (~$0.001/min)</option>
+                    <option value="groq-8b">Groq GPT-OSS 20B — más económico (~$0.0005/min)</option>
+                </optgroup>
+                <optgroup label="OpenRouter (Pipeline STT Groq→LLM→TTS)">
+                    <option value="openrouter">OpenRouter — modèle choisi en Config → Modèles</option>
                 </optgroup>
             </select>
             <div class="hint">Laissez sur "par défaut" pour utiliser le modèle choisi dans la configuration globale.</div>
@@ -5149,7 +5214,9 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         'ultravox-70b': { perMinute: 0.005 },
         'ultravox-8b':  { perMinute: 0.002 },
         'groq-70b': { perMinute: 0.001 },
-        'groq-8b':  { perMinute: 0.0005 }
+        'groq-8b':  { perMinute: 0.0005 },
+        // Estimación media por tokens — el precio real varía según el modelo OpenRouter
+        'openrouter': { input: 0.001, output: 0.003 }
     };
 
     const TRANSCRIPTEUR_ID = '__transcripteur__';
@@ -5158,6 +5225,9 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         if (model && model.startsWith('gemini')) return 'gemini';
         if (model && model.startsWith('ultravox')) return 'ultravox';
         if (model && model.startsWith('groq')) return 'groq';
+        // OpenRouter réutilise le pipeline Groq (STT Whisper) — même provider,
+        // connectGroq() route le LLM vers OpenRouter selon activeModelId.
+        if (model === 'openrouter') return 'groq';
         return 'openai';
     }
 
@@ -5217,6 +5287,9 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
 
     async function getElevenLabsApiKey() { return await SecureStore.get('buddy_elevenlabsApiKey'); }
     async function setElevenLabsApiKey(k) { await SecureStore.set('buddy_elevenlabsApiKey', k); }
+
+    async function getOpenrouterApiKey() { return await SecureStore.get('buddy_openrouterApiKey'); }
+    async function setOpenrouterApiKey(k) { await SecureStore.set('buddy_openrouterApiKey', k); }
 
     function getTheme() { return localStorage.getItem('buddy_theme') || 'dark'; }
     function setThemeStorage(t) { localStorage.setItem('buddy_theme', t); }
@@ -5293,8 +5366,20 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         qwen: {
             base: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
             chat: 'qwen-2.5-72b-instruct'  // alta calidad ES/FR/EN
+        },
+        openrouter: {
+            base: 'https://openrouter.ai/api/v1',
+            chat: 'anthropic/claude-haiku-4.5'  // default equilibrado conversación
         }
     };
+
+    // Modelo OpenRouter para el pipeline de voz Y las tareas de texto.
+    // Campo libre (buddy_modelOpenrouterCustom) tiene prioridad sobre el selector.
+    function getModelOpenrouter() {
+        const custom = (localStorage.getItem('buddy_modelOpenrouterCustom') || '').trim();
+        if (custom) return custom;
+        return localStorage.getItem('buddy_modelOpenrouter') || COMPAT_PROVIDERS.openrouter.chat;
+    }
 
     // POST genérico formato OpenAI. Devuelve el texto de la respuesta o lanza Error.
     async function postOpenAIFormat({ base, key, model, systemPrompt, userPrompt, temperature, maxTokens }) {
@@ -5324,10 +5409,11 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
     function getTextProvider() {
         const v = (typeof getModelMemory === 'function')
             ? getModelMemory()
-            : (localStorage.getItem('buddy_modelMemory') || 'llama3-8b-8192');
-        if (v === 'ds-reasoner') return { type: 'deepseek', model: COMPAT_PROVIDERS.deepseek.reasoner };
-        if (v === 'ds-chat')     return { type: 'deepseek', model: COMPAT_PROVIDERS.deepseek.chat };
-        if (v === 'qwen')        return { type: 'qwen',     model: COMPAT_PROVIDERS.qwen.chat };
+            : (localStorage.getItem('buddy_modelMemory') || 'openai/gpt-oss-20b');
+        if (v === 'ds-reasoner') return { type: 'deepseek',   model: COMPAT_PROVIDERS.deepseek.reasoner };
+        if (v === 'ds-chat')     return { type: 'deepseek',   model: COMPAT_PROVIDERS.deepseek.chat };
+        if (v === 'qwen')        return { type: 'qwen',       model: COMPAT_PROVIDERS.qwen.chat };
+        if (v === 'openrouter')  return { type: 'openrouter', model: getModelOpenrouter() };
         return { type: 'groq', model: v }; // cualquier id de modelo Groq
     }
 
@@ -5336,25 +5422,33 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         if (type === 'groq')     return await getGroqApiKey();
         if (type === 'openai')   return await getApiKey();
         if (type === 'gemini')   return await getGeminiApiKey();
-        if (type === 'deepseek') return await getDeepseekApiKey();
-        if (type === 'qwen')     return await getQwenApiKey();
+        if (type === 'deepseek')   return await getDeepseekApiKey();
+        if (type === 'qwen')       return await getQwenApiKey();
+        if (type === 'openrouter') return await getOpenrouterApiKey();
         return null;
     }
 
     // Dispatch de UNA llamada a un proveedor concreto. Devuelve texto o lanza Error.
     async function callTextProvider(type, model, key, { systemPrompt, userPrompt, temperature, maxTokens }) {
         if (type === 'groq') {
+            // GPT-OSS (harmony format) : le rôle "system" est réservé aux
+            // métadonnées internes du modèle — les instructions doivent aller
+            // en "developer", sinon le suivi d'instructions (langue incluse)
+            // se dégrade. effort 'medium' : tâches batch, pas de contrainte
+            // de latence voix, donc pas besoin de rester en 'low'.
+            const isGptOss = model.startsWith('openai/gpt-oss');
             const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     model,
                     messages: [
-                        { role: 'system', content: systemPrompt },
+                        { role: isGptOss ? 'developer' : 'system', content: systemPrompt },
                         { role: 'user', content: userPrompt }
                     ],
                     max_tokens: maxTokens,
-                    temperature
+                    temperature,
+                    ...(isGptOss ? { reasoning_effort: 'medium' } : {})
                 })
             });
             if (!resp.ok) {
@@ -5379,9 +5473,10 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
             }
             return ((await resp.json()).candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
         }
-        // openai / deepseek / qwen — todos formato OpenAI
+        // openai / deepseek / qwen / openrouter — todos formato OpenAI
         const base = type === 'openai' ? 'https://api.openai.com/v1'
                    : type === 'deepseek' ? COMPAT_PROVIDERS.deepseek.base
+                   : type === 'openrouter' ? COMPAT_PROVIDERS.openrouter.base
                    : COMPAT_PROVIDERS.qwen.base;
         return await postOpenAIFormat({ base, key, model, systemPrompt, userPrompt, temperature, maxTokens });
     }
@@ -5398,11 +5493,12 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         // 1) Lo que el usuario eligió, primero
         push(sel.type, sel.model);
         // 2) Cadena de respaldo (orden coste/calidad razonable)
-        push('groq', 'llama3-8b-8192');
+        push('groq', 'openai/gpt-oss-20b');
         push('openai', 'gpt-4o-mini');
         push('gemini', 'gemini-2.0-flash');
         push('deepseek', COMPAT_PROVIDERS.deepseek.chat);
         push('qwen', COMPAT_PROVIDERS.qwen.chat);
+        push('openrouter', getModelOpenrouter());
 
         const args = { systemPrompt, userPrompt, temperature, maxTokens };
         let lastErr = null;
@@ -6540,7 +6636,8 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
     async function hasAnyApiKey() {
         return !!(await getApiKey() || await getGeminiApiKey() ||
                   await getUltravoxApiKey() || await getGroqApiKey() ||
-                  await getElevenLabsApiKey());
+                  await getElevenLabsApiKey() || await getOpenrouterApiKey() ||
+                  await getDeepseekApiKey() || await getQwenApiKey());
     }
 
     async function openApiKeyModal() {
@@ -6549,6 +6646,9 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         document.getElementById('ultravoxApiKeyInput').value = await getUltravoxApiKey();
         document.getElementById('groqApiKeyInput').value = await getGroqApiKey();
         document.getElementById('elevenlabsApiKeyInput').value = await getElevenLabsApiKey();
+        document.getElementById('openrouterApiKeyInput').value = await getOpenrouterApiKey();
+        document.getElementById('deepseekApiKeyInput').value = await getDeepseekApiKey();
+        document.getElementById('qwenApiKeyInput').value = await getQwenApiKey();
         document.getElementById('realtimeModelSelect').value = getRealtimeModel();
         updateModelSelectDisabled();
         const limit = getBudgetLimit();
@@ -6605,8 +6705,11 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         const ultravoxKeyVal = document.getElementById('ultravoxApiKeyInput').value.trim();
         const groqKey = document.getElementById('groqApiKeyInput').value.trim();
         const elevenlabsKey = document.getElementById('elevenlabsApiKeyInput').value.trim();
+        const openrouterKey = document.getElementById('openrouterApiKeyInput').value.trim();
+        const deepseekKey = document.getElementById('deepseekApiKeyInput').value.trim();
+        const qwenKey = document.getElementById('qwenApiKeyInput').value.trim();
 
-        if (!openaiKey && !geminiKey && !ultravoxKeyVal && !groqKey && !elevenlabsKey) {
+        if (!openaiKey && !geminiKey && !ultravoxKeyVal && !groqKey && !elevenlabsKey && !openrouterKey && !deepseekKey && !qwenKey) {
             customAlert(t('err_need_one_key'), { title: t('err_api_key_title'), icon: '&#128273;' });
             return;
         }
@@ -6635,6 +6738,9 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
             if (ultravoxKeyVal !== undefined) await setUltravoxApiKey(ultravoxKeyVal);
             if (groqKey !== undefined) await setGroqApiKey(groqKey);
             await setElevenLabsApiKey(elevenlabsKey);
+            await setOpenrouterApiKey(openrouterKey);
+            await setDeepseekApiKey(deepseekKey);
+            await setQwenApiKey(qwenKey);
         } catch(e) {
             customAlert(esc(e.message), { title: '🔒 Keystore', icon: '&#10060;' });
             return;
@@ -9655,9 +9761,21 @@ STRICT rules:
     let groqVadContext = null;
     let groqAudioLevel = 0; // independent VAD level for Groq
 
+    // Whisper hallucine sur le silence/bruit : artefacts connus de son
+    // entraînement (sous-titres YouTube/Amara). Sans ce filtre, Zova
+    // répond à des phrases jamais prononcées.
+    const WHISPER_ARTIFACTS = /^(sous-?titr(es?|age).*|merci d.?avoir regard.*|abonnez-vous.*|thanks? (you )?for watching.*|(please )?(like and )?subscribe.*|subt[ií]tulos (realizados|por|creados).*|gracias por ver.*|¡?gracias[.!¡\s]*|no olvides suscribirte.*|.*amara\.org.*|\.+|…)$/i;
+    function isWhisperArtifact(text) {
+        const t = text.trim();
+        if (t.length < 2) return true;               // 1 carácter = ruido
+        return WHISPER_ARTIFACTS.test(t.toLowerCase());
+    }
+
     async function connectGroq(persona) {
+        // La STT (Whisper) passe toujours par Groq ; en mode OpenRouter il faut les 2 clés.
         const apiKey = await getGroqApiKey();
         if (!apiKey) { openApiKeyModal(); return; }
+        if (activeModelId === 'openrouter' && !await getOpenrouterApiKey()) { openApiKeyModal(); return; }
         requestWakeLock();
 
         // Get microphone stream
@@ -9692,7 +9810,13 @@ STRICT rules:
 
         isConnected = true;
         micReady = true;
-        groqConversationHistory = [{ role: 'system', content: buildFullInstructions(persona) }];
+        // GPT-OSS (harmony format) réserve le rôle "system" aux métadonnées
+        // internes (reasoning_effort, date...) ; les instructions personnalisées
+        // doivent aller en "developer", sinon le suivi d'instructions (dont la
+        // langue de réponse) se dégrade. Les modèles OpenRouter (Claude, GPT-4o…)
+        // suivent la convention standard "system".
+        const promptRole = (activeModelId === 'groq-70b' || activeModelId === 'groq-8b') ? 'developer' : 'system';
+        groqConversationHistory = [{ role: promptRole, content: buildFullInstructions(persona) }];
         setStatus(t('status_connected'), 'connected');
 
         if (persona.greeting !== 'user') {
@@ -9777,7 +9901,9 @@ STRICT rules:
             const formData = new FormData();
             formData.append('file', blob, 'audio.webm');
             formData.append('model', 'whisper-large-v3-turbo');
-            formData.append('language', LANG);
+            // Lingo (tuteur de langues) : ne pas forcer la langue de l'app —
+            // l'utilisateur parle la langue qu'il pratique, Whisper auto-détecte.
+            if (persona?.id !== 'lingo-default-v1') formData.append('language', LANG);
 
             const sttResp = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
                 method: 'POST',
@@ -9789,7 +9915,8 @@ STRICT rules:
             const sttData = await sttResp.json();
             const userText = (sttData.text || '').trim();
 
-            if (!userText) {
+            if (!userText || isWhisperArtifact(userText)) {
+                if (userText) console.log('[Groq] Artefact Whisper filtré:', userText);
                 if (isConnected && !groqSpeaking) groqStartListening(persona);
                 return;
             }
@@ -9800,19 +9927,41 @@ STRICT rules:
 
             // 2. LLM: Groq Chat
             groqConversationHistory.push({ role: 'user', content: userText });
-            const llmModel = activeModelId === 'groq-70b' ? 'llama-3.3-70b-versatile' : 'llama-3.1-8b-instant';
             const temps = { precise: 0.5, balanced: 0.7, creative: 0.9, wild: 1.1 };
 
-            const llmResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+            // Cerveau du pipeline : Groq GPT-OSS par défaut, ou n'importe quel
+            // modèle OpenRouter si le provider "OpenRouter" est sélectionné.
+            let llmUrl, llmKey, llmBody;
+            if (activeModelId === 'openrouter') {
+                llmUrl = COMPAT_PROVIDERS.openrouter.base + '/chat/completions';
+                llmKey = await getOpenrouterApiKey();
+                llmBody = {
+                    model: getModelOpenrouter(),
+                    messages: groqConversationHistory,
+                    temperature: temps[persona.creativity] || 0.7,
+                    max_tokens: 500
+                };
+            } else {
+                const llmModel = activeModelId === 'groq-70b' ? 'openai/gpt-oss-120b' : 'openai/gpt-oss-20b';
+                llmUrl = 'https://api.groq.com/openai/v1/chat/completions';
+                llmKey = groqKey;
+                // GPT-OSS = modèle de raisonnement. 'low' dégradait le suivi
+                // d'instructions (notamment la langue de réponse en ES/FR) —
+                // 'medium' donne au modèle assez de marge pour construire une
+                // réponse fluide, au prix d'un peu de latence/coût.
+                llmBody = {
                     model: llmModel,
                     messages: groqConversationHistory,
                     temperature: temps[persona.creativity] || 0.7,
-                    max_tokens: 300
-                }),
-                signal: AbortSignal.timeout(10000)
+                    max_tokens: 600,
+                    reasoning_effort: 'medium'
+                };
+            }
+            const llmResp = await fetch(llmUrl, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${llmKey}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(llmBody),
+                signal: AbortSignal.timeout(15000)
             });
             if (!llmResp.ok) throw new Error(`LLM ${llmResp.status}`);
             const llmData = await llmResp.json();
@@ -9992,7 +10141,7 @@ STRICT rules:
                         audio: {
                             input: {
                                 format: { type: 'audio/pcm', rate: 24000 },
-                                transcription: { model: 'gpt-realtime-whisper', language: 'fr' }
+                                transcription: { model: 'gpt-realtime-whisper', language: LANG }
                             }
                         }
                     }
@@ -10810,6 +10959,7 @@ STRICT rules:
             if (activeProvider === 'gemini' && !await getGeminiApiKey()) { openApiKeyModal(); return; }
             if (activeProvider === 'ultravox' && !await getUltravoxApiKey()) { openApiKeyModal(); return; }
             if (activeProvider === 'groq' && !await getGroqApiKey()) { openApiKeyModal(); return; }
+            if (activeModelId === 'openrouter' && !await getOpenrouterApiKey()) { openApiKeyModal(); return; }
         }
 
         // Vérification budget
@@ -12152,17 +12302,33 @@ Language: ${langName}`;
     // ════════════════════════════════════════════════
 
     const MODEL_CONV_OPTIONS = [
-        { value: 'groq-8b',        label: 'Groq 8B — ultra éco',    cost: '~$0.0005/min' },
-        { value: 'groq-70b',       label: 'Groq 70B — équilibré',   cost: '~$0.001/min'  },
+        { value: 'groq-8b',        label: 'Groq GPT-OSS 20B — ultra éco',   cost: '~$0.0005/min' },
+        { value: 'groq-70b',       label: 'Groq GPT-OSS 120B — équilibré',  cost: '~$0.001/min'  },
+        { value: 'openrouter',     label: 'OpenRouter — multi-modèles',     cost: 'selon modèle' },
         { value: 'ultravox-70b',   label: 'Ultravox — voix native', cost: '~$0.005/min'  },
         { value: 'gemini',         label: 'Gemini Live',            cost: '~$0.01/min'   },
         { value: 'openai',         label: 'OpenAI Realtime',        cost: '~$0.06/min'   },
     ];
 
+    // Migration Groq : llama3/llama-3.x/gemma2 décommissionnés (email Groq 2026)
+    // → GPT-OSS. Corrige les valeurs stockées des utilisateurs existants.
+    (function migrateGroqModels() {
+        const MAP = {
+            'llama3-8b-8192':          'openai/gpt-oss-20b',
+            'gemma2-9b-it':            'openai/gpt-oss-20b',
+            'llama-3.1-8b-instant':    'openai/gpt-oss-20b',
+            'llama-3.3-70b-versatile': 'openai/gpt-oss-120b'
+        };
+        for (const k of ['buddy_modelGroq', 'buddy_modelMemory', 'buddy_modelInsight']) {
+            const v = localStorage.getItem(k);
+            if (v && MAP[v]) localStorage.setItem(k, MAP[v]);
+        }
+    })();
+
     function getModelConv()    { return localStorage.getItem('buddy_modelConv')    || 'groq-70b'; }
-    function getModelGroq()    { return localStorage.getItem('buddy_modelGroq')    || 'llama-3.3-70b-versatile'; }
-    function getModelMemory()  { return localStorage.getItem('buddy_modelMemory')  || 'llama3-8b-8192'; }
-    function getModelInsight() { return localStorage.getItem('buddy_modelInsight') || 'llama3-8b-8192'; }
+    function getModelGroq()    { return localStorage.getItem('buddy_modelGroq')    || 'openai/gpt-oss-120b'; }
+    function getModelMemory()  { return localStorage.getItem('buddy_modelMemory')  || 'openai/gpt-oss-20b'; }
+    function getModelInsight() { return localStorage.getItem('buddy_modelInsight') || 'openai/gpt-oss-20b'; }
 
     function initModelSelectors() {
         // Conversation model selector
@@ -12184,6 +12350,15 @@ Language: ${langName}`;
         groqSel.value = getModelGroq();
         groqSel.addEventListener('change', () => localStorage.setItem('buddy_modelGroq', groqSel.value));
 
+        // OpenRouter voice model (lista curada + campo libre prioritario)
+        const orSel = document.getElementById('modelOpenrouterSelect');
+        const orCustom = document.getElementById('modelOpenrouterCustom');
+        orSel.value = localStorage.getItem('buddy_modelOpenrouter') || COMPAT_PROVIDERS.openrouter.chat;
+        if (!orSel.value) orSel.value = COMPAT_PROVIDERS.openrouter.chat; // valor guardado ya no está en la lista
+        orCustom.value = localStorage.getItem('buddy_modelOpenrouterCustom') || '';
+        orSel.addEventListener('change', () => localStorage.setItem('buddy_modelOpenrouter', orSel.value));
+        orCustom.addEventListener('input', () => localStorage.setItem('buddy_modelOpenrouterCustom', orCustom.value.trim()));
+
         // Memory / text-task model
         const memSel = document.getElementById('modelMemorySelect');
         memSel.value = getModelMemory();
@@ -12192,16 +12367,19 @@ Language: ${langName}`;
         (async () => {
             const hasDs = !!(await getDeepseekApiKey());
             const hasQwen = !!(await getQwenApiKey());
+            const hasOr = !!(await getOpenrouterApiKey());
             const dsR = memSel.querySelector('option[value="ds-reasoner"]');
             const dsC = memSel.querySelector('option[value="ds-chat"]');
             const qw  = memSel.querySelector('option[value="qwen"]');
+            const or  = memSel.querySelector('option[value="openrouter"]');
             if (dsR) dsR.disabled = !hasDs;
             if (dsC) dsC.disabled = !hasDs;
             if (qw)  qw.disabled  = !hasQwen;
+            if (or)  or.disabled  = !hasOr;
             const cur = memSel.value;
-            if (((cur === 'ds-reasoner' || cur === 'ds-chat') && !hasDs) || (cur === 'qwen' && !hasQwen)) {
-                memSel.value = 'llama3-8b-8192';
-                localStorage.setItem('buddy_modelMemory', 'llama3-8b-8192');
+            if (((cur === 'ds-reasoner' || cur === 'ds-chat') && !hasDs) || (cur === 'qwen' && !hasQwen) || (cur === 'openrouter' && !hasOr)) {
+                memSel.value = 'openai/gpt-oss-20b';
+                localStorage.setItem('buddy_modelMemory', 'openai/gpt-oss-20b');
             }
         })();
 
@@ -12231,6 +12409,11 @@ Language: ${langName}`;
         } else if (val === 'groq-70b' || val === 'groq-8b') {
             activeProvider = 'groq';
             activeModelId = val;
+        } else if (val === 'openrouter') {
+            // Mismo pipeline que Groq (STT Whisper Groq → LLM → TTS),
+            // pero el LLM va a OpenRouter con el modelo elegido.
+            activeProvider = 'groq';
+            activeModelId = 'openrouter';
         }
     }
 
