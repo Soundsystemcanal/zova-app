@@ -3173,6 +3173,15 @@ Minimum version required to store current data is: `+i+`.
             </div>
             <div class="hint" id="imageHint"></div>
 
+            <label data-i18n="modal_persona_avatar">Avatar (conversation)</label>
+            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+                <div id="pAvatarShellSwatches" style="display:flex;gap:8px"></div>
+                <div style="width:1px;height:24px;background:var(--border)"></div>
+                <div id="pAvatarSkinSwatches" style="display:flex;gap:8px"></div>
+                <button type="button" class="btn-small" id="pAvatarResetBtn" title="Volver al avatar por defecto">↺</button>
+            </div>
+            <div class="hint" data-i18n="modal_persona_avatar_hint">Se ve durante la conversación. Vacío = usa el avatar global de Config.</div>
+
             <label for="pModel" data-i18n="modal_persona_model">Modèle vocal</label>
             <select id="pModel">
                 <option value="">Utiliser le modèle par défaut</option>
@@ -3639,6 +3648,8 @@ Minimum version required to store current data is: `+i+`.
             modal_my_info_hint: 'Esta información se transmite automáticamente a todos tus personas para personalizar los intercambios.',
             modal_persona_name: 'Nombre',
             modal_persona_desc: 'Descripción corta',
+            modal_persona_avatar: 'Avatar (conversación)',
+            modal_persona_avatar_hint: 'Se ve durante la conversación. Vacío = usa el avatar global de Config.',
             modal_persona_model: 'Modelo de voz',
             modal_persona_voice: 'Voz',
             modal_persona_reactivity: 'Reactividad',
@@ -3898,6 +3909,8 @@ Minimum version required to store current data is: `+i+`.
             modal_my_info_hint: 'This information is automatically shared with all your personas to personalise conversations.',
             modal_persona_name: 'Name',
             modal_persona_desc: 'Short description',
+            modal_persona_avatar: 'Avatar (conversation)',
+            modal_persona_avatar_hint: 'Shown during conversation. Empty = use the global avatar from Config.',
             modal_persona_model: 'Voice model',
             modal_persona_voice: 'Voice',
             modal_persona_reactivity: 'Reactivity',
@@ -4157,6 +4170,8 @@ Minimum version required to store current data is: `+i+`.
             modal_my_info_hint: 'Ces infos sont automatiquement transmises à tous vos personas pour personnaliser les échanges.',
             modal_persona_name: 'Nom',
             modal_persona_desc: 'Description courte',
+            modal_persona_avatar: 'Avatar (conversation)',
+            modal_persona_avatar_hint: 'Visible pendant la conversation. Vide = utilise l\'avatar global de Config.',
             modal_persona_model: 'Modèle vocal',
             modal_persona_voice: 'Voix',
             modal_persona_reactivity: 'Réactivité',
@@ -7044,6 +7059,37 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
 
     const personaModal = document.getElementById('personaModal');
     let tempImage = null;
+    let tempAvatar = null; // { shell, skin } | null (null = avatar global par défaut)
+
+    function renderAvatarPickers() {
+        const shellWrap = document.getElementById('pAvatarShellSwatches');
+        const skinWrap = document.getElementById('pAvatarSkinSwatches');
+        const cur = tempAvatar || {};
+        shellWrap.innerHTML = Object.entries(AVATAR_SHELLS).map(([id, sh]) => `
+            <button type="button" class="avatar-shell-swatch${cur.shell === id ? ' active' : ''}" data-shell="${id}" title="${esc(sh.label)}"
+                style="width:34px;height:34px;border-radius:8px;border:2px solid ${cur.shell === id ? 'var(--accent)' : 'transparent'};background:var(--bg-hover);cursor:pointer;font-size:1.1rem">${sh.emoji}</button>
+        `).join('');
+        skinWrap.innerHTML = Object.entries(AVATAR_SKINS).map(([id, sk]) => `
+            <button type="button" class="avatar-skin-swatch${cur.skin === id ? ' active' : ''}" data-skin="${id}" title="${esc(sk.label)}"
+                style="width:26px;height:26px;border-radius:50%;border:2px solid ${cur.skin === id ? sk.swatch : 'transparent'};background:${sk.swatch};cursor:pointer;padding:0"></button>
+        `).join('');
+        shellWrap.querySelectorAll('.avatar-shell-swatch').forEach(btn => {
+            btn.addEventListener('click', () => {
+                tempAvatar = { shell: btn.dataset.shell, skin: (tempAvatar && tempAvatar.skin) || getAvatarSkin() };
+                renderAvatarPickers();
+            });
+        });
+        skinWrap.querySelectorAll('.avatar-skin-swatch').forEach(btn => {
+            btn.addEventListener('click', () => {
+                tempAvatar = { shell: (tempAvatar && tempAvatar.shell) || 'orb', skin: btn.dataset.skin };
+                renderAvatarPickers();
+            });
+        });
+    }
+    document.getElementById('pAvatarResetBtn').addEventListener('click', () => {
+        tempAvatar = null;
+        renderAvatarPickers();
+    });
 
     // Résout le modèle effectif d'un persona (son modèle propre ou le modèle par défaut)
     function getEffectiveModel(persona) {
@@ -7414,6 +7460,9 @@ ${d.name ? 'Imposed name: ' + d.name : 'Name: suggest one'}`;
 
         tempImage = persona ? persona.image : null;
         renderImagePreview();
+
+        tempAvatar = (persona && typeof persona.avatar === 'object') ? persona.avatar : null;
+        renderAvatarPickers();
 
         // Bouton Supprimer : seulement en édition (pas en création)
         const delBtn = document.getElementById('deletePersonaBtn');
@@ -7801,6 +7850,7 @@ Return ONLY the merged prompt, operational and concise, in ${langName}, STRICTLY
             name: name,
             description: document.getElementById('pDescription').value.trim(),
             image: tempImage,
+            avatar: tempAvatar,
             model: document.getElementById('pModel').value || '',
             voice: document.getElementById('pVoice').value,
             reactivity: document.getElementById('pReactivity').value,
@@ -7839,6 +7889,7 @@ Return ONLY the merged prompt, operational and concise, in ${langName}, STRICTLY
                 name: name,
                 description: document.getElementById('pDescription').value.trim(),
                 image: tempImage,
+                avatar: tempAvatar,
                 model: document.getElementById('pModel').value || '',
                 voice: document.getElementById('pVoice').value,
                 reactivity: document.getElementById('pReactivity').value,
@@ -11916,6 +11967,7 @@ Language: ${langName}`;
             const newPersona = {
                 id: 'p_' + Date.now(), name: p.name || 'Persona import&#233;',
                 description: p.description || '', image: p.image || null,
+                avatar: (typeof p.avatar === 'object' && p.avatar) || null,
                 model: p.model || '', voice: p.voice || 'coral',
                 reactivity: p.reactivity || 'balanced', creativity: p.creativity || 'balanced',
                 greeting: p.greeting || 'persona', translateLang: p.translateLang || 'en',
