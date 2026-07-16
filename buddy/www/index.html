@@ -5857,8 +5857,11 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         return 0;
     }
 
-    function createZovaAvatar(stageEl, skinId) {
-        const skin = AVATAR_SKINS[skinId] || AVATAR_SKINS.dark_cosmos;
+    function createZovaAvatar(stageEl, avatar) {
+        // avatar = { shell, skin } — ids déjà validés par getEffectiveAvatar()
+        const shell = AVATAR_SHELLS[avatar?.shell] || AVATAR_SHELLS.orb;
+        const skin  = AVATAR_SKINS[avatar?.skin]  || AVATAR_SKINS.dark_cosmos;
+        const mo    = shell.motion;
         const g = id => stageEl.querySelector('#' + id);
         const lrp = (a, b, t) => a + (b - a) * t;
 
@@ -5923,12 +5926,12 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
 
         function renderZova() {
             rph += .018;
-            const ft = performance.now()/1000;
-            const floatY = Math.sin(ft*.9)*4.5, swayX = Math.sin(ft*.6)*3, rollZ = Math.sin(ft*.45)*1.2, breath = 1+Math.sin(ft*.8)*.018;
+            const ft = performance.now()/1000 * mo.speed;
+            const floatY = Math.sin(ft*.9)*mo.floatAmp, swayX = Math.sin(ft*.6)*mo.swayAmp, rollZ = Math.sin(ft*.45)*mo.rollAmp, breath = 1+Math.sin(ft*.8)*mo.breathAmp;
             const zFloat = g('zFloat');
             if (zFloat) zFloat.setAttribute('transform', `translate(${swayX},${floatY}) rotate(${rollZ},100,100) scale(${breath})`);
-            const lift = (floatY+4.5)/9;
-            g('zShadow')?.setAttribute('rx', 66-lift*12);
+            const lift = mo.floatAmp > 0 ? (floatY+mo.floatAmp)/(mo.floatAmp*2) : 0.5;
+            g('zShadow')?.setAttribute('rx', mo.shadowRx-lift*12);
             g('zShadow')?.setAttribute('opacity', 0.2-lift*0.09);
             g('zShadow')?.setAttribute('cx', 100+swayX*.5);
             const specDX = -swayX*.5, specDY = -floatY*.3;
@@ -5995,11 +5998,14 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
             g('zCL')?.setAttribute('cy', cyL); g('zCR')?.setAttribute('cy', cyR);
             g('zCL')?.setAttribute('opacity', .4+smile*.5); g('zCR')?.setAttribute('opacity', .4+smile*.5);
             g('zDot')?.setAttribute('fill', skin.dots[avState] || skin.swatch);
+            // Hook générique : éléments de carcasse qui pulsent en alternance (ex. flamme)
+            g('zPulse1')?.setAttribute('opacity', .5+Math.sin(rph*2)*.4);
+            g('zPulse2')?.setAttribute('opacity', .5-Math.sin(rph*2)*.4);
         }
 
         return {
             mount() {
-                stageEl.innerHTML = buildAvatarSvg(AVATAR_SHELLS.orb, skin);
+                stageEl.innerHTML = buildAvatarSvg(shell, skin);
                 applyExpr('idle');
                 Object.assign(ip, {mo:0,bll:0,blr:0,bfl:0,bfr:0,is:1,ps:1,ro:.4,rr:92,bkL:0,bkR:0,gx:0,gy:0,tilt:0,cheek:0,squint:0,nod:0,bcurv:0,bang:0});
                 scheduleBlink(); scheduleGaze(); scheduleNod();
@@ -6009,6 +6015,17 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
             tick() { interpolate(); renderZova(); }
         };
     }
+
+    // Résout l'avatar effectif d'un persona : son champ avatar s'il est
+    // valide, sinon le défaut global (skin des swatches Config + orb).
+    function getEffectiveAvatar(persona) {
+        const a = (persona && typeof persona.avatar === 'object' && persona.avatar) || {};
+        return {
+            shell: AVATAR_SHELLS[a.shell] ? a.shell : 'orb',
+            skin:  AVATAR_SKINS[a.skin]  ? a.skin  : getAvatarSkin()
+        };
+    }
+    let mountedAvatarKey = null;
 
     function maybeMountAvatar() {
         const wrap = document.getElementById('avatarWrap');
@@ -6020,9 +6037,13 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
             if (visualizers) visualizers.style.display = '';
             return;
         }
+        const av = getEffectiveAvatar(getPersonas().find(p => p.id === getActiveId()));
+        const key = av.shell + '|' + av.skin;
+        if (homeAvatar && mountedAvatarKey !== key) homeAvatar = null; // persona/skin a changé
         if (!homeAvatar) {
-            homeAvatar = createZovaAvatar(document.getElementById('avatarStage'), getAvatarSkin());
+            homeAvatar = createZovaAvatar(document.getElementById('avatarStage'), av);
             homeAvatar.mount();
+            mountedAvatarKey = key;
         }
         homeAvatar.setState(currentConvState);
         wrap?.classList.remove('hidden');
