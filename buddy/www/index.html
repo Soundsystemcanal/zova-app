@@ -5806,6 +5806,27 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
 {{FACE}}
 </g>
 <circle id="zDot" cx="100" cy="173" r="3" fill="${skin.swatch}" opacity="0.5" filter="url(#zGL)"/>`
+        },
+        flame: {
+            label: 'Flame', emoji: '🔥',
+            faceTransform: 'translate(0,18) scale(0.85)',
+            motion: { floatAmp: 5.5, swayAmp: 2, rollAmp: 1.5, breathAmp: 0.02, speed: 1.15, shadowRx: 50 },
+            // Défs propres : cœur brillant (jaune-blanc → couleur de la skin), pas
+            // seulement les gradients partagés — un feu a besoin d'un point chaud.
+            defs: (skin) => `<radialGradient id="zFlameCore" cx="50%" cy="25%" r="75%"><stop offset="0%" stop-color="#fff8dc"/><stop offset="50%" stop-color="${skin.irisIdle[1]}"/><stop offset="100%" stop-color="${skin.face[1]}"/></radialGradient>`,
+            body: (skin) => `<ellipse id="zShadow" cx="100" cy="190" rx="50" ry="7" fill="${skin.shadow}" opacity="0.16"/>
+<g id="zFloat">
+<path d="M100,8 C140,30 155,70 148,102 C143,138 115,168 98,186 C82,170 58,145 52,108 C46,72 65,38 92,14 C95,12 98,10 100,8 Z" fill="none" stroke="url(#zRM)" stroke-width="1.8" opacity="0.7"/>
+<path d="M100,12 C136,33 149,70 143,100 C138,133 113,161 98,178 C84,163 62,140 56,105 C51,72 68,40 92,18 C95,16 98,14 100,12 Z" fill="url(#zFA)"/>
+<path d="M100,12 C136,33 149,70 143,100 C138,133 113,161 98,178 C84,163 62,140 56,105 C51,72 68,40 92,18 C95,16 98,14 100,12 Z" fill="url(#zCore)"/>
+<!-- Cœur brillant imbriqué : plus petit, décalé bas — c'est ce qui vend le "feu" -->
+<path d="M100,50 C122,68 132,95 126,120 C121,143 108,163 100,175 C92,163 79,143 74,120 C68,95 78,68 100,50 Z" fill="url(#zFlameCore)" opacity="0.92"/>
+<path id="zPulse1" d="M100,10 C105,22 103,36 100,44 C97,36 95,22 100,10 Z" fill="#fff8dc"/>
+<path id="zPulse2" d="M90,24 C97,34 97,48 91,58 C85,50 84,34 90,24 Z" fill="#ffe9a8"/>
+{{FACE}}
+<path d="M100,12 C136,33 149,70 143,100 C138,133 113,161 98,178 C84,163 62,140 56,105 C51,72 68,40 92,18 C95,16 98,14 100,12 Z" fill="url(#zVol)" opacity="0.6"/>
+</g>
+<circle id="zDot" cx="100" cy="173" r="3" fill="${skin.swatch}" opacity="0.5" filter="url(#zGL)"/>`
         }
     };
 
