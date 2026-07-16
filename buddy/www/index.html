@@ -4699,7 +4699,7 @@ Minimum version required to store current data is: `+i+`.
                     'lingo-default-v1': { shell: 'crystal', skin: 'mono' }
                 };
                 personas.forEach(p => {
-                    if (AVATAR_MIGRATION[p.id] && typeof p.avatar !== 'object') {
+                    if (AVATAR_MIGRATION[p.id] && !(typeof p.avatar === 'object' && p.avatar)) {
                         p.avatar = AVATAR_MIGRATION[p.id];
                     }
                 });
