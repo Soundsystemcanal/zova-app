@@ -5506,9 +5506,10 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
             return ((await resp.json()).choices?.[0]?.message?.content || '').trim();
         }
         if (type === 'gemini') {
-            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(key)}`, {
+            // Clé via header x-goog-api-key (pas en query string : évite les logs serveur)
+            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
                 body: JSON.stringify({
                     system_instruction: { parts: [{ text: systemPrompt }] },
                     contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
@@ -6651,7 +6652,7 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         if (!key) { statusEl.innerHTML = ''; return false; }
         statusEl.innerHTML = `<span class="api-key-status checking">${t('api_checking')}</span>`;
         try {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`);
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models`, { headers: { 'x-goog-api-key': key } });
             if (res.ok) {
                 statusEl.innerHTML = `<span class="api-key-status valid">${t('api_valid')}</span>`;
                 return true;
@@ -7404,9 +7405,9 @@ ${d.name ? 'Imposed name: ' + d.name : 'Name: suggest one'}`;
                 }
             } else if (geminiKey) {
                 // Gemini 3 Pro Image
-                const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${encodeURIComponent(geminiKey)}`, {
+                const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': geminiKey },
                     body: JSON.stringify({
                         contents: [{ parts: [{ text: prompt }] }],
                         generationConfig: {
@@ -10522,12 +10523,17 @@ STRICT rules:
         scrollTranscript();
     }
 
+    // Échappe le texte AVANT d'ajouter le balisage des marqueurs non-speech
+    // [...] — sinon du HTML dans la transcription (STT) s'exécuterait dans le DOM.
+    function formatTranscriptSegment(transcript) {
+        return esc(transcript.trim()).replace(/\[([^\]]+)\]/g, '<span class="non-speech">[$1]</span>');
+    }
+
     function finalizeTranscriptSegment(transcript) {
         if (currentWhisperParagraph) {
             if (transcript.trim()) {
                 // Remplacer par le texte final (plus propre que les deltas cumulés)
-                const formatted = transcript.trim().replace(/\[([^\]]+)\]/g, '<span class="non-speech">[$1]</span>');
-                currentWhisperParagraph.innerHTML = formatted;
+                currentWhisperParagraph.innerHTML = formatTranscriptSegment(transcript);
             }
             currentWhisperParagraph = null;
         } else if (transcript.trim()) {
@@ -10537,8 +10543,7 @@ STRICT rules:
             if (placeholder) placeholder.remove();
             const p = document.createElement('p');
             p.className = 'transcript-flowing-text';
-            const formatted = transcript.trim().replace(/\[([^\]]+)\]/g, '<span class="non-speech">[$1]</span>');
-            p.innerHTML = formatted;
+            p.innerHTML = formatTranscriptSegment(transcript);
             el.appendChild(p);
             scrollTranscript();
         }

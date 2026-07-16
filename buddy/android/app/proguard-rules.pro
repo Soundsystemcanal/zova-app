@@ -1,21 +1,24 @@
 # Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# ── Pont JS ↔ Android : le JS appelle ces méthodes par leur nom exact.
+# Sans ces règles, R8 les renomme/supprime → bridge cassé (audio, wakelock, widget).
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+-keep class com.buddy.voiceapp.MainActivity$ZovaJSBridge { *; }
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# ── Composants natifs référencés par l'AndroidManifest (Activity, Service, Widget)
+-keep class com.buddy.voiceapp.MainActivity { *; }
+-keep class com.buddy.voiceapp.ZovaForegroundService { *; }
+-keep class com.buddy.voiceapp.ZovaWidget { *; }
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# ── Capacitor : bridge natif + plugins chargés par réflexion
+-keep class com.getcapacitor.** { *; }
+-keep @com.getcapacitor.annotation.CapacitorPlugin class * { *; }
+-keepclassmembers class * extends com.getcapacitor.Plugin { @com.getcapacitor.PluginMethod <methods>; }
+
+# Traces d'erreur lisibles (numéros de ligne) dans les rapports de crash
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
