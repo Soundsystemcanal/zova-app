@@ -5784,6 +5784,28 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
 <circle cx="100" cy="100" r="85" fill="url(#zVol)" opacity="0.8"/>
 </g>
 <circle id="zDot" cx="100" cy="173" r="3" fill="${skin.swatch}" opacity="0.5" filter="url(#zGL)"/>`
+        },
+        crystal: {
+            label: 'Crystal', emoji: '💎',
+            faceTransform: 'translate(0,6) scale(0.92)',
+            motion: { floatAmp: 2.5, swayAmp: 1.5, rollAmp: 0.6, breathAmp: 0, speed: 1, shadowRx: 58 },
+            body: (skin) => `<ellipse id="zShadow" cx="100" cy="190" rx="58" ry="7" fill="${skin.shadow}" opacity="0.16"/>
+<g id="zFloat">
+<polygon points="100,10 155,30 188,80 180,140 140,185 60,185 20,140 12,80 45,30" fill="none" stroke="url(#zRM)" stroke-width="1.8" opacity="0.7"/>
+<polygon points="100,16 150,34 181,81 174,137 136,179 64,179 26,137 19,81 50,34" fill="url(#zFA)"/>
+<polygon points="100,16 150,34 181,81 174,137 136,179 64,179 26,137 19,81 50,34" fill="url(#zCore)"/>
+<polygon points="100,16 150,34 181,81 174,137 136,179 64,179 26,137 19,81 50,34" fill="url(#zRim)"/>
+<path d="M100,16 L19,81 L100,100 Z" fill="rgba(255,255,255,0.06)"/>
+<path d="M100,16 L181,81 L100,100 Z" fill="rgba(255,255,255,0.10)"/>
+<path d="M26,137 L64,179 L100,100 Z" fill="rgba(0,0,0,0.10)"/>
+<path d="M174,137 L136,179 L100,100 Z" fill="rgba(255,255,255,0.04)"/>
+<path id="zPulse1" d="M100,16 L150,34" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" fill="none"/>
+<path id="zPulse2" d="M19,81 L26,137" stroke="rgba(255,255,255,0.6)" stroke-width="1.2" fill="none"/>
+<ellipse id="zSpecMain" cx="70" cy="52" rx="20" ry="12" fill="url(#zSpec)" opacity="0.85" transform="rotate(-30,70,52)"/>
+<circle id="zSpecHot" cx="64" cy="46" r="5" fill="url(#zSpec2)" opacity="0.95"/>
+{{FACE}}
+</g>
+<circle id="zDot" cx="100" cy="173" r="3" fill="${skin.swatch}" opacity="0.5" filter="url(#zGL)"/>`
         }
     };
 
