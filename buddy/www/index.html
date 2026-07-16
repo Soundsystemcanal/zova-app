@@ -2771,6 +2771,10 @@ Minimum version required to store current data is: `+i+`.
           </div>
           <label class="toggle-switch"><input type="checkbox" id="avatarToggle"><span class="toggle-slider"></span></label>
       </div>
+      <div style="margin-top:4px;margin-bottom:4px">
+          <div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:8px" data-i18n="config_avatar_skin">Estilo de avatar</div>
+          <div id="avatarSkinSwatches" style="display:flex;gap:10px"></div>
+      </div>
       <button class="config-screen-btn" id="apiConfigBtn">&#9881; <span data-i18n="config_api_keys">API Keys y Modelo</span></button>
       <button class="config-screen-btn" id="myInfoBtn">&#128100; <span data-i18n="config_my_info">Mis informaciones</span></button>
       <button class="config-screen-btn" id="backupBtn">&#128190; <span data-i18n="config_backup">Copia de seguridad</span></button>
@@ -3770,6 +3774,7 @@ Minimum version required to store current data is: `+i+`.
             err_keystore_unavailable: 'No se pudo guardar la clave de forma segura. Reinicia la app e inténtalo de nuevo.',
             config_avatar_toggle: 'Avatar animado',
             config_avatar_hint: 'Desactívalo si la conversación se ralentiza',
+            config_avatar_skin: 'Estilo de avatar',
             tap_to_stop: 'toca para interrumpir',
             setup_min_hint: 'ℹ️ <strong>Mínimo: 1 sola clave.</strong> Groq es <strong>gratis</strong> y la más fácil para empezar. Las demás son opcionales.',
             // Status hints
@@ -4028,6 +4033,7 @@ Minimum version required to store current data is: `+i+`.
             err_keystore_unavailable: 'Could not save the key securely. Restart the app and try again.',
             config_avatar_toggle: 'Animated avatar',
             config_avatar_hint: 'Disable if conversation slows down',
+            config_avatar_skin: 'Avatar style',
             tap_to_stop: 'tap to interrupt',
             setup_min_hint: 'ℹ️ <strong>Minimum: just 1 key.</strong> Groq is <strong>free</strong> and the easiest to start with. The others are optional.',
             // Status hints
@@ -4286,6 +4292,7 @@ Minimum version required to store current data is: `+i+`.
             err_keystore_unavailable: 'Impossible de sauvegarder la clé de façon sécurisée. Redémarre l\'app et réessaie.',
             config_avatar_toggle: 'Avatar animé',
             config_avatar_hint: 'Désactive-le si la conversation ralentit',
+            config_avatar_skin: 'Style d\'avatar',
             tap_to_stop: 'touche pour interrompre',
             setup_min_hint: 'ℹ️ <strong>Minimum : une seule clé.</strong> Groq est <strong>gratuit</strong> et le plus simple pour démarrer. Les autres sont optionnelles.',
             // Status hints
@@ -5638,26 +5645,71 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
     // ════════════════════════════════════════════════
     let avatarEnabled = localStorage.getItem('zova_avatar') !== 'false';
 
-    const ZOVA_SVG = `<defs>
-<radialGradient id="zFA" cx="36%" cy="26%" r="78%"><stop offset="0%" stop-color="#4a4194"/><stop offset="38%" stop-color="#2f2870"/><stop offset="72%" stop-color="#1d184a"/><stop offset="100%" stop-color="#0f0c2e"/></radialGradient>
-<linearGradient id="zRM" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#c4b5fd"/><stop offset="100%" stop-color="#f9a8d4"/></linearGradient>
-<radialGradient id="zIA" cx="32%" cy="28%" r="72%"><stop offset="0%" stop-color="#ffffff"/><stop offset="35%" stop-color="#d8caff"/><stop offset="100%" stop-color="#8b5cf6"/></radialGradient>
-<radialGradient id="zIB" cx="32%" cy="28%" r="72%"><stop offset="0%" stop-color="#ffffff"/><stop offset="35%" stop-color="#fbcfe8"/><stop offset="100%" stop-color="#ec4899"/></radialGradient>
-<radialGradient id="zIC" cx="32%" cy="28%" r="72%"><stop offset="0%" stop-color="#ffffff"/><stop offset="35%" stop-color="#c4b5fd"/><stop offset="100%" stop-color="#7c3aed"/></radialGradient>
+    // ════════════════════════════════════════════════
+    //  Skins de l'avatar — mêmes coordonnées/anatomie, palettes différentes.
+    //  Le moteur (renderZova/interpolate) est identique pour toutes.
+    // ════════════════════════════════════════════════
+    const AVATAR_SKINS = {
+        dark_cosmos: {
+            label: 'Dark Cosmos', swatch: '#8b5cf6',
+            face: ['#4a4194', '#2f2870', '#1d184a', '#0f0c2e'],
+            ring: ['#c4b5fd', '#f9a8d4'],
+            irisIdle: ['#d8caff', '#8b5cf6'], irisSpeak: ['#fbcfe8', '#ec4899'], irisThink: ['#c4b5fd', '#7c3aed'],
+            lipLo: ['#fb7185', '#e11d6a'], lipUp: ['#e879a8', '#db4d8a'],
+            vol: '167,139,250', rim: '167,139,250', cheek: '236,72,153', shadow: '#7c3aed',
+            dots: { idle: 'rgba(167,139,250,.4)', greeting: '#c4b5fd', listening: '#a78bfa', thinking: '#8b5cf6', speaking: '#fb7185' }
+        },
+        ocean: {
+            label: 'Ocean', swatch: '#22d3ee',
+            face: ['#2c6f94', '#1c4a6e', '#123350', '#0a1f38'],
+            ring: ['#7dd3fc', '#a5f3fc'],
+            irisIdle: ['#bae6fd', '#0ea5e9'], irisSpeak: ['#cffafe', '#06b6d4'], irisThink: ['#7dd3fc', '#0369a1'],
+            lipLo: ['#38bdf8', '#0284c7'], lipUp: ['#7dd3fc', '#0ea5e9'],
+            vol: '56,189,248', rim: '125,211,252', cheek: '56,189,248', shadow: '#0ea5e9',
+            dots: { idle: 'rgba(56,189,248,.4)', greeting: '#7dd3fc', listening: '#38bdf8', thinking: '#0ea5e9', speaking: '#22d3ee' }
+        },
+        sunset: {
+            label: 'Sunset', swatch: '#fb923c',
+            face: ['#a4522f', '#7a2f1e', '#4f1c15', '#2e0f0d'],
+            ring: ['#fdba74', '#fca5a5'],
+            irisIdle: ['#fed7aa', '#f97316'], irisSpeak: ['#fecaca', '#ef4444'], irisThink: ['#fdba74', '#c2410c'],
+            lipLo: ['#fb7185', '#dc2626'], lipUp: ['#fca5a5', '#f87171'],
+            vol: '251,146,60', rim: '253,186,116', cheek: '251,146,60', shadow: '#ea580c',
+            dots: { idle: 'rgba(251,146,60,.4)', greeting: '#fdba74', listening: '#fb923c', thinking: '#f97316', speaking: '#ef4444' }
+        },
+        mono: {
+            label: 'Mono', swatch: '#cbd5e1',
+            face: ['#525968', '#39404c', '#252a33', '#14171d'],
+            ring: ['#e2e8f0', '#f8fafc'],
+            irisIdle: ['#e2e8f0', '#64748b'], irisSpeak: ['#f1f5f9', '#94a3b8'], irisThink: ['#cbd5e1', '#475569'],
+            lipLo: ['#cbd5e1', '#64748b'], lipUp: ['#e2e8f0', '#94a3b8'],
+            vol: '148,163,184', rim: '203,213,225', cheek: '148,163,184', shadow: '#64748b',
+            dots: { idle: 'rgba(148,163,184,.4)', greeting: '#e2e8f0', listening: '#cbd5e1', thinking: '#94a3b8', speaking: '#f1f5f9' }
+        }
+    };
+    function getAvatarSkin() { return localStorage.getItem('buddy_avatarSkin') || 'dark_cosmos'; }
+    function setAvatarSkin(id) { localStorage.setItem('buddy_avatarSkin', id); }
+
+    function buildZovaSvg(skin) { return `<defs>
+<radialGradient id="zFA" cx="36%" cy="26%" r="78%"><stop offset="0%" stop-color="${skin.face[0]}"/><stop offset="38%" stop-color="${skin.face[1]}"/><stop offset="72%" stop-color="${skin.face[2]}"/><stop offset="100%" stop-color="${skin.face[3]}"/></radialGradient>
+<linearGradient id="zRM" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${skin.ring[0]}"/><stop offset="100%" stop-color="${skin.ring[1]}"/></linearGradient>
+<radialGradient id="zIA" cx="32%" cy="28%" r="72%"><stop offset="0%" stop-color="#ffffff"/><stop offset="35%" stop-color="${skin.irisIdle[0]}"/><stop offset="100%" stop-color="${skin.irisIdle[1]}"/></radialGradient>
+<radialGradient id="zIB" cx="32%" cy="28%" r="72%"><stop offset="0%" stop-color="#ffffff"/><stop offset="35%" stop-color="${skin.irisSpeak[0]}"/><stop offset="100%" stop-color="${skin.irisSpeak[1]}"/></radialGradient>
+<radialGradient id="zIC" cx="32%" cy="28%" r="72%"><stop offset="0%" stop-color="#ffffff"/><stop offset="35%" stop-color="${skin.irisThink[0]}"/><stop offset="100%" stop-color="${skin.irisThink[1]}"/></radialGradient>
 <radialGradient id="zSP" cx="35%" cy="20%" r="45%"><stop offset="0%" stop-color="rgba(216,202,255,0.18)"/><stop offset="100%" stop-color="rgba(216,202,255,0)"/></radialGradient>
 <radialGradient id="zSpec" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(255,255,255,1)"/><stop offset="25%" stop-color="rgba(255,255,255,0.85)"/><stop offset="55%" stop-color="rgba(255,255,255,0.25)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
 <radialGradient id="zSpec2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(255,255,255,0.95)"/><stop offset="60%" stop-color="rgba(255,255,255,0.3)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
-<radialGradient id="zRim" cx="50%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(167,139,250,0)"/><stop offset="74%" stop-color="rgba(167,139,250,0)"/><stop offset="92%" stop-color="rgba(196,181,253,0.35)"/><stop offset="100%" stop-color="rgba(216,202,255,0.55)"/></radialGradient>
+<radialGradient id="zRim" cx="50%" cy="82%" r="55%"><stop offset="0%" stop-color="rgba(${skin.rim},0)"/><stop offset="74%" stop-color="rgba(${skin.rim},0)"/><stop offset="92%" stop-color="rgba(${skin.rim},0.35)"/><stop offset="100%" stop-color="rgba(${skin.rim},0.55)"/></radialGradient>
 <radialGradient id="zCore" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(10,8,30,0)"/><stop offset="70%" stop-color="rgba(10,8,30,0)"/><stop offset="100%" stop-color="rgba(8,5,22,0.55)"/></radialGradient>
 <filter id="zGL"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 <clipPath id="zEyeClipL"><path d="M-17,1Q-9,-11 1,-10Q14,-9 16,3Q14,11 0,12Q-13,11 -17,1Z"/></clipPath>
 <clipPath id="zEyeClipR"><path d="M17,1Q9,-11 -1,-10Q-14,-9 -16,3Q-14,11 0,12Q13,11 17,1Z"/></clipPath>
 <radialGradient id="zMouthIn" cx="50%" cy="30%" r="80%"><stop offset="0%" stop-color="#7a2348"/><stop offset="55%" stop-color="#4a1530"/><stop offset="100%" stop-color="#2a0a1c"/></radialGradient>
-<linearGradient id="zLipLo" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fb7185"/><stop offset="100%" stop-color="#e11d6a"/></linearGradient>
-<linearGradient id="zLipUp" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#e879a8"/><stop offset="100%" stop-color="#db4d8a"/></linearGradient>
-<radialGradient id="zVol" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(196,181,253,0)"/><stop offset="75%" stop-color="rgba(196,181,253,0)"/><stop offset="100%" stop-color="rgba(167,139,250,0.25)"/></radialGradient>
+<linearGradient id="zLipLo" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="${skin.lipLo[0]}"/><stop offset="100%" stop-color="${skin.lipLo[1]}"/></linearGradient>
+<linearGradient id="zLipUp" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="${skin.lipUp[0]}"/><stop offset="100%" stop-color="${skin.lipUp[1]}"/></linearGradient>
+<radialGradient id="zVol" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(${skin.vol},0)"/><stop offset="75%" stop-color="rgba(${skin.vol},0)"/><stop offset="100%" stop-color="rgba(${skin.vol},0.25)"/></radialGradient>
 </defs>
-<ellipse id="zShadow" cx="100" cy="190" rx="66" ry="8" fill="#7c3aed" opacity="0.16"/>
+<ellipse id="zShadow" cx="100" cy="190" rx="66" ry="8" fill="${skin.shadow}" opacity="0.16"/>
 <g id="zFloat">
 <circle cx="100" cy="100" r="93" fill="none" stroke="rgba(167,139,250,0.15)" stroke-width="7"/>
 <circle id="zRing" cx="100" cy="100" r="92" fill="none" stroke="url(#zRM)" stroke-width="1.8" opacity="0.7"/>
@@ -5713,7 +5765,7 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
 </g>
 <circle cx="100" cy="100" r="85" fill="url(#zVol)" opacity="0.8"/>
 </g>
-<circle id="zDot" cx="100" cy="173" r="3" fill="#8b5cf6" opacity="0.5" filter="url(#zGL)"/>`;
+<circle id="zDot" cx="100" cy="173" r="3" fill="${skin.swatch}" opacity="0.5" filter="url(#zGL)"/>`; }
 
     // ════════════════════════════════════════════════
     //  Visèmes phonétiques — lip-sync piloté par le texte
@@ -5777,7 +5829,8 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         return 0;
     }
 
-    function createZovaAvatar(stageEl) {
+    function createZovaAvatar(stageEl, skinId) {
+        const skin = AVATAR_SKINS[skinId] || AVATAR_SKINS.dark_cosmos;
         const g = id => stageEl.querySelector('#' + id);
         const lrp = (a, b, t) => a + (b - a) * t;
 
@@ -5865,8 +5918,8 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
             g('zBrowR')?.setAttribute('d', `M119,${RinnerY}Q133,${RmidY}146,${RouterY}`);
             const bOp = .7+Math.max(Math.abs(ip.bll), Math.abs(ip.blr), ip.bfl, bcurv)*.3;
             g('zBrowL')?.setAttribute('opacity', Math.min(1,bOp)); g('zBrowR')?.setAttribute('opacity', Math.min(1,bOp));
-            g('zCheekL')?.setAttribute('fill', `rgba(236,72,153,${ip.cheek*.22})`);
-            g('zCheekR')?.setAttribute('fill', `rgba(236,72,153,${ip.cheek*.22})`);
+            g('zCheekL')?.setAttribute('fill', `rgba(${skin.cheek},${ip.cheek*.22})`);
+            g('zCheekR')?.setAttribute('fill', `rgba(${skin.cheek},${ip.cheek*.22})`);
             const ig = avState === 'speaking' ? 'zIB' : avState === 'thinking' ? 'zIC' : 'zIA';
             const iR = 11*ip.is, pR = Math.min(5.5*ip.ps, iR*.55), gx = ip.gx*3.5, gy = ip.gy*2.5+1;
             for (const s of ['L','R']) {
@@ -5913,13 +5966,12 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
             g('zMS')?.setAttribute('ry', 3.5+op*4); g('zMS')?.setAttribute('cy', 9+op*3+fullness*.3);
             g('zCL')?.setAttribute('cy', cyL); g('zCR')?.setAttribute('cy', cyR);
             g('zCL')?.setAttribute('opacity', .4+smile*.5); g('zCR')?.setAttribute('opacity', .4+smile*.5);
-            const dc = {idle:'rgba(167,139,250,.4)',greeting:'#c4b5fd',listening:'#a78bfa',thinking:'#8b5cf6',speaking:'#fb7185'};
-            g('zDot')?.setAttribute('fill', dc[avState] || '#a78bfa');
+            g('zDot')?.setAttribute('fill', skin.dots[avState] || skin.swatch);
         }
 
         return {
             mount() {
-                stageEl.innerHTML = ZOVA_SVG;
+                stageEl.innerHTML = buildZovaSvg(skin);
                 applyExpr('idle');
                 Object.assign(ip, {mo:0,bll:0,blr:0,bfl:0,bfr:0,is:1,ps:1,ro:.4,rr:92,bkL:0,bkR:0,gx:0,gy:0,tilt:0,cheek:0,squint:0,nod:0,bcurv:0,bang:0});
                 scheduleBlink(); scheduleGaze(); scheduleNod();
@@ -5941,7 +5993,7 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
             return;
         }
         if (!homeAvatar) {
-            homeAvatar = createZovaAvatar(document.getElementById('avatarStage'));
+            homeAvatar = createZovaAvatar(document.getElementById('avatarStage'), getAvatarSkin());
             homeAvatar.mount();
         }
         homeAvatar.setState(currentConvState);
@@ -6363,6 +6415,28 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
             maybeMountAvatar();
         });
     }
+
+    // Sélecteur de skin (palette de couleurs) de l'avatar — même moteur/anatomie,
+    // seuls les gradients de couleur changent (voir AVATAR_SKINS).
+    (function initAvatarSkinSwatches() {
+        const wrap = document.getElementById('avatarSkinSwatches');
+        if (!wrap) return;
+        const current = getAvatarSkin();
+        wrap.innerHTML = Object.entries(AVATAR_SKINS).map(([id, skin]) => `
+            <button class="avatar-skin-swatch${id === current ? ' active' : ''}" data-skin="${id}" title="${esc(skin.label)}"
+                style="width:36px;height:36px;border-radius:50%;border:2px solid ${id === current ? skin.swatch : 'transparent'};background:${skin.swatch};cursor:pointer;padding:0"></button>
+        `).join('');
+        wrap.querySelectorAll('.avatar-skin-swatch').forEach(btn => {
+            btn.addEventListener('click', () => {
+                setAvatarSkin(btn.dataset.skin);
+                wrap.querySelectorAll('.avatar-skin-swatch').forEach(b => { b.style.borderColor = 'transparent'; b.classList.remove('active'); });
+                btn.style.borderColor = AVATAR_SKINS[btn.dataset.skin].swatch;
+                btn.classList.add('active');
+                homeAvatar = null; // force remount avec la nouvelle skin
+                maybeMountAvatar();
+            });
+        });
+    })();
 
     // FASE 4 — Tap-to-interrupt
     document.getElementById('vizRingWrap')?.addEventListener('click', () => {
