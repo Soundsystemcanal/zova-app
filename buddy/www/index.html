@@ -4691,6 +4691,18 @@ Minimum version required to store current data is: `+i+`.
                     personas.push(getDefaultPersonaLingo());
                     console.log('[Zova] Persona Lingo ajoutée (v4.1)');
                 }
+                // Assigner l'avatar (carcasse+palette) aux 3 personas par défaut si
+                // absent — migration users existants (avatar shells, v6)
+                const AVATAR_MIGRATION = {
+                    'zova-default-v1': { shell: 'orb', skin: 'dark_cosmos' },
+                    'gaia-default-v1': { shell: 'cloud', skin: 'ocean' },
+                    'lingo-default-v1': { shell: 'crystal', skin: 'mono' }
+                };
+                personas.forEach(p => {
+                    if (AVATAR_MIGRATION[p.id] && typeof p.avatar !== 'object') {
+                        p.avatar = AVATAR_MIGRATION[p.id];
+                    }
+                });
                 localStorage.setItem('buddy_personas', JSON.stringify(personas));
             } catch(e) {}
         })();
@@ -5024,6 +5036,7 @@ Tu es aussi l'aide intégrée de Zova. Si l'utilisateur demande comment configur
             id: 'zova-default-v1',
             name: p.name,
             description: p.description,
+            avatar: { shell: 'orb', skin: 'dark_cosmos' },
             voice: 'shimmer',
             model: '',
             translateLang: '',
@@ -5112,6 +5125,7 @@ Commence par une salutation chaleureuse + UNE question ciblée sur le bien-être
             id: 'gaia-default-v1',
             name: p.name,
             description: p.description,
+            avatar: { shell: 'cloud', skin: 'ocean' },
             voice: 'nova',
             model: '',
             translateLang: '',
@@ -5205,6 +5219,7 @@ Si tu ne sais pas encore quelle langue l'utilisateur veut apprendre, commence ai
             id: 'lingo-default-v1',
             name: p.name,
             description: p.description,
+            avatar: { shell: 'crystal', skin: 'mono' },
             voice: 'alloy',
             model: '',
             translateLang: '',
@@ -7132,6 +7147,19 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
         return table[tone] || table.chaleureux;
     }
 
+    // Suggestion d'avatar (carcasse+palette) selon le ton du wizard —
+    // toujours pré-rempli et modifiable dans l'éditeur, jamais imposé.
+    const WIZARD_AVATAR_MAP = {
+        chaleureux: { shell: 'cloud',   skin: 'sunset' },
+        pro:        { shell: 'crystal', skin: 'mono' },
+        expert:     { shell: 'crystal', skin: 'dark_cosmos' },
+        fun:        { shell: 'flame',   skin: 'sunset' },
+        calme:      { shell: 'cloud',   skin: 'ocean' }
+    };
+    function wizardToneToAvatar(tone) {
+        return WIZARD_AVATAR_MAP[tone] || { shell: 'orb', skin: 'dark_cosmos' };
+    }
+
     // État courant du wizard (réponses + index d'étape)
     let wizardStep = 0;
     let wizGenerating = false;
@@ -7426,6 +7454,8 @@ ${d.name ? 'Imposed name: ' + d.name : 'Name: suggest one'}`;
         document.getElementById('pReactivity').value = 'balanced';
         document.getElementById('pGreeting').value = wizardData.who;
         updatePersonaVoiceList(wizardToneToVoice(wizardData.tone));
+        tempAvatar = wizardToneToAvatar(wizardData.tone);
+        renderAvatarPickers();
         const banner = document.getElementById('wizardBanner');
         banner.textContent = t('wiz_banner');
         banner.style.display = '';
