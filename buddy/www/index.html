@@ -5690,7 +5690,9 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
     function getAvatarSkin() { return localStorage.getItem('buddy_avatarSkin') || 'dark_cosmos'; }
     function setAvatarSkin(id) { localStorage.setItem('buddy_avatarSkin', id); }
 
-    function buildZovaSvg(skin) { return `<defs>
+    // Défs partagés : gradients de la palette + clips/filtre du visage.
+    // Utilisés par toutes les carcasses.
+    function skinDefs(skin) { return `
 <radialGradient id="zFA" cx="36%" cy="26%" r="78%"><stop offset="0%" stop-color="${skin.face[0]}"/><stop offset="38%" stop-color="${skin.face[1]}"/><stop offset="72%" stop-color="${skin.face[2]}"/><stop offset="100%" stop-color="${skin.face[3]}"/></radialGradient>
 <linearGradient id="zRM" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${skin.ring[0]}"/><stop offset="100%" stop-color="${skin.ring[1]}"/></linearGradient>
 <radialGradient id="zIA" cx="32%" cy="28%" r="72%"><stop offset="0%" stop-color="#ffffff"/><stop offset="35%" stop-color="${skin.irisIdle[0]}"/><stop offset="100%" stop-color="${skin.irisIdle[1]}"/></radialGradient>
@@ -5708,19 +5710,11 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
 <linearGradient id="zLipLo" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="${skin.lipLo[0]}"/><stop offset="100%" stop-color="${skin.lipLo[1]}"/></linearGradient>
 <linearGradient id="zLipUp" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="${skin.lipUp[0]}"/><stop offset="100%" stop-color="${skin.lipUp[1]}"/></linearGradient>
 <radialGradient id="zVol" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(${skin.vol},0)"/><stop offset="75%" stop-color="rgba(${skin.vol},0)"/><stop offset="100%" stop-color="rgba(${skin.vol},0.25)"/></radialGradient>
-</defs>
-<ellipse id="zShadow" cx="100" cy="190" rx="66" ry="8" fill="${skin.shadow}" opacity="0.16"/>
-<g id="zFloat">
-<circle cx="100" cy="100" r="93" fill="none" stroke="rgba(167,139,250,0.15)" stroke-width="7"/>
-<circle id="zRing" cx="100" cy="100" r="92" fill="none" stroke="url(#zRM)" stroke-width="1.8" opacity="0.7"/>
-<circle cx="100" cy="100" r="87" fill="none" stroke="rgba(167,139,250,0.1)" stroke-width="1"/>
-<circle cx="100" cy="100" r="85" fill="url(#zFA)"/>
-<circle cx="100" cy="100" r="85" fill="url(#zCore)"/>
-<circle cx="100" cy="100" r="85" fill="url(#zRim)"/>
-<ellipse cx="82" cy="68" rx="44" ry="32" fill="url(#zSP)"/>
-<ellipse id="zSpecMain" cx="70" cy="56" rx="26" ry="18" fill="url(#zSpec)" opacity="0.9" transform="rotate(-28,70,56)"/>
-<circle id="zSpecHot" cx="64" cy="50" r="6" fill="url(#zSpec2)" opacity="0.95"/>
-<g id="zFaceGroup">
+`; }
+
+    // Visage partagé par toutes les carcasses — NE JAMAIS dupliquer.
+    // Un correctif facial s'applique ainsi à toutes les formes.
+    const FACE_SVG = `<g id="zFaceGroup">
 <path id="zBrowL" d="M54,62Q67,55 81,60" stroke="#ddd6fe" stroke-width="3.8" fill="none" stroke-linecap="round" filter="url(#zGL)" opacity="0.85"/>
 <path id="zBrowR" d="M119,60Q133,55 146,62" stroke="#ddd6fe" stroke-width="3.8" fill="none" stroke-linecap="round" filter="url(#zGL)" opacity="0.85"/>
 <ellipse id="zCheekL" cx="62" cy="116" rx="14" ry="9" fill="rgba(236,72,153,0)" filter="url(#zGL)"/>
@@ -5762,10 +5756,44 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
   <circle id="zCL" cx="-19" cy="0" r="2" fill="#e11d6a" opacity="0.6"/>
   <circle id="zCR" cx="19" cy="0" r="2" fill="#e11d6a" opacity="0.6"/>
 </g>
-</g>
+</g>`;
+
+    // ════════════════════════════════════════════════
+    //  Carcasses d'avatar — forme extérieure par persona.
+    //  Contrat : body(skin) contient {{FACE}} là où s'insère le visage.
+    //  IDs de corps optionnels (le moteur utilise ?.) : zFloat, zShadow,
+    //  zRing, zSpecMain, zSpecHot, zDot, zPulse1, zPulse2.
+    // ════════════════════════════════════════════════
+    const AVATAR_SHELLS = {
+        orb: {
+            label: 'Orb', emoji: '🔮',
+            faceTransform: '',
+            motion: { floatAmp: 4.5, swayAmp: 3, rollAmp: 1.2, breathAmp: 0.018, speed: 1, shadowRx: 66 },
+            body: (skin) => `<ellipse id="zShadow" cx="100" cy="190" rx="66" ry="8" fill="${skin.shadow}" opacity="0.16"/>
+<g id="zFloat">
+<circle cx="100" cy="100" r="93" fill="none" stroke="rgba(167,139,250,0.15)" stroke-width="7"/>
+<circle id="zRing" cx="100" cy="100" r="92" fill="none" stroke="url(#zRM)" stroke-width="1.8" opacity="0.7"/>
+<circle cx="100" cy="100" r="87" fill="none" stroke="rgba(167,139,250,0.1)" stroke-width="1"/>
+<circle cx="100" cy="100" r="85" fill="url(#zFA)"/>
+<circle cx="100" cy="100" r="85" fill="url(#zCore)"/>
+<circle cx="100" cy="100" r="85" fill="url(#zRim)"/>
+<ellipse cx="82" cy="68" rx="44" ry="32" fill="url(#zSP)"/>
+<ellipse id="zSpecMain" cx="70" cy="56" rx="26" ry="18" fill="url(#zSpec)" opacity="0.9" transform="rotate(-28,70,56)"/>
+<circle id="zSpecHot" cx="64" cy="50" r="6" fill="url(#zSpec2)" opacity="0.95"/>
+{{FACE}}
 <circle cx="100" cy="100" r="85" fill="url(#zVol)" opacity="0.8"/>
 </g>
-<circle id="zDot" cx="100" cy="173" r="3" fill="${skin.swatch}" opacity="0.5" filter="url(#zGL)"/>`; }
+<circle id="zDot" cx="100" cy="173" r="3" fill="${skin.swatch}" opacity="0.5" filter="url(#zGL)"/>`
+        }
+    };
+
+    function buildAvatarSvg(shell, skin) {
+        const face = shell.faceTransform
+            ? `<g transform="${shell.faceTransform}">${FACE_SVG}</g>`
+            : FACE_SVG;
+        return `<defs>${skinDefs(skin)}${shell.defs ? shell.defs(skin) : ''}</defs>` +
+               shell.body(skin).replace('{{FACE}}', face);
+    }
 
     // ════════════════════════════════════════════════
     //  Visèmes phonétiques — lip-sync piloté par le texte
@@ -5971,7 +5999,7 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
 
         return {
             mount() {
-                stageEl.innerHTML = buildZovaSvg(skin);
+                stageEl.innerHTML = buildAvatarSvg(AVATAR_SHELLS.orb, skin);
                 applyExpr('idle');
                 Object.assign(ip, {mo:0,bll:0,blr:0,bfl:0,bfr:0,is:1,ps:1,ro:.4,rr:92,bkL:0,bkR:0,gx:0,gy:0,tilt:0,cheek:0,squint:0,nod:0,bcurv:0,bang:0});
                 scheduleBlink(); scheduleGaze(); scheduleNod();
