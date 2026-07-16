@@ -5827,6 +5827,31 @@ Tu parles en français. Tu utilises un langage courant, pas trop formel.
 <path d="M100,12 C136,33 149,70 143,100 C138,133 113,161 98,178 C84,163 62,140 56,105 C51,72 68,40 92,18 C95,16 98,14 100,12 Z" fill="url(#zVol)" opacity="0.6"/>
 </g>
 <circle id="zDot" cx="100" cy="173" r="3" fill="${skin.swatch}" opacity="0.5" filter="url(#zGL)"/>`
+        },
+        cloud: {
+            label: 'Cloud', emoji: '☁️',
+            faceTransform: 'translate(0,-10) scale(0.95)',
+            motion: { floatAmp: 6, swayAmp: 4, rollAmp: 1, breathAmp: 0.025, speed: 0.5, shadowRx: 70 },
+            body: (skin) => `<ellipse id="zShadow" cx="100" cy="190" rx="70" ry="8" fill="${skin.shadow}" opacity="0.16"/>
+<g id="zFloat">
+<g filter="url(#zGL)">
+<ellipse cx="100" cy="128" rx="72" ry="38" fill="url(#zFA)"/>
+<circle cx="46" cy="114" r="24" fill="url(#zFA)"/>
+<circle cx="65" cy="94" r="33" fill="url(#zFA)"/>
+<circle cx="100" cy="78" r="43" fill="url(#zFA)"/>
+<circle cx="137" cy="96" r="31" fill="url(#zFA)"/>
+<circle cx="156" cy="118" r="23" fill="url(#zFA)"/>
+<ellipse cx="100" cy="128" rx="72" ry="38" fill="url(#zCore)"/>
+<circle cx="100" cy="78" r="43" fill="url(#zCore)"/>
+<ellipse cx="100" cy="128" rx="72" ry="38" fill="url(#zRim)"/>
+<circle cx="100" cy="78" r="43" fill="url(#zRim)"/>
+</g>
+<ellipse id="zSpecMain" cx="78" cy="62" rx="22" ry="14" fill="url(#zSpec)" opacity="0.8" transform="rotate(-18,78,62)"/>
+<circle id="zSpecHot" cx="72" cy="56" r="5" fill="url(#zSpec2)" opacity="0.9"/>
+{{FACE}}
+<ellipse cx="100" cy="100" rx="90" ry="70" fill="url(#zVol)" opacity="0.5"/>
+</g>
+<circle id="zDot" cx="100" cy="173" r="3" fill="${skin.swatch}" opacity="0.5" filter="url(#zGL)"/>`
         }
     };
 
