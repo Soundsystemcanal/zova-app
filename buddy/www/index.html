@@ -2675,7 +2675,6 @@ Minimum version required to store current data is: `+i+`.
                       <div id="v2LocalPill" aria-hidden="true"><span class="dot"></span><span>LOCAL</span></div>
                   </div>
                   <button class="btn-edit-persona" id="transcripteurEcoBtn" title="Mode économique" style="display:none"><span class="icon">💎</span></button>
-                  <button class="btn-edit-persona" id="transcripteurImportBtn" title="Importer un audio" style="display:none"><span class="icon">📥</span></button>
                   <button class="btn-edit-persona" id="chaptersPersonaBtn" title="Chapitres" style="display:none"><span class="icon">📑</span></button>
                   <button class="btn-edit-persona" id="insightsPersonaBtn" title="Insights"><span class="icon">📊</span></button>
                   <button class="btn-edit-persona" id="duplicatePersonaBtn" title="Duplicar"><span class="icon">&#10697;</span></button>
@@ -2704,6 +2703,7 @@ Minimum version required to store current data is: `+i+`.
                   <button class="btn-mute" id="muteBtn" style="display:none"><span class="icon">&#127908;</span></button>
                   <button class="btn btn-stop" id="stopBtn" style="display:none">Terminar</button>
               </div>
+              <button id="transcripteurImportInlineBtn" style="display:none;margin:12px auto 0;padding:12px 22px;background:rgba(139,92,246,0.12);color:var(--text);border:1px solid var(--accent);border-radius:50px;font-size:0.92rem;font-weight:600;cursor:pointer;align-items:center;justify-content:center;gap:8px"><span class="icon">&#128229;</span> <span data-i18n="audio_import_inline">Importar audio a transcribir</span></button>
               <div id="status">Listo</div>
               <button id="cancelReconnectBtn" style="display:none;margin-top:6px;padding:6px 14px;background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border);border-radius:8px;font-size:0.8rem;cursor:pointer;">✕ Cancelar reconexión</button>
               <div id="sessionBar" style="display:none">
@@ -2723,7 +2723,7 @@ Minimum version required to store current data is: `+i+`.
               </div>
           </div>
       </div>
-      <div class="app-footer">Zova — AI Voice Assistant &nbsp;·&nbsp; v2.1</div>
+      <div class="app-footer">Zova — AI Voice Assistant &nbsp;·&nbsp; v5.0</div>
     </div>
 
     <!-- SCREEN: Personas -->
@@ -3537,6 +3537,9 @@ Minimum version required to store current data is: `+i+`.
             eco_mode_on: '💰 Modo económico activado (Groq, ~$0.04/h)',
             eco_mode_off: '💎 Modo estándar (OpenAI, ~$1/h) — toca para cambiar a económico',
             audio_import_title: 'Audio importado',
+            audio_import_card: '📥 Importar audio',
+            audio_import_card_desc: 'Transcribe y resume una nota de voz o grabación',
+            audio_import_inline: 'Importar audio a transcribir',
             audio_import_loading: 'Transcribiendo y resumiendo…',
             audio_import_summary_label: 'Resumen',
             audio_import_transcript_label: 'Transcripción completa',
@@ -3792,6 +3795,9 @@ Minimum version required to store current data is: `+i+`.
             eco_mode_on: '💰 Economy mode on (Groq, ~$0.04/h)',
             eco_mode_off: '💎 Standard mode (OpenAI, ~$1/h) — tap to switch to economy',
             audio_import_title: 'Imported audio',
+            audio_import_card: '📥 Import audio',
+            audio_import_card_desc: 'Transcribe and summarize a voice note or recording',
+            audio_import_inline: 'Import audio to transcribe',
             audio_import_loading: 'Transcribing and summarizing…',
             audio_import_summary_label: 'Summary',
             audio_import_transcript_label: 'Full transcript',
@@ -4047,6 +4053,9 @@ Minimum version required to store current data is: `+i+`.
             eco_mode_on: '💰 Mode économique activé (Groq, ~$0.04/h)',
             eco_mode_off: '💎 Mode standard (OpenAI, ~$1/h) — appuyer pour passer en économique',
             audio_import_title: 'Audio importé',
+            audio_import_card: '📥 Importer un audio',
+            audio_import_card_desc: 'Transcrire et résumer une note vocale ou un enregistrement',
+            audio_import_inline: 'Importer un audio à transcrire',
             audio_import_loading: 'Transcription et résumé en cours…',
             audio_import_summary_label: 'Résumé',
             audio_import_transcript_label: 'Transcription complète',
@@ -7836,7 +7845,7 @@ Return ONLY the merged prompt, operational and concise, in ${langName}, STRICTLY
         if (trTop) trTop.remove();
         document.getElementById('startBtn').textContent = t('btn_start');
         document.getElementById('transcripteurEcoBtn').style.display = 'none';
-        document.getElementById('transcripteurImportBtn').style.display = 'none';
+        document.getElementById('transcripteurImportInlineBtn').style.display = 'none';
 
         setActiveId(id);
         notifyWidget(id);
@@ -7916,7 +7925,7 @@ Return ONLY the merged prompt, operational and concise, in ${langName}, STRICTLY
         const ecoBtn = document.getElementById('transcripteurEcoBtn');
         ecoBtn.style.display = 'inline-flex';
         updateTranscripteurEcoBtn();
-        document.getElementById('transcripteurImportBtn').style.display = 'inline-flex';
+        document.getElementById('transcripteurImportInlineBtn').style.display = 'inline-flex';
 
         // Créer le layout horizontal : fiche à gauche, visualiseur à droite
         let trTop = document.getElementById('transcripteurTop');
@@ -7965,6 +7974,8 @@ Return ONLY the merged prompt, operational and concise, in ${langName}, STRICTLY
         updateTranscripteurEcoBtn();
     });
 
+    document.getElementById('transcripteurImportInlineBtn').addEventListener('click', startAudioImport);
+
     function showEmptyState() {
         // Restaurer le canvas utilisateur si déplacé par le transcripteur
         restoreTranscripteurLayout();
@@ -7974,7 +7985,7 @@ Return ONLY the merged prompt, operational and concise, in ${langName}, STRICTLY
         if (trTop) trTop.remove();
         document.getElementById('startBtn').textContent = t('btn_start');
         document.getElementById('transcripteurEcoBtn').style.display = 'none';
-        document.getElementById('transcripteurImportBtn').style.display = 'none';
+        document.getElementById('transcripteurImportInlineBtn').style.display = 'none';
 
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('conversationArea').style.display = 'none';
@@ -8131,6 +8142,17 @@ Return ONLY the merged prompt, operational and concise, in ${langName}, STRICTLY
         `;
         trCard.addEventListener('click', () => selectTranscripteur());
         grid.appendChild(trCard);
+
+        // Carte Importer un audio (transcription + résumé d'un fichier)
+        const audioCard = document.createElement('div');
+        audioCard.className = 'welcome-card welcome-card-new';
+        audioCard.innerHTML = `
+            <div class="welcome-card-new-icon"><span class="icon">&#128229;</span></div>
+            <div class="welcome-card-name" data-i18n="audio_import_card">${t('audio_import_card')}</div>
+            <div class="welcome-card-desc" data-i18n="audio_import_card_desc">${t('audio_import_card_desc')}</div>
+        `;
+        audioCard.addEventListener('click', () => startAudioImport());
+        grid.appendChild(audioCard);
     }
 
     // ════════════════════════════════════════════════
@@ -10361,9 +10383,10 @@ STRICT rules:
     //  IMPORTER UN AUDIO — transcription Groq Whisper + résumé chatCompletion
     // ════════════════════════════════════════════════
 
-    document.getElementById('transcripteurImportBtn').addEventListener('click', () => {
+    // Déclenché par la carte "Importer un audio" de l'accueil.
+    function startAudioImport() {
         document.getElementById('audioImportInput').click();
-    });
+    }
 
     function getAudioFileDuration(file) {
         return new Promise((resolve, reject) => {
@@ -11235,8 +11258,8 @@ STRICT rules:
                     return;
                 }
             }
-            document.getElementById('transcripteurEcoBtn').style.display = 'none';
-        document.getElementById('transcripteurImportBtn').style.display = 'none'; // figé pendant la session
+            document.getElementById('transcripteurEcoBtn').style.display = 'none'; // figé pendant la session
+            document.getElementById('transcripteurImportInlineBtn').style.display = 'none';
         } else {
             // Mode persona normal
             const persona = getPersonas().find(p => p.id === getActiveId());
